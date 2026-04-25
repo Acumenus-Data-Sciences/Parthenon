@@ -1557,9 +1557,31 @@ exit "$rc"
 fn validate_contract_action(action: &str) -> Result<(), String> {
     match action {
         "defaults" | "validate" | "plan" | "preflight" | "data-check" | "bundle-manifest"
-        | "health" | "service-status" => Ok(()),
+        | "health" | "service-status" | "credentials" | "open-app" => Ok(()),
         _ => Err(format!("Unsupported installer contract action: {action}")),
     }
+}
+
+#[tauri::command]
+fn credentials_check() -> Result<serde_json::Value, String> {
+    let request = current_install_request_or_default();
+    // credentials action bypasses --contract-redact via NON_REDACTABLE_ACTIONS,
+    // so passing redact=true is safe and keeps everything else (config, etc.) redacted.
+    let payload = contract_payload_with_overrides(&request, "credentials", true, None)?;
+    serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))
+}
+
+#[tauri::command]
+fn open_app_url() -> Result<String, String> {
+    let request = current_install_request_or_default();
+    let payload = contract_payload_with_overrides(&request, "open-app", true, None)?;
+    let parsed: serde_json::Value =
+        serde_json::from_str(&payload).map_err(|e| format!("parse error: {e}"))?;
+    parsed
+        .get("url")
+        .and_then(|v| v.as_str())
+        .map(str::to_string)
+        .ok_or_else(|| "open-app payload missing 'url' field".to_string())
 }
 
 fn build_seed(request: &InstallRequest) -> serde_json::Value {
@@ -2016,7 +2038,9 @@ fn main() {
             health_check,
             service_status_check,
             cancel_install,
-            check_for_updates
+            check_for_updates,
+            credentials_check,
+            open_app_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");

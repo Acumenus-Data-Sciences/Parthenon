@@ -153,7 +153,10 @@ async function pollHealth() {
     if (result.ready) {
       ["nginx", "php", "postgres", "health", "frontend"].forEach((name) => setVerifyRow(name, true));
       setStatus("Parthenon is ready", "success");
-      setTimeout(() => setStep("done"), 1000);
+      setTimeout(() => {
+        setStep("done");
+        runDone();
+      }, 1000);
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, VERIFY_INTERVAL_MS));
@@ -181,6 +184,13 @@ const state = {
   preflightRan: false,
   running: false,
   platform: "",
+};
+
+const doneState = {
+  realPassword: null,
+  appUrl: null,
+  revealTimer: null,
+  revealCountdownTimer: null,
 };
 
 function setStatus(message, kind = "info") {
@@ -615,6 +625,173 @@ document.querySelector("#cancel-btn")?.addEventListener("click", async () => {
     setStatus(message, "info");
   } catch (err) {
     setStatus(String(err), "error");
+  }
+});
+
+// ── Phase 4: Done-page wiring ─────────────────────────────────────────
+
+async function runDone() {
+  const panel = document.querySelector("#done-panel");
+  if (panel) panel.hidden = false;
+
+  // Fetch credentials
+  try {
+    const creds = await invoke("credentials_check", {});
+    if (creds && creds.admin_email) {
+      const emailEl = document.querySelector("#done-email");
+      if (emailEl) emailEl.textContent = creds.admin_email;
+    }
+    if (creds && creds.admin_password) {
+      doneState.realPassword = creds.admin_password;
+    } else if (creds && creds.error) {
+      const passwordEl = document.querySelector("#done-password");
+      if (passwordEl) passwordEl.textContent = creds.error;
+    }
+  } catch (err) {
+    setStatus(`Could not read credentials: ${err}`, "error");
+  }
+
+  // Resolve canonical URL
+  try {
+    const url = await invoke("open_app_url", {});
+    if (url) {
+      doneState.appUrl = url;
+      const urlEl = document.querySelector("#done-url");
+      if (urlEl) urlEl.textContent = url;
+    }
+  } catch (err) {
+    // Fall back to default; the Open button will use whatever's in #done-url
+  }
+
+  // Final readiness check then enable Open button
+  try {
+    const health = await invoke("health_check", { attempt: 1 });
+    const openBtn = document.querySelector("#open-parthenon-btn");
+    if (openBtn) openBtn.disabled = !health.ready;
+  } catch (err) {
+    // Leave button disabled
+  }
+
+  // Kick off other Done-page widgets (Tasks 4-5)
+  if (typeof startServiceStatusPolling === "function") startServiceStatusPolling();
+  if (typeof checkRuntimeImage === "function") checkRuntimeImage();
+  if (typeof checkForUpdatesBanner === "function") checkForUpdatesBanner();
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (err) {
+    // Fall through to fallback
+  }
+  // Fallback: hidden textarea + execCommand
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest(".copy-btn");
+  if (!btn) return;
+  const targetId = btn.dataset.copyTarget;
+  const useReal = btn.dataset.copySource === "real";
+  let text = "";
+  if (useReal && targetId === "done-password" && doneState.realPassword) {
+    text = doneState.realPassword;
+  } else {
+    const target = document.querySelector(`#${targetId}`);
+    text = target ? target.textContent : "";
+  }
+  if (!text) return;
+  const ok = await copyToClipboard(text);
+  if (ok) {
+    btn.classList.add("copied");
+    btn.textContent = "✓";
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.textContent = "⎘";
+    }, 1500);
+  }
+});
+
+document.querySelector("#reveal-password-btn")?.addEventListener("click", () => {
+  const passwordEl = document.querySelector("#done-password");
+  const hintEl = document.querySelector("#reveal-hint");
+  const countdownEl = document.querySelector("#reveal-countdown");
+  if (!passwordEl || !doneState.realPassword) return;
+
+  // Clear any existing timers
+  if (doneState.revealTimer) clearTimeout(doneState.revealTimer);
+  if (doneState.revealCountdownTimer) clearInterval(doneState.revealCountdownTimer);
+
+  passwordEl.textContent = doneState.realPassword;
+  passwordEl.classList.remove("masked");
+  if (hintEl) hintEl.hidden = false;
+
+  let remaining = 30;
+  if (countdownEl) countdownEl.textContent = String(remaining);
+
+  doneState.revealCountdownTimer = setInterval(() => {
+    remaining -= 1;
+    if (countdownEl) countdownEl.textContent = String(Math.max(remaining, 0));
+  }, 1000);
+
+  doneState.revealTimer = setTimeout(() => {
+    passwordEl.textContent = "••••••••••••";
+    passwordEl.classList.add("masked");
+    if (hintEl) hintEl.hidden = true;
+    if (doneState.revealCountdownTimer) clearInterval(doneState.revealCountdownTimer);
+    doneState.revealTimer = null;
+    doneState.revealCountdownTimer = null;
+  }, 30000);
+});
+
+document.querySelector("#open-parthenon-btn")?.addEventListener("click", async () => {
+  const url = doneState.appUrl || document.querySelector("#done-url")?.textContent;
+  if (!url) {
+    setStatus("No app URL configured", "error");
+    return;
+  }
+  try {
+    const shell = window.__TAURI__?.shell;
+    if (shell?.open) {
+      await shell.open(url);
+    } else {
+      // Fallback: open in webview's parent — won't work in pure Tauri but acceptable degradation
+      window.open(url, "_blank");
+    }
+    setStatus(`Opened ${url} in your browser. Sign in with the email and password above.`, "success");
+  } catch (err) {
+    setStatus(`Could not open browser: ${err}`, "error");
+  }
+});
+
+document.querySelector("#telemetry-docs-link")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/no-telemetry.mdx");
+  }
+});
+
+document.querySelector("#feedback-link")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/discussions");
   }
 });
 
