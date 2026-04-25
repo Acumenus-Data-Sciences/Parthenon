@@ -976,3 +976,77 @@ button:disabled {
   color: #94a3b8;
   margin: 6px 0 0 0;
 }
+.intro-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #181820;
+  border: 1px solid #2a2a35;
+  color: #94a3b8;
+  cursor: help;
+}
+.trust-pill.signed {
+  border-color: #2DD4BF;
+  color: #2DD4BF;
+}
+.trust-pill.unsigned {
+  border-color: #C9A227;
+  color: #C9A227;
+}
+.trust-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #181820;
+  border: 1px solid #2a2a35;
+  border-left: 3px solid #2DD4BF;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+.trust-banner-icon {
+  font-size: 18px;
+  margin-top: 2px;
+}
+.trust-banner-content {
+  flex: 1;
+  line-height: 1.5;
+}
+.trust-banner-content strong {
+  display: block;
+  color: #fafafa;
+  margin-bottom: 4px;
+}
+.trust-banner-content a {
+  color: #2DD4BF;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+.trust-banner-dismiss {
+  background: transparent;
+  border: 0;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.trust-banner-dismiss:hover {
+  color: #fafafa;
+}
+.trust-banner-mac {
+  border-left-color: #2DD4BF;
+}
+.trust-banner-win {
+  border-left-color: #C9A227;
+}

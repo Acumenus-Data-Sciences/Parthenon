@@ -8,9 +8,35 @@
   </head>
   <body>
     <main class="app-shell">
+      <aside id="gatekeeper-banner" class="trust-banner trust-banner-mac" hidden>
+        <span class="trust-banner-icon">🛡</span>
+        <div class="trust-banner-content">
+          <strong>This app is signed by Acumenus Data Sciences and notarized by Apple.</strong>
+          If macOS ever shows "cannot be opened because the developer cannot be verified", control-click the .app and choose Open.
+          <a href="#" id="gatekeeper-docs">Learn more</a>
+        </div>
+        <button id="gatekeeper-dismiss" type="button" class="trust-banner-dismiss" title="Don't show again">×</button>
+      </aside>
+
+      <aside id="smartscreen-banner" class="trust-banner trust-banner-win" hidden>
+        <span class="trust-banner-icon">🛡</span>
+        <div class="trust-banner-content">
+          <strong>This installer is Authenticode-signed via Azure Trusted Signing.</strong>
+          Until our SmartScreen reputation accrues, Windows may show "Microsoft Defender SmartScreen prevented...". Click "More info" → "Run anyway".
+          <a href="#" id="smartscreen-docs">Learn more</a>
+        </div>
+        <button id="smartscreen-dismiss" type="button" class="trust-banner-dismiss" title="Don't show again">×</button>
+      </aside>
+
       <section class="workspace">
         <div class="intro">
-          <p class="eyebrow">Community Edition</p>
+          <div class="intro-row">
+            <p class="eyebrow">Community Edition</p>
+            <span id="trust-pill" class="trust-pill" hidden title="Loading signing info…">
+              <span id="trust-pill-icon">·</span>
+              <span id="trust-pill-text">Checking signature…</span>
+            </span>
+          </div>
           <h1>Install Parthenon</h1>
           <p>Set the admin account, check the machine, then start the Community installer. The app handles the installer details for you.</p>
         </div>

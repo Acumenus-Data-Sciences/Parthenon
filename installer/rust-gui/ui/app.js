@@ -521,6 +521,9 @@ async function boot() {
     checkForUpdatesBanner();
   }
 
+  // Trust indicator + first-launch banners (non-blocking, best-effort)
+  setupTrustIndicators();
+
   if (tauriEvent) {
     await tauriEvent.listen("install-log", (event) => {
       appendLog(event.payload.message, event.payload.stream);
@@ -1213,6 +1216,84 @@ document.querySelector("#updater-download-btn")?.addEventListener("click", async
       downloadBtn.disabled = false;
       downloadBtn.textContent = "Download & install";
     }
+  }
+});
+
+async function setupTrustIndicators() {
+  // Trust pill in header
+  let info;
+  try {
+    info = await invoke("signing_info", {});
+  } catch (err) {
+    return; // Silent — non-essential
+  }
+
+  const pill = document.querySelector("#trust-pill");
+  const pillIcon = document.querySelector("#trust-pill-icon");
+  const pillText = document.querySelector("#trust-pill-text");
+  if (pill && pillIcon && pillText) {
+    pill.hidden = false;
+    if (info.signed && info.signer) {
+      pill.classList.add("signed");
+      pill.classList.remove("unsigned");
+      pillIcon.textContent = "✓";
+      pillText.textContent = `Signed: ${info.signer.split(",")[0].replace(/^CN=/, "")}`;
+      pill.title = info.detail || "Verified signature";
+    } else if (info.platform === "linux") {
+      pill.classList.remove("signed", "unsigned");
+      pillIcon.textContent = "·";
+      pillText.textContent = "Linux: verify via SIGNING-KEY.asc";
+      pill.title = info.detail || "See docs/install/verifying-signatures";
+    } else {
+      pill.classList.add("unsigned");
+      pill.classList.remove("signed");
+      pillIcon.textContent = "?";
+      pillText.textContent = "Signature not detected";
+      pill.title = info.error || info.detail || "No signature found on this binary";
+    }
+  }
+
+  // First-launch banners — show once per platform unless dismissed
+  const dismissedKey = "parthenon_trust_banner_dismissed";
+  const dismissed = JSON.parse(localStorage.getItem(dismissedKey) || "{}");
+
+  if (info.platform === "macos" && !dismissed.gatekeeper) {
+    const banner = document.querySelector("#gatekeeper-banner");
+    if (banner) banner.hidden = false;
+  }
+  if (info.platform === "windows" && !dismissed.smartscreen) {
+    const banner = document.querySelector("#smartscreen-banner");
+    if (banner) banner.hidden = false;
+  }
+}
+
+function dismissBanner(bannerId, key) {
+  const banner = document.querySelector(`#${bannerId}`);
+  if (banner) banner.hidden = true;
+  const dismissedKey = "parthenon_trust_banner_dismissed";
+  const dismissed = JSON.parse(localStorage.getItem(dismissedKey) || "{}");
+  dismissed[key] = true;
+  localStorage.setItem(dismissedKey, JSON.stringify(dismissed));
+}
+
+document.querySelector("#gatekeeper-dismiss")?.addEventListener("click", () => {
+  dismissBanner("gatekeeper-banner", "gatekeeper");
+});
+document.querySelector("#smartscreen-dismiss")?.addEventListener("click", () => {
+  dismissBanner("smartscreen-banner", "smartscreen");
+});
+document.querySelector("#gatekeeper-docs")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
+  }
+});
+document.querySelector("#smartscreen-docs")?.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const shell = window.__TAURI__?.shell;
+  if (shell?.open) {
+    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
   }
 });
 
