@@ -2539,6 +2539,7 @@ fn main() {
             reset_install,
             remediation::elevation_status,
             remediation::run_remediation,
+            remediation::run_server_mode_setup,
             installer_state::get_installer_state,
             installer_state::clear_installer_pending_reboot
         ])

@@ -32,6 +32,27 @@ Subcommands:
       [A-Za-z0-9_-]. The user must log out and back in to pick up the new
       group; the helper cannot do that for them.
 
+  caddy-install-debian
+      Install Caddy from Cloudsmith's official upstream apt repo (Debian /
+      Ubuntu). Distro repos lag months behind and miss security fixes.
+
+  caddy-install-rhel
+      Install Caddy from the @caddy/caddy COPR repo (Fedora / RHEL).
+
+  caddy-write-config <source-caddyfile-path>
+      Read the Caddyfile from <source-caddyfile-path>, validate it via
+      `caddy validate`, then install to /etc/caddy/Caddyfile. Refuses to
+      overwrite if the body doesn't parse — prevents leaving Caddy in a
+      broken state. Source must be a regular file (not a symlink).
+
+  caddy-reload
+      systemctl reload caddy (graceful, no dropped connections), then
+      systemctl enable caddy.
+
+  ufw-allow-port <port> [tcp|udp]
+      ufw allow <port>/<proto>. Defaults to tcp. Validates port is 1-65535
+      integer + protocol is tcp or udp. Used in server mode to open 80/443.
+
   --help
       Show this help.
 
@@ -112,6 +133,111 @@ case "$SUBCOMMAND" in
         getent group docker >/dev/null || groupadd docker
         usermod -aG docker "$TARGET_USER"
         echo "Added $TARGET_USER to docker group. Log out and back in (or run 'newgrp docker') to pick it up."
+        ;;
+
+    caddy-install-debian)
+        # Cloudsmith repo is Caddy upstream's official Debian/Ubuntu apt
+        # source. Distro repos lag months behind and miss security fixes.
+        [ "$#" -ne 0 ] && { echo "caddy-install-debian takes no arguments" >&2; usage; }
+        if command -v caddy >/dev/null 2>&1; then
+            echo "Caddy already installed: $(caddy version)"
+            exit 0
+        fi
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl gpg
+        # The keyring file is the canonical "trust this repo" anchor — write
+        # it under /usr/share/keyrings rather than /etc/apt/trusted.gpg.d so
+        # apt scopes its trust to this specific repo, not all of apt.
+        curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key \
+            | gpg --dearmor --batch --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+        cat > /etc/apt/sources.list.d/caddy-stable.list <<'EOF'
+deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+deb-src [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+EOF
+        apt-get update -qq
+        apt-get install -y caddy
+        echo "Installed Caddy: $(caddy version)"
+        ;;
+
+    caddy-install-rhel)
+        [ "$#" -ne 0 ] && { echo "caddy-install-rhel takes no arguments" >&2; usage; }
+        if command -v caddy >/dev/null 2>&1; then
+            echo "Caddy already installed: $(caddy version)"
+            exit 0
+        fi
+        # Cloudsmith ships a yum repo too. The .repo file installs both repo
+        # config and the GPG key.
+        dnf install -y 'dnf-command(copr)'
+        dnf copr enable -y @caddy/caddy
+        dnf install -y caddy
+        echo "Installed Caddy: $(caddy version)"
+        ;;
+
+    caddy-write-config)
+        # Read a Caddyfile from the given source path (typically a temp file
+        # the GUI just wrote), validate it via `caddy validate`, then install
+        # to /etc/caddy/Caddyfile.
+        #
+        # We accept a path rather than reading stdin because pkexec stdin
+        # plumbing has subtle gotchas (Rust's Command needs explicit pipe
+        # setup, polkit can disconnect TTY). A temp file is straightforward.
+        # The source path must exist and be a regular file, not a symlink
+        # (defends against attacker pre-creating /tmp/something pointing at
+        # a system file we'd then read+install as Caddyfile).
+        [ "$#" -ne 1 ] && { echo "caddy-write-config expects: <source-caddyfile-path>" >&2; usage; }
+        SOURCE="$1"
+        if ! command -v caddy >/dev/null 2>&1; then
+            echo "Caddy is not installed — run caddy-install-debian or caddy-install-rhel first" >&2
+            exit 65
+        fi
+        if [ ! -f "$SOURCE" ] || [ -L "$SOURCE" ]; then
+            echo "source path is not a regular file (or is a symlink): $SOURCE" >&2
+            exit 65
+        fi
+        mkdir -p /etc/caddy
+        if ! caddy validate --config "$SOURCE" --adapter caddyfile; then
+            echo "Caddyfile failed validation — not replacing /etc/caddy/Caddyfile" >&2
+            exit 65
+        fi
+        cp "$SOURCE" /etc/caddy/Caddyfile.new
+        chown root:root /etc/caddy/Caddyfile.new
+        chmod 644 /etc/caddy/Caddyfile.new
+        mv /etc/caddy/Caddyfile.new /etc/caddy/Caddyfile
+        echo "Wrote /etc/caddy/Caddyfile"
+        ;;
+
+    caddy-reload)
+        [ "$#" -ne 0 ] && { echo "caddy-reload takes no arguments" >&2; usage; }
+        # `systemctl reload` on the Caddy unit triggers a graceful config
+        # reload — connections in flight are not dropped. ACME runs continue
+        # in the background.
+        systemctl reload caddy 2>/dev/null || systemctl restart caddy
+        systemctl enable caddy
+        echo "Caddy reloaded"
+        ;;
+
+    ufw-allow-port)
+        # Open a TCP port via UFW. Validates port + protocol strictly because
+        # this writes a firewall rule.
+        [ "$#" -lt 1 ] || [ "$#" -gt 2 ] && { echo "ufw-allow-port expects: <port> [tcp|udp]" >&2; usage; }
+        PORT="$1"
+        PROTO="${2:-tcp}"
+        case "$PORT" in
+            ''|*[!0-9]*) echo "invalid port: $PORT" >&2; exit 65 ;;
+        esac
+        if [ "$PORT" -lt 1 ] || [ "$PORT" -gt 65535 ]; then
+            echo "port out of range: $PORT" >&2; exit 65
+        fi
+        case "$PROTO" in
+            tcp|udp) ;;
+            *) echo "invalid protocol: $PROTO (must be tcp or udp)" >&2; exit 65 ;;
+        esac
+        if ! command -v ufw >/dev/null 2>&1; then
+            echo "ufw is not installed — install it manually with apt or skip firewall config" >&2
+            exit 65
+        fi
+        ufw allow "${PORT}/${PROTO}"
+        echo "Opened ${PORT}/${PROTO}"
         ;;
 
     *)
