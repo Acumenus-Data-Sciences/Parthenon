@@ -1,0 +1,121 @@
+#!/bin/sh
+# parthenon-installer-helper — privileged actions invoked via pkexec.
+#
+# Runs as root (granted by /usr/share/polkit-1/actions/io.acumenus.parthenon.
+# installer.policy). All subcommands validate their arguments strictly.
+#
+# This is the trusted boundary: bugs here are local privilege escalations.
+# Keep the surface small. New subcommands should validate every argument
+# against an explicit allowlist or regex, never interpolate user input
+# directly into a shell command.
+
+set -eu
+
+usage() {
+    cat >&2 <<'USAGE'
+Usage: parthenon-installer-helper <subcommand> [args...]
+
+Subcommands:
+  docker-install-debian
+      Install docker.io + docker-compose-v2 from the distro apt repo.
+      No third-party repos, no GPG keys to trust.
+
+  docker-install-rhel
+      Install docker-ce + docker-compose-plugin from Docker, Inc.'s official
+      yum repo. (The Fedora/RHEL "docker" package is deprecated → podman.)
+
+  docker-start
+      systemctl start docker && systemctl enable docker
+
+  docker-add-user-to-group <username>
+      usermod -aG docker <username>. <username> must exist and contain only
+      [A-Za-z0-9_-]. The user must log out and back in to pick up the new
+      group; the helper cannot do that for them.
+
+  --help
+      Show this help.
+
+Exit codes:
+  0    success
+  64   usage error (missing/extra args, unknown subcommand)
+  65   data error (invalid argument value)
+  70   internal error (command failed unexpectedly)
+USAGE
+    exit 64
+}
+
+[ "$#" -lt 1 ] && usage
+SUBCOMMAND="$1"
+shift || true
+
+case "$SUBCOMMAND" in
+    --help|-h|help)
+        usage
+        ;;
+
+    docker-install-debian)
+        [ "$#" -ne 0 ] && { echo "docker-install-debian takes no arguments" >&2; usage; }
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        # docker-compose-v2 is in Ubuntu 24.04 / Debian 13 main repos. Older
+        # distros may only have the legacy `docker-compose` (v1). If v2 isn't
+        # available, fall back to the standalone Docker compose plugin from
+        # the Docker, Inc. apt repo isn't installed automatically — degrade
+        # gracefully and let the GUI guide the user.
+        if apt-get install -y docker.io docker-compose-v2 2>/dev/null; then
+            echo "Installed docker.io + docker-compose-v2"
+        else
+            apt-get install -y docker.io
+            echo "Installed docker.io (docker-compose-v2 not in this distro's repo)"
+        fi
+        ;;
+
+    docker-install-rhel)
+        [ "$#" -ne 0 ] && { echo "docker-install-rhel takes no arguments" >&2; usage; }
+        if [ ! -f /etc/yum.repos.d/docker-ce.repo ]; then
+            dnf -y install dnf-plugins-core
+            dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+        fi
+        dnf install -y docker-ce docker-ce-cli containerd.io \
+            docker-buildx-plugin docker-compose-plugin
+        ;;
+
+    docker-start)
+        [ "$#" -ne 0 ] && { echo "docker-start takes no arguments" >&2; usage; }
+        systemctl start docker
+        systemctl enable docker
+        echo "Docker daemon started and enabled at boot"
+        ;;
+
+    docker-add-user-to-group)
+        [ "$#" -ne 1 ] && { echo "docker-add-user-to-group expects exactly one argument: username" >&2; usage; }
+        TARGET_USER="$1"
+        # Username must contain only safe characters. usermod is generally
+        # safe with arbitrary strings, but we want to fail early with a clear
+        # error rather than let usermod produce a confusing one.
+        case "$TARGET_USER" in
+            *[!a-zA-Z0-9_-]*)
+                echo "invalid username (must match [A-Za-z0-9_-]): $TARGET_USER" >&2
+                exit 65
+                ;;
+            "")
+                echo "username is empty" >&2
+                exit 65
+                ;;
+        esac
+        if ! id "$TARGET_USER" >/dev/null 2>&1; then
+            echo "user does not exist: $TARGET_USER" >&2
+            exit 65
+        fi
+        # Create the docker group if missing (some installs don't create it
+        # until the daemon first starts).
+        getent group docker >/dev/null || groupadd docker
+        usermod -aG docker "$TARGET_USER"
+        echo "Added $TARGET_USER to docker group. Log out and back in (or run 'newgrp docker') to pick it up."
+        ;;
+
+    *)
+        echo "unknown subcommand: $SUBCOMMAND" >&2
+        usage
+        ;;
+esac

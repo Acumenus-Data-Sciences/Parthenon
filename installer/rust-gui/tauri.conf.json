@@ -34,7 +34,21 @@
     "targets": "all",
     "category": "DeveloperTool",
     "shortDescription": "Install Parthenon Community",
-    "longDescription": "A cross-platform Rust GUI for launching the Python-based Parthenon Community installer."
+    "longDescription": "A cross-platform Rust GUI for launching the Python-based Parthenon Community installer.",
+    "linux": {
+      "deb": {
+        "files": {
+          "/usr/share/polkit-1/actions/io.acumenus.parthenon.installer.policy": "polkit/io.acumenus.parthenon.installer.policy",
+          "/usr/libexec/parthenon-installer-helper": "helper/parthenon-installer-helper"
+        }
+      },
+      "rpm": {
+        "files": {
+          "/usr/share/polkit-1/actions/io.acumenus.parthenon.installer.policy": "polkit/io.acumenus.parthenon.installer.policy",
+          "/usr/libexec/parthenon-installer-helper": "helper/parthenon-installer-helper"
+        }
+      }
+    }
   },
   "plugins": {
     "updater": {

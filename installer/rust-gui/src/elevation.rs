@@ -133,6 +133,38 @@ pub fn run_elevated(cmd: &ElevatedCommand) -> Result<Output, ElevationError> {
     )))
 }
 
+/// Linux-only convenience: invoke the privileged helper script shipped in the
+/// .deb / .rpm at /usr/libexec/parthenon-installer-helper. The helper validates
+/// each subcommand's arguments before running them as root.
+///
+/// Use this for any action declared in the polkit policy file
+/// (io.acumenus.parthenon.installer.policy). The polkit auth dialog uses
+/// `auth_admin_keep`, so the user gets one prompt per ~5-minute session for
+/// the entire installer flow.
+#[cfg(target_os = "linux")]
+pub fn run_helper(
+    subcommand: &str,
+    args: &[&str],
+    reason: &str,
+) -> Result<Output, ElevationError> {
+    const HELPER_PATH: &str = "/usr/libexec/parthenon-installer-helper";
+    if !std::path::Path::new(HELPER_PATH).exists() {
+        return Err(ElevationError::NotAvailable(format!(
+            "helper script not installed at {HELPER_PATH} — was the installer .deb installed via apt/dpkg?"
+        )));
+    }
+    let mut argv = Vec::with_capacity(args.len() + 1);
+    argv.push(subcommand.to_string());
+    argv.extend(args.iter().map(|s| s.to_string()));
+    let cmd = ElevatedCommand {
+        command: HELPER_PATH.to_string(),
+        args: argv,
+        reason: reason.to_string(),
+        source: "Parthenon Installer".to_string(),
+    };
+    run_elevated(&cmd)
+}
+
 #[cfg(target_os = "linux")]
 fn run_elevated_linux(cmd: &ElevatedCommand) -> Result<Output, ElevationError> {
     // pkexec wants the full path to the binary as the first arg. PATH is

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<!--
+  Polkit policy for the Parthenon Installer.
+
+  Single action ID maps to /usr/libexec/parthenon-installer-helper.
+  The helper validates each subcommand's arguments before executing.
+
+  auth_admin_keep means: prompt for an admin password the first time, then
+  cache the authorisation for 5 minutes. This gives "one prompt per session
+  for the whole installer flow" UX while still requiring re-auth if the user
+  walks away from their machine for a while.
+-->
+<policyconfig>
+  <vendor>Acumenus Data Sciences</vendor>
+  <vendor_url>https://github.com/sudoshi/Parthenon</vendor_url>
+
+  <action id="io.acumenus.parthenon.installer.run-helper">
+    <description>Configure the system for Parthenon</description>
+    <message>The Parthenon Installer needs administrator access to install or configure Docker, the reverse proxy, and related system services. You will only be asked once per installer session.</message>
+    <icon_name>system-software-install</icon_name>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/parthenon-installer-helper</annotate>
+  </action>
+</policyconfig>
