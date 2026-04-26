@@ -1,4 +1,5 @@
 mod elevation;
+mod installer_state;
 mod remediation;
 
 use flate2::read::GzDecoder;
@@ -2537,7 +2538,9 @@ fn main() {
             try_fix,
             reset_install,
             remediation::elevation_status,
-            remediation::run_remediation
+            remediation::run_remediation,
+            installer_state::get_installer_state,
+            installer_state::clear_installer_pending_reboot
         ])
         .run(tauri::generate_context!())
         .expect("error while running Parthenon installer GUI");

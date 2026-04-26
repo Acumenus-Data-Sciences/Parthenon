@@ -248,7 +248,18 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
         out: std::process::Output,
         reboot_required: bool,
         message: Option<String>,
+        action_id: &str,
+        fixes_check: Option<&str>,
     ) -> RemediationOutcome {
+        // Phase 6c: persist reboot state so the user sees a "did you restart?"
+        // banner on next launch instead of starting over. Failure to write is
+        // non-fatal — we still succeed the action; the user just won't get
+        // the welcome-back banner.
+        if reboot_required {
+            if let Some(msg) = &message {
+                let _ = crate::installer_state::record_pending_reboot(action_id, msg, fixes_check);
+            }
+        }
         RemediationOutcome {
             success: true,
             stdout: String::from_utf8_lossy(&out.stdout).into_owned(),
@@ -289,6 +300,8 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                             .into(),
                     )
                 },
+                "enable-vm-platform",
+                Some("Windows VM Platform feature"),
             ))
         }
         "install-wsl2" => {
@@ -313,6 +326,8 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                      wait for the Ubuntu first-run to finish in the Start menu, then relaunch this installer."
                         .into(),
                 ),
+                "install-wsl2",
+                Some("WSL2 installed"),
             ))
         }
         "install-docker-desktop" => {
@@ -339,6 +354,8 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                      come back here and re-run Check System."
                         .into(),
                 ),
+                "install-docker-desktop",
+                Some("Docker daemon"),
             ))
         }
         "install-rancher-desktop" => {
@@ -359,6 +376,8 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                      its first-run setup, then come back here and re-run Check System."
                         .into(),
                 ),
+                "install-rancher-desktop",
+                Some("Docker daemon"),
             ))
         }
         other => Err(ElevationError::NotAvailable(format!(

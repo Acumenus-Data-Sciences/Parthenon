@@ -287,6 +287,10 @@ const state = {
   // Distro family ("debian-ubuntu" | "rhel-fedora" | "arch" | "other") —
   // detected client-side via /etc/os-release reading or assumed from platform
   distroFamily: "default",
+  // Phase 6c: persisted across launches via get_installer_state Tauri call.
+  // When pendingReboot is set, we show a "Welcome back, did you restart?"
+  // banner above the preflight UI.
+  pendingReboot: null,
 };
 
 const doneState = {
@@ -401,6 +405,66 @@ function renderReview() {
     reviewRow("Services", services.join(", ")),
     reviewRow("Mode", mode),
   ].filter(Boolean).join("");
+}
+
+// Phase 6c: render the "Welcome back, did you restart?" banner when state
+// shows a pending reboot from a previous session. The banner sits between
+// the page header and the preflight section so the user sees it first.
+function renderPendingRebootBanner() {
+  if (!state.pendingReboot) {
+    const existing = document.querySelector("#pending-reboot-banner");
+    if (existing) existing.remove();
+    return;
+  }
+  let banner = document.querySelector("#pending-reboot-banner");
+  if (!banner) {
+    banner = document.createElement("aside");
+    banner.id = "pending-reboot-banner";
+    banner.className = "pending-reboot-banner";
+    // Insert above the preflight section
+    const target = preflightEl.parentElement || document.body;
+    target.insertBefore(banner, target.firstChild);
+  }
+  const minsAgo = Math.max(
+    1,
+    Math.round((Date.now() / 1000 - (state.pendingReboot.recordedAt || 0)) / 60)
+  );
+  banner.innerHTML = `
+    <div class="pending-reboot-content">
+      <strong>Welcome back · ${escapeHtml(state.pendingReboot.action)}</strong>
+      <span>Started ${minsAgo} min ago</span>
+      <p>${escapeHtml(state.pendingReboot.message || "A previous step asked you to restart.")}</p>
+      <div class="pending-reboot-actions">
+        <button type="button" class="btn-primary" id="pending-reboot-recheck">I restarted — re-check now</button>
+        <button type="button" class="btn-secondary" id="pending-reboot-dismiss">Not yet</button>
+      </div>
+    </div>
+  `;
+  banner.querySelector("#pending-reboot-recheck").addEventListener("click", async () => {
+    // Re-run preflight; if the underlying check is now ok, the banner clears.
+    await runPreflight();
+    await maybeClearPendingReboot();
+  });
+  banner.querySelector("#pending-reboot-dismiss").addEventListener("click", async () => {
+    state.pendingReboot = null;
+    try { await invoke("clear_installer_pending_reboot", {}); } catch (e) {}
+    renderPendingRebootBanner();
+  });
+}
+
+// Called after every preflight run: if the check that was waiting on a
+// reboot now reads "ok", clear the persisted pending state so we don't
+// keep nagging the user.
+async function maybeClearPendingReboot() {
+  if (!state.pendingReboot || !state.pendingReboot.fixesCheckName) return;
+  const fixedCheck = state.checks.find(
+    (c) => c.name === state.pendingReboot.fixesCheckName
+  );
+  if (fixedCheck && fixedCheck.status === "pass") {
+    state.pendingReboot = null;
+    try { await invoke("clear_installer_pending_reboot", {}); } catch (e) {}
+    renderPendingRebootBanner();
+  }
 }
 
 function reviewRow(label, value) {
@@ -893,6 +957,25 @@ async function boot() {
     // via the shell plugin if available; otherwise default.
     state.distroFamily = await detectDistroFamily();
 
+    // Phase 6c: load persisted state. If we asked the user to reboot last
+    // time (e.g. after wsl --install), surface a "Welcome back" banner so
+    // they know where they left off rather than starting from scratch.
+    try {
+      const persisted = await invoke("get_installer_state", {});
+      if (persisted && persisted.pending_reboot) {
+        state.pendingReboot = {
+          action: persisted.pending_reboot.action,
+          recordedAt: persisted.pending_reboot.recorded_at,
+          message: persisted.pending_reboot.message,
+          fixesCheckName: persisted.pending_reboot.fixes_check_name,
+        };
+        renderPendingRebootBanner();
+      }
+    } catch (e) {
+      // get_installer_state isn't a hard dependency — older binaries
+      // without it won't fail bootstrap. Logged but ignored.
+    }
+
     document.querySelector("#repo-path").value = data.repo_path || "";
     document.querySelector("#bundle-url").value = data.bundle_url || "";
     document.querySelector("#bundle-install-dir").value = data.bundle_install_dir || "";
@@ -992,6 +1075,10 @@ async function runPreflight() {
     state.checks = checks;
     state.preflightRan = true;
     renderChecks(checks);
+    // Phase 6c: if a previous session asked the user to reboot for a check
+    // that's now passing, clear the persisted nudge so we don't keep showing
+    // the welcome-back banner.
+    await maybeClearPendingReboot();
     if (hasFailedCheck()) {
       setStatus("Resolve the blocked checks before installing.", "error");
     } else if (checks.some((check) => check.status === "warn")) {

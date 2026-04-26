@@ -1189,3 +1189,58 @@ button:disabled {
 .trust-banner-win {
   border-left-color: #C9A227;
 }
+
+/* Phase 6c: "Welcome back, did you restart?" banner. Sits above the
+   preflight UI when a previous session asked for a reboot. */
+.pending-reboot-banner {
+  background: rgba(45, 212, 191, 0.06);
+  border: 1px solid var(--teal);
+  border-left: 4px solid var(--teal);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 0 0 1.25rem;
+  color: var(--text);
+}
+
+.pending-reboot-content strong {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.pending-reboot-content span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.pending-reboot-content p {
+  margin: 0.6rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.pending-reboot-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pending-reboot-actions .btn-primary {
+  background: var(--teal);
+  color: #0a0a0d;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pending-reboot-actions .btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+}
