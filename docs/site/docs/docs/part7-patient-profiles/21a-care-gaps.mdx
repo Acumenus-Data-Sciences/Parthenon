@@ -1,0 +1,257 @@
+---
+id: 21a-care-gaps
+title: Care Bundles & Care Gaps
+sidebar_label: Care Bundles & Care Gaps
+---
+
+# Care Bundles & Care Gaps
+
+The Care Bundles workbench lets you define measure-based care bundles, materialize population rosters, track compliance over time, and export qualifying cohorts for downstream analysis. Two significant hardening releases shipped on **2026-04-25** that close all known correctness, security, and reliability findings.
+
+---
+
+## Overview
+
+A **Care Bundle** groups one or more quality measures against a defined population. For each measure, the platform:
+
+1. Materializes a roster of qualifying patients from the selected CDM source.
+2. Evaluates each patient against the measure's numerator/denominator logic.
+3. Segments the population into **compliant**, **non-compliant**, and **excluded** buckets.
+4. Tracks trends over successive materialization runs so you can monitor program performance.
+
+Results are available through the Care Bundles UI and via the REST API (`/api/v1/care-bundles/…`).
+
+---
+
+## Key Concepts
+
+| Term | Description |
+|------|-------------|
+| **Bundle** | A named collection of measures applied to a population cohort. |
+| **Measure** | A single quality metric (numerator/denominator) mapped to OMOP concepts. |
+| **Roster** | The full set of patients evaluated for a measure in one materialization run. |
+| **Evaluation** | The per-patient compliance decision for a given run. |
+| **Materialization run** | A versioned snapshot of compliance results; identified by a run ID. |
+| **Intersection** | A cross-bundle view showing patients who appear in multiple bundles or measures. |
+| **Overlap rule** | A configurable policy that resolves how patients counted in more than one bundle are attributed. |
+
+---
+
+## Creating a Bundle
+
+1. Navigate to **Care Gaps** in the left sidebar (Part VII — Patient Profiles & Care Gaps).
+2. Click **New Bundle**.
+3. Enter a bundle name and optional description.
+4. Select the **population cohort** that defines your denominator universe.
+5. Add one or more **measures**. Each measure requires:
+   - A FHIR Measure reference or a manually configured numerator/denominator concept set.
+   - An optional **overlap rule** (default: count patient in the first matching measure).
+6. Click **Save**.
+
+---
+
+## Adding Measures
+
+Measures can be sourced from:
+
+- **VSAC value sets** — the platform maintains a materialized crosswalk view (`app.vsac_value_set_omop_concepts`) that joins VSAC value set OIDs to OMOP standard concepts.
+- **Manual concept sets** — built in the Vocabulary Browser and referenced by concept set ID.
+- **FHIR Measure resources** — imported via the FHIR EHR Integration module (Part XII).
+
+:::tip Vocabulary permissions
+The VSAC–OMOP crosswalk view requires `SELECT` privileges on the `vocab` schema. If you are provisioning a new environment, ensure the database migration `2026_04_24_000050_grant_vocab_select_to_owner.php` has been applied. Fresh installations and CI environments that rebuild from `migrate:fresh` must have this migration in place before the crosswalk view can be created.
+:::
+
+---
+
+## Materializing a Bundle
+
+Materialization computes the current roster and evaluations for all measures in a bundle against a selected CDM source.
+
+1. Open the bundle and click **Materialize**.
+2. Select the **CDM source** to evaluate against.
+3. Click **Run**. The job is queued; progress is visible in the **Runs** tab.
+
+You can also trigger materialization for all bundles simultaneously using the **Materialize All** action available to administrators.
+
+### Materialization reliability
+
+As of the 2026-04-25 hardening release, materialization is fully crash-safe:
+
+- **Roster promotion** — the pointer in `care_bundle_current_runs` is updated only *after* the run's status is set to `completed`. A crash during materialization leaves the previous completed run visible; it never exposes a `running`-status run to read queries.
+- **Cohort export atomicity** — the delete-then-insert sequence that writes roster members to the results cohort is now wrapped in a single database transaction. A crash cannot leave the cohort partially replaced.
+- **Memory-safe chunking** — large non-compliant buckets (e.g. 2 M-patient CDMs) are streamed in configurable chunks rather than materialized into PHP heap, preventing out-of-memory failures on wide populations.
+
+---
+
+## Viewing Results
+
+### Compliance summary
+
+The **Bundle** detail page shows, for each measure:
+
+- Denominator count
+- Numerator (compliant) count
+- Compliance rate (%)
+- Trend chart across the last N runs
+
+### Stratifications
+
+Use the **Strata** tab to break results down by age band, sex, or any OMOP-mapped demographic dimension available on the selected CDM source.
+
+### Methodology
+
+The **Methodology** tab documents the exact concept set OIDs, OMOP concept IDs, and SQL logic used for each measure evaluation so results are reproducible and auditable.
+
+### Patient-level roster
+
+The **Roster** tab pages through patients in the non-compliant bucket. Each row shows:
+
+- Person ID (de-identified or mapped, depending on your data governance configuration)
+- Inclusion/exclusion criteria met
+- Last evaluation date
+
+Roster data is paginated (default 25 rows per page) and can be exported to a Parthenon cohort for further analysis.
+
+---
+
+## Exporting a Roster to a Cohort
+
+1. On the **Roster** tab, click **Export to Cohort**.
+2. Choose a cohort name and target cohort definition.
+3. Click **Export**.
+
+The export uses a transactional write: the existing cohort members are deleted and the new members are inserted atomically. If the export fails mid-way, the original cohort is preserved intact.
+
+---
+
+## Intersections
+
+The **Intersections** view shows patients who qualify for measures across multiple bundles. Use this to:
+
+- Identify high-risk patients with multiple care gaps.
+- Attribute shared patients according to your configured overlap rules.
+- Export a combined cohort for outreach programs.
+
+To compute an intersection:
+
+1. Navigate to **Intersections** within the Care Bundles module.
+2. Select the bundles to intersect.
+3. Click **Compute Intersection**.
+4. Export to a cohort using **Export Intersection to Cohort**.
+
+---
+
+## Comparisons
+
+The **Comparison** view places two bundles side-by-side, showing measure-level compliance rates for the same CDM source and date range. Use this to compare program performance across different populations or time windows.
+
+---
+
+## Coverage & Population Summary
+
+- **Coverage** — the fraction of your total CDM population that is captured by at least one bundle denominator.
+- **Population Summary** — aggregate counts and compliance rates across all bundles, suitable for executive reporting.
+
+---
+
+## Overlap Rules
+
+When a patient qualifies for the denominator of more than one measure, an **overlap rule** determines how that patient is counted in rollup metrics. Available rules:
+
+| Rule | Behaviour |
+|------|-----------|
+| First-match | Patient is attributed to the first measure in bundle order. |
+| All | Patient is counted in every qualifying measure (denominator counts may sum > population). |
+| Exclude | Patient is excluded from all measures where overlap occurs. |
+
+Overlap rules are configured at the bundle level and can be overridden per measure.
+
+---
+
+## FHIR Measure Integration
+
+Bundles can ingest a FHIR `Measure` resource to drive numerator/denominator logic. After import:
+
+- The platform extracts the FHIR Measure's population criteria and maps them to OMOP concept sets via the VSAC crosswalk.
+- The FHIR Measure is stored and accessible via `GET /api/v1/care-bundles/{bundle}/fhir-measure`.
+
+See [Part XII — FHIR EHR Integration](../part12-fhir/30-fhir-ehr-integration) for FHIR connection configuration.
+
+---
+
+## API Quick Reference
+
+All Care Bundles endpoints are versioned under `/api/v1/care-bundles`. Interactive documentation is available in the **API** section of this manual.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/care-bundles` | List all bundles |
+| `POST` | `/care-bundles` | Create a bundle |
+| `GET` | `/care-bundles/{bundle}` | Get bundle detail |
+| `PUT/PATCH` | `/care-bundles/{bundle}` | Update a bundle |
+| `DELETE` | `/care-bundles/{bundle}` | Delete a bundle |
+| `GET` | `/care-bundles/{bundle}/measures` | List measures in a bundle |
+| `POST` | `/care-bundles/{bundle}/measures` | Add a measure |
+| `DELETE` | `/care-bundles/{bundle}/measures/{measure}` | Remove a measure |
+| `POST` | `/care-bundles/{bundle}/materialize` | Trigger materialization |
+| `POST` | `/care-bundles/materialize-all` | Materialize all bundles |
+| `GET` | `/care-bundles/{bundle}/runs` | List materialization runs |
+| `GET` | `/care-bundles/runs/{run}` | Get run detail |
+| `POST` | `/care-bundles/{bundle}/evaluate` | Trigger evaluation |
+| `GET` | `/care-bundles/{bundle}/evaluations` | List evaluations |
+| `GET` | `/care-bundles/{bundle}/evaluations/{evaluation}` | Get evaluation detail |
+| `GET` | `/care-bundles/{bundle}/measures/{measure}/roster/{sourceId}/bucket/non-compliant/page/{page}` | Page non-compliant roster |
+| `POST` | `/care-bundles/{bundle}/measures/{measure}/roster/to-cohort` | Export roster to cohort |
+| `GET` | `/care-bundles/{bundle}/measures/{measure}/trend/{sourceId}` | Compliance trend data |
+| `GET` | `/care-bundles/{bundle}/measures/{measure}/strata/{sourceId}` | Stratification data |
+| `GET` | `/care-bundles/{bundle}/measures/{measure}/methodology/{sourceId}` | Measure methodology |
+| `GET` | `/care-bundles/{bundle}/qualifications/{sourceId}` | Qualification breakdown |
+| `GET` | `/care-bundles/{bundle}/comparison` | Side-by-side comparison |
+| `GET` | `/care-bundles/{bundle}/fhir-measure` | Retrieve FHIR Measure resource |
+| `GET` | `/care-bundles/sources` | List available CDM sources |
+| `GET` | `/care-bundles/coverage` | Population coverage summary |
+| `GET` | `/care-bundles/population-summary` | Aggregate population stats |
+| `GET` | `/care-bundles/overlap-rules` | List configured overlap rules |
+| `GET` | `/care-bundles/intersections` | List intersections |
+| `POST` | `/care-bundles/intersections` | Compute an intersection |
+| `POST` | `/care-bundles/intersections/to-cohort` | Export intersection to cohort |
+
+---
+
+## Roles & Permissions
+
+| Action | Required Role |
+|--------|---------------|
+| View bundles and results | `care_bundles.view` |
+| Create / edit bundles | `care_bundles.edit` |
+| Materialize bundles | `care_bundles.materialize` |
+| Export rosters to cohorts | `care_bundles.export` |
+| Delete bundles | `care_bundles.delete` |
+| Materialize all (bulk) | `care_bundles.admin` |
+
+Roles are assigned in **Administration → Roles & Permissions** (Part VIII).
+
+---
+
+## Troubleshooting
+
+### Materialization fails with a database permission error
+
+If you see `SQLSTATE[42501]: permission denied for schema vocab` during materialization or on a fresh installation, the vocab schema grant migration has not been applied.
+
+**Resolution:** Run `php artisan migrate` and confirm that migration `2026_04_24_000050_grant_vocab_select_to_owner.php` appears in the applied list. If you are in a CI or test environment that uses `RefreshDatabase`, ensure this migration is committed and present before the VSAC crosswalk view migration.
+
+### Non-compliant roster appears empty after materialization
+
+- Confirm the measure's concept set contains at least one active OMOP standard concept mapped to the target CDM vocabulary.
+- Check the **Methodology** tab to verify numerator/denominator SQL executed without warnings.
+- Review the run log in **Runs** for any partial-failure messages.
+
+### Cohort export overwrites existing members unexpectedly
+
+Cohort export is now atomic (2026-04-25 hardening). If you need to merge rather than replace, export to a new cohort and use the Cohort Management tools (Part III) to union the result.
+
+### Trend data shows a gap for a specific run
+
+If `promoteToCurrent` crashed before the previous release, a run may be in `running` status permanently. Use the API (`GET /care-bundles/runs/{run}`) to inspect the run status and contact your administrator to manually mark the run `failed` so a fresh materialization can proceed.
