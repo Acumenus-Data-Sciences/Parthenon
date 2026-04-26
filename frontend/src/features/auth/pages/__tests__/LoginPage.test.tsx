@@ -183,12 +183,12 @@ describe("LoginPage", () => {
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: /preferred language/i }),
-      "ar",
+      "fr-FR",
     );
 
-    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("ar");
-    expect(document.documentElement.lang).toBe("ar");
-    expect(document.documentElement.dir).toBe("rtl");
+    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("fr-FR");
+    expect(document.documentElement.lang).toBe("fr-FR");
+    expect(document.documentElement.dir).toBe("ltr");
   });
 
   it("keeps the selected login locale after authentication and persists it to the profile", async () => {
@@ -208,7 +208,7 @@ describe("LoginPage", () => {
         },
       },
     });
-    mockedApiClient.put.mockResolvedValueOnce({ data: { locale: "ar" } });
+    mockedApiClient.put.mockResolvedValueOnce({ data: { locale: "fr-FR" } });
 
     renderLoginPage();
     const submitButton = screen.getByRole("button", { name: /sign in/i });
@@ -217,16 +217,16 @@ describe("LoginPage", () => {
     await user.type(screen.getByLabelText(/password/i), "mypassword");
     await user.selectOptions(
       screen.getByRole("combobox", { name: /preferred language/i }),
-      "ar",
+      "fr-FR",
     );
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockedApiClient.put).toHaveBeenCalledWith("/user/locale", {
-        locale: "ar",
+        locale: "fr-FR",
       });
     });
-    expect(useAuthStore.getState().user?.locale).toBe("ar");
+    expect(useAuthStore.getState().user?.locale).toBe("fr-FR");
   });
 
   it("persists auth only for the browser session when remember me is off", async () => {

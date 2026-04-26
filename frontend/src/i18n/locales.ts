@@ -154,7 +154,7 @@ export const SUPPORTED_LOCALES = [
     fallbackLocales: ["ar", "en-US", "en"],
     releaseTier: "rtl-canary",
     enabled: true,
-    selectable: true,
+    selectable: false,
   },
   {
     code: "en-XA",

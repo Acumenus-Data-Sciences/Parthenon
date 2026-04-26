@@ -78,10 +78,9 @@ describe("i18n locale support", () => {
       "zh-Hans",
       "ko-KR",
       "hi-IN",
-      "ar",
     ]);
     expect(getLocaleMetadata("ar")).toMatchObject({
-      selectable: true,
+      selectable: false,
       releaseTier: "rtl-canary",
     });
   });
