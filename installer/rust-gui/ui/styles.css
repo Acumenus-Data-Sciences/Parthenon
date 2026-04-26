@@ -1244,3 +1244,74 @@ button:disabled {
   padding: 0.5rem 1.1rem;
   cursor: pointer;
 }
+
+/* Phase 8b: deployment-mode chooser. Two large radio cards stacked
+   vertically; the selected one gets a teal left-border accent. */
+.deployment-mode-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.deployment-mode-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.deployment-mode-option:hover {
+  border-color: var(--teal);
+}
+
+.deployment-mode-option input[type="radio"] {
+  margin-top: 0.3rem;
+}
+
+.deployment-mode-option:has(input[type="radio"]:checked) {
+  border-left: 4px solid var(--teal);
+  background: rgba(45, 212, 191, 0.04);
+}
+
+.deployment-mode-option strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--text);
+}
+
+.deployment-mode-option span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.server-mode-setup-btn {
+  background: var(--teal);
+  color: #0a0a0d;
+  border: none;
+  border-radius: 4px;
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.server-mode-setup-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.server-mode-status {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}

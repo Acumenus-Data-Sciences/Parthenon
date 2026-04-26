@@ -1793,4 +1793,75 @@ document.querySelector("#smartscreen-docs")?.addEventListener("click", async (ev
   }
 });
 
+// Phase 8b: deployment-mode chooser. Toggling between "Just on this computer"
+// and "Make it reachable from other computers" reveals the FQDN / ACME email /
+// reverse-proxy fields. The "Configure server mode" button calls
+// run_server_mode_setup which orchestrates Caddy install + Caddyfile + UFW
+// in one polkit auth session.
+function wireDeploymentModeToggle() {
+  const single = document.querySelector("#deployment-mode-single");
+  const server = document.querySelector("#deployment-mode-server");
+  const fields = document.querySelector("#server-mode-fields");
+  if (!single || !server || !fields) return;
+  const sync = () => {
+    fields.hidden = !server.checked;
+  };
+  single.addEventListener("change", sync);
+  server.addEventListener("change", sync);
+  sync();
+}
+
+async function runServerModeSetup() {
+  const fqdn = (document.querySelector("#server-fqdn")?.value || "").trim();
+  const email = (document.querySelector("#server-acme-email")?.value || "").trim();
+  const proxy = document.querySelector("#server-proxy")?.value || "caddy";
+  const statusEl = document.querySelector("#server-mode-status");
+  const btn = document.querySelector("#server-mode-setup-btn");
+
+  if (!fqdn) { if (statusEl) statusEl.textContent = "Enter an FQDN first."; return; }
+  if (!email) { if (statusEl) statusEl.textContent = "Enter an ACME email first."; return; }
+  if (state.platform !== "linux") {
+    if (statusEl) statusEl.textContent = "Server mode is currently Linux-only in v0.3.0.";
+    return;
+  }
+
+  const confirmed = await openConfirmModal(
+    "Configure server mode?",
+    `The installer will install Caddy, generate a Caddyfile for ${fqdn}, write it to /etc/caddy/Caddyfile, reload Caddy, and open ports 80/443 in UFW. Caddy will then auto-fetch a Let's Encrypt cert in the background. You'll be asked once for your system password.`
+  );
+  if (!confirmed) return;
+
+  if (btn) btn.disabled = true;
+  if (statusEl) statusEl.textContent = "Installing Caddy + writing Caddyfile + opening firewall…";
+  const overlay = openProgressOverlay(
+    "Configuring server mode…",
+    "Authenticate via the system password dialog. The full sequence (Caddy install, Caddyfile write, reload, UFW) takes 30-60 seconds."
+  );
+  try {
+    const outcome = await invoke("run_server_mode_setup", { fqdn, acmeEmail: email, proxy });
+    closeProgressOverlay(overlay);
+    if (statusEl) statusEl.textContent = `Done. ${outcome.follow_up_message || `Visit https://${fqdn} to confirm.`}`;
+    setStatus("Server mode configured.", "success");
+  } catch (err) {
+    closeProgressOverlay(overlay);
+    const errStr = String(err);
+    if (errStr.includes("UserCancelled") || errStr.toLowerCase().includes("cancel")) {
+      if (statusEl) statusEl.textContent = "Server-mode setup cancelled.";
+      setStatus("Server-mode setup cancelled.", "info");
+    } else {
+      if (statusEl) statusEl.textContent = `Failed: ${errStr}`;
+      setStatus(`Server-mode setup failed: ${errStr}`, "error");
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  wireDeploymentModeToggle();
+  document
+    .querySelector("#server-mode-setup-btn")
+    ?.addEventListener("click", runServerModeSetup);
+});
+
 boot();

@@ -67,6 +67,58 @@
         </div>
 
         <form id="installer-form" class="installer-form">
+          <!-- Phase 8b: deployment-mode chooser. Single machine is the
+               default for personal / dev installs; server mode adds FQDN +
+               ACME email + Caddy reverse-proxy setup. -->
+          <section class="form-section">
+            <div>
+              <h2>How will you use Parthenon?</h2>
+              <p>Single machine for personal / development installs. Server install adds HTTPS + a public hostname.</p>
+            </div>
+            <div class="deployment-mode-choice">
+              <label class="deployment-mode-option">
+                <input type="radio" name="deployment_mode" value="single" id="deployment-mode-single" checked />
+                <div>
+                  <strong>Just on this computer</strong>
+                  <span>Open at http://localhost:8082 from this machine. No DNS, no certs, no firewall changes.</span>
+                </div>
+              </label>
+              <label class="deployment-mode-option">
+                <input type="radio" name="deployment_mode" value="server" id="deployment-mode-server" />
+                <div>
+                  <strong>Make it reachable from other computers</strong>
+                  <span>Server install. The installer will configure Caddy, fetch a Let's Encrypt cert, and open ports 80/443.</span>
+                </div>
+              </label>
+            </div>
+            <div id="server-mode-fields" hidden>
+              <div class="field-grid">
+                <label>
+                  FQDN
+                  <input id="server-fqdn" name="server_fqdn" type="text" placeholder="parthenon.example.org" />
+                  <small>Must already have a DNS A record pointing at this machine's public IP.</small>
+                </label>
+                <label>
+                  ACME email
+                  <input id="server-acme-email" name="server_acme_email" type="email" placeholder="ops@example.org" />
+                  <small>Used by Let's Encrypt for renewal + expiry notifications.</small>
+                </label>
+              </div>
+              <div class="field-grid">
+                <label>
+                  Reverse proxy
+                  <select id="server-proxy">
+                    <option value="caddy">Caddy (recommended — single binary, automatic HTTPS)</option>
+                    <option value="apache">Apache (use my existing install — coming in v0.4.0)</option>
+                    <option value="traefik">Traefik (Acropolis stack — coming in v0.4.0)</option>
+                  </select>
+                </label>
+              </div>
+              <button id="server-mode-setup-btn" type="button" class="server-mode-setup-btn">Configure server mode</button>
+              <small id="server-mode-status" class="server-mode-status"></small>
+            </div>
+          </section>
+
           <section class="form-section">
             <div>
               <h2>Administrator</h2>
