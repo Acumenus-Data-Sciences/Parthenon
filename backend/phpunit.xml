@@ -23,7 +23,11 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array" force="true"/>
         <env name="DB_CONNECTION" value="pgsql_testing" force="true"/>
+        <env name="DB_HOST" value="127.0.0.1" force="true"/>
+        <env name="DB_PORT" value="5432" force="true"/>
         <env name="DB_DATABASE" value="parthenon_testing" force="true"/>
+        <env name="DB_TEST_HOST" value="127.0.0.1" force="true"/>
+        <env name="DB_TEST_PORT" value="5432" force="true"/>
         <env name="DB_TEST_DATABASE" value="parthenon_testing" force="true"/>
         <env name="MORPHEUS_DB_CONNECTION" value="inpatient_testing" force="true"/>
         <env name="FINNGEN_DB_CONNECTION" value="finngen_testing" force="true"/>
