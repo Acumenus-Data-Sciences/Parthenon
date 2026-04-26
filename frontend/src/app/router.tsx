@@ -9,6 +9,10 @@ import { SourcesListPage } from "@/features/data-sources/pages/SourcesListPage";
 import { AnalysisRouteError } from "@/features/analyses/components/AnalysisRouteError";
 import { useAuthStore } from "@/stores/authStore";
 
+function RouterHydrateFallback() {
+  return <div className="min-h-screen bg-background" aria-busy="true" />;
+}
+
 function ProtectedLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -31,6 +35,7 @@ export const router = createBrowserRouter(
   },
   {
     path: "/shared/:token",
+    hydrateFallbackElement: <RouterHydrateFallback />,
     lazy: () =>
       import(
         "@/features/cohort-definitions/pages/SharedCohortPage"
@@ -38,6 +43,7 @@ export const router = createBrowserRouter(
   },
   {
     path: "/survey/:token",
+    hydrateFallbackElement: <RouterHydrateFallback />,
     lazy: () =>
       import(
         "@/features/standard-pros/pages/PublicSurveyPage"
@@ -46,6 +52,7 @@ export const router = createBrowserRouter(
   {
     path: "/",
     element: <ProtectedLayout />,
+    hydrateFallbackElement: <RouterHydrateFallback />,
     children: [
       { index: true, element: <DashboardPage /> },
       {

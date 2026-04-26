@@ -44,6 +44,11 @@ const enSmallWorkbench: MessageTree = {
       recommend: "Recommendations",
       lint: "Cohort Lint",
     },
+    protocol: {
+      study: "Study",
+      loadingStudies: "Loading studies...",
+      noStudies: "No studies",
+    },
     intent: {
       title: "Describe Your Study",
       description:

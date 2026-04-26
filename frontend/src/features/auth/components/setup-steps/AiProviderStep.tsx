@@ -34,7 +34,7 @@ const PROVIDER_META: Record<string, ProviderMeta> = {
   anthropic: {
     regionKey: "setup.aiProvider.regions.us",
     regionColor: "bg-blue-500/10 text-blue-400",
-    models: ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
+    models: ["claude-sonnet-4-6", "claude-opus-4-7", "claude-haiku-4-5-20251001"],
     hasApiKey: true,
     hasBaseUrl: false,
   },

@@ -148,7 +148,7 @@ export default function StudyDesignerPage() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[240px] flex-1">
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-ghost">
-              {t("studies.entities.study", { defaultValue: "Study" })}
+              {t("studyAgent.protocol.study")}
             </label>
             <select
               value={selectedStudy?.slug ?? ""}
@@ -159,8 +159,8 @@ export default function StudyDesignerPage() {
               {studies.length === 0 ? (
                 <option value="">
                   {studiesLoading
-                    ? t("studies.list.loading", { defaultValue: "Loading studies..." })
-                    : t("studies.list.empty.title", { defaultValue: "No studies" })}
+                    ? t("studyAgent.protocol.loadingStudies")
+                    : t("studyAgent.protocol.noStudies")}
                 </option>
               ) : (
                 studies.map((study) => (

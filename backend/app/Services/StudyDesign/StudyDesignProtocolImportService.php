@@ -4,6 +4,7 @@ namespace App\Services\StudyDesign;
 
 use App\Enums\StudyDesignAssetStatus;
 use App\Enums\StudyDesignVerificationStatus;
+use App\Models\App\AiProviderSetting;
 use App\Models\App\Study;
 use App\Models\App\StudyDesignAiEvent;
 use App\Models\App\StudyDesignSession;
@@ -42,8 +43,9 @@ class StudyDesignProtocolImportService
         $metadata['text_length'] = strlen($text);
         $metadata['truncated_for_ai'] = $truncated;
 
-        $model = (string) config('services.anthropic.model', 'claude-sonnet-4-6');
-        $extracted = $this->callClaude($study, $promptText, $metadata, $model);
+        $anthropic = $this->anthropicSettings();
+        $model = $anthropic['model'];
+        $extracted = $this->callClaude($study, $promptText, $metadata, $anthropic['api_key'], $model);
         $intent = $this->toIntent($study, $extracted, $metadata);
         $normalizedSpec = $this->toNormalizedSpec($study, $intent, $extracted, $metadata);
         $status = $this->isReviewReady($intent) ? 'review_ready' : 'draft';
@@ -275,16 +277,45 @@ class StudyDesignProtocolImportService
     }
 
     /**
+     * @return array{api_key: string, model: string}
+     */
+    private function anthropicSettings(): array
+    {
+        $provider = AiProviderSetting::query()
+            ->where('provider_type', 'anthropic')
+            ->where('is_enabled', true)
+            ->orderByDesc('is_active')
+            ->first();
+
+        /** @var array<string, string> $providerSettings */
+        $providerSettings = $provider?->settings ?? [];
+
+        $apiKey = trim((string) ($providerSettings['api_key'] ?? ''));
+        if ($apiKey === '') {
+            $apiKey = trim((string) config('services.anthropic.key'));
+        }
+
+        if ($apiKey === '') {
+            throw new RuntimeException('Anthropic API key is not configured. Add it in System Health > AI Providers.');
+        }
+
+        $model = trim((string) ($provider?->model ?? ''));
+        if ($model === '') {
+            $model = trim((string) config('services.anthropic.model', 'claude-sonnet-4-6'));
+        }
+
+        return [
+            'api_key' => $apiKey,
+            'model' => $model !== '' ? $model : 'claude-sonnet-4-6',
+        ];
+    }
+
+    /**
      * @param  array<string, mixed>  $metadata
      * @return array<string, mixed>
      */
-    private function callClaude(Study $study, string $protocolText, array $metadata, string $model): array
+    private function callClaude(Study $study, string $protocolText, array $metadata, string $apiKey, string $model): array
     {
-        $apiKey = (string) config('services.anthropic.key');
-        if ($apiKey === '') {
-            throw new RuntimeException('Anthropic API key is not configured.');
-        }
-
         $system = <<<'PROMPT'
 You evaluate observational health research protocols for an OHDSI/OMOP Study Designer.
 Return only valid JSON. Do not include markdown fences or commentary.
@@ -347,7 +378,12 @@ PROMPT;
             ]);
 
         if ($response->failed()) {
-            throw new RuntimeException('Anthropic protocol evaluation returned HTTP '.$response->status().'.');
+            $message = $response->json('error.message');
+            if (! is_string($message) || $message === '') {
+                $message = $response->body();
+            }
+
+            throw new RuntimeException('Anthropic protocol evaluation returned HTTP '.$response->status().': '.$message);
         }
 
         $content = $response->json('content.0.text');

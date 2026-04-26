@@ -159,9 +159,7 @@ export async function importStudyDesignProtocol(
   const form = new FormData();
   form.append("protocol", file);
 
-  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`, form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`, form);
   return data.data ?? data;
 }
 
