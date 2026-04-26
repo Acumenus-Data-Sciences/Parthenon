@@ -1,0 +1,14 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    "phase19: Phase 19 Wave 0 RED tests",
+    "ua_county: UA county loader tests",
+    "integration: requires live or mocked Postgres",
+]
+addopts = "-v --tb=short"
+
+[project]
+name = "parthenon-gis-loaders"
+version = "0.1.0"
+requires-python = ">=3.10"
