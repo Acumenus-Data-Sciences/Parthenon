@@ -211,6 +211,25 @@ clear_scribe_cache() {
   fi
 }
 
+php_fpm_reload_required() {
+  if [ "${DEPLOY_FORCE_PHP_FPM_RELOAD:-false}" = "true" ]; then
+    return 0
+  fi
+
+  local opcache_mode
+  opcache_mode="$(docker compose exec -T php php -r 'echo ((int) ini_get("opcache.enable")).":".((int) ini_get("opcache.validate_timestamps"));' 2>/dev/null || true)"
+
+  # PHP is bind-mounted into the container and this deployment currently has
+  # opcache timestamp validation enabled. In that mode, Laravel cache clearing
+  # is enough for normal code/config changes and reloading php-fpm only creates
+  # a user-visible 502 window for in-flight requests.
+  if [ "$opcache_mode" = "1:0" ]; then
+    return 0
+  fi
+
+  return 1
+}
+
 clear_runtime_caches() {
   echo ""
   echo "── Runtime cache reset (all deploy modes) ──"
@@ -233,20 +252,24 @@ clear_runtime_caches() {
       fi
     fi
 
-    # Only reload php-fpm when PHP code or DB changed. Frontend-only deploys
-    # don't need it, and a USR2 reload mid-request kills long-running jobs
-    # (2026-04-12: killed an in-flight propensity-match at 82s → user saw 502).
+    # Only reload php-fpm when the runtime really needs it. Frontend-only
+    # deploys don't need it, and a USR2 reload can reset active FastCGI
+    # requests, producing transient 502s for users already in the app.
     if $DO_PHP || $DO_DB || $DO_OPENAPI; then
-      if docker compose exec -T php kill -USR2 1 2>/dev/null; then
-        ok "php-fpm reloaded (USR2)"
-      else
-        warn "USR2 signal failed — restarting PHP container"
-        if docker compose restart php >/dev/null 2>&1; then
-          ok "PHP container restarted"
+      if php_fpm_reload_required; then
+        if docker compose exec -T php kill -USR2 1 2>/dev/null; then
+          ok "php-fpm reloaded (USR2)"
         else
-          fail "PHP container failed to restart"
-          ERRORS=$((ERRORS + 1))
+          warn "USR2 signal failed — restarting PHP container"
+          if docker compose restart php >/dev/null 2>&1; then
+            ok "PHP container restarted"
+          else
+            fail "PHP container failed to restart"
+            ERRORS=$((ERRORS + 1))
+          fi
         fi
+      else
+        ok "php-fpm reload skipped (opcache validates bind-mounted PHP files)"
       fi
     else
       ok "php-fpm reload skipped (frontend-only deploy)"
