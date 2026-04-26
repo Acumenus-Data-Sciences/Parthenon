@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { HelpButton } from "@/features/help";
 import {
@@ -98,10 +98,15 @@ function humanizeToken(value: string): string {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function tabKeyFromParam(value: string | null): TabKey {
+  return TABS.some((tab) => tab.key === value) ? (value as TabKey) : "overview";
+}
+
 export default function StudyDetailPage() {
   const { t } = useTranslation("app");
   const { id: slugOrId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const studyKey = slugOrId ?? null;
 
   const { data: study, isLoading, error } = useStudy(studyKey);
@@ -131,7 +136,18 @@ export default function StudyDetailPage() {
     artifacts: artifactsData?.length,
   };
 
-  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const activeTab = tabKeyFromParam(searchParams.get("tab"));
+  const setActiveTab = (tab: TabKey) => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (tab === "overview") {
+        next.delete("tab");
+      } else {
+        next.set("tab", tab);
+      }
+      return next;
+    }, { replace: true });
+  };
   const [showTransitions, setShowTransitions] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");

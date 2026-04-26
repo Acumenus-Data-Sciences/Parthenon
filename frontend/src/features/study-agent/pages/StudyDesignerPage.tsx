@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { HelpButton } from "@/features/help";
 import {
   Brain,
@@ -10,8 +11,14 @@ import {
   ChevronRight,
   Loader2,
   Target,
+  Upload,
   Users,
 } from "lucide-react";
+import {
+  useAllStudies,
+  useCreateStudyDesignSession,
+  useImportStudyDesignProtocol,
+} from "@/features/studies/hooks/useStudies";
 import {
   searchPhenotypes,
   recommendPhenotypes,
@@ -24,11 +31,22 @@ import {
 
 export default function StudyDesignerPage() {
   const { t } = useTranslation("app");
+  const navigate = useNavigate();
+  const protocolInputRef = useRef<HTMLInputElement | null>(null);
   const [studyIntent, setStudyIntent] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStudySlug, setSelectedStudySlug] = useState("");
   const [activeTab, setActiveTab] = useState<
     "intent" | "search" | "recommend" | "lint"
   >("intent");
+  const { data: studiesData, isLoading: studiesLoading } = useAllStudies();
+  const studies = studiesData?.data ?? [];
+  const selectedStudy =
+    studies.find((study) => study.slug === selectedStudySlug) ?? studies[0] ?? null;
+  const createDesignSession = useCreateStudyDesignSession();
+  const importProtocol = useImportStudyDesignProtocol();
+  const protocolBusy = createDesignSession.isPending || importProtocol.isPending;
+  const protocolError = mutationError(createDesignSession.error) || mutationError(importProtocol.error);
 
   // Intent splitting
   const intentMutation = useMutation({
@@ -55,6 +73,32 @@ export default function StudyDesignerPage() {
     if (!studyIntent.trim()) return;
     intentMutation.mutate(studyIntent);
     recommendMutation.mutate(studyIntent);
+  };
+
+  const handleProtocolUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !selectedStudy) return;
+
+    try {
+      const session = await createDesignSession.mutateAsync({
+        slug: selectedStudy.slug,
+        payload: {
+          title: t("studies.designer.defaultSessionTitle", { title: selectedStudy.title }),
+          source_mode: "protocol_upload",
+        },
+      });
+
+      await importProtocol.mutateAsync({
+        slug: selectedStudy.slug,
+        sessionId: session.id,
+        file,
+      });
+
+      navigate(`/studies/${selectedStudy.slug}?tab=design`);
+    } catch {
+      // React Query exposes the mutation error for the visible error panel.
+    }
   };
 
   const tabs = [
@@ -98,6 +142,61 @@ export default function StudyDesignerPage() {
           </div>
         </div>
         <HelpButton helpKey="study-designer" />
+      </div>
+
+      <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[240px] flex-1">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-ghost">
+              {t("studies.entities.study", { defaultValue: "Study" })}
+            </label>
+            <select
+              value={selectedStudy?.slug ?? ""}
+              onChange={(event) => setSelectedStudySlug(event.target.value)}
+              disabled={studiesLoading || protocolBusy || studies.length === 0}
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+            >
+              {studies.length === 0 ? (
+                <option value="">
+                  {studiesLoading
+                    ? t("studies.list.loading", { defaultValue: "Loading studies..." })
+                    : t("studies.list.empty.title", { defaultValue: "No studies" })}
+                </option>
+              ) : (
+                studies.map((study) => (
+                  <option key={study.id} value={study.slug}>
+                    {study.title}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+          <input
+            ref={protocolInputRef}
+            type="file"
+            accept=".doc,.docx,.pdf,.md,.markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/markdown"
+            className="sr-only"
+            onChange={handleProtocolUpload}
+          />
+          <button
+            type="button"
+            onClick={() => protocolInputRef.current?.click()}
+            disabled={!selectedStudy || protocolBusy}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
+          >
+            {protocolBusy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {t("studies.designer.actions.uploadProtocol")}
+          </button>
+        </div>
+        {protocolError && (
+          <div className="mt-3 rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical">
+            {protocolError}
+          </div>
+        )}
       </div>
 
       {/* Tab bar */}
@@ -400,4 +499,17 @@ export default function StudyDesignerPage() {
       )}
     </div>
   );
+}
+
+function mutationError(error: unknown): string | null {
+  if (!error) return null;
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+
+  if (typeof error === "object" && "response" in error) {
+    const response = (error as { response?: { data?: { message?: string; error?: string } } }).response;
+    return response?.data?.message ?? response?.data?.error ?? null;
+  }
+
+  return "Study Designer request failed.";
 }
