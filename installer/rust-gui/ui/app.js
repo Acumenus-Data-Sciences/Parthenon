@@ -213,6 +213,13 @@ const REMEDIATION_MAP = {
         confirmBody: "Parthenon needs Docker. The installer will run \"winget install Docker.DockerDesktop\". You'll see a UAC prompt for the install, and possibly more prompts during Docker Desktop's first run.",
         fallbackCommand: { default: "winget install --id Docker.DockerDesktop --silent --accept-package-agreements --accept-source-agreements" },
       },
+      macos: {
+        action: "open-docker-desktop-download",
+        label: "Get Docker Desktop",
+        confirmTitle: "Open Docker Desktop download page?",
+        confirmBody: "We can't redistribute Docker Desktop's installer. The installer will open https://www.docker.com/products/docker-desktop/ in your browser. Download the .dmg, drag Docker.app to /Applications, and launch it. When the whale icon in your menu bar stops animating, come back here and re-run Check System.\n\nLicense note: Docker Desktop is free under 250 employees / $10M revenue. For larger orgs, choose \"Use Colima instead\" below.",
+        fallbackCommand: { default: "open https://www.docker.com/products/docker-desktop/" },
+      },
     },
   },
   "Docker daemon": {
@@ -234,6 +241,13 @@ const REMEDIATION_MAP = {
         confirmBody: "Docker Desktop is installed but the daemon isn't running. Launch Docker Desktop from the Start menu, wait for the whale icon in the system tray to stop animating, then re-run Check System.",
         fallbackCommand: { default: "Open Docker Desktop from the Start menu" },
         manualOnly: true,
+      },
+      macos: {
+        action: "open-docker-desktop",
+        label: "Launch Docker Desktop",
+        confirmTitle: "Launch Docker Desktop?",
+        confirmBody: "Docker Desktop is installed but the daemon isn't running. The installer will run `open -a Docker`. Wait for the whale icon in your menu bar to stop animating, then re-run Check System.",
+        fallbackCommand: { default: "open -a Docker" },
       },
     },
   },

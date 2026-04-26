@@ -109,7 +109,9 @@ pub fn elevation_status() -> ElevationStatus {
 /// helper/parthenon-installer-helper). On Windows the action runs an UAC-
 /// elevated PowerShell command directly (no helper script — UAC handles
 /// per-call auth, and we can't easily ship a privileged helper on Windows
-/// the way we do on Linux). macOS dispatch comes in Phase 7.
+/// the way we do on Linux). macOS uses osascript "with administrator
+/// privileges" only where needed (Homebrew install); most macOS actions
+/// don't need elevation at all (brew install, opening URLs).
 #[tauri::command]
 pub async fn run_remediation(action: String) -> Result<RemediationOutcome, String> {
     #[cfg(target_os = "linux")]
@@ -120,7 +122,11 @@ pub async fn run_remediation(action: String) -> Result<RemediationOutcome, Strin
     {
         run_remediation_windows(&action).map_err(|e| format!("{e}"))
     }
-    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    #[cfg(target_os = "macos")]
+    {
+        run_remediation_macos(&action).map_err(|e| format!("{e}"))
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
     {
         let _ = action;
         Err("Auto-remediation not yet implemented on this platform.".into())
@@ -382,6 +388,184 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
         }
         other => Err(ElevationError::NotAvailable(format!(
             "Unknown Windows remediation action: {other}"
+        ))),
+    }
+}
+
+// === macOS action handlers ===
+//
+// Most macOS actions don't need elevation:
+//   - Opening a download URL is a `open <url>` user-shell command
+//   - `brew install` runs as the user; brew owns its prefix (/opt/homebrew on
+//     Apple Silicon, /usr/local/Homebrew on Intel)
+//   - `colima start` runs as the user
+//
+// The one place we DO need elevation is the Homebrew bootstrap for users who
+// don't have it yet — `/bin/bash -c "$(curl ... install.sh)"` runs sudo
+// internally to chmod /usr/local etc. We use osascript "with administrator
+// privileges" for that single step.
+//
+// Docker Desktop's .dmg cannot be redistributed by us, so we open the
+// official download page in the user's browser and surface a follow-up
+// message instructing them to drag the .app to /Applications, launch it,
+// and re-run Check System after the daemon is up.
+#[cfg(target_os = "macos")]
+fn run_remediation_macos(action: &str) -> Result<RemediationOutcome, ElevationError> {
+    use std::process::Command;
+
+    // Run a user-shell command (no elevation). Returns Output on success, or
+    // CommandFailed/PlatformError on the usual problems. Used for `brew`,
+    // `open`, `colima`.
+    fn user_shell(program: &str, args: &[&str]) -> Result<std::process::Output, ElevationError> {
+        let out = Command::new(program)
+            .args(args)
+            .output()
+            .map_err(|e| ElevationError::PlatformError(format!("spawning {program}: {e}")))?;
+        if !out.status.success() {
+            return Err(ElevationError::CommandFailed {
+                exit_code: out.status.code().unwrap_or(-1),
+                stderr: String::from_utf8_lossy(&out.stderr).to_string(),
+            });
+        }
+        Ok(out)
+    }
+
+    fn brew_present() -> bool {
+        // Homebrew installs to /opt/homebrew on Apple Silicon and
+        // /usr/local/Homebrew on Intel. Either binary path being present is
+        // sufficient — we don't try to read its version.
+        std::path::Path::new("/opt/homebrew/bin/brew").is_file()
+            || std::path::Path::new("/usr/local/bin/brew").is_file()
+    }
+
+    fn brew_path() -> &'static str {
+        if std::path::Path::new("/opt/homebrew/bin/brew").is_file() {
+            "/opt/homebrew/bin/brew"
+        } else {
+            "/usr/local/bin/brew"
+        }
+    }
+
+    fn install_homebrew() -> Result<std::process::Output, ElevationError> {
+        // Homebrew's official installer is a one-liner that runs `sudo` for
+        // the chmod steps. We wrap it in osascript "with administrator
+        // privileges" so the user gets the native macOS auth dialog instead
+        // of seeing sudo's TTY prompt vanish into stdout.
+        let script = r#"
+            do shell script "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+                with prompt "Install Homebrew (required for Colima / Rancher Desktop)"
+                with administrator privileges
+        "#;
+        let out = Command::new("osascript")
+            .arg("-e")
+            .arg(script)
+            .output()
+            .map_err(|e| ElevationError::PlatformError(format!("spawning osascript: {e}")))?;
+        if !out.status.success() {
+            let stderr = String::from_utf8_lossy(&out.stderr);
+            if stderr.contains("User canceled") || stderr.contains("(-128)") {
+                return Err(ElevationError::UserCancelled);
+            }
+            return Err(ElevationError::CommandFailed {
+                exit_code: out.status.code().unwrap_or(-1),
+                stderr: stderr.to_string(),
+            });
+        }
+        Ok(out)
+    }
+
+    match action {
+        "open-docker-desktop-download" => {
+            // Can't redistribute Docker Desktop's .dmg. Open the official
+            // download page and wait for the user to install + first-run.
+            let _ = user_shell("/usr/bin/open", &["https://www.docker.com/products/docker-desktop/"])?;
+            Ok(RemediationOutcome {
+                success: true,
+                stdout: String::new(),
+                stderr: String::new(),
+                follow_up_required: true,
+                follow_up_message: Some(
+                    "Opened the Docker Desktop download page in your browser. Download the .dmg \
+                     for your Mac (Apple Silicon or Intel), drag Docker.app to /Applications, \
+                     launch it, and complete the first-run setup. When the Docker whale icon in \
+                     your menu bar is steady (not animating), come back here and re-run Check System."
+                        .into(),
+                ),
+            })
+        }
+        "open-docker-desktop" => {
+            // Daemon-not-running on Mac: just launch /Applications/Docker.app.
+            let _ = user_shell("/usr/bin/open", &["-a", "Docker"])?;
+            Ok(RemediationOutcome {
+                success: true,
+                stdout: String::new(),
+                stderr: String::new(),
+                follow_up_required: true,
+                follow_up_message: Some(
+                    "Launched Docker Desktop. Wait for the whale icon in your menu bar to stop \
+                     animating (~10–30 seconds), then re-run Check System."
+                        .into(),
+                ),
+            })
+        }
+        "install-colima" => {
+            // Colima is the open-source / license-clean alternative to
+            // Docker Desktop. Needs Homebrew. brew install runs as user.
+            if !brew_present() {
+                install_homebrew()?;
+            }
+            let brew = brew_path();
+            let install_out = user_shell(brew, &["install", "colima", "docker", "docker-compose"])?;
+            // Apple Silicon: vz mount-type gives best perf. Detect arch and
+            // start colima with appropriate flags. Apple Silicon's `uname -m`
+            // is "arm64".
+            let arch_out = Command::new("/usr/bin/uname")
+                .arg("-m")
+                .output()
+                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+                .unwrap_or_default();
+            let mut start_args = vec!["start"];
+            if arch_out == "arm64" {
+                start_args.extend(["--vm-type=vz", "--mount-type=virtiofs"]);
+            }
+            // Colima ships in the same brew bin dir as brew itself
+            // (/opt/homebrew/bin/colima or /usr/local/bin/colima). Try the
+            // absolute path first so we don't depend on PATH being right.
+            let colima_path = brew_path().replace("brew", "colima");
+            let _start = user_shell(&colima_path, &start_args)
+                .or_else(|_| user_shell("colima", &start_args));
+            Ok(RemediationOutcome {
+                success: true,
+                stdout: String::from_utf8_lossy(&install_out.stdout).into_owned(),
+                stderr: String::from_utf8_lossy(&install_out.stderr).into_owned(),
+                follow_up_required: false,
+                follow_up_message: Some(
+                    "Colima + docker CLI installed and started. Re-run Check System to confirm."
+                        .into(),
+                ),
+            })
+        }
+        "install-rancher-desktop" => {
+            if !brew_present() {
+                install_homebrew()?;
+            }
+            let brew = brew_path();
+            let out = user_shell(brew, &["install", "--cask", "rancher"])?;
+            Ok(RemediationOutcome {
+                success: true,
+                stdout: String::from_utf8_lossy(&out.stdout).into_owned(),
+                stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
+                follow_up_required: true,
+                follow_up_message: Some(
+                    "Rancher Desktop installed. Launch it from /Applications, complete the \
+                     first-run wizard (choose dockerd backend for compose compatibility), then \
+                     re-run Check System."
+                        .into(),
+                ),
+            })
+        }
+        other => Err(ElevationError::NotAvailable(format!(
+            "Unknown macOS remediation action: {other}"
         ))),
     }
 }
