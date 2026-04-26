@@ -75,8 +75,35 @@ jobs:
           if-no-files-found: error
           path: dist/installer-bundle/*
 
+      - name: Stage canonical bundle filename + sha256 sidecar for release
+        if: ${{ github.event_name == 'release' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="$(find dist/installer-bundle -name 'parthenon-community-bootstrap-*.tar.gz' -print -quit)"
+          test -n "$src"
+          mkdir -p dist/release-bundle
+          # The Rust installer expects this exact filename at the release URL.
+          cp "$src" dist/release-bundle/parthenon-community-bootstrap.tar.gz
+          ( cd dist/release-bundle && sha256sum parthenon-community-bootstrap.tar.gz | awk '{print $1}' > parthenon-community-bootstrap.tar.gz.sha256 )
+          ls -la dist/release-bundle/
+
+      - name: Attach installer bundle to release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "${{ github.event.release.tag_name }}" \
+            dist/release-bundle/parthenon-community-bootstrap.tar.gz \
+            dist/release-bundle/parthenon-community-bootstrap.tar.gz.sha256 \
+            --repo "${{ github.repository }}" \
+            --clobber
+
   build:
     name: Build ${{ matrix.label }}
+    needs: installer-bundle
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -361,6 +388,11 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           TAURI_TARGET: ${{ matrix.tauri_target }}
+          # Stamp the bundle URL into the binary at compile time so each
+          # installer pulls the bundle from the SAME release tag that built it.
+          # `releases/latest/download/` follows non-prerelease "latest" which on
+          # this repo is the Parthenon application release, not the installer.
+          PARTHENON_BUNDLE_URL_AT_BUILD: ${{ github.event_name == 'release' && format('https://github.com/{0}/releases/download/{1}/parthenon-community-bootstrap.tar.gz', github.repository, github.event.release.tag_name) || '' }}
         shell: bash
         run: |
           if [ -n "$TAURI_TARGET" ]; then

@@ -4,7 +4,7 @@ use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     fs::File,
-    io::{BufRead, BufReader, Read, Write},
+    io::{self, BufRead, BufReader, Read, Write},
     path::{Component, Path, PathBuf},
     process::{Command, Stdio},
     sync::Mutex,
@@ -125,8 +125,20 @@ struct InstallFinished {
 
 const COMMUNITY_RUNTIME_PROFILE: &str = "community-release";
 const COMMUNITY_RUNTIME_COMPOSE_FILE: &str = "docker-compose.community.yml";
-const DEFAULT_INSTALLER_BUNDLE_URL: &str =
-    "https://github.com/sudoshi/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz";
+
+// At build time, CI sets PARTHENON_BUNDLE_URL_AT_BUILD to the exact release tag URL
+// so each shipped installer pulls the bundle that ships *with it*. Falling back to
+// `releases/latest/download/` is a footgun because GitHub's "latest" follows the
+// most recent non-prerelease, which on this repo is the Parthenon application
+// release (v1.x.y) — not an installer release — and 404s on the bundle asset.
+fn default_installer_bundle_url() -> String {
+    option_env!("PARTHENON_BUNDLE_URL_AT_BUILD")
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or(
+            "https://github.com/sudoshi/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz",
+        )
+        .to_string()
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct InstallRequest {
@@ -259,7 +271,7 @@ fn bootstrap() -> BootstrapPayload {
         bundle_url: env::var("PARTHENON_INSTALLER_BUNDLE_URL")
             .ok()
             .filter(|value| !value.trim().is_empty())
-            .unwrap_or_else(|| DEFAULT_INSTALLER_BUNDLE_URL.to_string()),
+            .unwrap_or_else(default_installer_bundle_url),
         bundle_install_dir: env::var("PARTHENON_INSTALLER_BUNDLE_DIR")
             .ok()
             .or_else(|| default_bundle_cache_dir().map(|path| path.to_string_lossy().to_string()))
@@ -491,7 +503,7 @@ fn prepare_local_bundle(
             .map_err(|err| format!("Could not create install target parent: {err}"))?;
     }
 
-    fs::rename(&staging, &final_dir)
+    move_directory_cross_device(&staging, &final_dir)
         .map_err(|err| format!("Could not move verified installer bundle into place: {err}"))?;
     emit_optional_log(
         app,
@@ -499,6 +511,63 @@ fn prepare_local_bundle(
         &format!("Verified installer bundle at {}.", final_dir.display()),
     );
     Ok(final_dir)
+}
+
+// fs::rename can't cross filesystems (EXDEV on Linux/macOS, ERROR_NOT_SAME_DEVICE on
+// Windows). This is common: /tmp on tmpfs while $HOME is on a different mount, or
+// the bundle cache lives on /var while install target is on the user's drive.
+// Try rename first (atomic, fast), fall back to copy + delete on cross-device errors.
+fn move_directory_cross_device(src: &Path, dst: &Path) -> io::Result<()> {
+    match fs::rename(src, dst) {
+        Ok(()) => Ok(()),
+        Err(err) if is_cross_device_error(&err) => {
+            copy_dir_recursive(src, dst)?;
+            fs::remove_dir_all(src)
+        }
+        Err(err) => Err(err),
+    }
+}
+
+fn is_cross_device_error(err: &io::Error) -> bool {
+    // ErrorKind::CrossesDevices is the modern name; raw_os_error covers older Rust
+    // and any platform where the kind hasn't been mapped yet. EXDEV = 18 on Linux/macOS,
+    // ERROR_NOT_SAME_DEVICE = 17 on Windows.
+    if format!("{:?}", err.kind()) == "CrossesDevices" {
+        return true;
+    }
+    matches!(err.raw_os_error(), Some(17) | Some(18))
+}
+
+fn copy_dir_recursive(src: &Path, dst: &Path) -> io::Result<()> {
+    fs::create_dir_all(dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let file_type = entry.file_type()?;
+        let dst_path = dst.join(entry.file_name());
+        if file_type.is_dir() {
+            copy_dir_recursive(&entry.path(), &dst_path)?;
+        } else if file_type.is_symlink() {
+            let target = fs::read_link(entry.path())?;
+            #[cfg(unix)]
+            std::os::unix::fs::symlink(&target, &dst_path)?;
+            #[cfg(windows)]
+            {
+                let abs = if target.is_absolute() {
+                    target.clone()
+                } else {
+                    entry.path().parent().unwrap_or(src).join(&target)
+                };
+                if abs.is_dir() {
+                    std::os::windows::fs::symlink_dir(&target, &dst_path)?;
+                } else {
+                    std::os::windows::fs::symlink_file(&target, &dst_path)?;
+                }
+            }
+        } else {
+            fs::copy(entry.path(), &dst_path)?;
+        }
+    }
+    Ok(())
 }
 
 fn prepare_wsl_bundle(app: Option<&AppHandle>, request: &InstallRequest) -> Result<String, String> {
@@ -2156,7 +2225,7 @@ fn current_install_request_or_default() -> InstallRequest {
         enable_study_agent: false,
         enable_blackrabbit: false,
         enable_fhir_to_cdm: false,
-        enable_hecate: true,
+        enable_hecate: false,
         enable_orthanc: false,
         ollama_url: String::new(),
         dry_run: false,

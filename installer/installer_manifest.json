@@ -34,6 +34,14 @@
       ]
     },
     {
+      "name": "installer-datasets",
+      "role": "python",
+      "required": true,
+      "include": [
+        "datasets/**/*.py"
+      ]
+    },
+    {
       "name": "installer-web",
       "role": "web-ui",
       "required": true,
