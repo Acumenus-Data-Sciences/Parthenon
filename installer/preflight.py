@@ -103,6 +103,88 @@ def _check_daemon() -> CheckResult:
     return CheckResult("Docker daemon", "fail", "not running — start Docker Desktop or `sudo systemctl start docker`")
 
 
+def _check_vm_platform() -> CheckResult | None:
+    """Phase 6b: Windows-only — check whether the Virtual Machine Platform
+    Windows feature is enabled. WSL2 (which Docker Desktop uses on Windows)
+    requires this feature. Enabling it requires admin + reboot, which the
+    GUI's Fix-this button can do via remediation.rs::enable-vm-platform."""
+    if utils.os_name() != "Windows":
+        return None
+    import subprocess
+    try:
+        # Get-WindowsOptionalFeature returns "Enabled" or "Disabled" in .State.
+        # We request just the State property to keep parsing trivial.
+        proc = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "(Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform).State",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        state = (proc.stdout or "").strip()
+        if state.lower() == "enabled":
+            return CheckResult(
+                "Windows VM Platform feature", "ok", "VirtualMachinePlatform enabled"
+            )
+        return CheckResult(
+            "Windows VM Platform feature",
+            "fail",
+            "VirtualMachinePlatform not enabled — required by WSL2 / Docker Desktop",
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as err:
+        return CheckResult(
+            "Windows VM Platform feature",
+            "warn",
+            f"Could not determine VM Platform state ({err}); enable manually if WSL2 misbehaves",
+        )
+
+
+def _check_wsl2_installed() -> CheckResult | None:
+    """Phase 6b: Windows-only — check that WSL2 is installed and at least
+    one distro is in WSL2 mode. `wsl --status` returns 0 + version output
+    when fully set up; on a never-installed system it errors out."""
+    if utils.os_name() != "Windows":
+        return None
+    import subprocess
+    try:
+        # `wsl --status` prints "Default Version: 2" when WSL2 is the default.
+        # On a system where wsl was never installed at all, the binary itself
+        # may exit with an error code. Either is a "fail" — Fix-this button
+        # will offer to run `wsl --install`.
+        proc = subprocess.run(
+            ["wsl", "--status"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        out = (proc.stdout or "") + (proc.stderr or "")
+        if proc.returncode != 0:
+            return CheckResult(
+                "WSL2 installed",
+                "fail",
+                "WSL2 not installed — required for Docker Desktop on Windows",
+            )
+        # Reject WSL1-only setups.
+        if "default version: 2" in out.lower() or "wsl 2" in out.lower():
+            return CheckResult("WSL2 installed", "ok", "WSL2 ready")
+        return CheckResult(
+            "WSL2 installed",
+            "warn",
+            "WSL is installed but WSL2 is not the default — run `wsl --set-default-version 2`",
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as err:
+        return CheckResult(
+            "WSL2 installed",
+            "fail",
+            f"Could not run `wsl --status` ({err}) — WSL2 likely not installed",
+        )
+
+
 def _check_docker_group() -> CheckResult:
     if utils.os_name() != "Linux":
         return CheckResult("Linux docker group", "ok", "N/A")
@@ -218,6 +300,16 @@ def run_checks(cfg: dict[str, object] | None = None) -> list[CheckResult]:
     checks: list[CheckResult] = []
     checks.append(_check_python())
     checks.append(_check_os())
+    # Phase 6b: surface Windows-specific WSL2/VM-Platform prereqs BEFORE the
+    # Docker checks, since Docker on Windows depends on them. The GUI's
+    # Fix-this buttons map these check names to remediation actions defined
+    # in installer/rust-gui/src/remediation.rs.
+    vm_platform = _check_vm_platform()
+    if vm_platform is not None:
+        checks.append(vm_platform)
+    wsl2 = _check_wsl2_installed()
+    if wsl2 is not None:
+        checks.append(wsl2)
     checks.append(_check_docker_version())
     checks.append(_check_compose())
     checks.append(_check_daemon())
