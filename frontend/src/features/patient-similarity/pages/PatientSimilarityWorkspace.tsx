@@ -1,12 +1,14 @@
 import { type ReactNode, useState, useCallback, useMemo, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { usePipeline } from '../hooks/usePipeline';
 import {
   useCompareCohorts,
   usePropensityMatch,
   useCohortProfile,
   useCohortSimilaritySearch,
+  useSimilaritySearch,
   useNetworkFusion,
   usePhenotypeDiscovery,
 } from '../hooks/usePatientSimilarity';
@@ -24,9 +26,11 @@ import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
 import { SimilarityModeToggle } from '../components/SimilarityModeToggle';
 import { CentroidProfilePanel } from '../components/CentroidProfilePanel';
 import { SimilarPatientsPanel } from '../components/SimilarPatientsPanel';
+import { SimilarPatientTable } from '../components/SimilarPatientTable';
 import { PhenotypeDiscoveryPanel } from '../components/PhenotypeDiscoveryPanel';
 import { HelpButton } from '@/features/help';
 import { NetworkFusionPanel } from '../components/NetworkFusionPanel';
+import { buildSimilarityFilters } from '../utils/similarityFilters';
 import type {
   CohortComparisonResult,
   CohortProfileResult,
@@ -39,6 +43,77 @@ import type {
   NetworkFusionResult,
 } from '../types/patientSimilarity';
 import type { PipelineMode } from '../types/pipeline';
+
+function parsePositiveInt(value: string | null): number | null {
+  if (value == null) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function coerceSimilaritySearchResult(
+  value: unknown,
+  fallback: {
+    sourceId: number;
+    mode: string;
+    personId?: number;
+    cohortDefinitionId?: number;
+  },
+): SimilaritySearchResult {
+  if (isRecord(value) && Array.isArray(value.similar_patients)) {
+    return {
+      seed: isRecord(value.seed)
+        ? {
+            person_id: Number(value.seed.person_id ?? fallback.personId ?? 0),
+            age_bucket: typeof value.seed.age_bucket === 'number' ? value.seed.age_bucket : null,
+            gender_concept_id:
+              typeof value.seed.gender_concept_id === 'number' ? value.seed.gender_concept_id : null,
+            dimensions_available: Array.isArray(value.seed.dimensions_available)
+              ? value.seed.dimensions_available.filter((dim): dim is string => typeof dim === 'string')
+              : [],
+          }
+        : {
+            person_id: fallback.personId ?? 0,
+            age_bucket: null,
+            gender_concept_id: null,
+            dimensions_available: [],
+          },
+      mode: typeof value.mode === 'string' ? value.mode : fallback.mode,
+      similar_patients: value.similar_patients as SimilaritySearchResult['similar_patients'],
+      cohort_outcomes: isRecord(value.cohort_outcomes) ? value.cohort_outcomes : undefined,
+      metadata: {
+        ...(isRecord(value.metadata) ? value.metadata : {}),
+        source_id: fallback.sourceId,
+        cohort_definition_id: fallback.cohortDefinitionId,
+      },
+    };
+  }
+
+  return {
+    seed: {
+      person_id: fallback.personId ?? 0,
+      age_bucket: null,
+      gender_concept_id: null,
+      dimensions_available: [],
+    },
+    mode: fallback.mode,
+    similar_patients: [],
+    metadata: {
+      source_id: fallback.sourceId,
+      cohort_definition_id: fallback.cohortDefinitionId,
+      error: isRecord(value) && typeof value.error === 'string'
+        ? value.error
+        : 'Similarity search returned an unexpected response shape.',
+    },
+  };
+}
+
+function uniquePatientIds(ids: Array<number | null | undefined>): number[] {
+  return Array.from(new Set(ids.filter((id): id is number => Number.isFinite(id))));
+}
 
 function buildBalanceSummary(
   t: ReturnType<typeof useTranslation<"app">>["t"],
@@ -66,10 +141,10 @@ function buildBalanceSummary(
 
 export default function PatientSimilarityWorkspace() {
   const { t } = useTranslation("app");
+  const [searchParams] = useSearchParams();
   const { activeSourceId, setActiveSource } = useSourceStore();
 
   const [sourceIdOverride, setSourceIdOverride] = useState<number | null>(null);
-  const sourceId = sourceIdOverride ?? activeSourceId;
   const [targetCohortId, setTargetCohortId] = useState<number | null>(null);
   const [comparatorCohortId, setComparatorCohortId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -83,9 +158,42 @@ export default function PatientSimilarityWorkspace() {
   const [gender, setGender] = useState('');
   const [similarityMode, setSimilarityMode] = useState<'auto' | 'interpretable' | 'embedding'>('auto');
 
+  const queryPersonId = useMemo(
+    () => parsePositiveInt(searchParams.get('person_id')),
+    [searchParams],
+  );
+  const querySourceId = useMemo(
+    () => parsePositiveInt(searchParams.get('source_id')),
+    [searchParams],
+  );
+  const sourceId = sourceIdOverride ?? querySourceId ?? activeSourceId;
+
+  const searchFilters = useMemo(
+    () =>
+      buildSimilarityFilters(
+        ageMin > 0 ? String(ageMin) : '',
+        ageMax < 150 ? String(ageMax) : '',
+        gender,
+      ),
+    [ageMin, ageMax, gender],
+  );
+
+  const searchWeights = useMemo(
+    () => (Object.keys(weights).length > 0 ? weights : undefined),
+    [weights],
+  );
+
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
   const psmMutation = usePropensityMatch();
+  const individualSearchMutation = useSimilaritySearch();
+  const {
+    mutate: runPatientSearch,
+    data: rawIndividualResult,
+    variables: individualSearchVariables,
+    isPending: individualSearchIsPending,
+    isError: individualSearchIsError,
+  } = individualSearchMutation;
   const cohortProfileQuery = useCohortProfile(
     pipeline.mode === 'expand' ? (targetCohortId ?? undefined) : undefined,
     sourceId ?? 0,
@@ -96,6 +204,43 @@ export default function PatientSimilarityWorkspace() {
   });
   const phenotypeMutation = usePhenotypeDiscovery();
   const snfMutation = useNetworkFusion();
+
+  useEffect(() => {
+    if (querySourceId == null) return;
+    setActiveSource(querySourceId);
+  }, [querySourceId, setActiveSource]);
+
+  useEffect(() => {
+    if (queryPersonId == null || sourceId == null) return;
+
+    runPatientSearch(
+      {
+        person_id: queryPersonId,
+        source_id: sourceId,
+        mode: similarityMode,
+        weights: searchWeights,
+        filters: searchFilters,
+      },
+    );
+  }, [queryPersonId, sourceId, similarityMode, searchWeights, searchFilters, runPatientSearch]);
+
+  const individualSearchMatchesQuery =
+    individualSearchVariables?.person_id === queryPersonId &&
+    individualSearchVariables?.source_id === sourceId;
+
+  const individualSearchPending = individualSearchIsPending && individualSearchMatchesQuery;
+  const individualSearchError = individualSearchIsError && individualSearchMatchesQuery;
+  const individualResult = useMemo(
+    () =>
+      individualSearchMatchesQuery && rawIndividualResult && queryPersonId != null && sourceId != null
+        ? coerceSimilaritySearchResult(rawIndividualResult, {
+            sourceId,
+            mode: similarityMode,
+            personId: queryPersonId,
+          })
+        : null,
+    [individualSearchMatchesQuery, rawIndividualResult, queryPersonId, sourceId, similarityMode],
+  );
 
   // Resolve centroid step when profile query completes (fixes race condition in expand mode)
   useEffect(() => {
@@ -203,11 +348,18 @@ export default function PatientSimilarityWorkspace() {
         {
           cohort_definition_id: targetCohortId,
           source_id: sourceId,
-          weights,
+          mode: similarityMode,
+          weights: searchWeights,
+          filters: searchFilters,
         },
         {
-          onSuccess: (searchResult: SimilaritySearchResult) => {
+          onSuccess: (rawResult: unknown) => {
             const elapsedMs = Math.round(performance.now() - startMs);
+            const searchResult = coerceSimilaritySearchResult(rawResult, {
+              sourceId,
+              mode: similarityMode,
+              cohortDefinitionId: targetCohortId,
+            });
 
             // Resolve centroid step if the query data is now available
             const freshProfile = cohortProfileQuery.data;
@@ -281,7 +433,19 @@ export default function PatientSimilarityWorkspace() {
         },
       },
     );
-  }, [sourceId, targetCohortId, comparatorCohortId, pipeline, compareMutation, cohortProfileQuery, cohortSimilarityMutation, weights, t]);
+  }, [
+    sourceId,
+    targetCohortId,
+    comparatorCohortId,
+    pipeline,
+    compareMutation,
+    cohortProfileQuery,
+    cohortSimilarityMutation,
+    similarityMode,
+    searchWeights,
+    searchFilters,
+    t,
+  ]);
 
   const handleRunStep = useCallback(
     (stepId: string) => {
@@ -315,23 +479,27 @@ export default function PatientSimilarityWorkspace() {
           // In compare mode, use PSM matched pairs if available
           const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
           if (psmResult) {
-            cohortPersonIds = [
+            cohortPersonIds = uniquePatientIds([
               ...psmResult.matched_pairs.map((p) => p.target_id),
               ...psmResult.matched_pairs.map((p) => p.comparator_id),
-            ];
+            ]);
           }
         } else {
           // In expand mode, use similar patients from step 2
           const similarResult = pipeline.getStepResult('similar')?.data as SimilaritySearchResult | undefined;
           if (similarResult) {
-            cohortPersonIds = similarResult.similar_patients
-              .map((p) => p.person_id)
-              .filter((id): id is number => id != null);
+            cohortPersonIds = uniquePatientIds(similarResult.similar_patients.map((p) => p.person_id));
           }
         }
 
+        const landscapeParams: LandscapeParams = { source_id: sourceId };
+        if (cohortPersonIds && cohortPersonIds.length > 0) {
+          landscapeParams.person_ids = cohortPersonIds;
+          landscapeParams.cohort_person_ids = cohortPersonIds;
+        }
+
         landscapeMutation.mutate(
-          { source_id: sourceId, cohort_person_ids: cohortPersonIds },
+          landscapeParams,
           {
             onSuccess: (data) => {
               pipeline.markCompleted('landscape', {
@@ -350,8 +518,22 @@ export default function PatientSimilarityWorkspace() {
       if (stepId === 'phenotypes' && sourceId && targetCohortId) {
         pipeline.markLoading('phenotypes');
         const start = Date.now();
+        const similarResult = pipeline.getStepResult('similar')?.data as SimilaritySearchResult | undefined;
+        const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
+        const personIds = uniquePatientIds(
+          psmResult
+            ? [
+                ...psmResult.matched_pairs.map((p) => p.target_id),
+                ...psmResult.matched_pairs.map((p) => p.comparator_id),
+              ]
+            : (similarResult?.similar_patients.map((p) => p.person_id) ?? []),
+        );
         phenotypeMutation.mutate(
-          { source_id: sourceId, cohort_definition_id: targetCohortId },
+          {
+            source_id: sourceId,
+            cohort_definition_id: targetCohortId,
+            ...(personIds.length > 0 ? { person_ids: personIds, cohort_person_ids: personIds } : {}),
+          },
           {
             onSuccess: (data) => {
               pipeline.markCompleted('phenotypes', {
@@ -370,8 +552,22 @@ export default function PatientSimilarityWorkspace() {
       if (stepId === 'snf' && sourceId && targetCohortId) {
         pipeline.markLoading('snf');
         const start = Date.now();
+        const similarResult = pipeline.getStepResult('similar')?.data as SimilaritySearchResult | undefined;
+        const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
+        const personIds = uniquePatientIds(
+          psmResult
+            ? [
+                ...psmResult.matched_pairs.map((p) => p.target_id),
+                ...psmResult.matched_pairs.map((p) => p.comparator_id),
+              ]
+            : (similarResult?.similar_patients.map((p) => p.person_id) ?? []),
+        );
         snfMutation.mutate(
-          { source_id: sourceId, cohort_definition_id: targetCohortId },
+          {
+            source_id: sourceId,
+            cohort_definition_id: targetCohortId,
+            ...(personIds.length > 0 ? { person_ids: personIds, cohort_person_ids: personIds } : {}),
+          },
           {
             onSuccess: (data) => {
               pipeline.markCompleted('snf', {
@@ -522,6 +718,49 @@ export default function PatientSimilarityWorkspace() {
           />
         </div>
       </div>
+
+      {queryPersonId != null && sourceId != null && (
+        <section className="rounded-lg border border-border-default bg-surface-raised px-5 py-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-text-primary">
+                {t("patientSimilarity.searchForm.findSimilarPatients")}
+              </h2>
+              <p className="text-xs text-text-muted tabular-nums">
+                {t("patientSimilarity.searchForm.seedPatientId")}: #{queryPersonId}
+              </p>
+            </div>
+            {individualResult && (
+              <span className="text-xs text-text-muted">
+                {t("patientSimilarity.workspace.similarPatientsFound", {
+                  count: individualResult.similar_patients.length,
+                })}
+              </span>
+            )}
+          </div>
+
+          {individualSearchPending && (
+            <div className="py-6 text-sm text-text-muted">
+              {t("patientSimilarity.common.running")}
+            </div>
+          )}
+
+          {individualSearchError && (
+            <div className="rounded-md border border-[var(--color-critical)]/30 bg-[var(--color-critical)]/5 px-3 py-2 text-sm text-[var(--color-critical)]">
+              {t("patientSimilarity.comparison.comparisonFailed")}
+            </div>
+          )}
+
+          {individualResult && !individualSearchPending && !individualSearchError && (
+            <SimilarPatientTable
+              patients={individualResult.similar_patients}
+              showPersonId
+              seedPersonId={queryPersonId}
+              sourceId={sourceId}
+            />
+          )}
+        </section>
+      )}
 
       {/* Toolbar */}
       <CohortSelectorBar

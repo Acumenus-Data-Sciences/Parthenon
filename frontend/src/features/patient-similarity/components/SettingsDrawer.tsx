@@ -208,10 +208,10 @@ function SettingsForm({
                 <option value="">
                   {t("patientSimilarity.settings.all")}
                 </option>
-                <option value="8507">
+                <option value="MALE">
                   {t("patientSimilarity.common.genders.male")}
                 </option>
-                <option value="8532">
+                <option value="FEMALE">
                   {t("patientSimilarity.common.genders.female")}
                 </option>
               </select>

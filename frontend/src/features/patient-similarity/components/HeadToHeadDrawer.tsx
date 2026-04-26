@@ -69,7 +69,7 @@ function PatientCard({
           {label}
         </span>
         <a
-          href={`/patient-profiles/${personId}?source_id=${sourceId}`}
+          href={`/profiles/${personId}?sourceId=${sourceId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-[10px] hover:underline"
@@ -259,7 +259,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       {/* Action links */}
       <div className="flex gap-3 pt-2">
         <a
-          href={`/patient-profiles/${personAId}?source_id=${sourceId}`}
+          href={`/profiles/${personAId}?sourceId=${sourceId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/20 transition-colors"
@@ -268,7 +268,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           <ExternalLink size={13} />
         </a>
         <a
-          href={`/patient-profiles/${personBId}?source_id=${sourceId}`}
+          href={`/profiles/${personBId}?sourceId=${sourceId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent hover:bg-accent/20 transition-colors"

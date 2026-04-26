@@ -463,6 +463,8 @@ final class PatientSimilarityService
         int $limit,
         float $minScore,
         array $filters = [],
+        string $mode = 'interpretable',
+        ?string $centroidEmbedding = null,
     ): array {
         $filters = $this->normalizeFilters($filters);
         $query = PatientFeatureVector::query()
@@ -476,6 +478,34 @@ final class PatientSimilarityService
         $this->applyFilters($query, $filters);
 
         $totalCandidates = (clone $query)->count();
+        $effectiveMode = 'interpretable';
+
+        if ($centroidEmbedding !== null && in_array($mode, ['auto', 'embedding'], true)) {
+            if ($mode === 'embedding') {
+                $effectiveMode = 'embedding';
+            } else {
+                $embeddingCount = PatientFeatureVector::query()
+                    ->forSource($source->id)
+                    ->whereNotNull('embedding')
+                    ->count();
+                $effectiveMode = $embeddingCount > self::IN_MEMORY_THRESHOLD ? 'embedding' : 'interpretable';
+            }
+        }
+
+        if ($effectiveMode === 'embedding' && $centroidEmbedding !== null) {
+            return $this->searchFromCentroidEmbedding(
+                centroidData: $centroidData,
+                source: $source,
+                excludePersonIds: $excludePersonIds,
+                centroidEmbedding: $centroidEmbedding,
+                weights: $weights,
+                limit: $limit,
+                minScore: $minScore,
+                filters: $filters,
+                totalCandidates: $totalCandidates,
+                requestedMode: $mode,
+            );
+        }
 
         // For large sources, limit to demographically similar candidates
         if ($totalCandidates > self::IN_MEMORY_THRESHOLD) {
@@ -539,6 +569,102 @@ final class PatientSimilarityService
                 'excluded_members' => count($excludePersonIds),
                 'temporal_window_days' => self::RECENT_WINDOW_DAYS,
                 'feature_vector_version' => $centroidData['version'] ?? null,
+                'requested_mode' => $mode,
+                'computed_at' => now()->toIso8601String(),
+            ],
+        ];
+    }
+
+    /**
+     * Embedding-assisted centroid search using a precomputed averaged centroid embedding.
+     *
+     * @param  array<string, mixed>  $centroidData
+     * @param  array<int>  $excludePersonIds
+     * @param  array<string, float>  $weights
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    private function searchFromCentroidEmbedding(
+        array $centroidData,
+        Source $source,
+        array $excludePersonIds,
+        string $centroidEmbedding,
+        array $weights,
+        int $limit,
+        float $minScore,
+        array $filters,
+        int $totalCandidates,
+        string $requestedMode,
+    ): array {
+        $candidateLimit = min(200, max($limit * 4, 100));
+
+        $query = 'SELECT person_id
+                  FROM patient_feature_vectors
+                  WHERE source_id = ? AND embedding IS NOT NULL';
+        $params = [$source->id];
+
+        if ($excludePersonIds !== []) {
+            $query .= ' AND NOT (person_id = ANY(?::bigint[]))';
+            $params[] = '{'.implode(',', array_map('intval', $excludePersonIds)).'}';
+        }
+
+        if (! empty($filters['gender_concept_id'])) {
+            $query .= ' AND gender_concept_id = ?';
+            $params[] = $filters['gender_concept_id'];
+        }
+
+        if (! empty($filters['age_range'])) {
+            $query .= ' AND age_bucket BETWEEN ? AND ?';
+            $params[] = intdiv((int) $filters['age_range'][0], 5);
+            $params[] = intdiv((int) $filters['age_range'][1], 5);
+        }
+
+        $query .= ' ORDER BY embedding OPERATOR(public.<=>) ?::public.vector LIMIT ?';
+        $params[] = $centroidEmbedding;
+        $params[] = $candidateLimit;
+
+        $candidateRows = DB::select($query, $params);
+        $candidateIds = array_map(fn ($row): int => (int) $row->person_id, $candidateRows);
+
+        $candidates = PatientFeatureVector::query()
+            ->forSource($source->id)
+            ->whereIn('person_id', $candidateIds)
+            ->get();
+
+        $scored = [];
+        foreach ($candidates as $candidate) {
+            $result = $this->scorePatientPair($centroidData, $candidate->toArray(), $weights);
+
+            if ($result['overall_score'] >= $minScore) {
+                $scored[] = $this->buildScoredPatient($candidate, $result);
+            }
+        }
+
+        usort($scored, static fn (array $a, array $b): int => $b['overall_score'] <=> $a['overall_score']);
+        $scored = array_slice($scored, 0, $limit);
+
+        return [
+            'seed' => [
+                'person_id' => 0,
+                'type' => 'centroid',
+                'member_count' => count($excludePersonIds),
+                'dimensions_available' => $centroidData['dimensions_available'] ?? [],
+                'feature_vector_version' => $centroidData['version'] ?? null,
+            ],
+            'mode' => 'embedding',
+            'similar_patients' => $scored,
+            'metadata' => [
+                'total_candidates' => $totalCandidates,
+                'candidates_evaluated' => count($candidateRows),
+                'returned_count' => count($scored),
+                'weights' => $weights,
+                'filters_applied' => $filters,
+                'limit' => $limit,
+                'min_score' => $minScore,
+                'excluded_members' => count($excludePersonIds),
+                'temporal_window_days' => self::RECENT_WINDOW_DAYS,
+                'feature_vector_version' => $centroidData['version'] ?? null,
+                'requested_mode' => $requestedMode,
                 'computed_at' => now()->toIso8601String(),
             ],
         ];

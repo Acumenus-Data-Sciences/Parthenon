@@ -411,7 +411,9 @@ export interface NetworkFusionResult {
 
 export interface NetworkFusionParams {
   source_id: number;
-  cohort_definition_id: number;
+  cohort_definition_id?: number;
+  person_ids?: number[];
+  cohort_person_ids?: number[];
   n_neighbors?: number;
   n_iterations?: number;
   top_k_edges?: number;
@@ -525,7 +527,9 @@ export interface PhenotypeDiscoveryResult {
 
 export interface PhenotypeDiscoveryParams {
   source_id: number;
-  cohort_definition_id: number;
+  cohort_definition_id?: number;
+  person_ids?: number[];
+  cohort_person_ids?: number[];
   method?: string;
   k?: number;
 }

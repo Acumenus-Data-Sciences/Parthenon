@@ -36,7 +36,7 @@ export function TrajectoryComparison({
     isError,
   } = useQuery({
     queryKey: ["temporal-similarity", sourceId, personAId, personBId],
-    queryFn: () => fetchTemporalSimilarity(sourceId, personAId, personBId),
+    queryFn: () => fetchTemporalSimilarity(personAId, personBId, sourceId),
     enabled: sourceId > 0 && personAId > 0 && personBId > 0,
     staleTime: 5 * 60 * 1000,
   });

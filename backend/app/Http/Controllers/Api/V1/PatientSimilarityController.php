@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Concerns\SourceAware;
 use App\Context\SourceContext;
+use App\Enums\DaimonType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PatientSimilarityComputeRequest;
 use App\Http\Requests\PatientSimilarityExportCohortRequest;
@@ -50,7 +51,10 @@ class PatientSimilarityController extends Controller
     {
         try {
             $validated = $request->validated();
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            /** @var Source $source */
+            $source = Source::query()
+                ->with('daimons')
+                ->findOrFail((int) $validated['source_id']);
 
             // Merge user-supplied weights with dimension defaults
             $dimensions = SimilarityDimension::active()->get();
@@ -150,7 +154,10 @@ class PatientSimilarityController extends Controller
     {
         try {
             $validated = $request->validated();
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            $source = Source::query()
+                ->with('daimons')
+                ->where('id', (int) $validated['source_id'])
+                ->firstOrFail();
             $force = $validated['force'] ?? false;
 
             // Check staleness — skip dispatch if vectors are fresh and not forced
@@ -227,6 +234,9 @@ class PatientSimilarityController extends Controller
             $limit = $validated['limit'] ?? 20;
             $minScore = $validated['min_score'] ?? 0.0;
             $filters = $validated['filters'] ?? [];
+            $mode = $validated['mode'] ?? 'interpretable';
+            $cohortDefinitionId = (int) $validated['cohort_definition_id'];
+            $cohortName = CohortDefinition::find($cohortDefinitionId)?->name ?? 'Unknown Cohort';
 
             // Merge user-supplied weights with dimension defaults
             $dimensions = SimilarityDimension::active()->get();
@@ -236,11 +246,15 @@ class PatientSimilarityController extends Controller
                     ?? $dimension->default_weight;
             }
 
+            $weightsHash = PatientSimilarityCache::hashWeights($weights);
+            $queryHash = PatientSimilarityCache::hashQuery($filters, $limit, $minScore);
+            $cacheSeedPersonId = -1 * $cohortDefinitionId;
+
             // Get cohort member person_ids from results.cohort
             SourceContext::forSource($source);
             $memberRows = $this->results()
                 ->table('cohort')
-                ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                ->where('cohort_definition_id', $cohortDefinitionId)
                 ->pluck('subject_id')
                 ->map(fn ($id) => (int) $id)
                 ->unique()
@@ -248,35 +262,103 @@ class PatientSimilarityController extends Controller
                 ->all();
 
             if (empty($memberRows)) {
-                return response()->json([
-                    'data' => [],
-                    'meta' => [
+                $results = [
+                    'seed' => [
+                        'person_id' => 0,
+                        'type' => 'centroid',
+                        'member_count' => 0,
+                        'dimensions_available' => [],
+                    ],
+                    'mode' => $mode,
+                    'similar_patients' => [],
+                    'metadata' => [
                         'error' => 'Cohort has no members. Generate the cohort first.',
-                        'cohort_definition_id' => $validated['cohort_definition_id'],
+                        'cohort_definition_id' => $cohortDefinitionId,
+                        'cohort_name' => $cohortName,
+                        'cohort_member_count' => 0,
+                        'source_id' => $source->id,
+                        'limit' => $limit,
+                        'min_score' => $minScore,
+                        'count' => 0,
+                        'query_hash' => $queryHash,
+                    ],
+                ];
+
+                return response()->json([
+                    'data' => $results,
+                    'meta' => [
+                        'error' => $results['metadata']['error'],
+                        'cohort_definition_id' => $cohortDefinitionId,
+                        'cohort_name' => $cohortName,
+                        'cohort_member_count' => 0,
+                        'source_id' => $source->id,
+                        'limit' => $limit,
+                        'min_score' => $minScore,
+                        'count' => 0,
                     ],
                 ]);
             }
 
-            // Build centroid from cohort members
-            $centroid = $this->centroidBuilder->buildCentroid($memberRows, $source);
+            $cached = PatientSimilarityCache::query()
+                ->where('source_id', $source->id)
+                ->where('seed_person_id', $cacheSeedPersonId)
+                ->where('mode', $mode)
+                ->where('weights_hash', $weightsHash)
+                ->where('query_hash', $queryHash)
+                ->valid()
+                ->first();
 
-            $results = $this->service->searchFromCentroid(
-                centroidData: $centroid,
-                source: $source,
-                excludePersonIds: $memberRows,
-                weights: $weights,
-                limit: $limit,
-                minScore: $minScore,
-                filters: $filters,
-            );
+            if ($cached !== null) {
+                $results = $cached->results;
+                $results['metadata'] = array_merge($results['metadata'] ?? [], [
+                    'cache_id' => $cached->id,
+                    'query_hash' => $queryHash,
+                ]);
+            } else {
+                // Build centroid from cohort members
+                $centroid = $this->centroidBuilder->buildCentroid($memberRows, $source);
+                $centroidEmbedding = $this->centroidBuilder->buildCentroidEmbedding($memberRows, $source);
+
+                $results = $this->service->searchFromCentroid(
+                    centroidData: $centroid,
+                    source: $source,
+                    excludePersonIds: $memberRows,
+                    weights: $weights,
+                    limit: $limit,
+                    minScore: $minScore,
+                    filters: $filters,
+                    mode: $mode,
+                    centroidEmbedding: $centroidEmbedding,
+                );
+
+                $cache = PatientSimilarityCache::query()->updateOrCreate(
+                    [
+                        'source_id' => $source->id,
+                        'seed_person_id' => $cacheSeedPersonId,
+                        'mode' => $mode,
+                        'weights_hash' => $weightsHash,
+                        'query_hash' => $queryHash,
+                    ],
+                    [
+                        'results' => $results,
+                        'computed_at' => now(),
+                        'expires_at' => now()->addMinutes(60),
+                    ],
+                );
+
+                $results['metadata'] = array_merge($results['metadata'] ?? [], [
+                    'cache_id' => $cache->id,
+                    'query_hash' => $queryHash,
+                ]);
+            }
 
             // Enrich results with shared features and explanations
             $results = $this->enrichSearchResults($results, $source->id);
             $results = $this->appendDiagnostics($results, $source->id, $memberRows);
 
             $results = $this->mergeMetadata($results, [
-                'cohort_definition_id' => (int) $validated['cohort_definition_id'],
-                'cohort_name' => CohortDefinition::find($validated['cohort_definition_id'])?->name ?? 'Unknown Cohort',
+                'cohort_definition_id' => $cohortDefinitionId,
+                'cohort_name' => $cohortName,
                 'cohort_member_count' => count($memberRows),
                 'source_id' => $source->id,
                 'limit' => $limit,
@@ -301,7 +383,7 @@ class PatientSimilarityController extends Controller
             return response()->json([
                 'data' => $results,
                 'meta' => [
-                    'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                    'cohort_definition_id' => $cohortDefinitionId,
                     'cohort_name' => $results['metadata']['cohort_name'] ?? 'Unknown Cohort',
                     'cohort_member_count' => count($memberRows),
                     'source_id' => $source->id,
@@ -493,6 +575,66 @@ class PatientSimilarityController extends Controller
             return response()->json(['data' => $enriched]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Patient comparison failed', $e);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/temporal-compare
+     *
+     * Compare two patients' measurement trajectories via the Python AI DTW endpoint.
+     */
+    public function temporalCompare(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'person_a_id' => ['required', 'integer'],
+                'person_b_id' => ['required', 'integer'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'measurement_concept_ids' => ['sometimes', 'array'],
+                'measurement_concept_ids.*' => ['integer'],
+            ]);
+
+            $source = Source::query()
+                ->with('daimons')
+                ->where('id', (int) $validated['source_id'])
+                ->firstOrFail();
+            $sourceSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'omop';
+            $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? 'vocab';
+
+            foreach ([$sourceSchema, $vocabSchema] as $schema) {
+                if (! preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $schema)) {
+                    return response()->json([
+                        'error' => 'Temporal comparison requires simple schema-qualified OMOP daimons.',
+                    ], 422);
+                }
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+            $payload = [
+                'source_id' => $source->id,
+                'person_a_id' => (int) $validated['person_a_id'],
+                'person_b_id' => (int) $validated['person_b_id'],
+                'source_schema' => $sourceSchema,
+                'vocab_schema' => $vocabSchema,
+            ];
+
+            if (isset($validated['measurement_concept_ids'])) {
+                $payload['measurement_concept_ids'] = $validated['measurement_concept_ids'];
+            }
+
+            /** @var Response $response */
+            $response = Http::timeout(120)->post("{$aiUrl}/patient-similarity/temporal-similarity", $payload);
+
+            if ($response->failed()) {
+                $body = $response->json();
+                $detail = $body['detail'] ?? 'Temporal comparison failed in AI service.';
+
+                return response()->json(['error' => $detail], $response->status());
+            }
+
+            return response()->json(['data' => $response->json()]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Temporal comparison failed', $e);
         }
     }
 
@@ -1304,6 +1446,54 @@ class PatientSimilarityController extends Controller
     }
 
     /**
+     * @param  array<string, mixed>  $validated
+     * @return array<int, int>
+     */
+    private function resolveAnalysisPersonIds(array $validated): array
+    {
+        $personIds = $this->normalizePersonIds($validated['person_ids'] ?? []);
+        if ($personIds !== []) {
+            return $personIds;
+        }
+
+        $cohortPersonIds = $this->normalizePersonIds($validated['cohort_person_ids'] ?? []);
+        if ($cohortPersonIds !== []) {
+            return $cohortPersonIds;
+        }
+
+        if (! isset($validated['cohort_definition_id'])) {
+            return [];
+        }
+
+        return $this->results()
+            ->table('cohort')
+            ->where('cohort_definition_id', (int) $validated['cohort_definition_id'])
+            ->pluck('subject_id')
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function normalizePersonIds(mixed $ids): array
+    {
+        if (! is_array($ids)) {
+            return [];
+        }
+
+        return collect($ids)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * POST /v1/patient-similarity/network-fusion
      *
      * Run Similarity Network Fusion across clinical modalities.
@@ -1313,7 +1503,11 @@ class PatientSimilarityController extends Controller
     {
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_definition_id' => ['required', 'integer'],
+            'cohort_definition_id' => ['required_without_all:person_ids,cohort_person_ids', 'integer'],
+            'person_ids' => ['sometimes', 'array', 'min:1', 'max:10000'],
+            'person_ids.*' => ['integer'],
+            'cohort_person_ids' => ['sometimes', 'array', 'min:1', 'max:10000'],
+            'cohort_person_ids.*' => ['integer'],
             'n_neighbors' => ['sometimes', 'integer', 'min:5', 'max:50'],
             'n_iterations' => ['sometimes', 'integer', 'min:5', 'max:50'],
             'top_k_edges' => ['sometimes', 'integer', 'min:3', 'max:50'],
@@ -1323,19 +1517,11 @@ class PatientSimilarityController extends Controller
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
             SourceContext::forSource($source);
 
-            // Resolve cohort members
-            $personIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['cohort_definition_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
+            $personIds = $this->resolveAnalysisPersonIds($validated);
 
             if (count($personIds) < 10) {
                 return response()->json([
-                    'error' => 'Cohort has fewer than 10 members ('.count($personIds).'). Generate it first or choose a larger cohort.',
+                    'error' => 'Analysis set has fewer than 10 members ('.count($personIds).'). Generate/select a larger patient set first.',
                 ], 422);
             }
 
@@ -1390,7 +1576,11 @@ class PatientSimilarityController extends Controller
     {
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_definition_id' => ['required', 'integer'],
+            'cohort_definition_id' => ['required_without_all:person_ids,cohort_person_ids', 'integer'],
+            'person_ids' => ['sometimes', 'array', 'min:1', 'max:10000'],
+            'person_ids.*' => ['integer'],
+            'cohort_person_ids' => ['sometimes', 'array', 'min:1', 'max:10000'],
+            'cohort_person_ids.*' => ['integer'],
             'method' => ['sometimes', 'string', 'in:consensus,kmeans,spectral'],
             'k' => ['sometimes', 'integer', 'min:2', 'max:20'],
         ]);
@@ -1399,18 +1589,11 @@ class PatientSimilarityController extends Controller
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
             SourceContext::forSource($source);
 
-            $personIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['cohort_definition_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
+            $personIds = $this->resolveAnalysisPersonIds($validated);
 
             if (count($personIds) < 10) {
                 return response()->json([
-                    'error' => 'Cohort has fewer than 10 members ('.count($personIds).'). Generate it first or choose a larger cohort.',
+                    'error' => 'Analysis set has fewer than 10 members ('.count($personIds).'). Generate/select a larger patient set first.',
                 ], 422);
             }
 
@@ -1456,7 +1639,9 @@ class PatientSimilarityController extends Controller
     {
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_person_ids' => ['sometimes', 'array'],
+            'person_ids' => ['sometimes', 'array', 'max:10000'],
+            'person_ids.*' => ['integer'],
+            'cohort_person_ids' => ['sometimes', 'array', 'max:10000'],
             'cohort_person_ids.*' => ['integer'],
             'dimensions' => ['sometimes', 'integer', 'in:2,3'],
             'max_patients' => ['sometimes', 'integer', 'min:100', 'max:10000'],
@@ -1472,12 +1657,29 @@ class PatientSimilarityController extends Controller
                 'max_patients' => $validated['max_patients'] ?? 5000,
             ];
 
-            if (! empty($validated['cohort_person_ids'])) {
-                $personIds = array_values(array_unique($validated['cohort_person_ids']));
+            $personIds = $this->normalizePersonIds($validated['person_ids'] ?? []);
+            $cohortPersonIds = $this->normalizePersonIds($validated['cohort_person_ids'] ?? []);
+
+            if ($personIds === [] && $cohortPersonIds !== []) {
+                $personIds = $cohortPersonIds;
+            }
+            if ($cohortPersonIds === [] && $personIds !== []) {
+                $cohortPersonIds = $personIds;
+            }
+
+            if ($personIds !== []) {
                 if (count($personIds) > 5000) {
                     $personIds = collect($personIds)->shuffle()->take(5000)->values()->all();
                 }
+
+                $projectedLookup = array_fill_keys($personIds, true);
+                $cohortPersonIds = array_values(array_filter(
+                    $cohortPersonIds,
+                    fn (int $id) => isset($projectedLookup[$id])
+                ));
+
                 $payload['person_ids'] = $personIds;
+                $payload['cohort_person_ids'] = $cohortPersonIds;
             }
 
             $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');

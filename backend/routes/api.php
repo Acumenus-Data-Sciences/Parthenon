@@ -868,6 +868,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:patient-similarity.view');
             Route::get('/compare', [PatientSimilarityController::class, 'compare'])
                 ->middleware(['permission:patient-similarity.view', 'permission:profiles.view']);
+            Route::post('/temporal-compare', [PatientSimilarityController::class, 'temporalCompare'])
+                ->middleware(['permission:patient-similarity.view', 'permission:profiles.view', 'throttle:20,1']);
             Route::get('/cohort-profile', [PatientSimilarityController::class, 'cohortProfile'])
                 ->middleware('permission:patient-similarity.view');
             Route::post('/expand-cohort', [PatientSimilarityController::class, 'expandCohort'])
