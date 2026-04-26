@@ -130,7 +130,7 @@ class StudyIntentService
             throw new RuntimeException('Anthropic API key is not configured.');
         }
 
-        $model = (string) config('services.anthropic.model', 'claude-sonnet-4-6');
+        $model = (string) config('services.anthropic.model', 'claude-opus-4-7');
         $timeout = (int) config('services.anthropic.timeout', 60);
 
         $system = <<<'PROMPT'

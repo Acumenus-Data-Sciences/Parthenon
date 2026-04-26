@@ -57,7 +57,7 @@ return [
 
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY', env('CLAUDE_API_KEY', '')),
-        'model' => env('ANTHROPIC_MODEL', env('CLAUDE_MODEL', 'claude-sonnet-4-6')),
+        'model' => env('ANTHROPIC_MODEL', env('CLAUDE_MODEL', 'claude-opus-4-7')),
         'timeout' => (int) env('ANTHROPIC_TIMEOUT', env('CLAUDE_TIMEOUT', 120)),
     ],
 

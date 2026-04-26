@@ -301,12 +301,12 @@ class StudyDesignProtocolImportService
 
         $model = trim((string) ($provider?->model ?? ''));
         if ($model === '') {
-            $model = trim((string) config('services.anthropic.model', 'claude-sonnet-4-6'));
+            $model = trim((string) config('services.anthropic.model', 'claude-opus-4-7'));
         }
 
         return [
             'api_key' => $apiKey,
-            'model' => $model !== '' ? $model : 'claude-sonnet-4-6',
+            'model' => $model !== '' ? $model : 'claude-opus-4-7',
         ];
     }
 

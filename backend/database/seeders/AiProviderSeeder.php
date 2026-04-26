@@ -23,7 +23,7 @@ class AiProviderSeeder extends Seeder
                 'display_name' => 'Anthropic',
                 'is_enabled' => false,
                 'is_active' => false,
-                'model' => 'claude-sonnet-4-6',
+                'model' => 'claude-opus-4-7',
                 'settings' => ['api_key' => ''],
             ],
             [
