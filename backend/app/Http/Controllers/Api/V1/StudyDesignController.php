@@ -19,9 +19,11 @@ use App\Models\App\StudyDesignSession;
 use App\Models\App\StudyDesignVersion;
 use App\Services\StudyDesign\StudyCohortDraftVerifier;
 use App\Services\StudyDesign\StudyConceptSetDraftVerifier;
+use App\Services\StudyDesign\StudyDesignProtocolImportService;
 use App\Services\StudyDesign\StudyDesignReadinessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -34,6 +36,7 @@ class StudyDesignController extends Controller
         private readonly StudyConceptSetDraftVerifier $conceptSetVerifier,
         private readonly StudyCohortDraftVerifier $cohortVerifier,
         private readonly StudyDesignReadinessService $readinessService,
+        private readonly StudyDesignProtocolImportService $protocolImportService,
     ) {}
 
     public function index(Study $study): JsonResponse
@@ -124,6 +127,37 @@ class StudyDesignController extends Controller
         $this->recordAiEvent($request, $session, $version, 'intent_generation', $validated, $intent);
 
         return response()->json(['data' => $version], 201);
+    }
+
+    public function importProtocol(Request $request, Study $study, StudyDesignSession $session): JsonResponse
+    {
+        $this->authorizeSession($study, $session);
+
+        $validated = $request->validate([
+            'protocol' => ['required', 'file', 'max:20480'],
+        ]);
+        $file = $validated['protocol'];
+
+        if (! $file instanceof UploadedFile) {
+            return response()->json(['message' => 'Protocol upload was not readable.'], 422);
+        }
+
+        try {
+            $result = $this->protocolImportService->import(
+                $study,
+                $session,
+                $file,
+                $request->user()->id,
+            );
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json([
+            'data' => $result['version']->load('assets'),
+            'extracted' => $result['extracted'],
+            'metadata' => $result['metadata'],
+        ], 201);
     }
 
     public function importExistingStudy(Request $request, Study $study, StudyDesignSession $session): JsonResponse

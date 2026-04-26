@@ -53,7 +53,9 @@ import {
   listStudyDesignVersions,
   listStudyDesignAssets,
   generateStudyDesignIntent,
+  importStudyDesignProtocol,
   importExistingStudyDesign,
+  updateStudyDesignVersion,
   critiqueStudyDesignVersion,
   acceptStudyDesignVersion,
   getStudyDesignLockReadiness,
@@ -292,6 +294,19 @@ export function useGenerateStudyDesignIntent() {
   });
 }
 
+export function useImportStudyDesignProtocol() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, file }: { slug: string; sessionId: number; file: File }) =>
+      importStudyDesignProtocol(slug, sessionId, file),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+    },
+  });
+}
+
 export function useImportExistingStudyDesign() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -301,6 +316,28 @@ export function useImportExistingStudyDesign() {
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+    },
+  });
+}
+
+export function useUpdateStudyDesignVersion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      payload: Parameters<typeof updateStudyDesignVersion>[3];
+    }) => updateStudyDesignVersion(slug, sessionId, versionId, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions", variables.versionId, "lock-readiness"] });
     },
   });
 }

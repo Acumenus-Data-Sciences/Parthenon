@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
@@ -12,11 +12,12 @@ import {
   Plus,
   Save,
   ShieldCheck,
+  Upload,
   X,
 } from "lucide-react";
 import { formatDateTime } from "@/i18n/format";
 import { cn } from "@/lib/utils";
-import type { Study, StudyAnalysisEntry, StudyDesignAsset } from "../types/study";
+import type { Study, StudyAnalysisEntry, StudyDesignAsset, StudyDesignVersion } from "../types/study";
 import {
   useUpdateStudy,
   useAddStudyAnalysis,
@@ -26,12 +27,14 @@ import {
   useCreateStudyDesignSession,
   useCritiqueStudyDesignVersion,
   useGenerateStudyDesignIntent,
+  useImportStudyDesignProtocol,
   useImportExistingStudyDesign,
   useLockStudyDesignVersion,
   useStudyDesignAssets,
   useStudyDesignLockReadiness,
   useStudyDesignSessions,
   useStudyDesignVersions,
+  useUpdateStudyDesignVersion,
 } from "../hooks/useStudies";
 import { useCharacterizations } from "@/features/analyses/hooks/useCharacterizations";
 import { useIncidenceRates } from "@/features/analyses/hooks/useIncidenceRates";
@@ -62,16 +65,42 @@ interface StudyDesignerProps {
   study: Study;
 }
 
+interface IntentReviewState {
+  researchQuestion: string;
+  primaryObjective: string;
+  population: string;
+  exposure: string;
+  comparator: string;
+  outcome: string;
+  timeAtRisk: string;
+  studyType: string;
+  studyDesign: string;
+  hypothesis: string;
+}
+
+interface BasicInfoState {
+  studySignature: string;
+  title: string;
+  description: string;
+  studyType: string;
+}
+
+interface IntentReviewFormState {
+  versionSignature: string;
+  values: IntentReviewState;
+}
+
 export function StudyDesigner({ study }: StudyDesignerProps) {
   const { t } = useTranslation("app");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [studyType, setStudyType] = useState("characterization");
+  const protocolInputRef = useRef<HTMLInputElement | null>(null);
+  const currentBasicInfo = studyToBasicInfoState(study);
+  const [basicInfoState, setBasicInfoState] = useState<BasicInfoState>(currentBasicInfo);
 
   const [addType, setAddType] = useState("characterization");
   const [addId, setAddId] = useState<number | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
+  const [optimisticVersion, setOptimisticVersion] = useState<StudyDesignVersion | null>(null);
   const [researchQuestion, setResearchQuestion] = useState(
     study.primary_objective || study.description || study.title || "",
   );
@@ -81,7 +110,9 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const removeAnalysisMutation = useRemoveStudyAnalysis();
   const createDesignSession = useCreateStudyDesignSession();
   const generateIntent = useGenerateStudyDesignIntent();
+  const importProtocol = useImportStudyDesignProtocol();
   const importExistingDesign = useImportExistingStudyDesign();
+  const updateDesignVersion = useUpdateStudyDesignVersion();
   const critiqueDesign = useCritiqueStudyDesignVersion();
   const acceptDesign = useAcceptStudyDesignVersion();
   const lockDesign = useLockStudyDesignVersion();
@@ -91,6 +122,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const activeSession = designSessions?.find((session) => session.id === selectedSessionId) ?? designSessions?.[0] ?? null;
   const { data: designVersions } = useStudyDesignVersions(study.slug, activeSession?.id ?? null);
   const activeVersion = designVersions?.find((version) => version.id === selectedVersionId)
+    ?? (optimisticVersion?.id === selectedVersionId ? optimisticVersion : null)
     ?? designVersions?.[0]
     ?? activeSession?.active_version
     ?? null;
@@ -106,6 +138,41 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const { data: pathwayData } = usePathways(1);
   const { data: estData } = useEstimations(1);
   const { data: predData } = usePredictions(1);
+
+  const intentReview = useMemo(
+    () => versionToIntentReview(activeVersion, study),
+    [activeVersion, study],
+  );
+  const intentReviewSignature = useMemo(
+    () => versionReviewSignature(activeVersion, study),
+    [activeVersion, study],
+  );
+  const [reviewFormState, setReviewFormState] = useState<IntentReviewFormState>({
+    versionSignature: intentReviewSignature,
+    values: intentReview,
+  });
+
+  if (basicInfoState.studySignature !== currentBasicInfo.studySignature) {
+    setBasicInfoState(currentBasicInfo);
+  }
+
+  if (reviewFormState.versionSignature !== intentReviewSignature) {
+    setReviewFormState({
+      versionSignature: intentReviewSignature,
+      values: intentReview,
+    });
+  }
+
+  const title = basicInfoState.title;
+  const description = basicInfoState.description;
+  const studyType = basicInfoState.studyType;
+  const reviewState = reviewFormState.values;
+  const setTitle = (value: string) => setBasicInfoState((state) => ({ ...state, title: value }));
+  const setDescription = (value: string) => setBasicInfoState((state) => ({ ...state, description: value }));
+  const setStudyType = (value: string) => setBasicInfoState((state) => ({ ...state, studyType: value }));
+  const setReviewState = (values: IntentReviewState) => {
+    setReviewFormState((state) => ({ ...state, values }));
+  };
 
   const getAnalysisOptions = () => {
     switch (addType) {
@@ -158,13 +225,13 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
     });
   };
 
-  const ensureDesignSession = async () => {
+  const ensureDesignSession = async (sourceMode = "study_designer") => {
     if (activeSession) return activeSession;
     const session = await createDesignSession.mutateAsync({
       slug: study.slug,
       payload: {
         title: t("studies.designer.defaultSessionTitle", { title: study.title }),
-        source_mode: "study_designer",
+        source_mode: sourceMode,
       },
     });
     setSelectedSessionId(session.id);
@@ -179,7 +246,29 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       sessionId: session.id,
       researchQuestion: researchQuestion.trim(),
     });
+    setOptimisticVersion(version);
     setSelectedVersionId(version.id);
+  };
+
+  const handleProtocolUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    const session = await ensureDesignSession("protocol_upload");
+    const version = await importProtocol.mutateAsync({
+      slug: study.slug,
+      sessionId: session.id,
+      file,
+    });
+    const nextReview = versionToIntentReview(version, study);
+    setOptimisticVersion(version);
+    setSelectedVersionId(version.id);
+    setResearchQuestion(nextReview.researchQuestion || researchQuestion);
+    setReviewFormState({
+      versionSignature: versionReviewSignature(version, study),
+      values: nextReview,
+    });
   };
 
   const handleImportExisting = async () => {
@@ -188,7 +277,27 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       slug: study.slug,
       sessionId: session.id,
     });
+    setOptimisticVersion(version);
     setSelectedVersionId(version.id);
+  };
+
+  const handleSaveIntentReview = () => {
+    if (!activeSession || !activeVersion) return;
+
+    updateDesignVersion.mutate(
+      {
+        slug: study.slug,
+        sessionId: activeSession.id,
+        versionId: activeVersion.id,
+        payload: intentReviewPayload(activeVersion, reviewState, study),
+      },
+      {
+        onSuccess: (version) => {
+          setSelectedVersionId(version.id);
+          setResearchQuestion(reviewState.researchQuestion);
+        },
+      },
+    );
   };
 
   const handleCritique = () => {
@@ -221,7 +330,9 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const isSaving = updateMutation.isPending;
   const designBusy = createDesignSession.isPending
     || generateIntent.isPending
+    || importProtocol.isPending
     || importExistingDesign.isPending
+    || updateDesignVersion.isPending
     || critiqueDesign.isPending
     || acceptDesign.isPending
     || lockDesign.isPending;
@@ -230,6 +341,17 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const designAssetCounts = summarizeDesignAssets(versionAssets);
   const blockedAssets = versionAssets.filter((asset) => asset.verification_status === "blocked");
   const packageSha = asString(lockReadiness?.provenance_summary?.package_manifest_sha256);
+  const activeError = mutationError(createDesignSession.error)
+    || mutationError(generateIntent.error)
+    || mutationError(importProtocol.error)
+    || mutationError(updateDesignVersion.error)
+    || mutationError(importExistingDesign.error)
+    || mutationError(critiqueDesign.error)
+    || mutationError(acceptDesign.error)
+    || mutationError(lockDesign.error)
+    || mutationError(updateMutation.error)
+    || mutationError(addAnalysisMutation.error)
+    || mutationError(removeAnalysisMutation.error);
 
   return (
     <div className="space-y-6">
@@ -280,6 +402,22 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
               />
             </div>
             <div className="flex flex-wrap gap-2">
+              <input
+                ref={protocolInputRef}
+                type="file"
+                accept=".doc,.docx,.pdf,.md,.markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/markdown"
+                className="sr-only"
+                onChange={handleProtocolUpload}
+              />
+              <button
+                type="button"
+                onClick={() => protocolInputRef.current?.click()}
+                disabled={designBusy}
+                className="btn btn-secondary btn-sm"
+              >
+                {importProtocol.isPending ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                {t("studies.designer.actions.uploadProtocol")}
+              </button>
               <button
                 type="button"
                 onClick={handleGenerateIntent}
@@ -325,6 +463,20 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 {t("studies.workbench.actions.lockPackage")}
               </button>
             </div>
+            {activeVersion && (
+              <IntentReviewPanel
+                state={reviewState}
+                onChange={setReviewState}
+                onSave={handleSaveIntentReview}
+                isSaving={updateDesignVersion.isPending}
+                isLocked={activeVersion.status === "locked"}
+              />
+            )}
+            {activeError && (
+              <div className="rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical">
+                {activeError}
+              </div>
+            )}
           </div>
 
           <div
@@ -665,6 +817,144 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   );
 }
 
+function IntentReviewPanel({
+  state,
+  onChange,
+  onSave,
+  isSaving,
+  isLocked,
+}: {
+  state: IntentReviewState;
+  onChange: (state: IntentReviewState) => void;
+  onSave: () => void;
+  isSaving: boolean;
+  isLocked: boolean;
+}) {
+  const { t } = useTranslation("app");
+  const update = (key: keyof IntentReviewState, value: string) => {
+    onChange({ ...state, [key]: value });
+  };
+
+  return (
+    <div className="rounded-lg border border-border-default bg-surface-overlay p-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h4 className="text-sm font-semibold text-text-secondary">
+          {t("studies.designer.sections.intentReview")}
+        </h4>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={isSaving || isLocked}
+          className="btn btn-secondary btn-sm"
+        >
+          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          {t("studies.designer.actions.saveIntent")}
+        </button>
+      </div>
+
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <IntentReviewField
+          label={t("studies.workbench.researchQuestion")}
+          value={state.researchQuestion}
+          disabled={isLocked}
+          onChange={(value) => update("researchQuestion", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.primaryObjective")}
+          value={state.primaryObjective}
+          disabled={isLocked}
+          onChange={(value) => update("primaryObjective", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.population")}
+          value={state.population}
+          disabled={isLocked}
+          onChange={(value) => update("population", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.exposure")}
+          value={state.exposure}
+          disabled={isLocked}
+          onChange={(value) => update("exposure", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.comparator")}
+          value={state.comparator}
+          disabled={isLocked}
+          onChange={(value) => update("comparator", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.primaryOutcome")}
+          value={state.outcome}
+          disabled={isLocked}
+          onChange={(value) => update("outcome", value)}
+        />
+        <IntentReviewField
+          label={t("studies.workbench.labels.timeAtRisk")}
+          value={state.timeAtRisk}
+          disabled={isLocked}
+          onChange={(value) => update("timeAtRisk", value)}
+        />
+        <IntentReviewField
+          label={t("studies.designer.labels.hypothesis")}
+          value={state.hypothesis}
+          disabled={isLocked}
+          onChange={(value) => update("hypothesis", value)}
+        />
+        <div>
+          <label className="form-label">{t("studies.designer.labels.studyType")}</label>
+          <select
+            value={state.studyType}
+            onChange={(event) => update("studyType", event.target.value)}
+            className="form-input form-select"
+            disabled={isLocked}
+          >
+            {STUDY_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t(`studies.detail.studyTypes.${type}`, { defaultValue: humanize(type) })}
+              </option>
+            ))}
+          </select>
+        </div>
+        <IntentReviewField
+          label={t("studies.designer.labels.studyDesign")}
+          value={state.studyDesign}
+          rows={1}
+          disabled={isLocked}
+          onChange={(value) => update("studyDesign", value)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function IntentReviewField({
+  label,
+  value,
+  onChange,
+  rows = 2,
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  rows?: number;
+  disabled?: boolean;
+}) {
+  return (
+    <div>
+      <label className="form-label">{label}</label>
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        rows={rows}
+        className="form-input form-textarea"
+        disabled={disabled}
+      />
+    </div>
+  );
+}
+
 function summarizeDesignAssets(assets: StudyDesignAsset[]) {
   return assets.reduce(
     (summary, asset) => {
@@ -831,6 +1121,134 @@ function assetTitle(asset: StudyDesignAsset): string {
   return humanize(asset.asset_type);
 }
 
+function studyToBasicInfoState(study: Study): BasicInfoState {
+  const description = study.description ?? "";
+  const studyType = study.study_type || "characterization";
+
+  return {
+    studySignature: [study.id, study.title, description, studyType].join("\u0000"),
+    title: study.title,
+    description,
+    studyType,
+  };
+}
+
+function versionReviewSignature(version: StudyDesignVersion | null, study: Study): string {
+  if (!version) return ["study", study.id, study.title, study.primary_objective ?? ""].join("\u0000");
+
+  return [
+    version.id,
+    version.status,
+    JSON.stringify(version.intent_json ?? {}),
+    JSON.stringify(version.normalized_spec_json ?? {}),
+  ].join("\u0000");
+}
+
+function versionToIntentReview(version: StudyDesignVersion | null, study: Study): IntentReviewState {
+  const intent = asRecord(version?.intent_json);
+  const spec = asRecord(version?.normalized_spec_json);
+  const intentPico = asRecord(intent.pico);
+  const specPico = asRecord(spec.pico);
+  const specStudy = asRecord(spec.study);
+
+  return {
+    researchQuestion: firstString(
+      intent.research_question,
+      specStudy.research_question,
+      study.primary_objective,
+      study.description,
+      study.title,
+    ),
+    primaryObjective: firstString(intent.primary_objective, specStudy.primary_objective, study.primary_objective),
+    population: firstString(
+      intentPico.population,
+      nestedSummary(specPico.population),
+      specStudy.target_population_summary,
+    ),
+    exposure: firstString(
+      intentPico.intervention,
+      intentPico.exposure,
+      nestedSummary(specPico.intervention_or_exposure),
+      nestedSummary(specPico.intervention),
+    ),
+    comparator: firstString(intentPico.comparator, nestedSummary(specPico.comparator)),
+    outcome: firstString(
+      intentPico.outcome,
+      firstOutcomeSummary(specPico.outcomes),
+    ),
+    timeAtRisk: firstString(
+      intentPico.time_at_risk,
+      intentPico.time,
+      nestedSummary(specPico.time),
+    ),
+    studyType: firstString(intent.analysis_family, specStudy.study_type, study.study_type, "custom"),
+    studyDesign: firstString(specStudy.study_design, study.study_design, "observational"),
+    hypothesis: firstString(intent.hypothesis, specStudy.hypothesis, study.hypothesis),
+  };
+}
+
+function intentReviewPayload(
+  version: StudyDesignVersion,
+  state: IntentReviewState,
+  study: Study,
+): {
+  intent_json: Record<string, unknown>;
+  normalized_spec_json: Record<string, unknown>;
+  status: "draft" | "review_ready";
+} {
+  const intent = {
+    ...asRecord(version.intent_json),
+    research_question: state.researchQuestion,
+    study_title: study.title,
+    analysis_family: state.studyType,
+    primary_objective: state.primaryObjective,
+    hypothesis: state.hypothesis,
+    pico: {
+      ...asRecord(asRecord(version.intent_json).pico),
+      population: state.population,
+      intervention: state.exposure,
+      comparator: state.comparator,
+      outcome: state.outcome,
+      time_at_risk: state.timeAtRisk,
+    },
+    known_gaps: ["AI-derived fields require review and canonical OHDSI asset verification."],
+  };
+  const existingSpec = asRecord(version.normalized_spec_json);
+  const existingStudy = asRecord(existingSpec.study);
+  const existingPico = asRecord(existingSpec.pico);
+  const normalizedSpec = {
+    ...existingSpec,
+    study: {
+      ...existingStudy,
+      title: existingStudy.title ?? study.title,
+      short_title: existingStudy.short_title ?? study.short_title,
+      research_question: state.researchQuestion,
+      primary_objective: state.primaryObjective,
+      hypothesis: state.hypothesis,
+      study_type: state.studyType,
+      study_design: state.studyDesign,
+      target_population_summary: state.population,
+    },
+    pico: {
+      ...existingPico,
+      population: state.population,
+      intervention: state.exposure,
+      comparator: state.comparator,
+      outcome: state.outcome,
+      time_at_risk: state.timeAtRisk,
+    },
+  };
+  const reviewReady = state.researchQuestion.trim() !== ""
+    && state.population.trim() !== ""
+    && state.outcome.trim() !== "";
+
+  return {
+    intent_json: intent,
+    normalized_spec_json: normalizedSpec,
+    status: reviewReady ? "review_ready" : "draft",
+  };
+}
+
 function getChecks(json: Record<string, unknown> | null): Array<{ key: string; pass: boolean }> {
   const checks = isRecord(json?.checks) ? json.checks : null;
   if (!checks) return [];
@@ -860,8 +1278,49 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}
+
 function asString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
+}
+
+function firstString(...values: unknown[]): string {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value;
+  }
+
+  return "";
+}
+
+function nestedSummary(value: unknown): string {
+  if (typeof value === "string") return value;
+
+  return firstString(asRecord(value).summary);
+}
+
+function firstOutcomeSummary(value: unknown): string {
+  if (!Array.isArray(value)) return "";
+
+  for (const outcome of value) {
+    const summary = nestedSummary(outcome);
+    if (summary) return summary;
+  }
+
+  return "";
+}
+
+function mutationError(error: unknown): string | null {
+  if (!error) return null;
+  if (typeof error === "string") return error;
+
+  const responseData = asRecord(asRecord(error).response ? asRecord(asRecord(error).response).data : null);
+  const responseMessage = firstString(responseData.message, responseData.error);
+  if (responseMessage) return responseMessage;
+
+  if (error instanceof Error) return error.message;
+  return "Study Designer request failed.";
 }
 
 function humanize(value: string): string {

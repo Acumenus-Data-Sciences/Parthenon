@@ -808,6 +808,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('{session}/versions', [StudyDesignController::class, 'versions'])->middleware('permission:studies.view');
                 Route::get('{session}/assets', [StudyDesignController::class, 'assets'])->middleware('permission:studies.view');
                 Route::post('{session}/intent', [StudyDesignController::class, 'generateIntent'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/protocol-import', [StudyDesignController::class, 'importProtocol'])->middleware(['permission:studies.create', 'throttle:5,1']);
                 Route::post('{session}/import-existing', [StudyDesignController::class, 'importExistingStudy'])->middleware('permission:studies.create');
                 Route::post('{session}/versions/{version}/phenotypes/recommend', [StudyDesignController::class, 'recommendPhenotypes'])->middleware(['permission:studies.create', 'throttle:10,1']);
                 Route::post('{session}/versions/{version}/critique', [StudyDesignController::class, 'critiqueVersion'])->middleware(['permission:studies.create', 'throttle:10,1']);

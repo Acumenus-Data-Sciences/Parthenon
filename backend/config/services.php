@@ -55,6 +55,12 @@ return [
         'timeout' => env('AI_SERVICE_TIMEOUT', 30),
     ],
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY', env('CLAUDE_API_KEY', '')),
+        'model' => env('ANTHROPIC_MODEL', env('CLAUDE_MODEL', 'claude-sonnet-4-6')),
+        'timeout' => (int) env('ANTHROPIC_TIMEOUT', env('CLAUDE_TIMEOUT', 120)),
+    ],
+
     // Hecate: OHDSI semantic vocabulary search engine (Rust/actix-web + Qdrant)
     'hecate' => [
         'url' => env('HECATE_URL', 'http://hecate:8080'),

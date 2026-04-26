@@ -151,11 +151,40 @@ export async function generateStudyDesignIntent(
   return data.data ?? data;
 }
 
+export async function importStudyDesignProtocol(
+  slug: string,
+  sessionId: number,
+  file: File,
+): Promise<StudyDesignVersion> {
+  const form = new FormData();
+  form.append("protocol", file);
+
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data.data ?? data;
+}
+
 export async function importExistingStudyDesign(
   slug: string,
   sessionId: number,
 ): Promise<StudyDesignVersion> {
   const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/import-existing`);
+  return data.data ?? data;
+}
+
+export async function updateStudyDesignVersion(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+  payload: {
+    intent_json?: Record<string, unknown>;
+    normalized_spec_json?: Record<string, unknown>;
+    provenance_json?: Record<string, unknown>;
+    status?: "draft" | "review_ready";
+  },
+): Promise<StudyDesignVersion> {
+  const { data } = await apiClient.put(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}`, payload);
   return data.data ?? data;
 }
 

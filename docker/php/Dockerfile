@@ -10,6 +10,8 @@ RUN apk add --no-cache \
     git \
     curl \
     fcgi \
+    poppler-utils \
+    antiword \
     icu-dev \
     oniguruma-dev
 

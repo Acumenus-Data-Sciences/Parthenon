@@ -11,7 +11,9 @@ use App\Models\App\StudyDesignAsset;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -143,6 +145,105 @@ it('imports bottom-up study assets and records deterministic critique assets', f
         ->assertJsonPath('data.0.asset_type', 'design_critique');
 
     expect(StudyDesignAsset::where('asset_type', 'design_critique')->count())->toBeGreaterThan(0);
+});
+
+it('imports a markdown protocol through Claude and creates reviewable design drafts', function () {
+    config()->set('services.anthropic.key', 'test-anthropic-key');
+    config()->set('services.anthropic.model', 'claude-test');
+
+    Http::fake([
+        'https://api.anthropic.com/*' => Http::response([
+            'content' => [[
+                'type' => 'text',
+                'text' => json_encode([
+                    'research_question' => 'Among adults with diabetes, does metformin reduce kidney failure compared with usual care?',
+                    'primary_objective' => 'Estimate kidney failure risk after metformin exposure.',
+                    'population' => 'Adults with type 2 diabetes',
+                    'exposure' => 'Metformin initiation',
+                    'comparator' => 'Usual care without metformin initiation',
+                    'outcome' => 'Kidney failure',
+                    'time_at_risk' => 'One year after index date',
+                    'study_type' => 'comparative_effectiveness',
+                    'study_design' => 'retrospective cohort',
+                    'hypothesis' => 'Metformin is associated with lower kidney failure risk.',
+                    'scientific_rationale' => 'Protocol rationale',
+                    'concept_set_drafts' => [[
+                        'title' => 'Type 2 diabetes',
+                        'role' => 'population',
+                        'domain' => 'Condition',
+                        'clinical_rationale' => 'Defines the eligible population.',
+                        'search_terms' => ['type 2 diabetes'],
+                    ]],
+                    'cohort_definition_drafts' => [[
+                        'title' => 'Metformin initiators',
+                        'role' => 'target',
+                        'description' => 'New metformin users.',
+                        'entry_event' => 'first metformin exposure',
+                        'exit_strategy' => 'one year after index',
+                    ]],
+                    'analysis_plan' => [[
+                        'title' => 'Comparative effectiveness analysis',
+                        'analysis_type' => 'estimation',
+                        'hades_package' => 'CohortMethod',
+                        'rationale' => 'Compare target and comparator cohorts.',
+                    ]],
+                    'feasibility_plan' => ['summary' => 'Run cohort counts.', 'minimum_cell_count' => 11, 'source_requirements' => []],
+                    'validation_plan' => ['summary' => 'Review attrition.', 'checks' => []],
+                    'publication_plan' => ['summary' => 'Protocol appendix.', 'outputs' => []],
+                    'open_questions' => [],
+                    'risk_notes' => [],
+                ]),
+            ]],
+        ]),
+    ]);
+
+    $sessionId = $this->actingAs($this->user)
+        ->postJson("/api/v1/studies/{$this->study->slug}/design-sessions", [
+            'title' => 'Protocol upload pass',
+        ])
+        ->assertCreated()
+        ->json('data.id');
+
+    $path = tempnam(sys_get_temp_dir(), 'protocol-');
+    file_put_contents($path, "# Protocol\n\nEvaluate metformin and kidney failure.");
+    $file = new UploadedFile($path, 'protocol.md', 'text/markdown', null, true);
+
+    $versionId = $this->actingAs($this->user)
+        ->post("/api/v1/studies/{$this->study->slug}/design-sessions/{$sessionId}/protocol-import", [
+            'protocol' => $file,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.status', 'review_ready')
+        ->assertJsonPath('data.intent_json.pico.population', 'Adults with type 2 diabetes')
+        ->assertJsonPath('data.intent_json.pico.outcome', 'Kidney failure')
+        ->json('data.id');
+
+    $this->assertDatabaseHas('study_design_ai_events', [
+        'session_id' => $sessionId,
+        'version_id' => $versionId,
+        'event_type' => 'protocol_import',
+        'provider' => 'anthropic',
+        'model' => 'claude-test',
+    ]);
+
+    $this->assertDatabaseHas('study_design_assets', [
+        'session_id' => $sessionId,
+        'version_id' => $versionId,
+        'asset_type' => 'concept_set_draft',
+        'role' => 'population',
+    ]);
+    $this->assertDatabaseHas('study_design_assets', [
+        'session_id' => $sessionId,
+        'version_id' => $versionId,
+        'asset_type' => 'cohort_draft',
+        'role' => 'target',
+    ]);
+    $this->assertDatabaseHas('study_design_assets', [
+        'session_id' => $sessionId,
+        'version_id' => $versionId,
+        'asset_type' => 'analysis_plan_draft',
+        'role' => 'analysis',
+    ]);
 });
 
 it('locks a ready imported design and exposes a downloadable package artifact', function () {
