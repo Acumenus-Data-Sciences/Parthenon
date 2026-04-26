@@ -375,6 +375,14 @@ button:disabled {
 .check {
   border-left: 3px solid var(--quiet);
   padding-left: 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.check-text {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .check.pass {
@@ -397,6 +405,115 @@ button:disabled {
 .check span {
   color: var(--muted);
   font-size: 0.86rem;
+}
+
+/* Phase 3: Fix-this button shown next to remediable failed checks. */
+.fix-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  background: var(--gold);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+.fix-btn:hover { filter: brightness(1.1); }
+.fix-btn:active { filter: brightness(0.95); }
+.fix-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* Phase 3: remediation modal — single root in DOM, content swapped per use. */
+.remediation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 14, 17, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.remediation-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  color: var(--text);
+}
+
+.remediation-modal h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.remediation-modal p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.remediation-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.remediation-modal .btn-primary {
+  background: var(--teal);
+  color: #0a0a0d;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.remediation-modal .btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+}
+
+.remediation-spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0.75rem auto 0;
+  border: 3px solid var(--border);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: remediation-spin 0.8s linear infinite;
+}
+
+@keyframes remediation-spin {
+  to { transform: rotate(360deg); }
+}
+
+.remediation-code {
+  background: #0c0c0f;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.65rem 0.85rem;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0.5rem 0;
 }
 
 .log {

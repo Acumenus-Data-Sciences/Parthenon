@@ -179,11 +179,55 @@ document.querySelector("#verify-show-status")?.addEventListener("click", async (
   }
 });
 
+// Phase 3: maps preflight check names (matched against the `name` field
+// returned by the Python contract) to remediation actions the GUI can run
+// elevated. The action ID matches what main.rs::remediation::run_remediation
+// dispatches on.
+//
+// The "fallbackCommand" is shown verbatim in copy-paste mode when polkit is
+// missing or when the action isn't available on the current platform. Keep
+// these in sync with helper/parthenon-installer-helper.
+const REMEDIATION_MAP = {
+  "Docker ≥ 24.0": {
+    action: "install-docker",
+    label: "Install Docker",
+    confirmTitle: "Install Docker?",
+    confirmBody: "Parthenon needs Docker (~250 MB). The installer will run \"sudo apt install docker.io docker-compose-v2\" (or the dnf equivalent on RHEL/Fedora). You'll be asked for your system password.",
+    fallbackCommand: {
+      "debian-ubuntu": "sudo apt install -y docker.io docker-compose-v2",
+      "rhel-fedora": "sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+    },
+    onlyIfPlatform: "linux",
+  },
+  "Docker daemon": {
+    action: "start-docker",
+    label: "Start Docker",
+    confirmTitle: "Start Docker daemon?",
+    confirmBody: "The installer will run \"sudo systemctl start docker\" and enable it at boot.",
+    fallbackCommand: { default: "sudo systemctl start docker && sudo systemctl enable docker" },
+    onlyIfPlatform: "linux",
+  },
+  "Linux docker group": {
+    action: "add-user-to-docker-group",
+    label: "Add me to docker group",
+    confirmTitle: "Add you to the docker group?",
+    confirmBody: "Adding your user account to the docker group lets you run Docker without sudo. After this, you'll need to log out and log back in for the change to take effect.",
+    fallbackCommand: { default: "sudo usermod -aG docker $USER" },
+    onlyIfPlatform: "linux",
+    requiresLogout: true,
+  },
+};
+
 const state = {
   checks: [],
   preflightRan: false,
   running: false,
   platform: "",
+  // Phase 3: filled by elevation_status() Tauri call on bootstrap
+  elevation: { available: false, reason: null, fallbackInstallHint: null, probed: false },
+  // Distro family ("debian-ubuntu" | "rhel-fedora" | "arch" | "other") —
+  // detected client-side via /etc/os-release reading or assumed from platform
+  distroFamily: "default",
 };
 
 const doneState = {
@@ -317,13 +361,220 @@ function renderChecks(checks) {
 
   preflightEl.innerHTML = checks.map((check) => {
     const label = check.status === "pass" ? "Ready" : check.status === "warn" ? "Needs attention" : "Blocked";
+    const remediation = remediationForCheck(check);
+    const fixButton = remediation
+      ? `<button type="button" class="fix-btn" data-action="${escapeHtml(remediation.action)}" data-check-name="${escapeHtml(check.name)}">${escapeHtml(remediation.label)}</button>`
+      : "";
     return `
       <div class="check ${escapeHtml(check.status)}">
-        <strong>${escapeHtml(label)} · ${escapeHtml(check.name)}</strong>
-        <span>${escapeHtml(check.detail || "No detail")}</span>
+        <div class="check-text">
+          <strong>${escapeHtml(label)} · ${escapeHtml(check.name)}</strong>
+          <span>${escapeHtml(check.detail || "No detail")}</span>
+        </div>
+        ${fixButton}
       </div>
     `;
   }).join("");
+
+  // Bind Fix-this buttons. Re-binding every render is fine because we
+  // replace innerHTML, which detaches old handlers.
+  preflightEl.querySelectorAll(".fix-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      const checkName = btn.dataset.checkName;
+      runRemediation(action, checkName);
+    });
+  });
+}
+
+// Look up whether a preflight check has a defined remediation we can offer
+// on this platform. Returns the remediation object from REMEDIATION_MAP, or
+// null if no fix is available (or the check passed already).
+function remediationForCheck(check) {
+  if (check.status === "pass") return null;
+  const remediation = REMEDIATION_MAP[check.name];
+  if (!remediation) return null;
+  if (remediation.onlyIfPlatform && remediation.onlyIfPlatform !== state.platform) {
+    return null;
+  }
+  return remediation;
+}
+
+// Phase 3: orchestrate the Fix-this flow.
+//
+// 1. Show a confirmation modal describing what we're about to do.
+// 2. If polkit is available → call run_remediation Tauri command (pkexec dialog
+//    pops natively).
+// 3. If polkit is missing → show the equivalent shell command with a Copy
+//    button + "I've run this" confirmation, then re-run preflight.
+// 4. After success, re-run the full preflight to refresh row statuses.
+//
+// The modal is built lazily on first use (no extra HTML in index.html for
+// every page state — keep the markup simple).
+async function runRemediation(actionId, checkName) {
+  const remediation = REMEDIATION_MAP[checkName];
+  if (!remediation || remediation.action !== actionId) {
+    setStatus(`Unknown remediation: ${actionId}`, "error");
+    return;
+  }
+
+  // Branch on elevation availability. If polkit is missing OR the action is
+  // explicitly Linux-only and we're elsewhere, fall back to copy-paste mode.
+  const useCopyPaste = !state.elevation.available;
+  if (useCopyPaste) {
+    return openRemediationCopyPasteModal(remediation);
+  }
+
+  const confirmed = await openConfirmModal(remediation.confirmTitle, remediation.confirmBody);
+  if (!confirmed) return;
+
+  const overlay = openProgressOverlay(`Running: ${remediation.label}…`, "Authenticate via the system password dialog. After it completes, the installer will re-check your system.");
+  try {
+    const outcome = await invoke("run_remediation", { action: actionId });
+    closeProgressOverlay(overlay);
+    if (outcome.follow_up_required) {
+      await openInfoModal(
+        "Action required",
+        outcome.follow_up_message || "Manual follow-up needed. Check the output below.",
+        outcome.stdout || ""
+      );
+    } else {
+      setStatus(`${remediation.label}: done.`, "success");
+    }
+    // Re-run preflight to refresh row statuses
+    await runPreflight();
+  } catch (err) {
+    closeProgressOverlay(overlay);
+    const errStr = String(err);
+    if (errStr.includes("UserCancelled") || errStr.toLowerCase().includes("cancel")) {
+      setStatus(`${remediation.label} cancelled.`, "info");
+      return;
+    }
+    setStatus(`${remediation.label} failed: ${errStr}`, "error");
+    // Offer copy-paste fallback if elevation refused for a non-cancel reason
+    await openInfoModal(
+      `${remediation.label} failed`,
+      "The automated fix didn't complete. You can run the equivalent command yourself:",
+      buildFallbackCommand(remediation)
+    );
+  }
+}
+
+function buildFallbackCommand(remediation) {
+  if (typeof remediation.fallbackCommand === "string") {
+    return remediation.fallbackCommand;
+  }
+  return (
+    remediation.fallbackCommand?.[state.distroFamily] ||
+    remediation.fallbackCommand?.default ||
+    "(no fallback command provided)"
+  );
+}
+
+// Modal primitives — built lazily so we don't clutter the static HTML.
+// All three reuse a single <div id="remediation-modal-root"> attached to body.
+function ensureModalRoot() {
+  let root = document.querySelector("#remediation-modal-root");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "remediation-modal-root";
+    document.body.appendChild(root);
+  }
+  return root;
+}
+
+function openConfirmModal(title, body) {
+  return new Promise((resolve) => {
+    const root = ensureModalRoot();
+    root.innerHTML = `
+      <div class="remediation-overlay">
+        <div class="remediation-modal">
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(body)}</p>
+          <div class="remediation-modal-actions">
+            <button type="button" class="btn-secondary" data-act="cancel">Cancel</button>
+            <button type="button" class="btn-primary" data-act="confirm">Continue</button>
+          </div>
+        </div>
+      </div>
+    `;
+    root.querySelector('[data-act="cancel"]').addEventListener("click", () => {
+      root.innerHTML = "";
+      resolve(false);
+    });
+    root.querySelector('[data-act="confirm"]').addEventListener("click", () => {
+      root.innerHTML = "";
+      resolve(true);
+    });
+  });
+}
+
+function openProgressOverlay(title, body) {
+  const root = ensureModalRoot();
+  root.innerHTML = `
+    <div class="remediation-overlay">
+      <div class="remediation-modal">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(body)}</p>
+        <div class="remediation-spinner" aria-hidden="true"></div>
+      </div>
+    </div>
+  `;
+  return root;
+}
+
+function closeProgressOverlay(root) {
+  if (root) root.innerHTML = "";
+}
+
+function openInfoModal(title, body, codeBlock) {
+  return new Promise((resolve) => {
+    const root = ensureModalRoot();
+    const codeHtml = codeBlock
+      ? `<pre class="remediation-code">${escapeHtml(codeBlock)}</pre>
+         <button type="button" class="btn-secondary" data-act="copy">Copy</button>`
+      : "";
+    root.innerHTML = `
+      <div class="remediation-overlay">
+        <div class="remediation-modal">
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(body)}</p>
+          ${codeHtml}
+          <div class="remediation-modal-actions">
+            <button type="button" class="btn-primary" data-act="ok">OK</button>
+          </div>
+        </div>
+      </div>
+    `;
+    if (codeBlock) {
+      root.querySelector('[data-act="copy"]').addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(codeBlock);
+        } catch (e) {
+          /* clipboard may be unavailable in some webviews; ignore */
+        }
+      });
+    }
+    root.querySelector('[data-act="ok"]').addEventListener("click", () => {
+      root.innerHTML = "";
+      resolve(true);
+    });
+  });
+}
+
+function openRemediationCopyPasteModal(remediation) {
+  const cmd = buildFallbackCommand(remediation);
+  const reasonNote = state.elevation.reason
+    ? `Reason: ${state.elevation.reason}`
+    : "Polkit (the system password helper) isn't available — the installer can't pop the auth dialog itself on this system.";
+  const installHint = state.elevation.fallbackInstallHint
+    ? `\n\nFor zero-friction install in the future:\n  ${state.elevation.fallbackInstallHint}`
+    : "";
+  return openInfoModal(
+    `Run this command to ${remediation.label.toLowerCase()}`,
+    `${reasonNote}${installHint}\n\nWhen finished, click OK and the installer will re-check.`,
+    cmd
+  ).then(() => runPreflight());
 }
 
 // Task 7 — regex-based error tagging (replaces stream-based prefix)
@@ -347,6 +598,28 @@ function appendLog(message, stream = "stdout") {
   const prefix = isError ? "[error] " : "";
   logEl.textContent += `${prefix}${message}\n`;
   logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Phase 3: best-effort distro family detection from /etc/os-release. Used to
+// pick the right shell command in copy-paste fallback mode. Failure is fine
+// — we default to "default" which the modal handles via remediation.fallbackCommand.default.
+async function detectDistroFamily() {
+  if (state.platform !== "linux") return state.platform;
+  try {
+    // Use the shell plugin to read /etc/os-release if available.
+    const shell = window.__TAURI__?.shell;
+    if (!shell) return "default";
+    const cmd = shell.Command.create("read-os-release", ["-c", "cat /etc/os-release || true"], { encoding: "utf-8" });
+    // Try to use sh; if Command.create with arbitrary program isn't allowed
+    // by capabilities, this throws — handled below.
+    const { stdout } = await cmd.execute();
+    const lc = String(stdout || "").toLowerCase();
+    if (lc.includes("debian") || lc.includes("ubuntu")) return "debian-ubuntu";
+    if (lc.includes("rhel") || lc.includes("fedora") || lc.includes("centos") ||
+        lc.includes("rocky") || lc.includes("almalinux")) return "rhel-fedora";
+    if (lc.includes("arch")) return "arch";
+  } catch (_) { /* fall through */ }
+  return "default";
 }
 
 function escapeHtml(value) {
@@ -523,6 +796,30 @@ async function boot() {
   try {
     const data = await invoke("bootstrap", {});
     state.platform = data.platform || "";
+
+    // Phase 3: probe elevation availability so we know whether to show
+    // Fix-this buttons that pop a polkit dialog vs. fall back to copy-paste.
+    // We do this AFTER bootstrap (so state.platform is set) but BEFORE the
+    // user can click Check System.
+    try {
+      const elev = await invoke("elevation_status", {});
+      state.elevation = {
+        available: !!elev.available,
+        reason: elev.reason || null,
+        fallbackInstallHint: elev.fallback_install_hint || null,
+        probed: true,
+      };
+    } catch (e) {
+      // Older binaries without elevation_status — treat as unavailable
+      // (fall back to copy-paste mode). Logged but not fatal.
+      state.elevation = { available: false, reason: String(e), fallbackInstallHint: null, probed: true };
+    }
+
+    // Best-effort distro family detection client-side. Used to pick the
+    // right fallback shell command in copy-paste mode. Reads /etc/os-release
+    // via the shell plugin if available; otherwise default.
+    state.distroFamily = await detectDistroFamily();
+
     document.querySelector("#repo-path").value = data.repo_path || "";
     document.querySelector("#bundle-url").value = data.bundle_url || "";
     document.querySelector("#bundle-install-dir").value = data.bundle_install_dir || "";
