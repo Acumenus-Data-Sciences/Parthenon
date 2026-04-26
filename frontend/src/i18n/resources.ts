@@ -20,7 +20,7 @@ import { standardProsResources } from "./standardProsResources";
 import { strategusResources } from "./strategusResources";
 
 type MessageTree = {
-  [key: string]: string | MessageTree;
+  [key: string]: string | MessageTree | null;
 };
 
 type ParthenonNamespaces = {
@@ -1135,7 +1135,11 @@ function pseudoTree(tree: MessageTree): MessageTree {
   return Object.fromEntries(
     Object.entries(tree).map(([key, value]) => [
       key,
-      typeof value === "string" ? pseudoLocalize(value) : pseudoTree(value),
+      typeof value === "string"
+        ? pseudoLocalize(value)
+        : value === null
+          ? null
+          : pseudoTree(value),
     ]),
   );
 }
