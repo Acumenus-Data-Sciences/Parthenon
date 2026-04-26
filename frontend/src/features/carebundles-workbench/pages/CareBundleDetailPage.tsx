@@ -42,6 +42,8 @@ export default function CareBundleDetailPage() {
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [methodologyMeasureId, setMethodologyMeasureId] = useState<number | null>(null);
   const [rosterTarget, setRosterTarget] = useState<RosterTarget | null>(null);
+  const [isFhirExporting, setIsFhirExporting] = useState(false);
+  const [fhirExportError, setFhirExportError] = useState(false);
   const [stratifiedMeasureIds, setStratifiedMeasureIds] = useState<Set<number>>(
     () => new Set(),
   );
@@ -57,7 +59,6 @@ export default function CareBundleDetailPage() {
 
   const bundleQuery = useBundle(bundleId);
   const sourcesQuery = useCareBundleSources();
-  const runsQuery = useCareBundleRuns(bundleId);
   const materialize = useMaterializeCareBundle();
 
   const sources = useMemo(() => sourcesQuery.data?.data ?? [], [sourcesQuery.data]);
@@ -77,6 +78,7 @@ export default function CareBundleDetailPage() {
   const selectedSource = sources.find((s) => s.id === effectiveSourceId) ?? null;
 
   const qualificationsQuery = useCareBundleQualifications(bundleId, effectiveSourceId);
+  const runsQuery = useCareBundleRuns(bundleId, effectiveSourceId);
 
   const bundle = bundleQuery.data;
   const qualifications = qualificationsQuery.data;
@@ -143,23 +145,37 @@ export default function CareBundleDetailPage() {
           </Link>
 
           <button
-            onClick={() =>
-              bundleId != null && downloadFhirMeasure(bundleId, bundle?.bundle_code)
-            }
-            disabled={bundleId == null}
+            onClick={async () => {
+              if (bundleId == null) return;
+              setFhirExportError(false);
+              setIsFhirExporting(true);
+              try {
+                await downloadFhirMeasure(bundleId, bundle?.bundle_code);
+              } catch {
+                setFhirExportError(true);
+              } finally {
+                setIsFhirExporting(false);
+              }
+            }}
+            disabled={bundleId == null || isFhirExporting}
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-overlay disabled:opacity-60"
             title="Export FHIR R4 Measure resource"
           >
-            <Download className="h-4 w-4" />
+            {isFhirExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
             FHIR Measure
           </button>
 
           <button
-            onClick={() =>
-              bundleId &&
-              effectiveSourceId != null &&
-              materialize.mutate({ bundleId, sourceId: effectiveSourceId })
-            }
+            onClick={() => {
+              if (!bundleId || effectiveSourceId == null) return;
+              setFhirExportError(false);
+              materialize.reset();
+              materialize.mutate({ bundleId, sourceId: effectiveSourceId });
+            }}
             disabled={
               materialize.isPending || !bundleId || effectiveSourceId == null
             }
@@ -175,6 +191,24 @@ export default function CareBundleDetailPage() {
           </button>
         </div>
       </header>
+
+      {(materialize.data || materialize.isError || fhirExportError) && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            materialize.isError || fhirExportError
+              ? "border-red-900/60 bg-red-950/30 text-red-200"
+              : materialize.data?.below_population_threshold
+                ? "border-amber-900/60 bg-amber-950/30 text-amber-200"
+                : "border-teal-900/60 bg-teal-950/30 text-teal-200"
+          }`}
+        >
+          {fhirExportError
+            ? "FHIR Measure export failed. Try again or check the API response."
+            : materialize.isError
+              ? "Materialization dispatch failed. Check permissions and queue health, then try again."
+              : materialize.data?.message}
+        </div>
+      )}
 
       <SourceQualifierBanner source={selectedSource} minPopulation={minPop} />
 
@@ -337,24 +371,31 @@ export default function CareBundleDetailPage() {
         </div>
       </Shell>
 
-      <MeasureMethodologyModal
-        bundleId={bundleId}
-        measureId={methodologyMeasureId}
-        sourceId={effectiveSourceId}
-        onClose={() => setMethodologyMeasureId(null)}
-      />
+      {methodologyMeasureId != null && (
+        <MeasureMethodologyModal
+          bundleId={bundleId}
+          measureId={methodologyMeasureId}
+          sourceId={effectiveSourceId}
+          onClose={() => setMethodologyMeasureId(null)}
+        />
+      )}
 
-      <MeasureRosterModal
-        bundleId={bundleId}
-        measureId={rosterTarget?.measureId ?? null}
-        measureCode={rosterTarget?.measureCode ?? null}
-        measureName={rosterTarget?.measureName ?? null}
-        sourceId={effectiveSourceId}
-        sourceName={selectedSource?.source_name ?? null}
-        onClose={() => setRosterTarget(null)}
-      />
+      {rosterTarget != null && (
+        <MeasureRosterModal
+          bundleId={bundleId}
+          measureId={rosterTarget.measureId}
+          measureCode={rosterTarget.measureCode}
+          measureName={rosterTarget.measureName}
+          sourceId={effectiveSourceId}
+          sourceName={selectedSource?.source_name ?? null}
+          onClose={() => setRosterTarget(null)}
+        />
+      )}
 
-      <Shell title="Recent runs" subtitle={`${runs.length} most recent`}>
+      <Shell
+        title="Recent runs"
+        subtitle={`${runs.length} most recent for ${selectedSource?.source_name ?? "selected source"}`}
+      >
         {runs.length === 0 ? (
           <p className="p-6 text-sm text-text-ghost">No runs yet.</p>
         ) : (

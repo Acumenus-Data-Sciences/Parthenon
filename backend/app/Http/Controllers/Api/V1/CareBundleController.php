@@ -58,6 +58,10 @@ class CareBundleController extends Controller
      */
     public function roster(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
     {
+        if (! $this->bundleContainsMeasure($bundle, $measure)) {
+            return $this->measureNotInBundleResponse();
+        }
+
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
             'bucket' => ['nullable', Rule::in(MeasureRosterService::BUCKETS)],
@@ -90,6 +94,10 @@ class CareBundleController extends Controller
         ConditionBundle $bundle,
         QualityMeasure $measure,
     ): JsonResponse {
+        if (! $this->bundleContainsMeasure($bundle, $measure)) {
+            return $this->measureNotInBundleResponse();
+        }
+
         $source = Source::findOrFail($request->integer('source_id'));
 
         $cohort = $this->cohortExporter->export(
@@ -127,6 +135,10 @@ class CareBundleController extends Controller
      */
     public function trend(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
     {
+        if (! $this->bundleContainsMeasure($bundle, $measure)) {
+            return $this->measureNotInBundleResponse();
+        }
+
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
@@ -148,6 +160,10 @@ class CareBundleController extends Controller
      */
     public function methodology(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
     {
+        if (! $this->bundleContainsMeasure($bundle, $measure)) {
+            return $this->measureNotInBundleResponse();
+        }
+
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
         ]);
@@ -167,6 +183,10 @@ class CareBundleController extends Controller
      */
     public function strata(Request $request, ConditionBundle $bundle, QualityMeasure $measure): JsonResponse
     {
+        if (! $this->bundleContainsMeasure($bundle, $measure)) {
+            return $this->measureNotInBundleResponse();
+        }
+
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id,deleted_at,NULL'],
         ]);
@@ -484,5 +504,19 @@ class CareBundleController extends Controller
         }
 
         return response()->json(['data' => $run]);
+    }
+
+    private function bundleContainsMeasure(ConditionBundle $bundle, QualityMeasure $measure): bool
+    {
+        return $bundle->measures()
+            ->where('quality_measures.id', $measure->id)
+            ->exists();
+    }
+
+    private function measureNotInBundleResponse(): JsonResponse
+    {
+        return response()->json([
+            'error' => 'Measure does not belong to this care bundle.',
+        ], 404);
     }
 }

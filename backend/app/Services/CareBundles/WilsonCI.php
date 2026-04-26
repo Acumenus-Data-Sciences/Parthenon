@@ -19,12 +19,12 @@ final class WilsonCI
      */
     public static function compute(int $numerator, int $denominator, float $z = 1.96): ?array
     {
-        if ($denominator <= 0) {
+        if ($denominator <= 0 || $numerator < 0) {
             return null;
         }
 
         $n = (float) $denominator;
-        $p = $numerator / $n;
+        $p = min($numerator, $denominator) / $n;
         $zSq = $z * $z;
 
         $denomFactor = 1.0 + $zSq / $n;

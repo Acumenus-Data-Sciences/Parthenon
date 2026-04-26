@@ -210,6 +210,63 @@ it('lists recent runs for a bundle', function () {
         ->assertJsonPath('data.0.qualified_person_count', 500);
 });
 
+it('rejects measure detail routes when the measure is not attached to the bundle', function () {
+    $user = User::factory()->create();
+    $user->assignRole('viewer');
+
+    $bundle = makeBundleWithMeasures();
+    $source = Source::factory()->create();
+    $otherMeasure = QualityMeasure::create([
+        'measure_code' => 'OTHER-01',
+        'measure_name' => 'Unattached measure',
+        'measure_type' => 'chronic',
+        'domain' => 'measurement',
+        'numerator_criteria' => ['concept_ids' => [3004249], 'lookback_days' => 365],
+        'frequency' => 'annually',
+        'is_active' => true,
+    ]);
+
+    $paths = [
+        "/api/v1/care-bundles/{$bundle->id}/measures/{$otherMeasure->id}/methodology?source_id={$source->id}",
+        "/api/v1/care-bundles/{$bundle->id}/measures/{$otherMeasure->id}/strata?source_id={$source->id}",
+        "/api/v1/care-bundles/{$bundle->id}/measures/{$otherMeasure->id}/trend?source_id={$source->id}",
+        "/api/v1/care-bundles/{$bundle->id}/measures/{$otherMeasure->id}/roster?source_id={$source->id}",
+    ];
+
+    foreach ($paths as $path) {
+        $this->actingAs($user)
+            ->getJson($path)
+            ->assertStatus(404)
+            ->assertJsonPath('error', 'Measure does not belong to this care bundle.');
+    }
+});
+
+it('rejects roster-to-cohort export when the measure is not attached to the bundle', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $bundle = makeBundleWithMeasures();
+    $source = Source::factory()->create();
+    $otherMeasure = QualityMeasure::create([
+        'measure_code' => 'OTHER-02',
+        'measure_name' => 'Unattached export measure',
+        'measure_type' => 'chronic',
+        'domain' => 'measurement',
+        'numerator_criteria' => ['concept_ids' => [3004249], 'lookback_days' => 365],
+        'frequency' => 'annually',
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($user)
+        ->postJson("/api/v1/care-bundles/{$bundle->id}/measures/{$otherMeasure->id}/roster/to-cohort", [
+            'source_id' => $source->id,
+            'bucket' => 'non_compliant',
+            'name' => 'Should not export',
+        ])
+        ->assertStatus(404)
+        ->assertJsonPath('error', 'Measure does not belong to this care bundle.');
+});
+
 // ── Phase 2: Intersections ─────────────────────────────────────────────────
 
 /**

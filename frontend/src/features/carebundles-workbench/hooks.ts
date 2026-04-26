@@ -30,7 +30,10 @@ const KEYS = {
   coverage: () => ["care-bundles", "coverage"] as const,
   qualifications: (bundleId: number, sourceId: number) =>
     ["care-bundles", bundleId, "qualifications", sourceId] as const,
-  runs: (bundleId: number) => ["care-bundles", bundleId, "runs"] as const,
+  runs: (bundleId: number, sourceId?: number | null) =>
+    sourceId != null
+      ? (["care-bundles", bundleId, "runs", sourceId] as const)
+      : (["care-bundles", bundleId, "runs"] as const),
   run: (runId: number) => ["care-bundles", "runs", runId] as const,
 };
 
@@ -57,11 +60,15 @@ export function useCareBundleQualifications(
   });
 }
 
-export function useCareBundleRuns(bundleId: number | null) {
+export function useCareBundleRuns(
+  bundleId: number | null,
+  sourceId: number | null = null,
+) {
+  const ready = bundleId != null && sourceId != null;
   return useQuery({
-    queryKey: bundleId ? KEYS.runs(bundleId) : ["care-bundles", "runs", "disabled"],
-    queryFn: () => fetchBundleRuns(bundleId as number),
-    enabled: bundleId != null,
+    queryKey: ready ? KEYS.runs(bundleId, sourceId) : ["care-bundles", "runs", "disabled"],
+    queryFn: () => fetchBundleRuns(bundleId as number, sourceId),
+    enabled: ready,
     refetchInterval: (query) => {
       const data = query.state.data;
       if (!Array.isArray(data)) return false;

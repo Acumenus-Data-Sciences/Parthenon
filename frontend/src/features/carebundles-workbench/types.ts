@@ -74,6 +74,7 @@ export interface MaterializeDispatchResponse {
   bundle_id?: number;
   source_id?: number;
   status: "queued";
+  below_population_threshold?: boolean;
   message: string;
 }
 

@@ -47,9 +47,13 @@ export async function fetchBundleQualifications(
   return data.data;
 }
 
-export async function fetchBundleRuns(bundleId: number): Promise<CareBundleRun[]> {
+export async function fetchBundleRuns(
+  bundleId: number,
+  sourceId?: number | null,
+): Promise<CareBundleRun[]> {
   const { data } = await apiClient.get<{ data: CareBundleRun[] }>(
     `${BASE}/${bundleId}/runs`,
+    sourceId != null ? { params: { source_id: sourceId } } : undefined,
   );
   return data.data ?? [];
 }

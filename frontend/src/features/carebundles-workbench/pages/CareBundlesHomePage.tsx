@@ -19,6 +19,7 @@ export default function CareBundlesHomePage() {
   const materializeAll = useMaterializeAllCareBundles();
 
   const [showResearchOnly, setShowResearchOnly] = useState(false);
+  const [materializeMessage, setMaterializeMessage] = useState<string | null>(null);
 
   const bundles = bundlesQuery.data?.data ?? [];
   const allSources = sourcesQuery.data?.data ?? [];
@@ -56,7 +57,13 @@ export default function CareBundlesHomePage() {
         <div className="flex items-center gap-2">
           <HelpButton helpKey="workbench.care-bundles" />
           <button
-            onClick={() => materializeAll.mutate()}
+            onClick={() => {
+              setMaterializeMessage(null);
+              materializeAll.reset();
+              materializeAll.mutate(undefined, {
+                onSuccess: (response) => setMaterializeMessage(response.message),
+              });
+            }}
             disabled={materializeAll.isPending}
             className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--primary)" }}
@@ -70,6 +77,20 @@ export default function CareBundlesHomePage() {
           </button>
         </div>
       </header>
+
+      {(materializeMessage || materializeAll.isError) && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            materializeAll.isError
+              ? "border-red-900/60 bg-red-950/30 text-red-200"
+              : "border-teal-900/60 bg-teal-950/30 text-teal-200"
+          }`}
+        >
+          {materializeAll.isError
+            ? "Materialize all failed. Check permissions and queue health, then try again."
+            : materializeMessage}
+        </div>
+      )}
 
       <WorkbenchTabs />
 

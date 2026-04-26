@@ -157,6 +157,10 @@ function buildDefaultName(
   const codes = bundles
     .filter((b) => bundleIds.includes(b.id))
     .map((b) => b.bundle_code);
+  if (codes.length === 0) {
+    return `Care bundle ${mode} intersection`;
+  }
+
   const joiner = mode === "any" ? " ∪ " : mode === "exactly" ? " = " : " ∩ ";
   return codes.join(joiner);
 }
