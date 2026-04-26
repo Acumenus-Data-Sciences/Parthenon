@@ -741,6 +741,7 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware('permission:studies.create')->group(function () {
+            Route::post('studies/protocol-import', [StudyDesignController::class, 'importProtocolAsStudy'])->middleware('throttle:5,1');
             Route::apiResource('studies', StudyController::class)
                 ->only(['store', 'update', 'destroy']);
             Route::post('studies/{study}/transition', [StudyController::class, 'transition']);

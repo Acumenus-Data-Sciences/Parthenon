@@ -19,6 +19,7 @@ import type {
   StudyDesignReadiness,
   StudyDesignSession,
   StudyDesignVersion,
+  StudyProtocolImportResult,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
@@ -160,6 +161,16 @@ export async function importStudyDesignProtocol(
   form.append("protocol", file);
 
   const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`, form);
+  return data.data ?? data;
+}
+
+export async function importProtocolAsNewStudy(
+  file: File,
+): Promise<StudyProtocolImportResult> {
+  const form = new FormData();
+  form.append("protocol", file);
+
+  const { data } = await apiClient.post(`${BASE}/protocol-import`, form);
   return data.data ?? data;
 }
 

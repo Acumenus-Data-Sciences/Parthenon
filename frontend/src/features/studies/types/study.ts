@@ -318,6 +318,14 @@ export interface StudyDesignReadiness {
   };
 }
 
+export interface StudyProtocolImportResult {
+  study: Study;
+  session: StudyDesignSession;
+  version: StudyDesignVersion;
+  extracted: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+}
+
 // ---------------------------------------------------------------------------
 // Results & Synthesis
 // ---------------------------------------------------------------------------

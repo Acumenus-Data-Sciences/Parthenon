@@ -54,6 +54,7 @@ import {
   listStudyDesignAssets,
   generateStudyDesignIntent,
   importStudyDesignProtocol,
+  importProtocolAsNewStudy,
   importExistingStudyDesign,
   updateStudyDesignVersion,
   critiqueStudyDesignVersion,
@@ -303,6 +304,19 @@ export function useImportStudyDesignProtocol() {
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+    },
+  });
+}
+
+export function useImportProtocolAsNewStudy() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file }: { file: File }) => importProtocolAsNewStudy(file),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["studies"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", "all"] });
+      queryClient.invalidateQueries({ queryKey: ["studies", data.study.slug] });
+      queryClient.invalidateQueries({ queryKey: ["studies", data.study.slug, "design-sessions"] });
     },
   });
 }

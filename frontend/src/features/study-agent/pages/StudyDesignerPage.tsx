@@ -15,9 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import {
-  useAllStudies,
-  useCreateStudyDesignSession,
-  useImportStudyDesignProtocol,
+  useImportProtocolAsNewStudy,
 } from "@/features/studies/hooks/useStudies";
 import {
   searchPhenotypes,
@@ -35,18 +33,12 @@ export default function StudyDesignerPage() {
   const protocolInputRef = useRef<HTMLInputElement | null>(null);
   const [studyIntent, setStudyIntent] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStudySlug, setSelectedStudySlug] = useState("");
   const [activeTab, setActiveTab] = useState<
     "intent" | "search" | "recommend" | "lint"
   >("intent");
-  const { data: studiesData, isLoading: studiesLoading } = useAllStudies();
-  const studies = studiesData?.data ?? [];
-  const selectedStudy =
-    studies.find((study) => study.slug === selectedStudySlug) ?? studies[0] ?? null;
-  const createDesignSession = useCreateStudyDesignSession();
-  const importProtocol = useImportStudyDesignProtocol();
-  const protocolBusy = createDesignSession.isPending || importProtocol.isPending;
-  const protocolError = mutationError(createDesignSession.error) || mutationError(importProtocol.error);
+  const importProtocol = useImportProtocolAsNewStudy();
+  const protocolBusy = importProtocol.isPending;
+  const protocolError = mutationError(importProtocol.error);
 
   // Intent splitting
   const intentMutation = useMutation({
@@ -78,24 +70,14 @@ export default function StudyDesignerPage() {
   const handleProtocolUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file || !selectedStudy) return;
+    if (!file) return;
 
     try {
-      const session = await createDesignSession.mutateAsync({
-        slug: selectedStudy.slug,
-        payload: {
-          title: t("studies.designer.defaultSessionTitle", { title: selectedStudy.title }),
-          source_mode: "protocol_upload",
-        },
-      });
-
-      await importProtocol.mutateAsync({
-        slug: selectedStudy.slug,
-        sessionId: session.id,
+      const result = await importProtocol.mutateAsync({
         file,
       });
 
-      navigate(`/studies/${selectedStudy.slug}?tab=design`);
+      navigate(`/studies/${result.study.slug}?tab=design`);
     } catch {
       // React Query exposes the mutation error for the visible error panel.
     }
@@ -148,28 +130,11 @@ export default function StudyDesignerPage() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[240px] flex-1">
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-text-ghost">
-              {t("studyAgent.protocol.study")}
+              {t("studyAgent.protocol.newStudy")}
             </label>
-            <select
-              value={selectedStudy?.slug ?? ""}
-              onChange={(event) => setSelectedStudySlug(event.target.value)}
-              disabled={studiesLoading || protocolBusy || studies.length === 0}
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
-            >
-              {studies.length === 0 ? (
-                <option value="">
-                  {studiesLoading
-                    ? t("studyAgent.protocol.loadingStudies")
-                    : t("studyAgent.protocol.noStudies")}
-                </option>
-              ) : (
-                studies.map((study) => (
-                  <option key={study.id} value={study.slug}>
-                    {study.title}
-                  </option>
-                ))
-              )}
-            </select>
+            <div className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary">
+              {t("studyAgent.protocol.newStudyDescription")}
+            </div>
           </div>
           <input
             ref={protocolInputRef}
@@ -181,7 +146,7 @@ export default function StudyDesignerPage() {
           <button
             type="button"
             onClick={() => protocolInputRef.current?.click()}
-            disabled={!selectedStudy || protocolBusy}
+            disabled={protocolBusy}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
           >
             {protocolBusy ? (

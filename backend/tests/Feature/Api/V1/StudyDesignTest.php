@@ -247,6 +247,77 @@ it('imports a markdown protocol through Claude and creates reviewable design dra
     ]);
 });
 
+it('creates a new study when importing a standalone protocol document', function () {
+    config()->set('services.anthropic.key', 'test-anthropic-key');
+    config()->set('services.anthropic.model', 'claude-test');
+
+    Http::fake([
+        'https://api.anthropic.com/*' => Http::response([
+            'content' => [[
+                'type' => 'tool_use',
+                'name' => 'extract_protocol',
+                'input' => [
+                    'research_question' => 'Does pathogen class predict clinical deterioration among adults hospitalized with pneumonia?',
+                    'primary_objective' => 'Evaluate pneumonia outcomes by pathogen class.',
+                    'population' => 'Adults hospitalized with pneumonia',
+                    'exposure' => 'Pathogen class',
+                    'comparator' => 'Alternative pathogen classes',
+                    'outcome' => 'Clinical deterioration',
+                    'time_at_risk' => '30 days after admission',
+                    'study_type' => 'patient_level_prediction',
+                    'study_design' => 'retrospective cohort',
+                    'hypothesis' => 'Pathogen class predicts clinical deterioration.',
+                    'scientific_rationale' => 'Protocol rationale',
+                    'concept_set_drafts' => [],
+                    'cohort_definition_drafts' => [],
+                    'analysis_plan' => [],
+                    'feasibility_plan' => ['summary' => '', 'minimum_cell_count' => null, 'source_requirements' => []],
+                    'validation_plan' => ['summary' => '', 'checks' => []],
+                    'publication_plan' => ['summary' => '', 'outputs' => []],
+                    'open_questions' => [],
+                    'risk_notes' => [],
+                ],
+            ]],
+        ]),
+    ]);
+
+    $path = tempnam(sys_get_temp_dir(), 'protocol-');
+    file_put_contents($path, "# Protocol\n\nEvaluate pathogen class prediction in pneumonia.");
+    $file = new UploadedFile($path, 'pneumonia-protocol.md', 'text/markdown', null, true);
+
+    $response = $this->actingAs($this->user)
+        ->post('/api/v1/studies/protocol-import', [
+            'protocol' => $file,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.study.title', 'Evaluate pneumonia outcomes by pathogen class.')
+        ->assertJsonPath('data.study.study_type', 'patient_level_prediction')
+        ->assertJsonPath('data.version.status', 'review_ready');
+
+    $newStudyId = $response->json('data.study.id');
+    $sessionId = $response->json('data.session.id');
+    $versionId = $response->json('data.version.id');
+
+    expect($newStudyId)->not->toBe($this->study->id);
+
+    $this->assertDatabaseHas('studies', [
+        'id' => $newStudyId,
+        'created_by' => $this->user->id,
+        'primary_objective' => 'Evaluate pneumonia outcomes by pathogen class.',
+    ]);
+    $this->assertDatabaseHas('study_design_sessions', [
+        'id' => $sessionId,
+        'study_id' => $newStudyId,
+        'source_mode' => 'protocol_upload',
+    ]);
+    $this->assertDatabaseHas('study_design_ai_events', [
+        'session_id' => $sessionId,
+        'version_id' => $versionId,
+        'event_type' => 'protocol_import',
+        'model' => 'claude-test',
+    ]);
+});
+
 it('prefers configured Anthropic provider settings for protocol imports', function () {
     config()->set('services.anthropic.key', 'invalid-env-key');
     config()->set('services.anthropic.model', 'invalid-env-model');
@@ -264,8 +335,9 @@ it('prefers configured Anthropic provider settings for protocol imports', functi
     Http::fake([
         'https://api.anthropic.com/*' => Http::response([
             'content' => [[
-                'type' => 'text',
-                'text' => json_encode([
+                'type' => 'tool_use',
+                'name' => 'extract_protocol',
+                'input' => [
                     'research_question' => 'Among adults with pneumonia, does pathogen class predict outcomes?',
                     'primary_objective' => 'Evaluate pneumonia outcomes by pathogen class.',
                     'population' => 'Adults with pneumonia',
@@ -282,7 +354,7 @@ it('prefers configured Anthropic provider settings for protocol imports', functi
                     'publication_plan' => ['summary' => '', 'outputs' => []],
                     'open_questions' => [],
                     'risk_notes' => [],
-                ]),
+                ],
             ]],
         ]),
     ]);
@@ -307,7 +379,10 @@ it('prefers configured Anthropic provider settings for protocol imports', functi
 
     Http::assertSent(function ($request) {
         return ($request->header('x-api-key')[0] ?? null) === 'provider-anthropic-key'
-            && ($request->data()['model'] ?? null) === 'claude-provider-model';
+            && ($request->data()['model'] ?? null) === 'claude-provider-model'
+            && ($request->data()['tool_choice']['name'] ?? null) === 'extract_protocol'
+            && ($request->data()['tools'][0]['name'] ?? null) === 'extract_protocol'
+            && ! array_key_exists('temperature', $request->data());
     });
 
     $this->assertDatabaseHas('study_design_ai_events', [

@@ -318,31 +318,9 @@ class StudyDesignProtocolImportService
     {
         $system = <<<'PROMPT'
 You evaluate observational health research protocols for an OHDSI/OMOP Study Designer.
-Return only valid JSON. Do not include markdown fences or commentary.
+Use the extract_protocol tool with only values supported by the protocol.
 Extract only values supported by the protocol. Use empty strings or empty arrays when absent.
 Do not invent OMOP concept IDs, cohort IDs, or analysis IDs.
-Schema:
-{
-  "research_question": "",
-  "primary_objective": "",
-  "population": "",
-  "exposure": "",
-  "comparator": "",
-  "outcome": "",
-  "time_at_risk": "",
-  "study_type": "",
-  "study_design": "",
-  "hypothesis": "",
-  "scientific_rationale": "",
-  "concept_set_drafts": [{"title": "", "role": "", "domain": "", "clinical_rationale": "", "search_terms": []}],
-  "cohort_definition_drafts": [{"title": "", "role": "", "description": "", "entry_event": "", "exit_strategy": ""}],
-  "analysis_plan": [{"title": "", "analysis_type": "", "hades_package": "", "rationale": ""}],
-  "feasibility_plan": {"summary": "", "minimum_cell_count": null, "source_requirements": []},
-  "validation_plan": {"summary": "", "checks": []},
-  "publication_plan": {"summary": "", "outputs": []},
-  "open_questions": [{"field": "", "question": "", "severity": "review"}],
-  "risk_notes": []
-}
 PROMPT;
 
         $response = Http::timeout((int) config('services.anthropic.timeout', 120))
@@ -354,8 +332,12 @@ PROMPT;
             ->post('https://api.anthropic.com/v1/messages', [
                 'model' => $model,
                 'max_tokens' => 3000,
-                'temperature' => 0,
                 'system' => $system,
+                'tools' => [$this->protocolExtractionTool()],
+                'tool_choice' => [
+                    'type' => 'tool',
+                    'name' => 'extract_protocol',
+                ],
                 'messages' => [
                     [
                         'role' => 'user',
@@ -386,9 +368,14 @@ PROMPT;
             throw new RuntimeException('Anthropic protocol evaluation returned HTTP '.$response->status().': '.$message);
         }
 
+        $toolInput = $this->decodeToolInput($response->json('content'));
+        if ($toolInput !== []) {
+            return $toolInput;
+        }
+
         $content = $response->json('content.0.text');
         if (! is_string($content) || trim($content) === '') {
-            throw new RuntimeException('Anthropic protocol evaluation did not return text.');
+            throw new RuntimeException('Anthropic protocol evaluation did not return protocol extraction data.');
         }
 
         $decoded = $this->decodeJsonContent($content);
@@ -397,6 +384,132 @@ PROMPT;
         }
 
         return $decoded;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function protocolExtractionTool(): array
+    {
+        $text = ['type' => 'string'];
+        $stringList = ['type' => 'array', 'items' => $text];
+
+        return [
+            'name' => 'extract_protocol',
+            'description' => 'Extract OHDSI/OMOP Study Designer fields from an observational health research protocol.',
+            'input_schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'research_question' => $text,
+                    'primary_objective' => $text,
+                    'population' => $text,
+                    'exposure' => $text,
+                    'comparator' => $text,
+                    'outcome' => $text,
+                    'time_at_risk' => $text,
+                    'study_type' => $text,
+                    'study_design' => $text,
+                    'hypothesis' => $text,
+                    'scientific_rationale' => $text,
+                    'concept_set_drafts' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'title' => $text,
+                                'role' => $text,
+                                'domain' => $text,
+                                'clinical_rationale' => $text,
+                                'search_terms' => $stringList,
+                            ],
+                        ],
+                    ],
+                    'cohort_definition_drafts' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'title' => $text,
+                                'role' => $text,
+                                'description' => $text,
+                                'entry_event' => $text,
+                                'exit_strategy' => $text,
+                            ],
+                        ],
+                    ],
+                    'analysis_plan' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'title' => $text,
+                                'analysis_type' => $text,
+                                'hades_package' => $text,
+                                'rationale' => $text,
+                            ],
+                        ],
+                    ],
+                    'feasibility_plan' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'summary' => $text,
+                            'minimum_cell_count' => ['type' => ['integer', 'null']],
+                            'source_requirements' => $stringList,
+                        ],
+                    ],
+                    'validation_plan' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'summary' => $text,
+                            'checks' => $stringList,
+                        ],
+                    ],
+                    'publication_plan' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'summary' => $text,
+                            'outputs' => $stringList,
+                        ],
+                    ],
+                    'open_questions' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'field' => $text,
+                                'question' => $text,
+                                'severity' => $text,
+                            ],
+                        ],
+                    ],
+                    'risk_notes' => $stringList,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeToolInput(mixed $content): array
+    {
+        if (! is_array($content)) {
+            return [];
+        }
+
+        foreach ($content as $block) {
+            if (
+                is_array($block)
+                && ($block['type'] ?? null) === 'tool_use'
+                && ($block['name'] ?? null) === 'extract_protocol'
+                && isset($block['input'])
+                && is_array($block['input'])
+            ) {
+                return $block['input'];
+            }
+        }
+
+        return [];
     }
 
     /**

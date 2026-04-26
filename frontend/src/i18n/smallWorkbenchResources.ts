@@ -48,6 +48,8 @@ const enSmallWorkbench: MessageTree = {
       study: "Study",
       loadingStudies: "Loading studies...",
       noStudies: "No studies",
+      newStudy: "New study",
+      newStudyDescription: "The uploaded protocol will create a new Study.",
     },
     intent: {
       title: "Describe Your Study",

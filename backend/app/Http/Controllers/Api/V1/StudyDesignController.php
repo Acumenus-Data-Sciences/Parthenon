@@ -24,7 +24,10 @@ use App\Services\StudyDesign\StudyDesignReadinessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -150,6 +153,14 @@ class StudyDesignController extends Controller
                 $request->user()->id,
             );
         } catch (\Throwable $exception) {
+            Log::warning('Study design protocol import failed', [
+                'study_id' => $study->id,
+                'study_slug' => $study->slug,
+                'session_id' => $session->id,
+                'filename' => $file->getClientOriginalName(),
+                'message' => $exception->getMessage(),
+            ]);
+
             return response()->json(['message' => $exception->getMessage()], 422);
         }
 
@@ -158,6 +169,67 @@ class StudyDesignController extends Controller
             'extracted' => $result['extracted'],
             'metadata' => $result['metadata'],
         ], 201);
+    }
+
+    public function importProtocolAsStudy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'protocol' => ['required', 'file', 'max:20480'],
+        ]);
+        $file = $validated['protocol'];
+
+        if (! $file instanceof UploadedFile) {
+            return response()->json(['message' => 'Protocol upload was not readable.'], 422);
+        }
+
+        try {
+            $result = DB::transaction(function () use ($request, $file): array {
+                $study = Study::create([
+                    'title' => $this->initialProtocolStudyTitle($file),
+                    'short_title' => $this->shortTitleFromFilename($file),
+                    'description' => 'Imported from protocol upload.',
+                    'study_type' => 'characterization',
+                    'status' => 'draft',
+                    'created_by' => $request->user()->id,
+                    'metadata' => [
+                        'created_from' => 'protocol_upload',
+                        'protocol_import_pending' => true,
+                    ],
+                ]);
+
+                $session = $study->designSessions()->create([
+                    'created_by' => $request->user()->id,
+                    'title' => "{$study->title} Study Design",
+                    'source_mode' => 'protocol_upload',
+                ]);
+
+                $import = $this->protocolImportService->import(
+                    $study,
+                    $session,
+                    $file,
+                    $request->user()->id,
+                );
+
+                $this->applyProtocolExtractionToStudy($study, $import['extracted'], $import['metadata']);
+
+                return [
+                    'study' => $study->fresh(['author:id,name,email', 'principalInvestigator:id,name,email']),
+                    'session' => $session->fresh('activeVersion'),
+                    'version' => $import['version']->load('assets'),
+                    'extracted' => $import['extracted'],
+                    'metadata' => $import['metadata'],
+                ];
+            });
+        } catch (\Throwable $exception) {
+            Log::warning('Study design protocol-to-study import failed', [
+                'filename' => $file->getClientOriginalName(),
+                'message' => $exception->getMessage(),
+            ]);
+
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json(['data' => $result], 201);
     }
 
     public function importExistingStudy(Request $request, Study $study, StudyDesignSession $session): JsonResponse
@@ -771,6 +843,99 @@ class StudyDesignController extends Controller
             'package_artifact' => $artifact->fresh(),
             'readiness' => $this->readinessService->lockReadiness($study, $session->fresh(), $version->fresh()),
         ]);
+    }
+
+    private function initialProtocolStudyTitle(UploadedFile $file): string
+    {
+        $title = $this->shortTitleFromFilename($file);
+
+        return $title !== '' ? $title : 'Imported Protocol Study';
+    }
+
+    private function shortTitleFromFilename(UploadedFile $file): string
+    {
+        $basename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $title = Str::headline((string) preg_replace('/[_-]+/', ' ', $basename));
+
+        return $this->limitText($title, 100);
+    }
+
+    /**
+     * @param  array<string, mixed>  $extracted
+     * @param  array<string, mixed>  $metadata
+     */
+    private function applyProtocolExtractionToStudy(Study $study, array $extracted, array $metadata): void
+    {
+        $title = $this->firstText(
+            $extracted['primary_objective'] ?? null,
+            $extracted['research_question'] ?? null,
+            $study->title,
+        );
+        $title = $this->limitText($title, 500) ?: $study->title;
+
+        $study->update([
+            'title' => $title,
+            'short_title' => $this->limitText($title, 100),
+            'slug' => $this->uniqueStudySlug($title, $study),
+            'description' => $this->nullableText($extracted['research_question'] ?? null),
+            'study_type' => $this->limitText($this->text($extracted['study_type'] ?? '') ?: 'characterization', 100),
+            'study_design' => $this->nullableText($this->limitText($this->text($extracted['study_design'] ?? ''), 50)),
+            'scientific_rationale' => $this->nullableText($extracted['scientific_rationale'] ?? null),
+            'hypothesis' => $this->nullableText($extracted['hypothesis'] ?? null),
+            'primary_objective' => $this->nullableText($extracted['primary_objective'] ?? $extracted['research_question'] ?? null),
+            'metadata' => array_merge($study->metadata ?? [], [
+                'created_from' => 'protocol_upload',
+                'protocol_import_pending' => false,
+                'protocol_file' => $metadata,
+            ]),
+        ]);
+    }
+
+    private function uniqueStudySlug(string $title, Study $study): string
+    {
+        $base = Str::slug($title) ?: 'imported-protocol-study';
+        $slug = $base;
+        $counter = 1;
+
+        while (Study::withTrashed()
+            ->where('slug', $slug)
+            ->whereKeyNot($study->id)
+            ->exists()
+        ) {
+            $slug = "{$base}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    private function firstText(mixed ...$values): string
+    {
+        foreach ($values as $value) {
+            $text = $this->text($value);
+            if ($text !== '') {
+                return $text;
+            }
+        }
+
+        return '';
+    }
+
+    private function nullableText(mixed $value): ?string
+    {
+        $text = $this->text($value);
+
+        return $text !== '' ? $text : null;
+    }
+
+    private function text(mixed $value): string
+    {
+        return is_scalar($value) ? trim((string) $value) : '';
+    }
+
+    private function limitText(string $value, int $limit): string
+    {
+        return trim(Str::limit($value, $limit, ''));
     }
 
     private function authorizeSession(Study $study, StudyDesignSession $session): void

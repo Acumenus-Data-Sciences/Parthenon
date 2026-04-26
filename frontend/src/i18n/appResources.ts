@@ -59,7 +59,11 @@ const enApp: MessageTree = {
     addTimeWindow: "Add time window",
   },
   studies: {
+    entities: {
+      study: "Study",
+    },
     list: {
+      loading: "Loading studies...",
       title: "Studies",
       subtitle: "Orchestrate and manage federated research studies",
       tableView: "Table view",
@@ -4350,7 +4354,11 @@ const esApp: MessageTree = {
     addTimeWindow: "Añadir ventana temporal",
   },
   studies: {
+    entities: {
+      study: "Estudio",
+    },
     list: {
+      loading: "Cargando estudios...",
       title: "Estudios",
       subtitle: "Orquesta y gestiona estudios de investigación federada",
       tableView: "Vista de tabla",
@@ -8693,7 +8701,11 @@ const koApp: MessageTree = {
     addTimeWindow: "시간 창 추가",
   },
   studies: {
+    entities: {
+      study: "연구",
+    },
     list: {
+      loading: "연구를 불러오는 중...",
       title: "연구",
       subtitle: "연합 연구를 조율하고 관리합니다",
       tableView: "표 보기",
@@ -12970,7 +12982,11 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
     },
   },
   studies: {
+    entities: {
+      study: "Étude",
+    },
     list: {
+      loading: "Chargement des études...",
       title: "Études",
       subtitle: "Orchestrer et gérer les études de recherche fédérées",
       tableView: "Vue tableau",
@@ -17332,7 +17348,11 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
     },
   },
   studies: {
+    entities: {
+      study: "Studie",
+    },
     list: {
+      loading: "Studien werden geladen...",
       title: "Studien",
       subtitle: "Orchestrieren und verwalten Sie Verbundforschungsstudien",
       tableView: "Tabellenansicht",
@@ -21690,7 +21710,11 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
     },
   },
   studies: {
+    entities: {
+      study: "Estudo",
+    },
     list: {
+      loading: "Carregando estudos...",
       title: "Estudos",
       subtitle: "Orquestre e gerencie estudos de pesquisa federados",
       tableView: "Visualização de tabela",
@@ -26041,7 +26065,11 @@ const fiApp: MessageTree = mergeMessageTrees(enApp, {
     addTimeWindow: "Lisää aikaikkuna",
   },
   studies: {
+    entities: {
+      study: "Tutkimus",
+    },
     list: {
+      loading: "Ladataan tutkimuksia...",
       title: "Tutkimukset",
       subtitle: "Koordinoi ja hallinnoi hajautettuja tutkimuksia",
       tableView: "Taulukkonäkymä",
@@ -30190,7 +30218,11 @@ const jaApp: MessageTree = mergeMessageTrees(enApp, {
     addTimeWindow: "時間ウィンドウを追加",
   },
   studies: {
+    entities: {
+      study: "研究",
+    },
     list: {
+      loading: "研究を読み込んでいます...",
       title: "研究",
       subtitle: "フェデレーション研究を調整および管理する",
       tableView: "テーブルビュー",
@@ -34330,7 +34362,11 @@ const zhApp: MessageTree = mergeMessageTrees(enApp, {
     addTimeWindow: "添加时间窗口",
   },
   studies: {
+    entities: {
+      study: "研究",
+    },
     list: {
+      loading: "正在加载研究...",
       title: "研究",
       subtitle: "协调和管理联合研究",
       tableView: "表格视图",
@@ -38357,7 +38393,11 @@ const hiApp: MessageTree = mergeMessageTrees(enApp, {
     addTimeWindow: "समय विंडो जोड़ें",
   },
   studies: {
+    entities: {
+      study: "अध्ययन",
+    },
     list: {
+      loading: "अध्ययन लोड हो रहे हैं...",
       title: "अध्ययन करते हैं",
       subtitle: "फ़ेडरेटेड अनुसंधान अध्ययनों का आयोजन और प्रबंधन करें",
       tableView: "तालिका दृश्य",
@@ -43070,7 +43110,11 @@ const arAppPass1: MessageTree = mergeMessageTrees(enApp, {
     "addTimeWindow": "إضافة نافذة زمنية"
   },
   "studies": {
+    "entities": {
+      "study": "دراسة"
+    },
     "list": {
+      "loading": "جارٍ تحميل الدراسات...",
       "title": "دراسات",
       "subtitle": "تنسيق وإدارة الدراسات البحثية الموحدة",
       "tableView": "عرض الجدول",
