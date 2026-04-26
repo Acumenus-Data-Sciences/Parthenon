@@ -4,6 +4,65 @@
 
 import type { SelectedExecution } from "../types/publish";
 
+function num(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function firstNumber(record: Record<string, unknown>, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = num(record[key]);
+    if (value !== undefined) return value;
+  }
+  return undefined;
+}
+
+function rounded(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function forestPointFromRecord(
+  record: Record<string, unknown>,
+  fallbackLabel: string,
+): { label: string; estimate: number; ci_lower: number; ci_upper: number } | undefined {
+  const estimate = firstNumber(record, [
+    "hazard_ratio",
+    "hr",
+    "relative_risk",
+    "rr",
+    "odds_ratio",
+    "or",
+    "estimate",
+    "effect_estimate",
+  ]);
+  if (estimate === undefined) return undefined;
+
+  const ciLower =
+    firstNumber(record, ["ci_95_lower", "ci_lower", "lower_ci", "lower", "lcl"]) ??
+    estimate;
+  const ciUpper =
+    firstNumber(record, ["ci_95_upper", "ci_upper", "upper_ci", "upper", "ucl"]) ??
+    estimate;
+
+  return {
+    label:
+      (record.outcome_name as string | undefined) ??
+      (record.site_name as string | undefined) ??
+      (record.label as string | undefined) ??
+      (record.name as string | undefined) ??
+      fallbackLabel,
+    estimate: rounded(estimate),
+    ci_lower: rounded(ciLower),
+    ci_upper: rounded(ciUpper),
+  };
+}
+
 /**
  * Build forest plot data from estimation results.
  * ForestPlot expects: { data: [{label, estimate, ci_lower, ci_upper}], pooled? }
@@ -23,46 +82,44 @@ export function buildForestPlotData(
       : [];
 
     for (const est of estimates) {
-      const hr = (est.hazard_ratio as number) ?? (est.hr as number);
-      const ciLo = (est.ci_95_lower as number) ?? (est.ci_lower as number);
-      const ciHi = (est.ci_95_upper as number) ?? (est.ci_upper as number);
-      if (typeof hr !== "number") continue;
-
-      points.push({
-        label: (est.outcome_name as string) ?? exec.analysisName,
-        estimate: Math.round(hr * 100) / 100,
-        ci_lower: typeof ciLo === "number" ? Math.round(ciLo * 100) / 100 : hr,
-        ci_upper: typeof ciHi === "number" ? Math.round(ciHi * 100) / 100 : hr,
-      });
+      const point = forestPointFromRecord(est, exec.analysisName);
+      if (point) points.push(point);
     }
 
     const perSite = Array.isArray(r.per_site)
       ? (r.per_site as Array<Record<string, unknown>>)
       : [];
     for (const site of perSite) {
-      const hr = (site.hr as number) ?? (site.hazard_ratio as number);
-      const ciLo = (site.ci_lower as number) ?? (site.ci_95_lower as number);
-      const ciHi = (site.ci_upper as number) ?? (site.ci_95_upper as number);
-      if (typeof hr !== "number") continue;
-
-      points.push({
-        label: (site.site_name as string) ?? exec.analysisName,
-        estimate: Math.round(hr * 100) / 100,
-        ci_lower: typeof ciLo === "number" ? Math.round(ciLo * 100) / 100 : hr,
-        ci_upper: typeof ciHi === "number" ? Math.round(ciHi * 100) / 100 : hr,
-      });
+      const point = forestPointFromRecord(site, exec.analysisName);
+      if (point) points.push(point);
     }
 
     const pooledCandidate = r.pooled as Record<string, unknown> | undefined;
-    const pooledHr = (pooledCandidate?.hr as number) ?? (r.pooled_estimate as number);
-    const pooledLo = (pooledCandidate?.ci_lower as number) ?? (r.ci_lower as number);
-    const pooledHi = (pooledCandidate?.ci_upper as number) ?? (r.ci_upper as number);
-    if (typeof pooledHr === "number") {
+    const pooledPoint = pooledCandidate
+      ? forestPointFromRecord(pooledCandidate, "Pooled")
+      : undefined;
+    const pooledHr =
+      pooledPoint?.estimate ??
+      firstNumber(r, ["pooled_estimate", "pooled_rr", "pooled_hr"]);
+    if (pooledHr !== undefined) {
+      const pooledLo =
+        pooledPoint?.ci_lower ??
+        firstNumber(r, ["ci_lower", "ci_95_lower", "pooled_ci_lower"]) ??
+        pooledHr;
+      const pooledHi =
+        pooledPoint?.ci_upper ??
+        firstNumber(r, ["ci_upper", "ci_95_upper", "pooled_ci_upper"]) ??
+        pooledHr;
       pooled = {
-        estimate: Math.round(pooledHr * 100) / 100,
-        ci_lower: typeof pooledLo === "number" ? Math.round(pooledLo * 100) / 100 : pooledHr,
-        ci_upper: typeof pooledHi === "number" ? Math.round(pooledHi * 100) / 100 : pooledHr,
+        estimate: rounded(pooledHr),
+        ci_lower: rounded(pooledLo),
+        ci_upper: rounded(pooledHi),
       };
+    }
+
+    if (estimates.length === 0 && perSite.length === 0) {
+      const point = forestPointFromRecord(r, exec.analysisName);
+      if (point) points.push(point);
     }
   }
 

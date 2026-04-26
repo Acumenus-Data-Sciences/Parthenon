@@ -3,8 +3,17 @@
 // ---------------------------------------------------------------------------
 
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import apiClient from "@/lib/api-client";
-import type { NarrativeResponse, ExportFormat } from "../types/publish";
+import type {
+  ImportPublicationReportBundlePayload,
+  ImportPublicationReportBundleResult,
+  NarrativeResponse,
+  ExportFormat,
+  PublicationDraft,
+  PublicationDraftInput,
+  PublicationReportBundleExportRequest,
+} from "../types/publish";
 import type { Study } from "@/features/studies/types/study";
 
 // ── Legacy hooks (kept for backward compat) ─────────────────────────────────
@@ -72,10 +81,92 @@ export interface ExportRequest {
 }
 
 export const exportDocument = async (req: ExportRequest): Promise<Blob> => {
-  const { data } = await apiClient.post("/publish/export", req, {
+  try {
+    const { data } = await apiClient.post("/publish/export", req, {
+      responseType: "blob",
+    });
+    return data;
+  } catch (error) {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.data instanceof Blob
+    ) {
+      const text = await error.response.data.text();
+      let parsedMessage: string | undefined;
+      try {
+        const parsed = JSON.parse(text) as { message?: string };
+        parsedMessage = parsed.message;
+      } catch {
+        parsedMessage = undefined;
+      }
+      if (parsedMessage) {
+        throw new Error(parsedMessage, { cause: error });
+      }
+      if (text.trim()) {
+        throw new Error(text.trim(), { cause: error });
+      }
+    }
+    throw error;
+  }
+};
+
+// ── Publication drafts and OHDSI report bundles ────────────────────────────
+
+function unwrapData<T>(data: T | { data: T }): T {
+  return typeof data === "object" && data !== null && "data" in data
+    ? (data as { data: T }).data
+    : (data as T);
+}
+
+export const fetchPublicationDrafts = async (): Promise<PublicationDraft[]> => {
+  const { data } = await apiClient.get<{ data: PublicationDraft[] }>("/publish/drafts");
+  return unwrapData(data);
+};
+
+export const fetchPublicationDraft = async (draftId: number): Promise<PublicationDraft> => {
+  const { data } = await apiClient.get<{ data: PublicationDraft }>(`/publish/drafts/${draftId}`);
+  return unwrapData(data);
+};
+
+export const createPublicationDraft = async (
+  payload: PublicationDraftInput,
+): Promise<PublicationDraft> => {
+  const { data } = await apiClient.post<{ data: PublicationDraft }>("/publish/drafts", payload);
+  return unwrapData(data);
+};
+
+export const updatePublicationDraft = async (
+  draftId: number,
+  payload: Partial<PublicationDraftInput>,
+): Promise<PublicationDraft> => {
+  const { data } = await apiClient.patch<{ data: PublicationDraft }>(
+    `/publish/drafts/${draftId}`,
+    payload,
+  );
+  return unwrapData(data);
+};
+
+export const deletePublicationDraft = async (draftId: number): Promise<void> => {
+  await apiClient.delete(`/publish/drafts/${draftId}`);
+};
+
+export const exportReportBundle = async (
+  payload: PublicationReportBundleExportRequest,
+): Promise<Blob> => {
+  const { data } = await apiClient.post("/publish/report-bundles/export", payload, {
     responseType: "blob",
   });
   return data;
+};
+
+export const importReportBundle = async (
+  payload: ImportPublicationReportBundlePayload,
+): Promise<ImportPublicationReportBundleResult> => {
+  const { data } = await apiClient.post<{ data: ImportPublicationReportBundleResult }>(
+    "/publish/report-bundles/import",
+    payload,
+  );
+  return unwrapData(data);
 };
 
 // ── Analysis picker queries ─────────────────────────────────────────────────

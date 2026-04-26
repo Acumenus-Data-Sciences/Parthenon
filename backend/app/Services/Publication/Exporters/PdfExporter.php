@@ -2,6 +2,7 @@
 
 namespace App\Services\Publication\Exporters;
 
+use App\Services\Publication\Support\PublicationImage;
 use Dompdf\Dompdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -74,14 +75,11 @@ class PdfExporter
         foreach ($sections as $section) {
             $type = (string) ($section['type'] ?? '');
             $content = (string) ($section['content'] ?? '');
-            $svg = (string) ($section['svg'] ?? '');
             $caption = (string) ($section['caption'] ?? '');
             $diagramType = (string) ($section['diagram_type'] ?? '');
 
             if ($type === 'diagram') {
-                if ($svg !== '') {
-                    $sectionsHtml .= '<div style="text-align: center; margin: 24px 0;">'.$svg.'</div>';
-                }
+                $sectionsHtml .= $this->buildFigureHtml($section);
                 if ($caption !== '') {
                     $sectionsHtml .= '<p style="text-align: center; font-style: italic; font-size: 10pt; color: #555;">'.htmlspecialchars($caption, ENT_QUOTES, 'UTF-8').'</p>';
                 }
@@ -119,8 +117,8 @@ class PdfExporter
                     }
                 }
 
-                if ($svg !== '' && $diagramType !== '') {
-                    $sectionsHtml .= '<div style="text-align: center; margin: 24px 0;">'.$svg.'</div>';
+                if ($diagramType !== '') {
+                    $sectionsHtml .= $this->buildFigureHtml($section);
                     if ($caption !== '') {
                         $sectionsHtml .= '<p style="text-align: center; font-style: italic; font-size: 10pt; color: #555;">'.htmlspecialchars($caption, ENT_QUOTES, 'UTF-8').'</p>';
                     }
@@ -182,6 +180,28 @@ class PdfExporter
 </body>
 </html>
 HTML;
+    }
+
+    /**
+     * @param  array<string, mixed>  $section
+     */
+    private function buildFigureHtml(array $section): string
+    {
+        $pngDataUrl = PublicationImage::normalizePngDataUrl((string) ($section['png_data_url'] ?? ''));
+        if ($pngDataUrl !== null) {
+            $src = htmlspecialchars($pngDataUrl, ENT_QUOTES, 'UTF-8');
+
+            return '<div style="text-align: center; margin: 24px 0;">'
+                .'<img src="'.$src.'" alt="" style="max-width: 100%; width: 5.8in; height: auto;" />'
+                .'</div>';
+        }
+
+        $svg = (string) ($section['svg'] ?? '');
+        if ($svg === '') {
+            return '';
+        }
+
+        return '<div style="text-align: center; margin: 24px 0;">'.$svg.'</div>';
     }
 
     /**

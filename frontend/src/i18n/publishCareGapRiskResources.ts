@@ -605,7 +605,7 @@ const enPublishCareGapRisk: MessageTree = {
         },
         figuresZip: {
           label: "Individual Figures",
-          description: "SVG files for separate journal upload",
+          description: "PNG and SVG files for separate journal upload",
         },
       },
     },

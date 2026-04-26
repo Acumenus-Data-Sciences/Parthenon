@@ -6,9 +6,14 @@ use App\Exceptions\AiProviderNotConfiguredException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicationExportRequest;
 use App\Http\Requests\PublicationNarrativeRequest;
+use App\Models\App\PublicationDraft;
+use App\Models\App\PublicationReportBundle;
 use App\Services\AI\AnalyticsLlmService;
+use App\Services\Publication\PublicationReportBundleService;
 use App\Services\Publication\PublicationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -19,6 +24,7 @@ class PublicationController extends Controller
     public function __construct(
         private readonly AnalyticsLlmService $llm,
         private readonly PublicationService $publicationService,
+        private readonly PublicationReportBundleService $reportBundleService,
     ) {}
 
     /**
@@ -83,6 +89,246 @@ class PublicationController extends Controller
                 'message' => 'Export failed: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * GET /api/v1/publish/drafts
+     */
+    public function listDrafts(Request $request): JsonResponse
+    {
+        $drafts = PublicationDraft::query()
+            ->where('user_id', $request->user()?->id)
+            ->orderByDesc('last_opened_at')
+            ->orderByDesc('updated_at')
+            ->limit(100)
+            ->get()
+            ->map(fn (PublicationDraft $draft): array => $this->draftPayload($draft))
+            ->values();
+
+        return response()->json(['data' => $drafts]);
+    }
+
+    /**
+     * POST /api/v1/publish/drafts
+     */
+    public function createDraft(Request $request): JsonResponse
+    {
+        $validated = $this->validateDraftPayload($request, requireDocument: true);
+
+        $draft = PublicationDraft::create([
+            'user_id' => $request->user()?->id,
+            'study_id' => $validated['study_id'] ?? null,
+            'title' => $validated['title'],
+            'template' => $validated['template'] ?? 'generic-ohdsi',
+            'document_json' => $validated['document_json'],
+            'status' => $validated['status'] ?? 'draft',
+            'last_opened_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => $this->draftPayload($draft),
+            'message' => 'Publication draft created.',
+        ], 201);
+    }
+
+    /**
+     * GET /api/v1/publish/drafts/{draft}
+     */
+    public function showDraft(Request $request, PublicationDraft $draft): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+
+        $draft->forceFill(['last_opened_at' => now()])->save();
+
+        return response()->json(['data' => $this->draftPayload($draft->fresh())]);
+    }
+
+    /**
+     * PATCH /api/v1/publish/drafts/{draft}
+     */
+    public function updateDraft(Request $request, PublicationDraft $draft): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+
+        $validated = $this->validateDraftPayload($request, requireDocument: false);
+        $updates = array_intersect_key($validated, array_flip([
+            'study_id',
+            'title',
+            'template',
+            'document_json',
+            'status',
+        ]));
+        $updates['last_opened_at'] = now();
+
+        $draft->update($updates);
+
+        return response()->json([
+            'data' => $this->draftPayload($draft->fresh()),
+            'message' => 'Publication draft updated.',
+        ]);
+    }
+
+    /**
+     * DELETE /api/v1/publish/drafts/{draft}
+     */
+    public function deleteDraft(Request $request, PublicationDraft $draft): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+        $draft->delete();
+
+        return response()->json(null, 204);
+    }
+
+    /**
+     * POST /api/v1/publish/report-bundles/export
+     */
+    public function exportReportBundle(Request $request): StreamedResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'format' => 'required|string',
+            'title' => 'required|string|max:500',
+            'authors' => 'present|array',
+            'authors.*' => 'string|max:200',
+            'template' => 'required|string|max:80',
+            'sections' => 'required|array|min:1',
+            'selected_executions' => 'sometimes|array',
+            'draft_id' => 'sometimes|integer',
+        ]);
+
+        try {
+            $draftId = null;
+            if (isset($validated['draft_id'])) {
+                $draftId = PublicationDraft::query()
+                    ->where('user_id', $request->user()?->id)
+                    ->whereKey($validated['draft_id'])
+                    ->value('id');
+                abort_unless($draftId !== null, 404);
+            }
+
+            $artifact = $this->reportBundleService->export($validated, (string) $validated['format']);
+
+            PublicationReportBundle::create([
+                'publication_draft_id' => $draftId,
+                'user_id' => $request->user()?->id,
+                'direction' => 'export',
+                'format' => $artifact['format'],
+                'bundle_json' => $artifact,
+                'metadata_json' => [
+                    'download_name' => $artifact['download_name'] ?? null,
+                    'mime_type' => $artifact['mime_type'] ?? null,
+                ],
+            ]);
+
+            $content = $artifact['content'];
+            $body = is_string($content)
+                ? $content
+                : json_encode($content, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            $downloadName = (string) ($artifact['download_name'] ?? 'publication-report-bundle.json');
+            $mimeType = (string) ($artifact['mime_type'] ?? 'application/json');
+
+            return response()->streamDownload(
+                static function () use ($body): void {
+                    echo $body;
+                },
+                $downloadName,
+                [
+                    'Content-Type' => $mimeType,
+                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                ],
+            );
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Report bundle export failed: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * POST /api/v1/publish/report-bundles/import
+     */
+    public function importReportBundle(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'format' => 'required|string',
+            'artifact' => 'required',
+            'title' => 'sometimes|string|max:500',
+        ]);
+
+        $parsed = $this->reportBundleService->parseImportPayload($validated);
+
+        $draft = PublicationDraft::create([
+            'user_id' => $request->user()?->id,
+            'study_id' => null,
+            'title' => $parsed['title'],
+            'template' => $parsed['template'],
+            'document_json' => $parsed['document_json'],
+            'status' => 'draft',
+            'last_opened_at' => now(),
+        ]);
+
+        $bundle = PublicationReportBundle::create([
+            'publication_draft_id' => $draft->id,
+            'user_id' => $request->user()?->id,
+            'direction' => 'import',
+            'format' => $parsed['metadata']['format'] ?? $validated['format'],
+            'bundle_json' => is_array($validated['artifact']) ? $validated['artifact'] : ['artifact' => $validated['artifact']],
+            'metadata_json' => $parsed['metadata'],
+        ]);
+
+        return response()->json([
+            'data' => [
+                'draft' => $this->draftPayload($draft),
+                'bundle' => $bundle,
+            ],
+            'message' => 'Report bundle imported.',
+        ], 201);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validateDraftPayload(Request $request, bool $requireDocument): array
+    {
+        $documentRule = $requireDocument ? 'required|array' : 'sometimes|array';
+        $titleRule = $requireDocument ? 'required|string|max:500' : 'sometimes|string|max:500';
+
+        return $request->validate([
+            'study_id' => 'nullable|integer',
+            'title' => $titleRule,
+            'template' => 'sometimes|string|max:80',
+            'document_json' => $documentRule,
+            'status' => 'sometimes|string|in:draft,ready,archived',
+        ]);
+    }
+
+    private function authorizeDraft(Request $request, PublicationDraft $draft): void
+    {
+        abort_unless((int) $draft->user_id === (int) $request->user()?->id, 404);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function draftPayload(?PublicationDraft $draft): array
+    {
+        if ($draft === null) {
+            return [];
+        }
+
+        return [
+            'id' => $draft->id,
+            'user_id' => $draft->user_id,
+            'study_id' => $draft->study_id,
+            'title' => $draft->title,
+            'template' => $draft->template,
+            'document_json' => $draft->document_json,
+            'status' => $draft->status,
+            'last_opened_at' => $draft->last_opened_at?->toISOString(),
+            'created_at' => $draft->created_at?->toISOString(),
+            'updated_at' => $draft->updated_at?->toISOString(),
+        ];
     }
 
     /**

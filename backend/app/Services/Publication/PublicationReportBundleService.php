@@ -2,6 +2,7 @@
 
 namespace App\Services\Publication;
 
+use App\Services\Publication\Support\PublicationImage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use JsonException;
@@ -228,7 +229,7 @@ class PublicationReportBundleService
             'template' => $document['template'],
             'engine' => $engine,
             'section_count' => count($document['sections'] ?? []),
-            'figure_count' => count($this->figureFiles($document)),
+            'figure_count' => $this->figureCount($document),
             'table_count' => count($this->tableFiles($document)),
             'exported_at' => now()->toISOString(),
             'source' => 'parthenon',
@@ -320,18 +321,49 @@ R;
     {
         $files = [];
         foreach (($document['sections'] ?? []) as $index => $section) {
-            if (! is_array($section) || ! is_string($section['svg'] ?? null) || trim($section['svg']) === '') {
+            if (! is_array($section)) {
                 continue;
             }
             $slug = $this->slug((string) ($section['title'] ?? 'figure-'.($index + 1)));
-            $files[] = [
-                'path' => "inst/reports/figures/{$slug}.svg",
-                'kind' => 'svg',
-                'content' => $section['svg'],
-            ];
+            $pngBytes = PublicationImage::decodePngDataUrl((string) ($section['png_data_url'] ?? ''));
+            if ($pngBytes !== null) {
+                $files[] = [
+                    'path' => "inst/reports/figures/{$slug}.png",
+                    'kind' => 'png',
+                    'content' => base64_encode($pngBytes),
+                ];
+            }
+
+            if (is_string($section['svg'] ?? null) && trim((string) $section['svg']) !== '') {
+                $files[] = [
+                    'path' => "inst/reports/figures/{$slug}.svg",
+                    'kind' => 'svg',
+                    'content' => $section['svg'],
+                ];
+            }
         }
 
         return $files;
+    }
+
+    /**
+     * @param  array<string, mixed>  $document
+     */
+    private function figureCount(array $document): int
+    {
+        $count = 0;
+        foreach (($document['sections'] ?? []) as $section) {
+            if (! is_array($section)) {
+                continue;
+            }
+            $hasSvg = is_string($section['svg'] ?? null) && trim((string) $section['svg']) !== '';
+            $hasPng = PublicationImage::decodePngDataUrl((string) ($section['png_data_url'] ?? '')) !== null;
+            if ($hasSvg || $hasPng) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     /**

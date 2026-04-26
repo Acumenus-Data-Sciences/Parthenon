@@ -59,6 +59,29 @@ describe("publish result mappers", () => {
     ]);
   });
 
+  it("builds an estimation forest plot from top-level effect fields", () => {
+    const diagram = buildDiagramData("forest_plot", [
+      makeExecution("estimation", {
+        hazard_ratio: 1.45,
+        ci_lower: 1.1,
+        ci_upper: 1.9,
+      }),
+    ]);
+
+    expect(diagram).toEqual({
+      data: [
+        {
+          label: "estimation analysis",
+          estimate: 1.45,
+          ci_lower: 1.1,
+          ci_upper: 1.9,
+        },
+      ],
+      pooled: undefined,
+      xLabel: "Hazard Ratio",
+    });
+  });
+
   it("does not auto-assign unsupported diagrams to characterization and prediction", () => {
     expect(SECTION_CONFIG.characterization.diagramType).toBeNull();
     expect(SECTION_CONFIG.characterizations.diagramType).toBeNull();

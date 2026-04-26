@@ -2,6 +2,7 @@
 
 namespace App\Services\Publication\Exporters;
 
+use App\Services\Publication\Support\PublicationImage;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -173,7 +174,10 @@ class DocxExporter
             }
         }
 
-        if ((string) ($data['svg'] ?? '') !== '' && (string) ($data['diagram_type'] ?? '') !== '') {
+        if (
+            ((string) ($data['svg'] ?? '') !== '' || (string) ($data['png_data_url'] ?? '') !== '')
+            && (string) ($data['diagram_type'] ?? '') !== ''
+        ) {
             $wordSection->addTextBreak(1);
             $this->addDiagram($wordSection, $data, $tempImages);
         }
@@ -278,11 +282,11 @@ class DocxExporter
                 if ($tempRoot !== false) {
                     @unlink($tempRoot);
                     $tempPng = $tempRoot.'.png';
-                    $pngBytes = preg_replace('/^data:image\/png;base64,/', '', $pngDataUrl);
+                    $pngBytes = PublicationImage::decodePngDataUrl($pngDataUrl);
                     if ($pngBytes === null) {
-                        throw new \RuntimeException('Failed to decode PNG data URL.');
+                        throw new \RuntimeException('Invalid PNG data URL.');
                     }
-                    file_put_contents($tempPng, base64_decode($pngBytes, true));
+                    file_put_contents($tempPng, $pngBytes);
 
                     $wordSection->addImage($tempPng, [
                         'width' => 450,

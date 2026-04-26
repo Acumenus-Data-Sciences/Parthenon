@@ -1,6 +1,7 @@
 import { useCallback, useRef, type ReactNode } from "react";
 import { Download, Image } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { serializeSvgElement } from "../../lib/svgExport";
 
 interface DiagramWrapperProps {
   title: string;
@@ -26,13 +27,6 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-function serializeSvg(svg: SVGSVGElement): string {
-  const clone = svg.cloneNode(true) as SVGSVGElement;
-  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  return new XMLSerializer().serializeToString(clone);
-}
-
 export default function DiagramWrapper({
   title,
   caption,
@@ -55,7 +49,7 @@ export default function DiagramWrapper({
     const svg = extractSvgElement(containerRef.current);
     if (!svg) return;
 
-    const svgString = serializeSvg(svg);
+    const svgString = serializeSvgElement(svg);
     const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
     downloadBlob(blob, `${slugTitle}.svg`);
   }, [onExportSvg, slugTitle]);
@@ -69,7 +63,7 @@ export default function DiagramWrapper({
     const svg = extractSvgElement(containerRef.current);
     if (!svg) return;
 
-    const svgString = serializeSvg(svg);
+    const svgString = serializeSvgElement(svg);
     const svgWidth = svg.viewBox.baseVal.width || svg.getBoundingClientRect().width;
     const svgHeight = svg.viewBox.baseVal.height || svg.getBoundingClientRect().height;
     const scale = 2; // 2x for retina quality

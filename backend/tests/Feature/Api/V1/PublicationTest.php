@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\App\PublicationDraft;
+use App\Models\App\PublicationReportBundle;
 use App\Models\User;
 use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationService;
@@ -148,4 +150,95 @@ it('exports a publication document successfully', function () {
             ],
         ])
         ->assertStatus(200);
+});
+
+it('supports publication draft lifecycle for the authenticated user', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $payload = [
+        'title' => 'Draft manuscript',
+        'template' => 'generic-ohdsi',
+        'document_json' => [
+            'step' => 2,
+            'title' => 'Draft manuscript',
+            'authors' => ['Dr. Smith'],
+            'sections' => [],
+            'selectedExecutions' => [],
+            'template' => 'generic-ohdsi',
+        ],
+    ];
+
+    $created = $this->actingAs($user)
+        ->postJson('/api/v1/publish/drafts', $payload)
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'Draft manuscript')
+        ->json('data');
+
+    $draftId = $created['id'];
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/publish/drafts')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $draftId);
+
+    $this->actingAs($user)
+        ->patchJson("/api/v1/publish/drafts/{$draftId}", [
+            'title' => 'Updated manuscript',
+            'status' => 'ready',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Updated manuscript')
+        ->assertJsonPath('data.status', 'ready');
+
+    $otherUser = User::factory()->create();
+    $otherUser->assignRole('researcher');
+
+    $this->actingAs($otherUser)
+        ->getJson("/api/v1/publish/drafts/{$draftId}")
+        ->assertNotFound();
+
+    $this->actingAs($user)
+        ->deleteJson("/api/v1/publish/drafts/{$draftId}")
+        ->assertNoContent();
+
+    expect(PublicationDraft::query()->whereKey($draftId)->exists())->toBeFalse();
+});
+
+it('exports and imports OHDSI report bundles from the publish API', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $document = [
+        'format' => 'ohdsi_report_bundle',
+        'title' => 'Bundle manuscript',
+        'template' => 'generic-ohdsi',
+        'authors' => ['Dr. Smith'],
+        'sections' => [
+            [
+                'type' => 'results',
+                'title' => 'Results',
+                'included' => true,
+                'content' => 'Results text.',
+            ],
+        ],
+    ];
+
+    $response = $this->actingAs($user)
+        ->postJson('/api/v1/publish/report-bundles/export', $document)
+        ->assertOk();
+
+    expect(PublicationReportBundle::query()->where('direction', 'export')->exists())->toBeTrue();
+
+    $artifact = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/publish/report-bundles/import', [
+            'format' => 'ohdsi_report_bundle',
+            'artifact' => $artifact,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.draft.title', 'Bundle manuscript');
+
+    expect(PublicationReportBundle::query()->where('direction', 'import')->exists())->toBeTrue();
 });

@@ -2,13 +2,14 @@
 
 namespace App\Services\Publication\Exporters;
 
+use App\Services\Publication\Support\PublicationImage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipArchive;
 
 class FiguresExporter
 {
     /**
-     * Export all diagram SVGs as a ZIP archive.
+     * Export all diagram images as a ZIP archive.
      *
      * @param  array<string, mixed>  $document
      */
@@ -35,17 +36,23 @@ class FiguresExporter
         $sections = $document['sections'] ?? [];
         foreach ($sections as $section) {
             $svg = (string) ($section['svg'] ?? '');
+            $pngBytes = PublicationImage::decodePngDataUrl((string) ($section['png_data_url'] ?? ''));
             $diagramType = (string) ($section['diagram_type'] ?? 'figure');
 
-            if ($svg !== '' && $diagramType !== '') {
-                $entryName = "figure_{$figureIndex}_{$diagramType}.svg";
-                $zip->addFromString($entryName, $svg);
+            if (($svg !== '' || $pngBytes !== null) && $diagramType !== '') {
+                $entryBase = "figure_{$figureIndex}_{$diagramType}";
+                if ($pngBytes !== null) {
+                    $zip->addFromString("{$entryBase}.png", $pngBytes);
+                }
+                if ($svg !== '') {
+                    $zip->addFromString("{$entryBase}.svg", $svg);
+                }
                 $figureIndex++;
             }
         }
 
         if ($figureIndex === 1) {
-            $zip->addFromString('README.txt', 'No diagram SVGs were available for export.');
+            $zip->addFromString('README.txt', 'No diagram images were available for export.');
         }
 
         $zip->close();

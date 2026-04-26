@@ -62,3 +62,62 @@ export interface NarrativeResponse {
   section_type: string;
   error?: string;
 }
+
+export interface PublicationDraft {
+  id: number;
+  user_id: number;
+  study_id: number | null;
+  title: string;
+  template: string;
+  document_json: Partial<PublishState> & Record<string, unknown>;
+  status: "draft" | "ready" | "archived";
+  last_opened_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PublicationDraftInput {
+  study_id?: number | null;
+  title: string;
+  template?: string;
+  document_json: Partial<PublishState> & Record<string, unknown>;
+  status?: PublicationDraft["status"];
+}
+
+export interface PublicationReportBundleArtifact {
+  format: "ohdsi_report_bundle" | "ohdsi_report_generator_r" | "ohdsi_sharing_bundle";
+  mime_type: string;
+  download_name: string;
+  content: unknown;
+}
+
+export interface PublicationReportBundleExportRequest {
+  format: PublicationReportBundleArtifact["format"] | string;
+  title: string;
+  authors: string[];
+  template: string;
+  sections: Array<Record<string, unknown>>;
+  selected_executions?: SelectedExecution[];
+  draft_id?: number | null;
+}
+
+export interface ImportPublicationReportBundlePayload {
+  format: PublicationReportBundleArtifact["format"] | string;
+  artifact: unknown;
+  title?: string;
+}
+
+export interface ImportPublicationReportBundleResult {
+  draft: PublicationDraft;
+  bundle: {
+    id: number;
+    publication_draft_id: number | null;
+    user_id: number | null;
+    direction: "import" | "export";
+    format: string;
+    bundle_json: unknown;
+    metadata_json: Record<string, unknown> | null;
+    created_at: string | null;
+    updated_at: string | null;
+  };
+}

@@ -15,6 +15,7 @@ import ExportPanel from "../components/ExportPanel";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { buildTableFromResults } from "../lib/tableBuilders";
 import { buildDiagramData } from "../lib/diagramBuilders";
+import { getDiagramSvgMarkup } from "../lib/svgExport";
 import {
   getPublishResultSectionTitle,
   getPublishTemplateSectionTitle,
@@ -274,22 +275,10 @@ function buildManuscriptSections(
   return sections;
 }
 
-function serializeSectionSvg(sectionId: string): string | undefined {
-  if (typeof document === "undefined") return undefined;
-  const el = document.getElementById(`diagram-${sectionId}`);
-  if (!el) return undefined;
-  const svg = el.querySelector("[data-diagram-canvas] svg");
-  if (!svg) return undefined;
-  const clone = svg.cloneNode(true) as SVGSVGElement;
-  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  return new XMLSerializer().serializeToString(clone);
-}
-
 function captureDiagramSvgMarkup(sections: ReportSection[]): ReportSection[] {
   return sections.map((section) =>
     section.diagramType
-      ? { ...section, svgMarkup: section.svgMarkup ?? serializeSectionSvg(section.id) }
+      ? { ...section, svgMarkup: section.svgMarkup ?? getDiagramSvgMarkup(section.id) }
       : section,
   );
 }
