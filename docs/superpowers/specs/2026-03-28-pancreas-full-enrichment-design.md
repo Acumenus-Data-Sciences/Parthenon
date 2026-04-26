@@ -61,7 +61,7 @@ For all patients with DICOM data in Orthanc:
 ### Orthanc Credentials
 
 - URL: `http://localhost:8042`
-- Auth: `parthenon` / `GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih`
+- Auth: `parthenon` / `<REDACTED_PASSWORD>`
 
 ### Implementation
 

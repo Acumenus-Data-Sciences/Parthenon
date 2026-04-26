@@ -10,15 +10,20 @@ Usage:
     python3 scripts/pancreatic/ingest_orthanc.py /mnt/md0/pancreatic-corpus/pathology/CPTAC-PDA
 """
 
+import os
 import sys
 import time
 from pathlib import Path
 
 import requests
 
-ORTHANC_URL = "http://localhost:8042"
-ORTHANC_USER = "parthenon"
-ORTHANC_PASSWORD = "GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih"
+ORTHANC_URL = os.environ.get("ORTHANC_URL", "http://localhost:8042")
+ORTHANC_USER = os.environ.get("ORTHANC_USER", "parthenon")
+ORTHANC_PASSWORD = os.environ.get("ORTHANC_PASSWORD")
+
+if not ORTHANC_PASSWORD:
+    print("ERROR: ORTHANC_PASSWORD environment variable is not set.", file=sys.stderr)
+    sys.exit(1)
 
 session = requests.Session()
 session.auth = (ORTHANC_USER, ORTHANC_PASSWORD)

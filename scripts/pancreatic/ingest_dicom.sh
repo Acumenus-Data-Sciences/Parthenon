@@ -7,9 +7,14 @@
 
 set -euo pipefail
 
-ORTHANC_URL="http://localhost:8042"
-ORTHANC_USER="parthenon"
-ORTHANC_PASSWORD="GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih"
+ORTHANC_URL="${ORTHANC_URL:-http://localhost:8042}"
+ORTHANC_USER="${ORTHANC_USER:-parthenon}"
+ORTHANC_PASSWORD="${ORTHANC_PASSWORD:-}"
+
+if [ -z "$ORTHANC_PASSWORD" ]; then
+    echo "ERROR: ORTHANC_PASSWORD environment variable is not set." >&2
+    exit 1
+fi
 
 DIR="${1:?Usage: $0 <dicom-directory> [--dry-run]}"
 DRY_RUN="${2:-}"
