@@ -106,15 +106,21 @@ pub fn elevation_status() -> ElevationStatus {
 /// JS layer uses to target specific Fix-this buttons.
 ///
 /// On Linux the action dispatches to `parthenon-installer-helper` (see
-/// helper/parthenon-installer-helper). On macOS/Windows for v0.3.0 Phase 3 we
-/// return PlatformUnsupported; Phases 6/7 wire those up.
+/// helper/parthenon-installer-helper). On Windows the action runs an UAC-
+/// elevated PowerShell command directly (no helper script — UAC handles
+/// per-call auth, and we can't easily ship a privileged helper on Windows
+/// the way we do on Linux). macOS dispatch comes in Phase 7.
 #[tauri::command]
 pub async fn run_remediation(action: String) -> Result<RemediationOutcome, String> {
     #[cfg(target_os = "linux")]
     {
         run_remediation_linux(&action).map_err(|e| format!("{e}"))
     }
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(target_os = "windows")]
+    {
+        run_remediation_windows(&action).map_err(|e| format!("{e}"))
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
     {
         let _ = action;
         Err("Auto-remediation not yet implemented on this platform.".into())
@@ -195,6 +201,168 @@ fn run_remediation_linux(action: &str) -> Result<RemediationOutcome, ElevationEr
         }
         other => Err(ElevationError::NotAvailable(format!(
             "Unknown remediation action: {other}"
+        ))),
+    }
+}
+
+// === Windows action handlers ===
+//
+// Unlike Linux (where a single privileged helper script handles every
+// subcommand under one polkit auth dialog), Windows asks for UAC approval per
+// elevated process. We invoke PowerShell directly via run_elevated and let
+// each action surface its own UAC prompt.
+//
+// `winget` ships with Windows 10 1809+ / 11. Older systems (or LTSC) won't
+// have it; we surface a clear NotAvailable in that case so the UI falls back
+// to copy-paste mode.
+//
+// WSL2 install + VM Platform feature enable both REQUIRE A REBOOT before they
+// take effect. The handlers return `follow_up_required = true` with a
+// follow-up message explaining the reboot. Phase 6c will add proper state
+// persistence so the installer can resume after the user reboots.
+#[cfg(target_os = "windows")]
+fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, ElevationError> {
+    use crate::elevation::{ElevatedCommand, run_elevated};
+
+    fn ps_cmd(script: &str, reason: &str) -> ElevatedCommand {
+        // Run a PowerShell snippet via the system powershell.exe. -NoProfile
+        // skips $PROFILE side effects, -NonInteractive prevents prompts, and
+        // we wrap the script in a single -Command argument so we don't have to
+        // shell-quote every individual flag in run_elevated_windows.
+        ElevatedCommand {
+            command: r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe".to_string(),
+            args: vec![
+                "-NoProfile".to_string(),
+                "-NonInteractive".to_string(),
+                "-ExecutionPolicy".to_string(),
+                "Bypass".to_string(),
+                "-Command".to_string(),
+                script.to_string(),
+            ],
+            reason: reason.to_string(),
+            source: "Parthenon Installer".to_string(),
+        }
+    }
+
+    fn outcome_with_followup(
+        out: std::process::Output,
+        reboot_required: bool,
+        message: Option<String>,
+    ) -> RemediationOutcome {
+        RemediationOutcome {
+            success: true,
+            stdout: String::from_utf8_lossy(&out.stdout).into_owned(),
+            stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
+            follow_up_required: reboot_required,
+            follow_up_message: message,
+        }
+    }
+
+    match action {
+        "enable-vm-platform" => {
+            // Enables the "Virtual Machine Platform" Windows feature, which
+            // WSL2 requires under the hood. This is a reboot-required action.
+            let script = r#"
+                $f = Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
+                if ($f.State -ne 'Enabled') {
+                    Enable-WindowsOptionalFeature -Online -All -FeatureName VirtualMachinePlatform -NoRestart | Out-Null
+                    Write-Output 'enabled'
+                } else {
+                    Write-Output 'already-enabled'
+                }
+            "#;
+            let out = run_elevated(&ps_cmd(
+                script,
+                "Enable Virtual Machine Platform (required for WSL2)",
+            ))?;
+            let stdout_lc = String::from_utf8_lossy(&out.stdout).to_lowercase();
+            let already = stdout_lc.contains("already-enabled");
+            Ok(outcome_with_followup(
+                out,
+                !already,
+                if already {
+                    None
+                } else {
+                    Some(
+                        "Virtual Machine Platform feature has been enabled. Restart Windows to finish — \
+                         then relaunch this installer."
+                            .into(),
+                    )
+                },
+            ))
+        }
+        "install-wsl2" => {
+            // `wsl --install` (Windows 10 21H1+ / Windows 11) downloads the
+            // WSL2 kernel + default Ubuntu distro in one shot. It enables
+            // VirtualMachinePlatform + WSL features automatically. Reboot
+            // required afterwards.
+            let script = r#"
+                wsl --install --no-launch
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                Write-Output 'wsl-installed'
+            "#;
+            let out = run_elevated(&ps_cmd(
+                script,
+                "Install WSL2 + default Ubuntu distro",
+            ))?;
+            Ok(outcome_with_followup(
+                out,
+                true,
+                Some(
+                    "WSL2 has been installed (kernel + default Ubuntu distro). Restart Windows, \
+                     wait for the Ubuntu first-run to finish in the Start menu, then relaunch this installer."
+                        .into(),
+                ),
+            ))
+        }
+        "install-docker-desktop" => {
+            // winget package: Docker.DockerDesktop. The installer runs in
+            // unattended mode with --silent, but Docker Desktop's first-run
+            // does its own helper-service install via UAC — we can't suppress
+            // that. The user will see one or two more UAC prompts after winget
+            // exits. Reboot is sometimes required (depends on WSL state).
+            let script = r#"
+                winget install --id Docker.DockerDesktop --silent --accept-package-agreements --accept-source-agreements
+                if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) { exit $LASTEXITCODE }
+                Write-Output 'docker-desktop-installed'
+            "#;
+            let out = run_elevated(&ps_cmd(
+                script,
+                "Install Docker Desktop via winget",
+            ))?;
+            Ok(outcome_with_followup(
+                out,
+                false,
+                Some(
+                    "Docker Desktop has been installed. Launch it from the Start menu and complete its \
+                     first-run setup. When the Docker whale icon in your system tray turns steady (not animating), \
+                     come back here and re-run Check System."
+                        .into(),
+                ),
+            ))
+        }
+        "install-rancher-desktop" => {
+            let script = r#"
+                winget install --id RancherDesktop.RancherDesktop --silent --accept-package-agreements --accept-source-agreements
+                if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) { exit $LASTEXITCODE }
+                Write-Output 'rancher-installed'
+            "#;
+            let out = run_elevated(&ps_cmd(
+                script,
+                "Install Rancher Desktop via winget",
+            ))?;
+            Ok(outcome_with_followup(
+                out,
+                false,
+                Some(
+                    "Rancher Desktop has been installed. Launch it from the Start menu and complete \
+                     its first-run setup, then come back here and re-run Check System."
+                        .into(),
+                ),
+            ))
+        }
+        other => Err(ElevationError::NotAvailable(format!(
+            "Unknown Windows remediation action: {other}"
         ))),
     }
 }

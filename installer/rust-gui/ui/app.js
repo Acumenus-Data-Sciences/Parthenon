@@ -179,42 +179,101 @@ document.querySelector("#verify-show-status")?.addEventListener("click", async (
   }
 });
 
-// Phase 3: maps preflight check names (matched against the `name` field
+// Phase 3+6a: maps preflight check names (matched against the `name` field
 // returned by the Python contract) to remediation actions the GUI can run
 // elevated. The action ID matches what main.rs::remediation::run_remediation
 // dispatches on.
 //
-// The "fallbackCommand" is shown verbatim in copy-paste mode when polkit is
-// missing or when the action isn't available on the current platform. Keep
-// these in sync with helper/parthenon-installer-helper.
+// Schema:
+//   key: preflight check.name string (exact match)
+//   value: an object with EITHER top-level fields (single-platform) OR a
+//          `perPlatform` map keyed by state.platform with platform-specific
+//          overrides. perPlatform entries can omit `label` to inherit.
+//
+// The "fallbackCommand" is shown verbatim in copy-paste mode when polkit/UAC
+// is missing or when the action isn't available. Keep these in sync with
+// helper/parthenon-installer-helper (Linux) and remediation.rs Windows actions.
 const REMEDIATION_MAP = {
   "Docker ≥ 24.0": {
-    action: "install-docker",
     label: "Install Docker",
-    confirmTitle: "Install Docker?",
-    confirmBody: "Parthenon needs Docker (~250 MB). The installer will run \"sudo apt install docker.io docker-compose-v2\" (or the dnf equivalent on RHEL/Fedora). You'll be asked for your system password.",
-    fallbackCommand: {
-      "debian-ubuntu": "sudo apt install -y docker.io docker-compose-v2",
-      "rhel-fedora": "sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+    perPlatform: {
+      linux: {
+        action: "install-docker",
+        confirmTitle: "Install Docker?",
+        confirmBody: "Parthenon needs Docker (~250 MB). The installer will run \"sudo apt install docker.io docker-compose-v2\" (or the dnf equivalent on RHEL/Fedora). You'll be asked for your system password.",
+        fallbackCommand: {
+          "debian-ubuntu": "sudo apt install -y docker.io docker-compose-v2",
+          "rhel-fedora": "sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin",
+        },
+      },
+      windows: {
+        action: "install-docker-desktop",
+        label: "Install Docker Desktop",
+        confirmTitle: "Install Docker Desktop?",
+        confirmBody: "Parthenon needs Docker. The installer will run \"winget install Docker.DockerDesktop\". You'll see a UAC prompt for the install, and possibly more prompts during Docker Desktop's first run.",
+        fallbackCommand: { default: "winget install --id Docker.DockerDesktop --silent --accept-package-agreements --accept-source-agreements" },
+      },
     },
-    onlyIfPlatform: "linux",
   },
   "Docker daemon": {
-    action: "start-docker",
     label: "Start Docker",
-    confirmTitle: "Start Docker daemon?",
-    confirmBody: "The installer will run \"sudo systemctl start docker\" and enable it at boot.",
-    fallbackCommand: { default: "sudo systemctl start docker && sudo systemctl enable docker" },
-    onlyIfPlatform: "linux",
+    perPlatform: {
+      linux: {
+        action: "start-docker",
+        confirmTitle: "Start Docker daemon?",
+        confirmBody: "The installer will run \"sudo systemctl start docker\" and enable it at boot.",
+        fallbackCommand: { default: "sudo systemctl start docker && sudo systemctl enable docker" },
+      },
+      // No Windows action — Docker Desktop must be launched manually from
+      // the Start menu (we can't programmatically auto-start a GUI app from
+      // a UAC-elevated context cleanly). The fallback message guides the user.
+      windows: {
+        action: "open-docker-desktop",
+        label: "Open Docker Desktop",
+        confirmTitle: "Start Docker Desktop?",
+        confirmBody: "Docker Desktop is installed but the daemon isn't running. Launch Docker Desktop from the Start menu, wait for the whale icon in the system tray to stop animating, then re-run Check System.",
+        fallbackCommand: { default: "Open Docker Desktop from the Start menu" },
+        manualOnly: true,
+      },
+    },
   },
   "Linux docker group": {
-    action: "add-user-to-docker-group",
     label: "Add me to docker group",
-    confirmTitle: "Add you to the docker group?",
-    confirmBody: "Adding your user account to the docker group lets you run Docker without sudo. After this, you'll need to log out and log back in for the change to take effect.",
-    fallbackCommand: { default: "sudo usermod -aG docker $USER" },
-    onlyIfPlatform: "linux",
-    requiresLogout: true,
+    perPlatform: {
+      linux: {
+        action: "add-user-to-docker-group",
+        confirmTitle: "Add you to the docker group?",
+        confirmBody: "Adding your user account to the docker group lets you run Docker without sudo. After this, you'll need to log out and log back in for the change to take effect.",
+        fallbackCommand: { default: "sudo usermod -aG docker $USER" },
+        requiresLogout: true,
+      },
+    },
+  },
+  // Windows-only checks (added by Phase 6b in preflight). Wiring them now means
+  // when the preflight checks land, the buttons appear automatically.
+  "Windows VM Platform feature": {
+    label: "Enable VM Platform",
+    perPlatform: {
+      windows: {
+        action: "enable-vm-platform",
+        confirmTitle: "Enable Virtual Machine Platform?",
+        confirmBody: "WSL2 (which Docker Desktop uses) requires the Virtual Machine Platform Windows feature. The installer will enable it via PowerShell. After this you'll need to restart Windows.",
+        fallbackCommand: { default: "powershell -Command \"Start-Process powershell -Verb RunAs -ArgumentList '-Command Enable-WindowsOptionalFeature -Online -All -FeatureName VirtualMachinePlatform'\"" },
+        requiresReboot: true,
+      },
+    },
+  },
+  "WSL2 installed": {
+    label: "Install WSL2",
+    perPlatform: {
+      windows: {
+        action: "install-wsl2",
+        confirmTitle: "Install WSL2?",
+        confirmBody: "Docker Desktop on Windows runs containers inside WSL2. The installer will run \"wsl --install\" which downloads the WSL2 kernel and installs Ubuntu as the default distro. After this you'll need to restart Windows.",
+        fallbackCommand: { default: "Start an Administrator PowerShell and run:  wsl --install" },
+        requiresReboot: true,
+      },
+    },
   },
 };
 
@@ -388,16 +447,26 @@ function renderChecks(checks) {
 }
 
 // Look up whether a preflight check has a defined remediation we can offer
-// on this platform. Returns the remediation object from REMEDIATION_MAP, or
-// null if no fix is available (or the check passed already).
+// on this platform. Returns a flat remediation object (perPlatform overrides
+// merged onto the base) or null if no fix is available (or the check passed).
 function remediationForCheck(check) {
   if (check.status === "pass") return null;
-  const remediation = REMEDIATION_MAP[check.name];
-  if (!remediation) return null;
-  if (remediation.onlyIfPlatform && remediation.onlyIfPlatform !== state.platform) {
-    return null;
+  const entry = REMEDIATION_MAP[check.name];
+  if (!entry) return null;
+
+  // Legacy single-platform shape: top-level `action` + optional onlyIfPlatform.
+  if (entry.action) {
+    if (entry.onlyIfPlatform && entry.onlyIfPlatform !== state.platform) {
+      return null;
+    }
+    return entry;
   }
-  return remediation;
+
+  // perPlatform shape: pick the entry for state.platform if it exists.
+  const perPlatform = entry.perPlatform?.[state.platform];
+  if (!perPlatform) return null;
+  // Merge: perPlatform overrides base, but base supplies defaults like label.
+  return { ...entry, ...perPlatform };
 }
 
 // Phase 3: orchestrate the Fix-this flow.
@@ -412,15 +481,19 @@ function remediationForCheck(check) {
 // The modal is built lazily on first use (no extra HTML in index.html for
 // every page state — keep the markup simple).
 async function runRemediation(actionId, checkName) {
-  const remediation = REMEDIATION_MAP[checkName];
+  // Use the same lookup as renderChecks so perPlatform overrides apply
+  // correctly. The synthetic check object below tells remediationForCheck
+  // to skip the pass-status short-circuit.
+  const remediation = remediationForCheck({ name: checkName, status: "fail" });
   if (!remediation || remediation.action !== actionId) {
     setStatus(`Unknown remediation: ${actionId}`, "error");
     return;
   }
 
-  // Branch on elevation availability. If polkit is missing OR the action is
-  // explicitly Linux-only and we're elsewhere, fall back to copy-paste mode.
-  const useCopyPaste = !state.elevation.available;
+  // Branch on elevation availability OR explicit manualOnly flag (some
+  // actions like "Open Docker Desktop" can't be automated meaningfully).
+  // Both fall back to copy-paste / instruction mode.
+  const useCopyPaste = !state.elevation.available || remediation.manualOnly;
   if (useCopyPaste) {
     return openRemediationCopyPasteModal(remediation);
   }
