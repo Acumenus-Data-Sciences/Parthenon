@@ -585,15 +585,15 @@ class PatientSimilarityController extends Controller
      */
     public function temporalCompare(Request $request): JsonResponse
     {
-        try {
-            $validated = $request->validate([
-                'person_a_id' => ['required', 'integer'],
-                'person_b_id' => ['required', 'integer'],
-                'source_id' => ['required', 'integer', 'exists:sources,id'],
-                'measurement_concept_ids' => ['sometimes', 'array'],
-                'measurement_concept_ids.*' => ['integer'],
-            ]);
+        $validated = $request->validate([
+            'person_a_id' => ['required', 'integer'],
+            'person_b_id' => ['required', 'integer'],
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'measurement_concept_ids' => ['sometimes', 'array'],
+            'measurement_concept_ids.*' => ['integer'],
+        ]);
 
+        try {
             $source = Source::query()
                 ->with('daimons')
                 ->where('id', (int) $validated['source_id'])
