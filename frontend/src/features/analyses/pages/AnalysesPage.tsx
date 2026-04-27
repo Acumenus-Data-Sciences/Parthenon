@@ -47,6 +47,8 @@ const defaultCharDesign: CharacterizationDesign = {
   featureTypes: ["demographics", "conditions", "drugs"],
   stratifyByGender: false,
   stratifyByAge: false,
+  // Phase 19 (GIS-03 / D-03): urban-rural Studies stratification — opt-in.
+  stratifyByLocation: "none",
   topN: 100,
   minCellCount: 5,
 };
@@ -62,6 +64,8 @@ const defaultIRDesign: IncidenceRateDesign = {
   stratification: { by_age: false, by_gender: false, by_year: false, age_breaks: [] },
   stratifyByGender: false,
   stratifyByAge: false,
+  // Phase 19 (GIS-03 / D-03): urban-rural Studies stratification — opt-in.
+  stratifyByLocation: "none",
   ageGroups: [],
   minCellCount: 5,
 };
