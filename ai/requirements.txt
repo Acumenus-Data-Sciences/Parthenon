@@ -24,7 +24,7 @@ anthropic>=0.42.0
 # GIS / Spatial
 geopandas>=1.0.0
 shapely>=2.1.2
-fiona>=1.10.0
+fiona>=1.10.1
 pyproj>=3.7.0
 asyncpg>=0.30.0
 pysolr>=3.11.0
