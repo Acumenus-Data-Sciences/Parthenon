@@ -339,8 +339,21 @@ class GisImportTracker:
         )
 
     def fail(self, exc: BaseException) -> None:
+        # If the caller is failing inside a poisoned PG transaction
+        # (SQLSTATE 25P02), every subsequent statement is ignored until we
+        # rollback. Rollback unconditionally — we are about to write a
+        # standalone failure record. This is safe because the caller has
+        # already committed everything it intended to keep before raising.
+        try:
+            self.conn.rollback()
+        except Exception:  # pragma: no cover  -- best-effort
+            pass
         if self.row_id is None:
-            self.start()
+            try:
+                self.start()
+            except Exception:
+                emit("warn", message="GisImportTracker.fail could not insert tracker row")
+                return
         message = f"{type(exc).__name__}: {exc}"
         with self.conn.cursor() as cur:
             cur.execute(
