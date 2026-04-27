@@ -408,6 +408,12 @@ const enApp: MessageTree = {
       lastRun: "Last Run",
       error: "Error",
       viewFullDetail: "View Full Detail",
+      // Phase 19 (GIS-03 / D-03 / D-08) — urban-rural Studies stratification
+      auto: {
+        stratifyByLocation_label: "Stratify by Location",
+        stratifyByLocation_pancreasWarning:
+          "Limited geographic variability: 1 county",
+      },
     },
     results: {
       sections: {

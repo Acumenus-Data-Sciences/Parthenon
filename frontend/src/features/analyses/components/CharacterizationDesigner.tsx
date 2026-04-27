@@ -44,6 +44,8 @@ const defaultDesign: CharacterizationDesign = {
   featureTypes: ["demographics", "conditions", "drugs"],
   stratifyByGender: false,
   stratifyByAge: false,
+  // Phase 19 (GIS-03 / D-03): urban-rural Studies stratification — opt-in.
+  stratifyByLocation: "none",
   topN: 100,
   minCellCount: 5,
 };
