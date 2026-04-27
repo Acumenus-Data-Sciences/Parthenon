@@ -1,6 +1,8 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import { Link } from "react-router-dom";
 import { HelpButton } from "@/features/help";
 import {
   Brain,
@@ -50,6 +52,9 @@ export default function StudyDesignerPage() {
     number | null
   >(null);
   const [importedStudy, setImportedStudy] = useState<Study | null>(null);
+  const importedStudyPath = importedStudy
+    ? `/studies/${importedStudy.slug || importedStudy.id}?tab=design`
+    : null;
   const importProtocol = useImportProtocolAsNewStudy();
   const protocolBusy = importProtocol.isPending;
   const protocolError = mutationError(importProtocol.error);
@@ -83,8 +88,10 @@ export default function StudyDesignerPage() {
 
   // Cohort lint
   const [lintJson, setLintJson] = useState("");
+  const [lintParseError, setLintParseError] = useState<string | null>(null);
   const lintMutation = useMutation({
-    mutationFn: (json: string) => lintCohort(JSON.parse(json)),
+    mutationFn: (cohortDefinition: Record<string, unknown>) =>
+      lintCohort(cohortDefinition),
   });
 
   const handleIntentSubmit = () => {
@@ -115,6 +122,30 @@ export default function StudyDesignerPage() {
       setProtocolImportFailedAt(Date.now());
       // React Query exposes the mutation error for the visible error panel.
     }
+  };
+
+  const handleLintSubmit = () => {
+    lintMutation.reset();
+    setLintParseError(null);
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(lintJson);
+    } catch (error) {
+      setLintParseError(
+        t("studyAgent.lint.invalidJson", {
+          message: error instanceof Error ? error.message : "Invalid JSON",
+        }),
+      );
+      return;
+    }
+
+    if (!isPlainRecord(parsed)) {
+      setLintParseError(t("studyAgent.lint.invalidJsonRoot"));
+      return;
+    }
+
+    lintMutation.mutate(parsed);
   };
 
   const tabs = [
@@ -205,7 +236,28 @@ export default function StudyDesignerPage() {
       </div>
 
       {importedStudy ? (
-        <StudyDesignWorkbench study={importedStudy} />
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-success/40 bg-success/10 px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-text-primary">
+                {t("studyAgent.protocol.importReady")}
+              </p>
+              <p className="mt-0.5 text-xs text-text-muted">
+                {t("studyAgent.protocol.importReadyDescription")}
+              </p>
+            </div>
+            {importedStudyPath && (
+              <Link
+                to={importedStudyPath}
+                className="inline-flex items-center gap-2 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
+              >
+                {t("studyAgent.protocol.openFullStudy")}
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+          <StudyDesignWorkbench study={importedStudy} />
+        </div>
       ) : (
         <>
           {/* Tab bar */}
@@ -287,40 +339,26 @@ export default function StudyDesignerPage() {
 
               {/* Recommendations */}
               {recommendMutation.data && recommendMutation.data.length > 0 && (
-                <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-                  <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                    {t("studyAgent.recommendations.title")}
-                  </h3>
-                  <div className="space-y-3">
-                    {recommendMutation.data.map(
-                      (rec: PhenotypeRecommendation, i: number) => (
-                        <div
-                          key={rec.cohortId ?? i}
-                          className="flex items-start gap-3 rounded-lg border border-border-default/50 bg-surface-raised/50 p-4 transition-colors hover:border-border-hover"
-                        >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-bold text-accent">
-                            {i + 1}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="font-medium text-text-primary">
-                              {rec.name}
-                            </div>
-                            <p className="mt-1 text-sm text-text-muted">
-                              {rec.rationale}
-                            </p>
-                          </div>
-                          <div className="text-xs text-text-ghost">
-                            {t("studyAgent.recommendations.score", {
-                              value:
-                                typeof rec.score === "number"
-                                  ? rec.score.toFixed(2)
-                                  : "N/A",
-                            })}
-                          </div>
-                        </div>
-                      ),
-                    )}
-                  </div>
+                <RecommendationsList items={recommendMutation.data} t={t} />
+              )}
+
+              {recommendMutation.isError && !recommendMutation.isPending && (
+                <div
+                  className="rounded-lg border border-critical/40 bg-critical/10 p-4 text-sm text-critical"
+                  role="alert"
+                >
+                  {mutationError(recommendMutation.error) ??
+                    t("studyAgent.recommendations.failed")}
+                </div>
+              )}
+
+              {intentMutation.isError && !intentMutation.isPending && (
+                <div
+                  className="rounded-lg border border-critical/40 bg-critical/10 p-4 text-sm text-critical"
+                  role="alert"
+                >
+                  {mutationError(intentMutation.error) ??
+                    t("studyAgent.intent.failed")}
                 </div>
               )}
 
@@ -397,8 +435,8 @@ export default function StudyDesignerPage() {
                             )}
                           </div>
                           <div className="text-xs text-text-ghost">
-                            {typeof result.score === "number"
-                              ? result.score.toFixed(3)
+                            {Number.isFinite(result.score)
+                              ? result.score!.toFixed(3)
                               : ""}
                           </div>
                           <ChevronRight className="h-4 w-4 text-text-ghost" />
@@ -414,22 +452,58 @@ export default function StudyDesignerPage() {
                   {t("studyAgent.search.noneFound")}
                 </div>
               )}
+
+              {searchMutation.isError && !searchMutation.isPending && (
+                <div
+                  className="rounded-lg border border-critical/40 bg-critical/10 p-4 text-sm text-critical"
+                  role="alert"
+                >
+                  {mutationError(searchMutation.error) ??
+                    t("studyAgent.search.failed")}
+                </div>
+              )}
             </div>
           )}
 
           {/* Recommend Tab */}
           {activeTab === "recommend" && (
-            <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-              <p className="text-sm text-text-muted">
-                {t("studyAgent.recommendations.promptPrefix")}{" "}
-                <button
-                  onClick={() => setActiveTab("intent")}
-                  className="text-accent hover:underline"
+            <div className="space-y-4">
+              {recommendMutation.isPending && (
+                <div className="flex items-center justify-center gap-2 py-8 text-text-muted">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  {t("studyAgent.recommendations.loading")}
+                </div>
+              )}
+
+              {recommendMutation.isError && !recommendMutation.isPending && (
+                <div
+                  className="rounded-lg border border-critical/40 bg-critical/10 p-4 text-sm text-critical"
+                  role="alert"
                 >
-                  {t("studyAgent.tabs.intent")}
-                </button>{" "}
-                {t("studyAgent.recommendations.promptSuffix")}
-              </p>
+                  {mutationError(recommendMutation.error) ??
+                    t("studyAgent.recommendations.failed")}
+                </div>
+              )}
+
+              {recommendMutation.data && recommendMutation.data.length > 0 && (
+                <RecommendationsList items={recommendMutation.data} t={t} />
+              )}
+
+              {!recommendMutation.isPending &&
+                !recommendMutation.isError &&
+                (!recommendMutation.data ||
+                  recommendMutation.data.length === 0) && (
+                  <div className="rounded-lg border border-border-default bg-surface-base/50 p-6 text-sm text-text-muted">
+                    {t("studyAgent.recommendations.promptPrefix")}{" "}
+                    <button
+                      onClick={() => setActiveTab("intent")}
+                      className="text-accent hover:underline"
+                    >
+                      {t("studyAgent.tabs.intent")}
+                    </button>{" "}
+                    {t("studyAgent.recommendations.promptSuffix")}
+                  </div>
+                )}
             </div>
           )}
 
@@ -445,13 +519,16 @@ export default function StudyDesignerPage() {
                 </p>
                 <textarea
                   value={lintJson}
-                  onChange={(e) => setLintJson(e.target.value)}
+                  onChange={(e) => {
+                    setLintJson(e.target.value);
+                    if (lintParseError) setLintParseError(null);
+                  }}
                   placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}' /* i18n-exempt: Atlas cohort JSON placeholder uses native schema keys. */
                   className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
                   rows={8}
                 />
                 <button
-                  onClick={() => lintMutation.mutate(lintJson)}
+                  onClick={handleLintSubmit}
                   disabled={!lintJson.trim() || lintMutation.isPending}
                   className="mt-3 flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-overlay disabled:opacity-50"
                 >
@@ -463,6 +540,12 @@ export default function StudyDesignerPage() {
                   {t("studyAgent.lint.run")}
                 </button>
               </div>
+
+              {lintParseError && (
+                <div className="rounded-lg border border-red-800/50 bg-red-900/20 p-4 text-sm text-red-300">
+                  {lintParseError}
+                </div>
+              )}
 
               {lintMutation.data && (
                 <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
@@ -502,8 +585,12 @@ export default function StudyDesignerPage() {
               )}
 
               {lintMutation.isError && (
-                <div className="rounded-lg border border-red-800/50 bg-red-900/20 p-4 text-sm text-red-300">
-                  {t("studyAgent.lint.failed")}
+                <div
+                  className="rounded-lg border border-red-800/50 bg-red-900/20 p-4 text-sm text-red-300"
+                  role="alert"
+                >
+                  {mutationError(lintMutation.error) ??
+                    t("studyAgent.lint.failed")}
                 </div>
               )}
             </div>
@@ -527,4 +614,45 @@ function mutationError(error: unknown): string | null {
   }
 
   return "Study Designer request failed.";
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function RecommendationsList({
+  items,
+  t,
+}: {
+  items: PhenotypeRecommendation[];
+  t: TFunction<"app">;
+}) {
+  return (
+    <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
+      <h3 className="mb-4 text-lg font-semibold text-text-primary">
+        {t("studyAgent.recommendations.title")}
+      </h3>
+      <div className="space-y-3">
+        {items.map((rec, i) => (
+          <div
+            key={rec.cohortId ?? i}
+            className="flex items-start gap-3 rounded-lg border border-border-default/50 bg-surface-raised/50 p-4 transition-colors hover:border-border-hover"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-bold text-accent">
+              {i + 1}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-text-primary">{rec.name}</div>
+              <p className="mt-1 text-sm text-text-muted">{rec.rationale}</p>
+            </div>
+            <div className="text-xs text-text-ghost">
+              {t("studyAgent.recommendations.score", {
+                value: Number.isFinite(rec.score) ? rec.score!.toFixed(2) : "N/A",
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

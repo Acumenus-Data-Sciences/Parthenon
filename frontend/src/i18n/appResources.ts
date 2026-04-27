@@ -4744,6 +4744,12 @@ const esApp: MessageTree = {
       lastRun: "Última ejecución",
       error: "Error",
       viewFullDetail: "Ver detalle completo",
+      // Phase 19 (GIS-03 / D-03 / D-08) — urban-rural Studies stratification
+      auto: {
+        stratifyByLocation_label: "Stratify by Location",
+        stratifyByLocation_pancreasWarning:
+          "Limited geographic variability: 1 county",
+      },
     },
     results: {
       sections: {
@@ -9109,6 +9115,12 @@ const koApp: MessageTree = {
       lastRun: "마지막 실행",
       error: "오류",
       viewFullDetail: "전체 세부 정보 보기",
+      // Phase 19 (GIS-03 / D-03 / D-08) — urban-rural Studies stratification
+      auto: {
+        stratifyByLocation_label: "Stratify by Location",
+        stratifyByLocation_pancreasWarning:
+          "Limited geographic variability: 1 county",
+      },
     },
     results: {
       sections: {
