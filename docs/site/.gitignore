@@ -6,6 +6,10 @@ build/
 docs/api/
 !docs/api/index.mdx
 
+# Invalid nested content roots created by misconfigured docs sync jobs
+docs/docs/
+docs/site/
+
 # Mounted OpenAPI spec (Docker build)
 openapi.yaml
 
