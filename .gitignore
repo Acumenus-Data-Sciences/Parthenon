@@ -172,7 +172,6 @@ scripts/**/__pycache__/
 .planning.archive/
 .coverage
 .pgpass
-.claude/worktrees/
 
 # Local Wazuh certs and secrets
 acropolis/config/wazuh/certs/
@@ -185,3 +184,15 @@ acropolis/traefik/acme/
 build/
 dist/
 .codex
+node_modules
+
+# Local Claude/RuFlo agent tooling
+CLAUDE.md
+.claude/
+.claude-flow/
+.mcp.json
+.swarm/
+ruvector.db
+
+# Local raw GIS source files
+/2020_UA_COUNTY.xlsx
