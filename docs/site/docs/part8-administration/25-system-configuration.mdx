@@ -49,7 +49,7 @@ Parthenon integrates an AI assistant for cohort building suggestions, clinical c
 
 | Provider | Model Examples | Auth Method |
 |----------|---------------|-------------|
-| **Ollama** (default) | MedGemma 1.5 4B, Llama 3, Mistral | Local (no API key required) |
+| **Ollama** (default) | MedGemma 27B, MedGemma 1.5 4B, Llama 3, Mistral | Local (no API key required) |
 | **OpenAI** | GPT-4o, GPT-4 Turbo | API key |
 | **Anthropic** | Claude 3.5 Sonnet, Claude 3 Opus | API key |
 | **Google AI** | Gemini 1.5 Pro, Gemini Flash | API key |
@@ -74,7 +74,7 @@ Parthenon integrates an AI assistant for cohort building suggestions, clinical c
 Only one AI provider can be active at any time. Setting a new provider as active automatically deactivates the previous one within a database transaction, ensuring consistency.
 
 :::tip Ollama for air-gapped environments
-For healthcare environments without internet access, Ollama runs entirely on-premises with local models. The default configuration uses MedGemma 1.5 4B (`MedAIBase/MedGemma1.5:4b`), a medical domain-tuned model suitable for clinical concept assistance. No data leaves your infrastructure.
+For healthcare environments without internet access, Ollama runs entirely on-premises with local models. The default Abby configuration uses MedGemma 27B (`puyangwang/medgemma-27b-it:q4_0`), a medical domain-tuned model suitable for clinical research assistance. No data leaves your infrastructure.
 :::
 
 ## System Health Dashboard

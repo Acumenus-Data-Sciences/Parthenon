@@ -23,7 +23,7 @@ const SHARED_CANONICAL_VALUES = new Set([
   "Jupyter",
   "GIS",
   "US",
-  "MedGemma 1.5 - 4B",
+  "MedGemma 27B",
   "HEOR",
   "OMOP",
   "CDM",

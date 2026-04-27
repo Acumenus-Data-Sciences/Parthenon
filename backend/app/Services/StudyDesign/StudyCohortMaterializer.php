@@ -29,17 +29,18 @@ class StudyCohortMaterializer
             ]);
         }
 
-        if ($asset->verification_status === StudyDesignVerificationStatus::UNVERIFIED->value) {
-            $asset = $this->verifier->verify($asset);
+        if ($this->verificationValue($asset) === StudyDesignVerificationStatus::UNVERIFIED->value) {
+            $asset->update($this->verifier->verify($asset));
+            $asset = $asset->fresh() ?? $asset;
         }
 
-        if ($asset->verification_status !== StudyDesignVerificationStatus::VERIFIED->value) {
+        if ($this->verificationValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value) {
             throw ValidationException::withMessages([
                 'verification' => 'Only verified cohort drafts can be materialized.',
             ]);
         }
 
-        if ($asset->status !== StudyDesignAssetStatus::ACCEPTED->value) {
+        if ($this->assetStatusValue($asset) !== StudyDesignAssetStatus::ACCEPTED->value) {
             throw ValidationException::withMessages([
                 'asset' => 'Accept the verified cohort draft before materializing it.',
             ]);
@@ -66,5 +67,19 @@ class StudyCohortMaterializer
 
             return $cohort->fresh('author:id,name,email') ?? $cohort;
         });
+    }
+
+    private function verificationValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->verification_status;
+
+        return $status instanceof StudyDesignVerificationStatus ? $status->value : (string) $status;
+    }
+
+    private function assetStatusValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->status;
+
+        return $status instanceof StudyDesignAssetStatus ? $status->value : (string) $status;
     }
 }

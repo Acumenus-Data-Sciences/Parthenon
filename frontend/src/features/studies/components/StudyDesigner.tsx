@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
@@ -41,6 +41,11 @@ import { useIncidenceRates } from "@/features/analyses/hooks/useIncidenceRates";
 import { usePathways } from "@/features/pathways/hooks/usePathways";
 import { useEstimations } from "@/features/estimation/hooks/useEstimations";
 import { usePredictions } from "@/features/prediction/hooks/usePredictions";
+import { ProtocolImportProgress } from "./ProtocolImportProgress";
+import {
+  getProtocolImportPhase,
+  useProtocolImportElapsed,
+} from "./protocolImportProgress";
 
 const STUDY_TYPES = [
   "characterization",
@@ -101,6 +106,10 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
   const [optimisticVersion, setOptimisticVersion] = useState<StudyDesignVersion | null>(null);
+  const [protocolFileName, setProtocolFileName] = useState<string | null>(null);
+  const [protocolImportStartedAt, setProtocolImportStartedAt] = useState<number | null>(null);
+  const [protocolImportCompletedAt, setProtocolImportCompletedAt] = useState<number | null>(null);
+  const [protocolImportFailedAt, setProtocolImportFailedAt] = useState<number | null>(null);
   const [researchQuestion, setResearchQuestion] = useState(
     study.primary_objective || study.description || study.title || "",
   );
@@ -255,20 +264,31 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
     event.target.value = "";
     if (!file) return;
 
-    const session = await ensureDesignSession("protocol_upload");
-    const version = await importProtocol.mutateAsync({
-      slug: study.slug,
-      sessionId: session.id,
-      file,
-    });
-    const nextReview = versionToIntentReview(version, study);
-    setOptimisticVersion(version);
-    setSelectedVersionId(version.id);
-    setResearchQuestion(nextReview.researchQuestion || researchQuestion);
-    setReviewFormState({
-      versionSignature: versionReviewSignature(version, study),
-      values: nextReview,
-    });
+    setProtocolFileName(file.name);
+    setProtocolImportStartedAt(Date.now());
+    setProtocolImportCompletedAt(null);
+    setProtocolImportFailedAt(null);
+
+    try {
+      const session = await ensureDesignSession("protocol_upload");
+      const result = await importProtocol.mutateAsync({
+        slug: study.slug,
+        sessionId: session.id,
+        file,
+      });
+      const version = result.version;
+      const nextReview = versionToIntentReview(version, study);
+      setOptimisticVersion(version);
+      setSelectedVersionId(version.id);
+      setResearchQuestion(nextReview.researchQuestion || researchQuestion);
+      setReviewFormState({
+        versionSignature: versionReviewSignature(version, study),
+        values: nextReview,
+      });
+      setProtocolImportCompletedAt(Date.now());
+    } catch {
+      setProtocolImportFailedAt(Date.now());
+    }
   };
 
   const handleImportExisting = async () => {
@@ -327,6 +347,18 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
     });
   };
 
+  useEffect(() => {
+    if (protocolImportCompletedAt == null) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      setProtocolImportStartedAt(null);
+      setProtocolImportCompletedAt(null);
+      setProtocolFileName(null);
+    }, 9000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [protocolImportCompletedAt]);
+
   const isSaving = updateMutation.isPending;
   const designBusy = createDesignSession.isPending
     || generateIntent.isPending
@@ -341,6 +373,17 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const designAssetCounts = summarizeDesignAssets(versionAssets);
   const blockedAssets = versionAssets.filter((asset) => asset.verification_status === "blocked");
   const packageSha = asString(lockReadiness?.provenance_summary?.package_manifest_sha256);
+  const protocolImportEndedAt = protocolImportCompletedAt ?? protocolImportFailedAt;
+  const protocolElapsedSeconds = useProtocolImportElapsed(
+    protocolImportStartedAt,
+    importProtocol.isPending ? null : protocolImportEndedAt,
+  );
+  const protocolImportPhase = getProtocolImportPhase({
+    isPending: importProtocol.isPending,
+    elapsedSeconds: protocolElapsedSeconds,
+    completedAt: protocolImportCompletedAt,
+    failedAt: protocolImportFailedAt,
+  });
   const activeError = mutationError(createDesignSession.error)
     || mutationError(generateIntent.error)
     || mutationError(importProtocol.error)
@@ -463,6 +506,11 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                 {t("studies.workbench.actions.lockPackage")}
               </button>
             </div>
+            <ProtocolImportProgress
+              phase={protocolImportPhase}
+              elapsedSeconds={protocolElapsedSeconds}
+              fileName={protocolFileName}
+            />
             {activeVersion && (
               <IntentReviewPanel
                 state={reviewState}

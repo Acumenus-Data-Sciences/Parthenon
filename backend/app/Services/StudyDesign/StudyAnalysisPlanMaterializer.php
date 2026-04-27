@@ -48,15 +48,15 @@ class StudyAnalysisPlanMaterializer
             throw ValidationException::withMessages(['asset' => 'This analysis plan has already been materialized.']);
         }
 
-        if ($asset->verification_status === StudyDesignVerificationStatus::UNVERIFIED->value) {
+        if ($this->verificationStatus($asset) === StudyDesignVerificationStatus::UNVERIFIED->value) {
             $asset = $this->verifier->verify($asset);
         }
 
-        if ($asset->verification_status !== StudyDesignVerificationStatus::VERIFIED->value) {
+        if ($this->verificationStatus($asset) !== StudyDesignVerificationStatus::VERIFIED->value) {
             throw ValidationException::withMessages(['verification' => 'Only verified analysis plans can be materialized.']);
         }
 
-        if ($asset->status !== StudyDesignAssetStatus::ACCEPTED->value) {
+        if ($this->assetStatus($asset) !== StudyDesignAssetStatus::ACCEPTED->value) {
             throw ValidationException::withMessages(['asset' => 'Accept the verified analysis plan before materializing it.']);
         }
 
@@ -94,5 +94,19 @@ class StudyAnalysisPlanMaterializer
                 'study_analysis' => $studyAnalysis->fresh('analysis') ?? $studyAnalysis,
             ];
         });
+    }
+
+    private function verificationStatus(StudyDesignAsset $asset): string
+    {
+        return $asset->verification_status instanceof StudyDesignVerificationStatus
+            ? $asset->verification_status->value
+            : (string) $asset->verification_status;
+    }
+
+    private function assetStatus(StudyDesignAsset $asset): string
+    {
+        return $asset->status instanceof StudyDesignAssetStatus
+            ? $asset->status->value
+            : (string) $asset->status;
     }
 }

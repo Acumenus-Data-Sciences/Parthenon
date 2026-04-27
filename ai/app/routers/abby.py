@@ -112,6 +112,25 @@ def _get_cost_tracker() -> CostTracker:
     return _cost_tracker
 
 
+def _route_abby_request(message: str) -> RoutingDecision:
+    """Choose Abby's model route, defaulting to local Ollama for governance."""
+    if not settings.abby_cloud_routing_enabled:
+        return RoutingDecision(
+            model="local",
+            stage=0,
+            reason="local_ollama_required",
+            confidence=1.0,
+        )
+
+    cost_tracker = _get_cost_tracker()
+    routing = _router.route(message, budget_exhausted=cost_tracker.is_budget_exhausted())
+    if routing.model == "claude" and _get_claude_client() is None:
+        logger.debug("Claude routed but no client available, falling back to local before prompt build")
+        return RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+
+    return routing
+
+
 def _get_shared_engine() -> Any:
     global _shared_engine
     if _shared_engine is None:
@@ -838,12 +857,12 @@ def _get_local_num_predict(page_context: str) -> int:
     }.get(page_context)
     resolved = default if compact_context_cap is None else min(default, compact_context_cap)
 
-    # Qwen-family reasoning models often spend a large prefix budget inside
+    # Larger reasoning models often spend a prefix budget inside
     # <think> blocks before producing the visible answer. If we keep the compact
     # Abby caps, the model can exhaust its token budget before it ever emits the
     # final answer. Give these models a larger floor so the user actually gets
     # a response.
-    reasoning_model_markers = ("qwen", "qwq", "deepseek-r1", "ii-medical")
+    reasoning_model_markers = ("qwen", "qwq", "deepseek-r1", "ii-medical", "medgemma")
     if any(marker in settings.abby_llm_model.lower() for marker in reasoning_model_markers):
         return max(resolved, 640)
 
@@ -1735,19 +1754,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
     Page-aware conversational endpoint. Abby adapts her persona and focus
     based on the current UI page and any entity data passed from the frontend.
 
-    Phase 2: Routes to Claude (cloud) or MedGemma (local) based on message
-    complexity, budget status, and PHI safety checks.
+    Abby stays on local Ollama/MedGemma by default. Optional cloud routing only
+    runs when explicitly enabled by configuration.
     """
     request_started = time.perf_counter()
     session = _prepare_chat_session(request)
 
-    # Phase 2: Route to appropriate model
-    cost_tracker = _get_cost_tracker()
-    budget_exhausted = cost_tracker.is_budget_exhausted()
-    routing = _router.route(request.message, budget_exhausted=budget_exhausted)
-    if routing.model == "claude" and _get_claude_client() is None:
-        logger.debug("Claude routed but no client available, falling back to local before prompt build")
-        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+    routing = _route_abby_request(request.message)
     local_num_predict = _get_local_num_predict(request.page_context)
     system_prompt = _build_chat_system_prompt(
         request,
@@ -1821,7 +1834,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 )
                 reply = claude_response.reply
 
-                # Record usage
+                cost_tracker = _get_cost_tracker()
                 cost_tracker.record_usage(
                     user_id=request.user_id,
                     tokens_in=claude_response.tokens_in,
@@ -2267,12 +2280,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             },
         )
 
-    cost_tracker = _get_cost_tracker()
-    budget_exhausted = cost_tracker.is_budget_exhausted()
-    routing = _router.route(request.message, budget_exhausted=budget_exhausted)
-    if routing.model == "claude" and _get_claude_client() is None:
-        logger.debug("Claude routed but no client available, falling back to local before stream build")
-        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+    routing = _route_abby_request(request.message)
 
     sources: list[dict[str, object]] = []
     try:

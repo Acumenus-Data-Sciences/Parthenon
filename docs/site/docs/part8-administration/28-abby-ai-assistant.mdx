@@ -10,7 +10,7 @@ sidebar_label: "28. Abby AI Assistant"
 
 ## Overview
 
-Abby combines a large language model (MedGemma 1.5 4B via Ollama) with retrieval-augmented generation (RAG) to provide accurate, context-aware responses. Rather than relying solely on the model's training data, Abby retrieves relevant knowledge from four specialized ChromaDB collections before generating each response. This ensures answers are grounded in Parthenon's documentation, the user's conversation history, community knowledge, and clinical reference data.
+Abby combines a local MedGemma 27B model through Ollama with retrieval-augmented generation (RAG) to provide accurate, context-aware responses. Rather than relying solely on the model's training data, Abby retrieves relevant knowledge from four specialized ChromaDB collections before generating each response. This ensures answers are grounded in Parthenon's documentation, the user's conversation history, community knowledge, and clinical reference data.
 
 :::info Air-gapped deployments
 Because Abby runs entirely through Ollama and ChromaDB (both on-premises services), no data ever leaves your infrastructure. This makes Abby suitable for air-gapped healthcare environments with strict data governance requirements.

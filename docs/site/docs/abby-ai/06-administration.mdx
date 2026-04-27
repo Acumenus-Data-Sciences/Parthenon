@@ -189,7 +189,9 @@ docker compose exec php php artisan solr:index-vector-explorer --fresh
 | `CHROMA_HOST` | `chromadb` | ChromaDB hostname |
 | `CHROMA_PORT` | `8000` | ChromaDB port |
 | `OLLAMA_BASE_URL` | `http://host.docker.internal:11434` | Ollama API base URL |
-| `OLLAMA_MODEL` | `MedAIBase/MedGemma1.5:4b` | LLM model identifier |
+| `OLLAMA_MODEL` | `puyangwang/medgemma-27b-it:q4_0` | Default local medical LLM model identifier |
+| `ABBY_OLLAMA_MODEL` | `puyangwang/medgemma-27b-it:q4_0` | Abby's local Ollama model identifier |
+| `ABBY_CLOUD_ROUTING_ENABLED` | `false` | Keeps Abby on local Ollama unless explicitly enabled |
 | `OHDSI_CORPUS_DIR` | `/app/ohdsi_corpus` | Path to harvested PDF corpus |
 | `OHDSI_BOOK_DIR` | `/app/book_of_ohdsi` | Path to Book of OHDSI chapters |
 | `OHDSI_VIGNETTES_DIR` | `/app/hades_vignettes` | Path to HADES vignettes |

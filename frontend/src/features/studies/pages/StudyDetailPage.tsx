@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/i18n/format";
 import { cn } from "@/lib/utils";
-import { StudyDesigner } from "../components/StudyDesigner";
+import { StudyDesignWorkbench } from "../components/StudyDesignWorkbench";
 import { StudyDashboard } from "../components/StudyDashboard";
 import { StudyAnalysesTab } from "../components/StudyAnalysesTab";
 import { StudySitesTab } from "../components/StudySitesTab";
@@ -427,7 +427,7 @@ export default function StudyDetailPage() {
       {activeTab === "overview" && (
         <StudyOverview study={study} analyses={analyses} progress={progress} />
       )}
-      {activeTab === "design" && <StudyDesigner study={study} />}
+      {activeTab === "design" && <StudyDesignWorkbench study={study} />}
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}

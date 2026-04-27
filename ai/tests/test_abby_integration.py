@@ -23,6 +23,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from app.config import settings
 from app.main import app
 from app.routers.abby import (
     ChatRequest,
@@ -35,6 +36,7 @@ from app.routers.abby import (
     _is_reference_only_grounded_sentence,
     _looks_truncated_visible_reply,
     _needs_visible_reply_retry,
+    _route_abby_request,
     _save_user_profile,
     _should_store_conversation_answer,
     _strip_thinking_tokens,
@@ -428,6 +430,7 @@ class TestChatEndpointResponseContract:
             patch("app.routers.abby._get_cost_tracker") as mock_tracker,
             patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
             patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=0, reason="test", confidence=1.0)),
+            patch.object(settings, "abby_cloud_routing_enabled", True),
         ):
             mock_cost = MagicMock()
             mock_cost.is_budget_exhausted.return_value = False
@@ -788,6 +791,20 @@ class TestLocalReplyQualityGuards:
 
 class TestRouterRegistration:
     """The abby router must load even when optional packages are absent."""
+
+    def test_cloud_routing_disabled_forces_local_without_policy_call(self) -> None:
+        """Abby must stay local unless cloud routing is explicitly enabled."""
+        with (
+            patch.object(settings, "abby_cloud_routing_enabled", False),
+            patch("app.routers.abby._router.route") as mock_route,
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+        ):
+            routing = _route_abby_request("Run a complex study design review")
+
+        assert routing.model == "local"
+        assert routing.reason == "local_ollama_required"
+        mock_route.assert_not_called()
+        mock_tracker.assert_not_called()
 
     def test_abby_chat_endpoint_is_registered(self) -> None:
         """If claude_client.py has an import error, the router must still load."""
