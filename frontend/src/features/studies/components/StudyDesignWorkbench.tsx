@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useId, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Brain, CheckCircle2, ChevronDown, ChevronRight, Loader2, Plus, Save, Sparkles, Upload } from "lucide-react";
@@ -154,19 +154,34 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
     ? "Enter a research question before generating intent."
     : null;
 
-  const ensureSession = async (sourceMode = "natural_language") => {
-    if (selectedSession) return selectedSession.id;
+  const ensureSessionPromiseRef = useRef<Promise<number> | null>(null);
 
-    const session = await createSession.mutateAsync({
-      slug,
-      payload: {
-        title: t("studies.workbench.sessionTitle"),
-        source_mode: sourceMode,
-      },
-    });
-    setSelectedSessionId(session.id);
-    return session.id;
-  };
+  const ensureSession = useCallback(
+    async (sourceMode = "natural_language") => {
+      if (selectedSession) return selectedSession.id;
+      if (ensureSessionPromiseRef.current) return ensureSessionPromiseRef.current;
+
+      const promise = (async () => {
+        try {
+          const session = await createSession.mutateAsync({
+            slug,
+            payload: {
+              title: t("studies.workbench.sessionTitle"),
+              source_mode: sourceMode,
+            },
+          });
+          setSelectedSessionId(session.id);
+          return session.id;
+        } finally {
+          ensureSessionPromiseRef.current = null;
+        }
+      })();
+
+      ensureSessionPromiseRef.current = promise;
+      return promise;
+    },
+    [createSession, selectedSession, slug, t],
+  );
 
   const handleGenerate = async () => {
     if (!researchQuestion.trim()) return;
@@ -401,31 +416,82 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
     });
   };
 
-  const activeMutationError =
-    mutationError(createSession.error) ||
-    mutationError(generateIntent.error) ||
-    mutationError(importProtocol.error) ||
-    mutationError(updateVersion.error) ||
-    mutationError(acceptVersion.error) ||
-    mutationError(importExistingStudy.error) ||
-    mutationError(critiqueStudyDesign.error) ||
-    mutationError(recommendPhenotypes.error) ||
-    mutationError(draftConceptSets.error) ||
-    mutationError(draftCohorts.error) ||
-    mutationError(verifyConceptSetDraft.error) ||
-    mutationError(verifyConceptSetDrafts.error) ||
-    mutationError(verifyCohortDraft.error) ||
-    mutationError(updateConceptSetDraft.error) ||
-    mutationError(updateCohortDraft.error) ||
-    mutationError(materializeConceptSetDraft.error) ||
-    mutationError(materializeCohortDraft.error) ||
-    mutationError(linkCohortDraft.error) ||
-    mutationError(runFeasibility.error) ||
-    mutationError(draftAnalysisPlans.error) ||
-    mutationError(verifyAnalysisPlan.error) ||
-    mutationError(materializeAnalysisPlan.error) ||
-    mutationError(lockDesignVersion.error) ||
-    mutationError(reviewAsset.error);
+  type MutationErrorEntry = { name: string; error: unknown };
+  // Track the last error reference the user dismissed. Stored in state so a
+  // re-render runs once dismiss is clicked; new errors (different reference)
+  // surface a fresh banner.
+  const [dismissedError, setDismissedError] = useState<unknown>(null);
+
+  const trackedMutations = useMemo(
+    () => [
+      { name: "createSession", mutation: createSession },
+      { name: "generateIntent", mutation: generateIntent },
+      { name: "importProtocol", mutation: importProtocol },
+      { name: "updateVersion", mutation: updateVersion },
+      { name: "acceptVersion", mutation: acceptVersion },
+      { name: "importExistingStudy", mutation: importExistingStudy },
+      { name: "critiqueStudyDesign", mutation: critiqueStudyDesign },
+      { name: "recommendPhenotypes", mutation: recommendPhenotypes },
+      { name: "draftConceptSets", mutation: draftConceptSets },
+      { name: "draftCohorts", mutation: draftCohorts },
+      { name: "verifyConceptSetDraft", mutation: verifyConceptSetDraft },
+      { name: "verifyConceptSetDrafts", mutation: verifyConceptSetDrafts },
+      { name: "verifyCohortDraft", mutation: verifyCohortDraft },
+      { name: "updateConceptSetDraft", mutation: updateConceptSetDraft },
+      { name: "updateCohortDraft", mutation: updateCohortDraft },
+      { name: "materializeConceptSetDraft", mutation: materializeConceptSetDraft },
+      { name: "materializeCohortDraft", mutation: materializeCohortDraft },
+      { name: "linkCohortDraft", mutation: linkCohortDraft },
+      { name: "runFeasibility", mutation: runFeasibility },
+      { name: "draftAnalysisPlans", mutation: draftAnalysisPlans },
+      { name: "verifyAnalysisPlan", mutation: verifyAnalysisPlan },
+      { name: "materializeAnalysisPlan", mutation: materializeAnalysisPlan },
+      { name: "lockDesignVersion", mutation: lockDesignVersion },
+      { name: "reviewAsset", mutation: reviewAsset },
+    ],
+    [
+      createSession,
+      generateIntent,
+      importProtocol,
+      updateVersion,
+      acceptVersion,
+      importExistingStudy,
+      critiqueStudyDesign,
+      recommendPhenotypes,
+      draftConceptSets,
+      draftCohorts,
+      verifyConceptSetDraft,
+      verifyConceptSetDrafts,
+      verifyCohortDraft,
+      updateConceptSetDraft,
+      updateCohortDraft,
+      materializeConceptSetDraft,
+      materializeCohortDraft,
+      linkCohortDraft,
+      runFeasibility,
+      draftAnalysisPlans,
+      verifyAnalysisPlan,
+      materializeAnalysisPlan,
+      lockDesignVersion,
+      reviewAsset,
+    ],
+  );
+
+  let recentMutationError: MutationErrorEntry | null = null;
+  for (const { name, mutation } of trackedMutations) {
+    const error = mutation.error;
+    if (error && error !== dismissedError) {
+      recentMutationError = { name, error };
+      break;
+    }
+  }
+
+  const dismissMutationError = () => {
+    if (!recentMutationError) return;
+    const entry = trackedMutations.find((item) => item.name === recentMutationError.name);
+    entry?.mutation.reset();
+    setDismissedError(recentMutationError.error);
+  };
 
   return (
     <div className="panel space-y-5">
@@ -692,9 +758,19 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
         </div>
       )}
 
-      {activeMutationError && (
-        <div className="rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical">
-          {activeMutationError}
+      {recentMutationError && (
+        <div
+          className="rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical flex items-start gap-3"
+          role="alert"
+        >
+          <span className="flex-1">{mutationError(recentMutationError.error)}</span>
+          <button
+            type="button"
+            onClick={dismissMutationError}
+            className="btn btn-ghost btn-sm shrink-0"
+          >
+            {t("studies.workbench.actions.dismiss")}
+          </button>
         </div>
       )}
     </div>
@@ -1036,6 +1112,7 @@ function ConceptSetDraftCard({
   const [conceptQuery, setConceptQuery] = useState("");
   const [conceptResults, setConceptResults] = useState<Concept[]>([]);
   const [isSearchingConcepts, setIsSearchingConcepts] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const payload = draftPayloadRecord(asset);
   const verified = asset.verification_status === "verified";
   const accepted = asset.status === "accepted";
@@ -1054,9 +1131,17 @@ function ConceptSetDraftCard({
   const handleSearchConcepts = async () => {
     if (conceptQuery.trim().length < 2) return;
     setIsSearchingConcepts(true);
+    setSearchError(null);
     try {
       const result = await searchConcepts({ q: conceptQuery.trim(), standard: true, limit: 8 });
       setConceptResults(result.items);
+    } catch (error) {
+      setConceptResults([]);
+      setSearchError(
+        error instanceof Error
+          ? error.message
+          : t("studies.workbench.messages.searchFailed"),
+      );
     } finally {
       setIsSearchingConcepts(false);
     }
@@ -1259,6 +1344,14 @@ function ConceptSetDraftCard({
                       <span className="text-xs text-success">{t("studies.workbench.actions.add")}</span>
                     </button>
                   ))}
+                </div>
+              )}
+              {searchError && (
+                <div
+                  className="mt-2 rounded-md border border-critical/40 bg-critical/10 px-2 py-1 text-[11px] text-critical"
+                  role="alert"
+                >
+                  {searchError}
                 </div>
               )}
             </div>
@@ -1817,7 +1910,8 @@ function FeasibilityDashboard({
   const defaultSourceIds = defaultSource ? [defaultSource.id] : [];
   const cdmResultsSourceIds = sources
     .filter((source) => {
-      const daimonTypes = source.daimons.map((daimon) => daimon.daimon_type);
+      const daimons = Array.isArray(source.daimons) ? source.daimons : [];
+      const daimonTypes = daimons.map((daimon) => daimon.daimon_type);
       return daimonTypes.includes("cdm") && daimonTypes.includes("results");
     })
     .map((source) => source.id);
@@ -3129,13 +3223,16 @@ function conceptDraftPayload(asset: StudyDesignAsset, concepts: StudyDesignDraft
     clinical_rationale: payload.clinical_rationale ?? null,
     search_terms: payload.search_terms ?? [],
     source_concept_set_references: payload.source_concept_set_references ?? [],
-    concepts: concepts.map((concept) => ({
-      concept_id: Number(concept.concept_id),
-      is_excluded: concept.is_excluded ?? false,
-      include_descendants: concept.include_descendants ?? true,
-      include_mapped: concept.include_mapped ?? false,
-      rationale: concept.rationale ?? null,
-    })),
+    // Drop concepts whose concept_id is null/NaN — saving them would corrupt the draft.
+    concepts: concepts
+      .filter((concept) => Number.isFinite(Number(concept.concept_id)))
+      .map((concept) => ({
+        concept_id: Number(concept.concept_id),
+        is_excluded: concept.is_excluded ?? false,
+        include_descendants: concept.include_descendants ?? true,
+        include_mapped: concept.include_mapped ?? false,
+        rationale: concept.rationale ?? null,
+      })),
   };
 }
 
