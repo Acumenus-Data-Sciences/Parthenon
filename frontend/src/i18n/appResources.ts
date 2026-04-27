@@ -1013,6 +1013,8 @@ const enApp: MessageTree = {
         lockPackage: "Lock Package",
         locked: "Locked",
         downloadPackageSummary: "Download package summary",
+        dismiss: "Dismiss",
+        cancel: "Cancel",
       },
       labels: {
         verified: "Verified",
@@ -1125,6 +1127,21 @@ const enApp: MessageTree = {
         pending: "pending",
         onlyVerifiedRecommendations:
           "Only deterministically verified recommendations can be accepted.",
+        searchFailed: "Concept search failed. Try again.",
+        alreadyLocked:
+          "This version was locked by another action. Refresh to see the latest state.",
+        lockGateClosed:
+          "Package readiness changed. Resolve blockers, then try again.",
+      },
+      confirmDiscardEdits:
+        "You have unsaved intent edits. Discard them?",
+      lockConfirm: {
+        title: "Lock package?",
+        body:
+          "Locking version {{version}} (last edited {{updatedAt}}) will freeze all assets and prevent further edits.",
+        irreversibleWarning:
+          "This action cannot be undone. All concept sets, cohorts, analyses, and the manifest will be sealed.",
+        confirm: "Lock package",
       },
     },
   },
@@ -5358,6 +5375,8 @@ const esApp: MessageTree = {
         lockPackage: "Bloquear paquete",
         locked: "Bloqueado",
         downloadPackageSummary: "Descargar resumen del paquete",
+        dismiss: "Descartar",
+        cancel: "Cancelar",
       },
       labels: {
         verified: "Verificado",
@@ -5470,6 +5489,22 @@ const esApp: MessageTree = {
         pending: "pendiente",
         onlyVerifiedRecommendations:
           "Solo se pueden aceptar recomendaciones verificadas de forma determinista.",
+        searchFailed:
+          "La búsqueda de conceptos falló. Inténtalo de nuevo.",
+        alreadyLocked:
+          "Otra acción bloqueó esta versión. Recarga para ver el estado actual.",
+        lockGateClosed:
+          "La preparación del paquete cambió. Resuelve los bloqueadores y reintenta.",
+      },
+      confirmDiscardEdits:
+        "Tienes ediciones de intención sin guardar. ¿Descartarlas?",
+      lockConfirm: {
+        title: "¿Bloquear paquete?",
+        body:
+          "Bloquear la versión {{version}} (última edición {{updatedAt}}) congelará todos los activos e impedirá más ediciones.",
+        irreversibleWarning:
+          "Esta acción no se puede deshacer. Todos los conjuntos de conceptos, cohortes, análisis y el manifiesto quedarán sellados.",
+        confirm: "Bloquear paquete",
       },
     },
   },
@@ -9717,6 +9752,8 @@ const koApp: MessageTree = {
         lockPackage: "패키지 잠금",
         locked: "잠김",
         downloadPackageSummary: "패키지 요약 다운로드",
+        dismiss: "닫기",
+        cancel: "취소",
       },
       labels: {
         verified: "검증됨",
@@ -9829,6 +9866,21 @@ const koApp: MessageTree = {
         pending: "대기 중",
         onlyVerifiedRecommendations:
           "결정적으로 검증된 추천만 승인할 수 있습니다.",
+        searchFailed: "개념 검색에 실패했습니다. 다시 시도하세요.",
+        alreadyLocked:
+          "다른 작업으로 이 버전이 잠겼습니다. 새로고침하여 최신 상태를 확인하세요.",
+        lockGateClosed:
+          "패키지 준비 상태가 변경되었습니다. 차단 요인을 해결한 후 다시 시도하세요.",
+      },
+      confirmDiscardEdits:
+        "저장되지 않은 의도 편집이 있습니다. 폐기하시겠습니까?",
+      lockConfirm: {
+        title: "패키지를 잠그시겠습니까?",
+        body:
+          "버전 {{version}}을(를) 잠그면 (마지막 수정 {{updatedAt}}) 모든 자산이 동결되고 추가 편집이 불가능해집니다.",
+        irreversibleWarning:
+          "이 작업은 되돌릴 수 없습니다. 모든 개념 세트, 코호트, 분석 및 매니페스트가 봉인됩니다.",
+        confirm: "패키지 잠금",
       },
     },
   },
