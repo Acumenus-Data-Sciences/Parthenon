@@ -8,7 +8,7 @@ class CohortLintRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('studies.create') ?? false;
     }
 
     public function rules(): array
