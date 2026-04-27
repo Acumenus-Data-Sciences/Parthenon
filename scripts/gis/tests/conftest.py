@@ -15,9 +15,24 @@ UA_XLSX_PATH = REPO_ROOT / "2020_UA_COUNTY.xlsx"
 
 @pytest.fixture(scope="session")
 def ua_xlsx_path() -> Path:
-    if not UA_XLSX_PATH.exists():
-        pytest.skip(f"Required test fixture missing: {UA_XLSX_PATH}")
-    return UA_XLSX_PATH
+    """Resolve the 2020_UA_COUNTY.xlsx fixture path.
+
+    Honours ``PHASE_19_UA_XLSX_PATH`` env var first (so worktree-based
+    executors can point at the canonical copy in the main repo without
+    duplicating the 10 MB binary into every worktree), then falls back to
+    a repo-relative location. Skips cleanly when neither exists.
+    """
+    env_override = os.environ.get("PHASE_19_UA_XLSX_PATH")
+    if env_override:
+        candidate = Path(env_override)
+        if candidate.exists():
+            return candidate
+    if UA_XLSX_PATH.exists():
+        return UA_XLSX_PATH
+    pytest.skip(
+        "Required test fixture missing: "
+        f"{UA_XLSX_PATH} (and PHASE_19_UA_XLSX_PATH unset/missing)"
+    )
 
 
 @pytest.fixture(scope="session")

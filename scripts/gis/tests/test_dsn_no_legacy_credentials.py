@@ -19,14 +19,19 @@ import pytest
 
 GIS_DIR = Path(__file__).resolve().parent.parent
 
-# Wave 0 watch-list: only files that Phase 19 CREATES net-new. Loaders being
-# PORTED (load_crosswalk.py, load_geography.py) are added to this list by
-# Plan 03 once they are env-DSN compliant — adding them in Wave 0 would
-# trip on the existing pre-remediation literals. Plan 05 expands to the
-# rest of scripts/gis/load_*.py.
+# Plan 03 watch-list (Wave 2): all four Phase 19 loaders. ``loader_common.py``
+# and ``load_ua_county.py`` are net-new in Plan 03; ``load_crosswalk.py`` and
+# ``load_geography.py`` are ported to env-driven DSN in the same plan and
+# therefore graduate onto the guard list as soon as they no longer carry the
+# legacy ``dbname=ohdsi user=smudoshi password=acumenus`` literals. Plan 05
+# expands the list to the remaining legacy loaders (load_rucc.py, load_svi.py,
+# load_air_quality.py, load_hospitals.py, load_all.py, load_real_data.py,
+# fetch_data.py).
 PHASE_19_LOADER_FILES = [
     "load_ua_county.py",
     "loader_common.py",
+    "load_crosswalk.py",
+    "load_geography.py",
 ]
 
 LEGACY_PATTERN = re.compile(
