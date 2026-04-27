@@ -42,6 +42,9 @@ export interface CharacterizationDesign {
   featureAnalyses?: FeatureType[];
   stratifyByGender: boolean;
   stratifyByAge: boolean;
+  // Phase 19 (GIS-03 / D-03 / D-08): urban-rural Studies stratification.
+  // 'none' = off, 'urban_pct' = Census 2020 UA county urban %, 'rucc' = USDA RUCC.
+  stratifyByLocation: "none" | "urban_pct" | "rucc";
   topN: number;
   minCellCount: number;
 }
@@ -91,6 +94,9 @@ export interface IncidenceRateDesign {
   stratification: StratificationConfig;
   stratifyByGender: boolean;
   stratifyByAge: boolean;
+  // Phase 19 (GIS-03 / D-03 / D-08): urban-rural Studies stratification.
+  // 'none' = off, 'urban_pct' = Census 2020 UA county urban %, 'rucc' = USDA RUCC.
+  stratifyByLocation: "none" | "urban_pct" | "rucc";
   ageGroups: string[];
   minCellCount: number;
 }

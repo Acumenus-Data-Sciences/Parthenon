@@ -16,7 +16,32 @@ import {
   useCalculateDirectIncidenceRate,
 } from "../hooks/useIncidenceRates";
 import type { DirectCalcResponse } from "../types/analysis";
+import { useSources } from "@/features/data-sources/hooks/useSources";
 import { useTranslation } from "react-i18next";
+
+// ---------------------------------------------------------------------------
+// Phase 19 (GIS-03 / D-03 / D-08) — urban-rural Studies stratification
+// ---------------------------------------------------------------------------
+
+/**
+ * Stratification options for the new design_json.stratifyByLocation field.
+ * Mirrored on the backend by IncidenceRateStoreRequest's
+ * Rule::in(['none','urban_pct','rucc']) and IncidenceRateService's
+ * SUPPORTED_STRATIFICATIONS const (with the 'location_' prefix).
+ *
+ * - 'none': no location stratification (researcher must opt in)
+ * - 'urban_pct': Census 2020 UA POPPCT_URB bucketed at query time
+ *   (D-03: Highly Rural / Rural / Mixed / Urban)
+ * - 'rucc': USDA Rural-Urban Continuum Codes (Metro / Micropolitan / Rural)
+ */
+export const STRATIFY_BY_LOCATION_OPTIONS = ["none", "urban_pct", "rucc"] as const;
+export type StratifyByLocation = (typeof STRATIFY_BY_LOCATION_OPTIONS)[number];
+
+const STRATIFY_BY_LOCATION_LABELS: Record<StratifyByLocation, string> = {
+  none: "None (no location stratification)",
+  urban_pct: "Urban / Rural (Census 2020 UA county urban %)",
+  rucc: "USDA RUCC (Metro / Micropolitan / Rural)",
+};
 
 // ---------------------------------------------------------------------------
 // Defaults
@@ -47,6 +72,7 @@ const defaultDesign: IncidenceRateDesign = {
   stratification: DEFAULT_STRAT,
   stratifyByGender: false,
   stratifyByAge: false,
+  stratifyByLocation: "none",
   ageGroups: [],
   minCellCount: 5,
 };
@@ -271,6 +297,13 @@ export function IncidenceRateDesigner({
     queryKey: ["cohort-definitions", { page: 1, limit: 200 }],
     queryFn: () => getCohortDefinitions({ page: 1, limit: 200 }),
   });
+
+  // Phase 19 / D-08: detect PANCREAS source so we can warn the researcher
+  // about its 4-zip Philadelphia care-site coverage when location
+  // stratification is selected. B-01: the column is `source_key`.
+  const { data: sources } = useSources();
+  const activeSource = sources?.find((s) => s.id === sourceId) ?? null;
+  const activeSourceKey = activeSource?.source_key ?? null;
 
   const createMutation = useCreateIncidenceRate();
   const updateMutation = useUpdateIncidenceRate();
@@ -655,6 +688,47 @@ export function IncidenceRateDesigner({
             />
           </div>
         )}
+
+        {/* Phase 19 (GIS-03 / D-03 / D-08) — Location stratification */}
+        <div className="mt-4 flex flex-col gap-1">
+          <label htmlFor="stratify-by-location" className="form-label">
+            {t("analyses.auto.stratifyByLocation_label", "Stratify by Location")}
+          </label>
+          <select
+            id="stratify-by-location"
+            value={syncedDesign.stratifyByLocation}
+            onChange={(e) =>
+              setDesign((d) => ({
+                ...d,
+                stratifyByLocation: e.target.value as StratifyByLocation,
+              }))
+            }
+            className="form-input form-select"
+            style={{ width: "20rem" }}
+          >
+            {STRATIFY_BY_LOCATION_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {STRATIFY_BY_LOCATION_LABELS[opt]}
+              </option>
+            ))}
+          </select>
+          {syncedDesign.stratifyByLocation !== "none" &&
+            activeSourceKey === "PANCREAS" && (
+              <p
+                className="mt-2 border-l-2 pl-2 text-xs"
+                style={{
+                  borderColor: "var(--accent-teal, #2DD4BF)",
+                  color: "var(--text-warning, #C9A227)",
+                }}
+                role="alert"
+              >
+                {t(
+                  "analyses.auto.stratifyByLocation_pancreasWarning",
+                  "Limited geographic variability: 1 county",
+                )}
+              </p>
+            )}
+        </div>
 
         <div className="mt-4">
           <label className="form-label">{t("analyses.auto.minimumCellCount_2438c8")}</label>
