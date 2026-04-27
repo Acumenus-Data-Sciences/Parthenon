@@ -50,6 +50,10 @@ const enSmallWorkbench: MessageTree = {
       noStudies: "No studies",
       newStudy: "New study",
       newStudyDescription: "The uploaded protocol will create a new Study.",
+      importReady: "Protocol import created a study.",
+      importReadyDescription:
+        "The compiled workbench is shown below; the study detail page now has a durable design-tab URL.",
+      openFullStudy: "Open full study",
     },
     intent: {
       title: "Describe Your Study",
@@ -60,6 +64,7 @@ const enSmallWorkbench: MessageTree = {
       analyze: "Analyze Study Intent",
       targetPopulation: "Target Population",
       outcome: "Outcome",
+      failed: "Intent split failed.",
     },
     recommendations: {
       title: "Recommended Phenotypes",
@@ -67,6 +72,7 @@ const enSmallWorkbench: MessageTree = {
       loading: "Finding phenotype recommendations...",
       promptPrefix: "Enter a study intent on the",
       promptSuffix: "tab to get AI-ranked phenotype recommendations.",
+      failed: "Failed to fetch phenotype recommendations.",
     },
     search: {
       title: "Search Phenotype Library",
@@ -76,6 +82,7 @@ const enSmallWorkbench: MessageTree = {
       resultsFound_one: "{{count}} result found",
       resultsFound_other: "{{count}} results found",
       noneFound: "No phenotypes found. Try a different search term.",
+      failed: "Phenotype search failed.",
     },
     lint: {
       title: "Lint Cohort Definition",
@@ -85,6 +92,8 @@ const enSmallWorkbench: MessageTree = {
       noIssuesFound: "No issues found",
       issuesFound_one: "{{count}} issue found",
       issuesFound_other: "{{count}} issues found",
+      invalidJson: "Invalid JSON: {{message}}",
+      invalidJsonRoot: "Paste a JSON object, not an array or scalar value.",
       failed: "Failed to lint: Invalid JSON or server error.",
     },
   },
