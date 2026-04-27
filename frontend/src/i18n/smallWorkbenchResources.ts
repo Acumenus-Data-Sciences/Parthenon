@@ -39,6 +39,7 @@ const enSmallWorkbench: MessageTree = {
       subtitle: "AI-assisted study design powered by OHDSI StudyAgent",
     },
     tabs: {
+      label: "Study Designer modes",
       intent: "Study Intent",
       search: "Phenotype Search",
       recommend: "Recommendations",
@@ -277,6 +278,7 @@ const frSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "Conception d'etude assistee par IA avec OHDSI StudyAgent",
     },
     tabs: {
+      label: "Modes du concepteur d'etude",
       intent: "Intention de l'etude",
       search: "Recherche de phenotypes",
       recommend: "Recommandations",
@@ -503,6 +505,7 @@ const deSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "KI-gestutztes Studiendesign mit OHDSI StudyAgent",
     },
     tabs: {
+      label: "Studien-Designer-Modi",
       intent: "Studienabsicht",
       search: "Phaenotypsuche",
       recommend: "Empfehlungen",
@@ -727,6 +730,7 @@ const ptSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "Desenho de estudo assistido por IA com OHDSI StudyAgent",
     },
     tabs: {
+      label: "Modos do designer de estudo",
       intent: "Intencao do estudo",
       search: "Busca de fenotipos",
       recommend: "Recomendacoes",
@@ -951,6 +955,7 @@ const esSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
         "Diseno de estudios asistido por IA impulsado por OHDSI StudyAgent",
     },
     tabs: {
+      label: "Modos del disenador de estudios",
       intent: "Intencion del estudio",
       search: "Busqueda de fenotipos",
       recommend: "Recomendaciones",
@@ -1180,6 +1185,7 @@ const koSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "OHDSI StudyAgent 기반 AI 보조 연구 설계",
     },
     tabs: {
+      label: "연구 설계기 모드",
       intent: "연구 의도",
       search: "표현형 검색",
       recommend: "추천",
@@ -1398,6 +1404,7 @@ const hiSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "OHDSI StudyAgent द्वारा संचालित AI-सहायित अध्ययन डिजाइन",
     },
     tabs: {
+      label: "स्टडी डिजाइनर मोड",
       intent: "अध्ययन उद्देश्य",
       search: "फीनोटाइप खोज",
       recommend: "सिफारिशें",
@@ -1619,6 +1626,7 @@ const arSmallWorkbench: MessageTree = mergeMessageTrees(enSmallWorkbench, {
       subtitle: "تصميم دراسات بمساعدة الذكاء الاصطناعي مدعوم بـ OHDSI StudyAgent",
     },
     tabs: {
+      label: "أوضاع مصمم الدراسة",
       intent: "نية الدراسة",
       search: "بحث الأنماط الظاهرية",
       recommend: "التوصيات",
@@ -1861,6 +1869,7 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
         subtitle: "AI-avustettu opintosuunnittelu OHDSI StudyAgentin avulla",
       },
       tabs: {
+        label: "Opintosuunnittelijan tilat",
         intent: "Tutkimuksen tarkoitus",
         search: "Fenotyyppihaku",
         recommend: "Suositukset",
@@ -2071,6 +2080,7 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
         subtitle: "OHDSI StudyAgent を活用した AI 支援の研究設計",
       },
       tabs: {
+        label: "スタディデザイナーモード",
         intent: "研究の意図",
         search: "表現型検索",
         recommend: "推奨事項",
@@ -2278,6 +2288,7 @@ export const smallWorkbenchResources: Record<string, MessageTree> = {
         subtitle: "由 OHDSI StudyAgent 提供支持的 AI 辅助研究设计",
       },
       tabs: {
+        label: "研究设计师模式",
         intent: "学习意向",
         search: "表型搜索",
         recommend: "建议",
