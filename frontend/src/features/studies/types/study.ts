@@ -258,8 +258,10 @@ export interface StudyDesignVersion {
   session_id: number;
   version_number: number;
   status: string;
+  spec_json?: Record<string, unknown> | null;
   intent_json: Record<string, unknown> | null;
   normalized_spec_json: Record<string, unknown> | null;
+  lint_results_json?: StudyDesignLintResults | null;
   provenance_json: Record<string, unknown> | null;
   accepted_by: number | null;
   accepted_at: string | null;
@@ -267,6 +269,141 @@ export interface StudyDesignVersion {
   created_at: string;
   updated_at: string;
   assets?: StudyDesignAsset[];
+}
+
+export interface StudyDesignLintResults {
+  status?: string;
+  issues?: StudyDesignLintIssue[];
+}
+
+export interface StudyDesignLintIssue {
+  field?: string;
+  severity?: string;
+  message?: string;
+}
+
+export type StudyCompilerStageId =
+  | "intent"
+  | "current_assets"
+  | "phenotypes"
+  | "concept_sets"
+  | "cohorts"
+  | "feasibility"
+  | "analysis"
+  | "lock";
+
+export type StudyCompilerStageStatus = "complete" | "active" | "blocked" | "pending";
+
+export type StudyCompilerActionType =
+  | "upload_protocol"
+  | "generate_intent"
+  | "save_review"
+  | "accept_intent"
+  | "import_current_assets"
+  | "review_compatibility"
+  | "recommend_phenotypes"
+  | "accept_recommendation"
+  | "draft_concept_sets"
+  | "verify_concept_draft"
+  | "repair_concept_draft"
+  | "materialize_concept_set"
+  | "draft_cohorts"
+  | "verify_cohort_draft"
+  | "link_materialized_cohort"
+  | "run_feasibility"
+  | "review_feasibility"
+  | "draft_analysis_plans"
+  | "verify_analysis_plan"
+  | "materialize_analysis_plan"
+  | "install_hades_package"
+  | "lock_package"
+  | "download_package_summary"
+  | "resolve_readiness_blockers"
+  | "review_package";
+
+interface StudyCompilerActionBase {
+  type?: StudyCompilerActionType | (string & {});
+  stage_id?: StudyCompilerStageId;
+  label?: string;
+  detail?: string;
+  target?: string;
+  href?: string | null;
+}
+
+export interface StudyCompilerAction extends StudyCompilerActionBase {
+  type: StudyCompilerActionType | (string & {});
+  label: string;
+}
+
+export interface StudyCompilerStage {
+  id: StudyCompilerStageId;
+  label: string;
+  status: StudyCompilerStageStatus;
+  detail: string;
+  actionLabel?: string;
+  action?: StudyCompilerAction;
+  blocker?: string | null;
+}
+
+export interface StudyCompilerGuidance {
+  currentStage: StudyCompilerStage;
+  nextAction: {
+    label: string;
+    detail: string;
+    stageId: StudyCompilerStageId;
+    action?: StudyCompilerAction;
+  };
+  stages: StudyCompilerStage[];
+  blockers: string[];
+  warnings: string[];
+  metrics: {
+    recommendations: number;
+    acceptedRecommendations: number;
+    conceptDrafts: number;
+    materializedConceptSets: number;
+    cohortDrafts: number;
+    linkedCohorts: number;
+    feasibilityRuns: number;
+    materializedAnalyses: number;
+  };
+}
+
+export interface StudyDesignBackendGuidanceAction extends StudyCompilerActionBase {
+  type?: StudyCompilerActionType | (string & {});
+  label?: string;
+  priority?: "blocking" | "high" | "medium" | "low" | (string & {});
+  details?: Record<string, unknown>;
+  issues?: StudyReadinessIssue[];
+  section?: string;
+}
+
+export interface StudyDesignBackendGuidanceSection {
+  id: string;
+  label?: string;
+  status?: string;
+  summary?: string;
+  counts?: Record<string, unknown>;
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+  actions?: StudyDesignBackendGuidanceAction[];
+}
+
+export interface StudyDesignBackendGuidance {
+  schema_version?: string;
+  generated_at?: string;
+  mode?: string;
+  policy?: string;
+  initial_gate?: {
+    status?: string;
+    summary?: string;
+    blocking_count?: number;
+    issues?: StudyReadinessIssue[];
+    action?: StudyDesignBackendGuidanceAction | null;
+  };
+  sections?: StudyDesignBackendGuidanceSection[];
+  next_best_actions?: StudyDesignBackendGuidanceAction[];
+  action_targets?: StudyReadinessAction[];
+  provenance?: Record<string, unknown>;
 }
 
 export interface StudyDesignAsset {
@@ -297,7 +434,29 @@ export interface StudyDesignAsset {
 
 export interface StudyDesignReadiness {
   ready: boolean;
+  status?: string;
+  can_lock?: boolean;
+  locked?: boolean;
   blocking_reasons?: string[];
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+  summary?: {
+    accepted_recommendations?: number;
+    materialized_concept_sets?: number;
+    linked_cohorts?: number;
+    feasibility_status?: string | null;
+    materialized_analysis_plans?: number;
+    package_assets?: number;
+    [key: string]: unknown;
+  };
+  checklist?: StudyDesignLockChecklistItem[];
+  abby_final_review?: {
+    status?: string;
+    summary?: string;
+    recommendation?: string;
+    risk_notes?: string[];
+  };
+  manifest_preview?: StudyDesignManifestPreview;
   cohorts?: {
     ready: boolean;
     cohort_asset_count: number;
@@ -318,9 +477,232 @@ export interface StudyDesignReadiness {
   };
 }
 
+export interface StudyCohortReadiness {
+  ready: boolean;
+  status?: string;
+  ready_for_feasibility?: boolean;
+  cohort_asset_count: number;
+  materialized_verified_count: number;
+  blocked_count: number;
+  required_roles?: string[];
+  present_roles?: Record<string, number>;
+  missing_roles?: string[];
+  linked_cohorts?: Array<{
+    id: number;
+    role: string;
+    label?: string | null;
+    cohort_definition_id?: number | null;
+    cohort_definition_name?: string | null;
+    concept_set_ids?: number[];
+  }>;
+  materialized_unlinked_assets?: Array<{
+    id: number;
+    role?: string;
+    title?: string;
+    cohort_definition_id?: number | null;
+  }>;
+  action_targets?: StudyReadinessAction[];
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+  drafts?: {
+    total?: number;
+    materialized?: number;
+    linked?: number;
+    [key: string]: unknown;
+  };
+}
+
+export type StudyDesignLockReadiness = StudyDesignReadiness;
+
+export interface StudyDesignLockChecklistItem {
+  id?: string;
+  label?: string;
+  status?: string;
+  message?: string;
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+}
+
+export interface StudyDesignManifestPreview {
+  schema_version?: string;
+  study?: Record<string, unknown>;
+  design_session?: Record<string, unknown>;
+  design_version?: Record<string, unknown>;
+  contents?: {
+    accepted_recommendations?: number;
+    concept_sets?: number;
+    cohorts?: number;
+    feasibility?: string | null;
+    analysis_plans?: number;
+    [key: string]: unknown;
+  };
+  artifact?: {
+    id?: number;
+    title?: string;
+    url?: string | null;
+    sha256?: string | null;
+    file_size_bytes?: number | null;
+    [key: string]: unknown;
+  } | null;
+  [key: string]: unknown;
+}
+
+export interface StudyReadinessAction extends StudyCompilerActionBase {
+  role?: string;
+  asset_id?: number | null;
+  asset_ids?: number[];
+  study_cohort_id?: number;
+  cohort_definition_ids?: number[];
+  requires_selection?: boolean;
+  [key: string]: unknown;
+}
+
+export type StudyReadinessIssue = string | {
+  code?: string;
+  message?: string;
+  severity?: string;
+  action?: StudyReadinessAction;
+  [key: string]: unknown;
+};
+
+export interface StudyFeasibilityResult {
+  status: string;
+  ready_for_analysis?: boolean;
+  ready_source_count: number;
+  source_count: number;
+  min_cell_count?: number;
+  ran_at: string;
+  action_targets?: StudyReadinessAction[];
+  previous_run?: {
+    asset_id?: number;
+    status?: string | null;
+    ready_source_count?: number;
+    source_count?: number;
+    min_cell_count?: number | null;
+    ran_at?: string | null;
+    delta_ready_source_count?: number;
+    delta_source_count?: number;
+    threshold_changed?: boolean;
+  } | null;
+  sources?: Array<{
+    source_id?: number;
+    source_name?: string;
+    ready_for_analysis?: boolean;
+    cohorts?: Array<{
+      study_cohort_id?: number;
+      role: string;
+      label?: string | null;
+      person_count?: number | null;
+      person_count_suppressed?: boolean;
+      attrition?: Array<{
+        name?: string;
+        person_count?: number | null;
+        person_count_suppressed?: boolean;
+        [key: string]: unknown;
+      }>;
+    }>;
+    blockers?: StudyReadinessIssue[];
+    warnings?: StudyReadinessIssue[];
+    coverage?: {
+      date_coverage?: {
+        start_date?: string | null;
+        end_date?: string | null;
+      };
+      observation_period?: {
+        record_count?: number | null;
+      };
+      freshness?: {
+        status?: string;
+        days_since_release?: number | null;
+      };
+      [key: string]: unknown;
+    };
+    domain_availability?: {
+      available_role_count?: number;
+      role_count?: number;
+      [key: string]: unknown;
+    };
+    source_quality?: {
+      dqd?: {
+        pass_rate?: number | null;
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    };
+  }>;
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+}
+
+export interface StudyAnalysisPlanDraft {
+  schema_version?: string;
+  title?: string;
+  analysis_type?: string;
+  analysis_family?: {
+    id?: string;
+    label?: string;
+    hades_package?: string;
+    recommended?: boolean;
+    fit_score?: number;
+    reason?: string;
+  };
+  description?: string;
+  hades_package?: string;
+  hades_capability?: { installed?: boolean; package?: string; status?: string; version?: string | null };
+  hades_remediation?: {
+    package?: string;
+    message?: string;
+    action?: StudyReadinessAction;
+  } | null;
+  required_roles?: string[];
+  cohort_role_map?: Record<string, unknown>;
+  feasibility?: { status?: string | null; ready_source_count?: number; source_count?: number; ran_at?: string | null };
+  design_json?: Record<string, unknown>;
+  parameter_review?: Array<{
+    name?: string;
+    label?: string;
+    value?: unknown;
+    status?: string;
+    message?: string;
+  }>;
+  blockers?: StudyReadinessIssue[];
+  warnings?: StudyReadinessIssue[];
+}
+
+export interface StudyDesignDraftConcept {
+  concept_id: number;
+  is_excluded?: boolean;
+  include_descendants?: boolean;
+  include_mapped?: boolean;
+  rationale?: string | null;
+  concept?: {
+    concept_id: number;
+    concept_name: string;
+    domain_id: string;
+    vocabulary_id: string;
+    concept_class_id: string;
+    standard_concept: string | null;
+    concept_code: string;
+    invalid_reason: string | null;
+  };
+}
+
+export interface StudyDesignSpec {
+  schema_version?: string;
+  study?: Record<string, unknown>;
+  pico?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export interface StudyProtocolImportResult {
   study: Study;
   session: StudyDesignSession;
+  version: StudyDesignVersion;
+  extracted: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+}
+
+export interface StudyDesignProtocolImportResult {
   version: StudyDesignVersion;
   extracted: Record<string, unknown>;
   metadata: Record<string, unknown>;

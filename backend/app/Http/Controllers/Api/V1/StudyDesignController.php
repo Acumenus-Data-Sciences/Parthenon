@@ -5,28 +5,37 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\StudyDesignAssetStatus;
 use App\Enums\StudyDesignVerificationStatus;
 use App\Http\Controllers\Controller;
-use App\Models\App\Characterization;
+use App\Http\Requests\StudyDesign\DraftStudyCohortsRequest;
+use App\Http\Requests\StudyDesign\LinkStudyCohortRequest;
 use App\Models\App\CohortDefinition;
-use App\Models\App\ConceptSet;
-use App\Models\App\ConceptSetItem;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
-use App\Models\App\StudyArtifact;
-use App\Models\App\StudyCohort;
 use App\Models\App\StudyDesignAiEvent;
 use App\Models\App\StudyDesignAsset;
 use App\Models\App\StudyDesignSession;
 use App\Models\App\StudyDesignVersion;
+use App\Services\StudyDesign\StudyAnalysisPlanMaterializer;
+use App\Services\StudyDesign\StudyAnalysisPlanService;
+use App\Services\StudyDesign\StudyAnalysisPlanVerifier;
+use App\Services\StudyDesign\StudyCohortDraftService;
 use App\Services\StudyDesign\StudyCohortDraftVerifier;
+use App\Services\StudyDesign\StudyCohortMaterializer;
+use App\Services\StudyDesign\StudyCohortReadinessService;
+use App\Services\StudyDesign\StudyCohortRoleLinker;
+use App\Services\StudyDesign\StudyConceptSetDraftService;
 use App\Services\StudyDesign\StudyConceptSetDraftVerifier;
+use App\Services\StudyDesign\StudyConceptSetMaterializer;
+use App\Services\StudyDesign\StudyDesignGuidanceService;
+use App\Services\StudyDesign\StudyDesignLockService;
+use App\Services\StudyDesign\StudyDesignProtocolGateException;
 use App\Services\StudyDesign\StudyDesignProtocolImportService;
-use App\Services\StudyDesign\StudyDesignReadinessService;
+use App\Services\StudyDesign\StudyFeasibilityService;
+use App\Services\StudyDesign\StudyPhenotypeRecommendationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -38,8 +47,20 @@ class StudyDesignController extends Controller
     public function __construct(
         private readonly StudyConceptSetDraftVerifier $conceptSetVerifier,
         private readonly StudyCohortDraftVerifier $cohortVerifier,
-        private readonly StudyDesignReadinessService $readinessService,
+        private readonly StudyCohortDraftService $cohortDraftService,
+        private readonly StudyCohortMaterializer $cohortMaterializer,
+        private readonly StudyCohortRoleLinker $cohortRoleLinker,
+        private readonly StudyFeasibilityService $feasibilityService,
+        private readonly StudyAnalysisPlanService $analysisPlanService,
+        private readonly StudyAnalysisPlanVerifier $analysisPlanVerifier,
+        private readonly StudyAnalysisPlanMaterializer $analysisPlanMaterializer,
+        private readonly StudyConceptSetMaterializer $conceptSetMaterializer,
+        private readonly StudyDesignLockService $lockService,
+        private readonly StudyCohortReadinessService $cohortReadinessService,
         private readonly StudyDesignProtocolImportService $protocolImportService,
+        private readonly StudyDesignGuidanceService $guidanceService,
+        private readonly StudyPhenotypeRecommendationService $phenotypeRecommendationService,
+        private readonly StudyConceptSetDraftService $conceptSetDraftService,
     ) {}
 
     public function index(Study $study): JsonResponse
@@ -88,12 +109,14 @@ class StudyDesignController extends Controller
         ]);
     }
 
-    public function assets(Study $study, StudyDesignSession $session): JsonResponse
+    public function assets(Request $request, Study $study, StudyDesignSession $session): JsonResponse
     {
         $this->authorizeSession($study, $session);
+        $versionId = $request->integer('version_id') ?: null;
 
         return response()->json([
             'data' => $session->assets()
+                ->when($versionId, fn ($query) => $query->where('version_id', $versionId))
                 ->with('reviewer:id,name,email')
                 ->orderByDesc('rank_score')
                 ->latest()
@@ -152,6 +175,21 @@ class StudyDesignController extends Controller
                 $file,
                 $request->user()->id,
             );
+        } catch (StudyDesignProtocolGateException $exception) {
+            Log::info('Study design protocol failed initial gates', [
+                'study_id' => $study->id,
+                'study_slug' => $study->slug,
+                'session_id' => $session->id,
+                'filename' => $file->getClientOriginalName(),
+                'issue_count' => count($exception->issues()),
+            ]);
+
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'gate' => 'initial_protocol_gate',
+                'issues' => $exception->issues(),
+                'summary' => $exception->summary(),
+            ], 422);
         } catch (\Throwable $exception) {
             Log::warning('Study design protocol import failed', [
                 'study_id' => $study->id,
@@ -220,6 +258,18 @@ class StudyDesignController extends Controller
                     'metadata' => $import['metadata'],
                 ];
             });
+        } catch (StudyDesignProtocolGateException $exception) {
+            Log::info('Study design protocol-to-study import failed initial gates', [
+                'filename' => $file->getClientOriginalName(),
+                'issue_count' => count($exception->issues()),
+            ]);
+
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'gate' => 'initial_protocol_gate',
+                'issues' => $exception->issues(),
+                'summary' => $exception->summary(),
+            ], 422);
         } catch (\Throwable $exception) {
             Log::warning('Study design protocol-to-study import failed', [
                 'filename' => $file->getClientOriginalName(),
@@ -353,24 +403,9 @@ class StudyDesignController extends Controller
         $this->authorizeVersion($study, $session, $version);
         $this->guardUnlocked($version);
 
-        $intent = $version->intent_json ?? [];
-        $asset = $this->createAsset($session, $version, [
-            'asset_type' => 'phenotype_recommendation',
-            'role' => 'population',
-            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
-            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
-            'rank_score' => 0.7,
-            'draft_payload_json' => [
-                'title' => $intent['pico']['population'] ?? $study->title,
-                'rationale' => 'Candidate phenotype generated from the accepted study intent. Review and verify against local cohort/concept evidence before materialization.',
-                'canonical_source_required' => true,
-            ],
-            'provenance_json' => ['source' => 'intent_phenotype_recommender'],
-        ]);
+        $assets = $this->phenotypeRecommendationService->recommend($session, $version, $request->user()->id);
 
-        $this->recordAiEvent($request, $session, $version, 'phenotype_recommendation', $intent, $asset->draft_payload_json ?? []);
-
-        return response()->json(['data' => [$asset]], 201);
+        return response()->json(['data' => $assets], 201);
     }
 
     public function draftConceptSets(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
@@ -394,23 +429,7 @@ class StudyDesignController extends Controller
             'drafts.*.concepts.*.include_mapped' => ['nullable', 'boolean'],
         ]);
 
-        $drafts = $validated['drafts'] ?? [[
-            'title' => ($version->intent_json['pico']['population'] ?? $study->title).' Concept Set',
-            'role' => $validated['role'] ?? 'population',
-            'domain' => 'Condition',
-            'clinical_rationale' => 'Seed draft generated from study intent; add verified OMOP concept IDs before materialization.',
-            'search_terms' => [$study->title],
-            'concepts' => [],
-        ]];
-
-        $assets = collect($drafts)->map(fn (array $draft) => $this->createAsset($session, $version, [
-            'asset_type' => 'concept_set_draft',
-            'role' => $draft['role'] ?? $validated['role'] ?? 'population',
-            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
-            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
-            'draft_payload_json' => $draft,
-            'provenance_json' => ['source' => 'study_design_concept_set_draft'],
-        ]))->values();
+        $assets = $this->conceptSetDraftService->draft($session, $version, $validated);
 
         return response()->json(['data' => $assets], 201);
     }
@@ -462,6 +481,12 @@ class StudyDesignController extends Controller
             'review_notes' => ['nullable', 'string', 'max:5000'],
         ]);
 
+        if ($validated['decision'] === 'accept' && $this->requiresVerifiedAcceptance($asset) && $this->verificationValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value) {
+            return response()->json([
+                'message' => 'Only deterministically verified Study Design assets can be accepted.',
+            ], 422);
+        }
+
         $asset->update([
             'status' => match ($validated['decision']) {
                 'accept' => StudyDesignAssetStatus::ACCEPTED->value,
@@ -474,6 +499,16 @@ class StudyDesignController extends Controller
         ]);
 
         return response()->json(['data' => $asset->fresh()]);
+    }
+
+    public function verifyConceptSetDrafts(Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
+    {
+        $this->authorizeVersion($study, $session, $version);
+        $this->guardUnlocked($version);
+
+        $assets = $this->conceptSetDraftService->verifyDrafts($session, $version);
+
+        return response()->json(['data' => $assets]);
     }
 
     public function verifyConceptSetDraft(Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
@@ -521,79 +556,18 @@ class StudyDesignController extends Controller
         $this->authorizeAsset($study, $session, $asset);
         $this->guardUnlocked($asset->version);
         $this->guardVerified($asset);
-
-        $payload = $asset->draft_payload_json ?? [];
-        $conceptSet = ConceptSet::create([
-            'name' => $payload['title'] ?? 'Study Designer Concept Set',
-            'description' => $payload['clinical_rationale'] ?? null,
-            'expression_json' => ['items' => $payload['concepts'] ?? [], 'source' => 'study_designer'],
-            'author_id' => $request->user()->id,
-            'is_public' => false,
-            'tags' => ['study-designer', $asset->role],
-        ]);
-
-        foreach (($payload['concepts'] ?? []) as $concept) {
-            ConceptSetItem::create([
-                'concept_set_id' => $conceptSet->id,
-                'concept_id' => $concept['concept_id'],
-                'is_excluded' => $concept['is_excluded'] ?? false,
-                'include_descendants' => $concept['include_descendants'] ?? true,
-                'include_mapped' => $concept['include_mapped'] ?? false,
-            ]);
-        }
-
-        $asset->update([
-            'status' => StudyDesignAssetStatus::ACCEPTED->value,
-            'materialized_type' => ConceptSet::class,
-            'materialized_id' => $conceptSet->id,
-            'materialized_at' => now(),
-        ]);
+        $this->guardAccepted($asset);
+        $conceptSet = $this->conceptSetMaterializer->materialize($asset, $request->user()->id);
 
         return response()->json(['data' => $asset->fresh(), 'materialized' => $conceptSet->load('items')], 201);
     }
 
-    public function draftCohorts(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
+    public function draftCohorts(DraftStudyCohortsRequest $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
     {
         $this->authorizeVersion($study, $session, $version);
         $this->guardUnlocked($version);
 
-        $validated = $request->validate([
-            'role' => ['nullable', 'string', 'max:80'],
-        ]);
-
-        $conceptAssets = $session->assets()
-            ->where('version_id', $version->id)
-            ->where('asset_type', 'concept_set_draft')
-            ->whereNotNull('materialized_id')
-            ->get();
-
-        $assets = $conceptAssets->map(fn (StudyDesignAsset $conceptAsset) => $this->createAsset($session, $version, [
-            'asset_type' => 'cohort_draft',
-            'role' => $validated['role'] ?? $conceptAsset->role ?? 'target',
-            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
-            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
-            'draft_payload_json' => [
-                'title' => ($conceptAsset->draft_payload_json['title'] ?? 'Study Designer').' Cohort',
-                'role' => $validated['role'] ?? $conceptAsset->role ?? 'target',
-                'concept_set_asset_ids' => [$conceptAsset->id],
-                'concept_set_ids' => [$conceptAsset->materialized_id],
-                'entry_event' => 'first qualifying event',
-                'exit_strategy' => 'event end or observation period end',
-            ],
-            'provenance_json' => ['source' => 'study_design_cohort_draft', 'concept_set_asset_id' => $conceptAsset->id],
-        ]))->values();
-
-        if ($assets->isEmpty()) {
-            $assets->push($this->createAsset($session, $version, [
-                'asset_type' => 'cohort_draft',
-                'role' => $validated['role'] ?? 'target',
-                'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
-                'verification_status' => StudyDesignVerificationStatus::BLOCKED->value,
-                'draft_payload_json' => ['title' => "{$study->title} Cohort", 'role' => $validated['role'] ?? 'target'],
-                'verification_json' => ['messages' => ['Materialized concept sets are required before cohort draft verification.']],
-                'provenance_json' => ['source' => 'study_design_cohort_draft'],
-            ]));
-        }
+        $assets = $this->cohortDraftService->draft($session, $version, $request->validated());
 
         return response()->json(['data' => $assets], 201);
     }
@@ -608,60 +582,58 @@ class StudyDesignController extends Controller
         return response()->json(['data' => $asset->fresh()]);
     }
 
+    public function updateCohortDraft(Request $request, Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
+    {
+        $this->authorizeAsset($study, $session, $asset);
+        $this->guardUnlocked($asset->version);
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'role' => ['nullable', 'string', 'max:80'],
+            'logic_description' => ['nullable', 'string', 'max:5000'],
+            'concept_set_ids' => ['nullable', 'array'],
+            'concept_set_ids.*' => ['integer'],
+            'concept_set_asset_ids' => ['nullable', 'array'],
+            'concept_set_asset_ids.*' => ['integer'],
+            'source_asset_ids' => ['nullable', 'array'],
+            'source_asset_ids.*' => ['integer'],
+            'entry_event' => ['nullable', 'array'],
+            'observation_window' => ['nullable', 'array'],
+            'inclusion_rules' => ['nullable', 'array'],
+            'censoring_criteria' => ['nullable', 'array'],
+            'exit_strategy' => ['nullable', 'string', 'max:5000'],
+            'collapse_settings' => ['nullable', 'array'],
+            'role_link' => ['nullable', 'array'],
+            'expression_json' => ['required', 'array'],
+        ]);
+
+        $asset->update([
+            'role' => $validated['role'] ?? $asset->role,
+            'draft_payload_json' => $validated,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
+            'verification_json' => null,
+            'verified_at' => null,
+        ]);
+
+        return response()->json(['data' => $asset->fresh()]);
+    }
+
     public function materializeCohortDraft(Request $request, Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
     {
         $this->authorizeAsset($study, $session, $asset);
         $this->guardUnlocked($asset->version);
-        $this->guardVerified($asset);
 
-        $payload = $asset->draft_payload_json ?? [];
-        $cohort = CohortDefinition::create([
-            'name' => $payload['title'] ?? 'Study Designer Cohort',
-            'description' => $payload['description'] ?? 'Materialized from Study Designer verified cohort draft.',
-            'expression_json' => [
-                'ConceptSets' => $payload['concept_set_ids'] ?? [],
-                'PrimaryCriteria' => ['CriteriaList' => []],
-                'source' => 'study_designer',
-            ],
-            'author_id' => $request->user()->id,
-            'is_public' => false,
-            'tags' => ['study-designer', $asset->role],
-        ]);
-
-        $asset->update([
-            'status' => StudyDesignAssetStatus::ACCEPTED->value,
-            'materialized_type' => CohortDefinition::class,
-            'materialized_id' => $cohort->id,
-            'materialized_at' => now(),
-        ]);
+        $cohort = $this->cohortMaterializer->materialize($asset, $request->user()->id);
 
         return response()->json(['data' => $asset->fresh(), 'materialized' => $cohort], 201);
     }
 
-    public function linkCohortDraft(Request $request, Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
+    public function linkCohortDraft(LinkStudyCohortRequest $request, Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
     {
         $this->authorizeAsset($study, $session, $asset);
         $this->guardUnlocked($asset->version);
 
-        if ($asset->materialized_type !== CohortDefinition::class || ! $asset->materialized_id) {
-            return response()->json(['message' => 'Materialize the cohort draft before linking it to the study.'], 422);
-        }
-
-        $validated = $request->validate([
-            'role' => ['nullable', 'string', 'max:80'],
-            'label' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-        ]);
-
-        $studyCohort = StudyCohort::create([
-            'study_id' => $study->id,
-            'cohort_definition_id' => $asset->materialized_id,
-            'role' => $validated['role'] ?? $asset->role ?? 'target',
-            'label' => $validated['label'] ?? ($asset->draft_payload_json['title'] ?? null),
-            'description' => $validated['description'] ?? null,
-            'concept_set_ids' => $asset->draft_payload_json['concept_set_ids'] ?? [],
-            'sort_order' => $study->cohorts()->max('sort_order') + 1,
-        ]);
+        $studyCohort = $this->cohortRoleLinker->link($study, $asset, $request->validated());
 
         return response()->json(['data' => $studyCohort->load('cohortDefinition')], 201);
     }
@@ -670,35 +642,38 @@ class StudyDesignController extends Controller
     {
         $this->authorizeVersion($study, $session, $version);
 
-        return response()->json(['data' => $this->readinessService->cohortReadiness($session, $version)]);
+        return response()->json(['data' => $this->cohortReadinessService->summarize($study, $session, $version)]);
     }
 
     public function runFeasibility(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
     {
         $this->authorizeVersion($study, $session, $version);
         $this->guardUnlocked($version);
-        $readiness = $this->readinessService->cohortReadiness($session, $version);
-        $blocked = ! $readiness['ready'];
-
-        $asset = $this->createAsset($session, $version, [
-            'asset_type' => 'feasibility_evidence',
-            'role' => 'feasibility',
-            'status' => StudyDesignAssetStatus::ACCEPTED->value,
-            'verification_status' => $blocked ? StudyDesignVerificationStatus::BLOCKED->value : StudyDesignVerificationStatus::VERIFIED->value,
-            'verified_at' => $blocked ? null : now(),
-            'draft_payload_json' => [
-                'source' => 'local_database',
-                'cohort_readiness' => $readiness,
-                'result' => $blocked ? 'blocked' : 'ready_for_network_feasibility',
-            ],
-            'verification_json' => [
-                'checks' => ['cohorts_ready' => $readiness['ready']],
-                'messages' => $blocked ? ['Verified materialized cohorts are required before feasibility evidence is ready.'] : [],
-            ],
-            'provenance_json' => ['source' => 'study_design_feasibility'],
+        $validated = $request->validate([
+            'source_ids' => ['required', 'array', 'min:1'],
+            'source_ids.*' => ['integer', 'exists:sources,id'],
+            'min_cell_count' => ['nullable', 'integer', 'min:1', 'max:1000'],
         ]);
 
-        return response()->json(['data' => $asset], 201);
+        $cohortReadiness = $this->cohortReadinessService->summarize($study, $session, $version);
+        if (($cohortReadiness['ready_for_feasibility'] ?? false) !== true) {
+            return response()->json([
+                'message' => 'Required study cohorts must be linked before source feasibility can run.',
+                'data' => [
+                    'cohorts' => $cohortReadiness,
+                ],
+            ], 422);
+        }
+
+        $result = $this->feasibilityService->run(
+            $study,
+            $session,
+            $version,
+            array_values(array_map('intval', $validated['source_ids'])),
+            (int) ($validated['min_cell_count'] ?? 5),
+        );
+
+        return response()->json(['data' => $result['asset'], 'result' => $result['result']], 201);
     }
 
     public function draftAnalysisPlans(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
@@ -707,86 +682,50 @@ class StudyDesignController extends Controller
         $this->guardUnlocked($version);
         $validated = $request->validate([
             'analysis_type' => ['nullable', 'string', 'max:80'],
+            'analysis_types' => ['nullable', 'array'],
+            'analysis_types.*' => ['string', 'max:80'],
+        ]);
+        $types = $validated['analysis_types'] ?? [];
+        if (($validated['analysis_type'] ?? null) !== null) {
+            $types[] = $validated['analysis_type'];
+        }
+
+        $assets = $this->analysisPlanService->draft($study, $session, $version, $request->user()->id, [
+            'analysis_types' => array_values(array_unique($types)),
         ]);
 
-        $asset = $this->createAsset($session, $version, [
-            'asset_type' => 'analysis_plan_draft',
-            'role' => 'analysis',
-            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
-            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
-            'draft_payload_json' => [
-                'analysis_type' => $validated['analysis_type'] ?? 'characterization',
-                'title' => "{$study->title} Analysis Plan",
-                'hades_package' => match ($validated['analysis_type'] ?? 'characterization') {
-                    'estimation', 'population_level_estimation' => 'PatientLevelPrediction',
-                    'incidence_rate' => 'IncidencePrevalence',
-                    default => 'FeatureExtraction',
-                },
-                'required_roles' => ['target'],
-            ],
-            'provenance_json' => ['source' => 'study_design_analysis_plan'],
-        ]);
-
-        return response()->json(['data' => [$asset]], 201);
+        return response()->json(['data' => $assets], 201);
     }
 
     public function verifyAnalysisPlanDraft(Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
     {
         $this->authorizeAsset($study, $session, $asset);
         $this->guardUnlocked($asset->version);
-        $readiness = $this->readinessService->cohortReadiness($session, $asset->version);
-        $blocked = ! $readiness['ready'];
 
-        $asset->update([
-            'verification_status' => $blocked ? StudyDesignVerificationStatus::BLOCKED->value : StudyDesignVerificationStatus::VERIFIED->value,
-            'verified_at' => $blocked ? null : now(),
-            'verification_json' => [
-                'checks' => [
-                    'cohorts_ready' => $readiness['ready'],
-                    'hades_manifest_named' => ! empty($asset->draft_payload_json['hades_package']),
-                ],
-                'messages' => $blocked ? ['Analysis plans require ready cohorts before materialization.'] : [],
-            ],
-        ]);
-
-        return response()->json(['data' => $asset->fresh()]);
+        return response()->json(['data' => $this->analysisPlanVerifier->verify($asset)]);
     }
 
     public function materializeAnalysisPlanDraft(Request $request, Study $study, StudyDesignSession $session, StudyDesignAsset $asset): JsonResponse
     {
         $this->authorizeAsset($study, $session, $asset);
         $this->guardUnlocked($asset->version);
-        $this->guardVerified($asset);
+        $materialized = $this->analysisPlanMaterializer->materialize($asset, $request->user()->id);
 
-        $payload = $asset->draft_payload_json ?? [];
-        $analysis = Characterization::create([
-            'name' => $payload['title'] ?? "{$study->title} Characterization",
-            'description' => 'Materialized from Study Designer verified HADES analysis plan.',
-            'design_json' => $payload,
-            'author_id' => $request->user()->id,
-        ]);
-
-        $studyAnalysis = StudyAnalysis::create([
-            'study_id' => $study->id,
-            'analysis_type' => Characterization::class,
-            'analysis_id' => $analysis->id,
-        ]);
-
-        $asset->update([
-            'status' => StudyDesignAssetStatus::ACCEPTED->value,
-            'materialized_type' => StudyAnalysis::class,
-            'materialized_id' => $studyAnalysis->id,
-            'materialized_at' => now(),
-        ]);
-
-        return response()->json(['data' => $asset->fresh(), 'materialized' => $studyAnalysis], 201);
+        return response()->json(['data' => $asset->fresh(), 'materialized' => $materialized], 201);
     }
 
     public function lockReadiness(Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
     {
         $this->authorizeVersion($study, $session, $version);
 
-        return response()->json(['data' => $this->readinessService->lockReadiness($study, $session, $version)]);
+        return response()->json(['data' => $this->lockService->readiness($study, $session, $version)]);
+    }
+
+    public function guidance(Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
+    {
+        $this->authorizeVersion($study, $session, $version);
+
+        return response()->json(['data' => $this->guidanceService->build($study, $session, $version)]);
     }
 
     public function lockVersion(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
@@ -794,55 +733,12 @@ class StudyDesignController extends Controller
         $this->authorizeVersion($study, $session, $version);
         $this->guardUnlocked($version);
 
-        $readiness = $this->readinessService->lockReadiness($study, $session, $version);
+        $readiness = $this->lockService->readiness($study, $session, $version);
         if (! $readiness['ready']) {
             return response()->json(['message' => 'Design package is not ready to lock.', 'data' => $readiness], 422);
         }
 
-        $manifest = [
-            'study' => ['id' => $study->id, 'slug' => $study->slug, 'title' => $study->title],
-            'session' => $session->only(['id', 'title', 'source_mode']),
-            'version' => $version->only(['id', 'version_number', 'intent_json', 'normalized_spec_json']),
-            'assets' => $session->assets()->where('version_id', $version->id)->get()->toArray(),
-            'locked_at' => now()->toISOString(),
-            'standards' => ['OMOP CDM', 'OHDSI ATLAS/Circe', 'HADES'],
-        ];
-        $json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $sha = hash('sha256', (string) $json);
-        $path = "study-packages/{$study->slug}/design-session-{$session->id}-version-{$version->id}.json";
-        Storage::disk('local')->put($path, (string) $json);
-
-        $artifact = StudyArtifact::create([
-            'study_id' => $study->id,
-            'artifact_type' => 'study_design_package',
-            'title' => "Study Design Package v{$version->version_number}",
-            'description' => 'Locked OHDSI-aligned Study Designer package manifest.',
-            'version' => (string) $version->version_number,
-            'file_path' => $path,
-            'file_size_bytes' => strlen((string) $json),
-            'mime_type' => 'application/json',
-            'url' => "/api/v1/studies/{$study->slug}/artifacts/{artifact}/download",
-            'metadata' => ['sha256' => $sha, 'version_id' => $version->id, 'session_id' => $session->id],
-            'uploaded_by' => $request->user()->id,
-            'is_current' => true,
-        ]);
-        $artifact->update(['url' => "/api/v1/studies/{$study->slug}/artifacts/{$artifact->id}/download"]);
-
-        $version->update([
-            'status' => 'locked',
-            'locked_at' => now(),
-            'provenance_json' => array_merge($version->provenance_json ?? [], [
-                'package_manifest_sha256' => $sha,
-                'package_artifact_id' => $artifact->id,
-            ]),
-        ]);
-        $session->update(['status' => 'locked', 'active_version_id' => $version->id]);
-
-        return response()->json([
-            'data' => $version->fresh(),
-            'package_artifact' => $artifact->fresh(),
-            'readiness' => $this->readinessService->lockReadiness($study, $session->fresh(), $version->fresh()),
-        ]);
+        return response()->json($this->lockService->lock($study, $session, $version, $request->user()->id));
     }
 
     private function initialProtocolStudyTitle(UploadedFile $file): string
@@ -965,6 +861,23 @@ class StudyDesignController extends Controller
         abort_if($this->verificationValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value, 422, 'Asset must be verified before materialization.');
     }
 
+    private function guardAccepted(StudyDesignAsset $asset): void
+    {
+        abort_if($this->assetStatusValue($asset) !== StudyDesignAssetStatus::ACCEPTED->value, 422, 'Asset must be accepted before materialization.');
+    }
+
+    private function requiresVerifiedAcceptance(StudyDesignAsset $asset): bool
+    {
+        return in_array($asset->asset_type, [
+            'phenotype_recommendation',
+            'local_cohort',
+            'local_concept_set',
+            'concept_set_draft',
+            'cohort_draft',
+            'analysis_plan',
+        ], true);
+    }
+
     private function isLocked(StudyDesignVersion $version): bool
     {
         return $version->status === 'locked' || $version->locked_at !== null;
@@ -1024,6 +937,13 @@ class StudyDesignController extends Controller
         $status = $asset->verification_status;
 
         return $status instanceof StudyDesignVerificationStatus ? $status->value : (string) $status;
+    }
+
+    private function assetStatusValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->status;
+
+        return $status instanceof StudyDesignAssetStatus ? $status->value : (string) $status;
     }
 
     private function critiqueFindings(Study $study, StudyDesignVersion $version): array

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type {
   StudyCreatePayload,
   StudyUpdatePayload,
@@ -58,8 +58,26 @@ import {
   importExistingStudyDesign,
   updateStudyDesignVersion,
   critiqueStudyDesignVersion,
+  recommendStudyPhenotypes,
+  draftStudyConceptSets,
+  verifyStudyConceptSetDraft,
+  verifyStudyConceptSetDrafts,
+  updateStudyConceptSetDraft,
+  materializeStudyConceptSetDraft,
+  reviewStudyDesignAsset,
+  draftStudyCohorts,
+  getStudyCohortReadiness,
+  verifyStudyCohortDraft,
+  updateStudyCohortDraft,
+  materializeStudyCohortDraft,
+  linkStudyCohortDraft,
+  runStudyFeasibility,
+  draftStudyAnalysisPlans,
+  verifyStudyAnalysisPlan,
+  materializeStudyAnalysisPlan,
   acceptStudyDesignVersion,
   getStudyDesignLockReadiness,
+  getStudyDesignGuidance,
   lockStudyDesignVersion,
 } from "../api/studyApi";
 
@@ -255,11 +273,19 @@ export function useStudyDesignVersions(slug: string | null, sessionId: number | 
   });
 }
 
-export function useStudyDesignAssets(slug: string | null, sessionId: number | null) {
+export function useStudyDesignAssets(slug: string | null, sessionId: number | null, params?: { version_id?: number }) {
   return useQuery({
-    queryKey: ["studies", slug, "design-sessions", sessionId, "assets"],
-    queryFn: () => listStudyDesignAssets(slug!, sessionId!),
+    queryKey: ["studies", slug, "design-sessions", sessionId, "assets", params],
+    queryFn: () => listStudyDesignAssets(slug!, sessionId!, params),
     enabled: slug != null && slug !== "" && sessionId != null,
+  });
+}
+
+export function useStudyCohortReadiness(slug: string | null, sessionId: number | null, versionId: number | null) {
+  return useQuery({
+    queryKey: ["studies", slug, "design-sessions", sessionId, "versions", versionId, "cohorts", "readiness"],
+    queryFn: () => getStudyCohortReadiness(slug!, sessionId!, versionId!),
+    enabled: slug != null && slug !== "" && sessionId != null && versionId != null,
   });
 }
 
@@ -269,6 +295,25 @@ export function useStudyDesignLockReadiness(slug: string | null, sessionId: numb
     queryFn: () => getStudyDesignLockReadiness(slug!, sessionId!, versionId!),
     enabled: slug != null && slug !== "" && sessionId != null && versionId != null,
   });
+}
+
+export function useStudyDesignGuidance(slug: string | null, sessionId: number | null, versionId: number | null) {
+  return useQuery({
+    queryKey: ["studies", slug, "design-sessions", sessionId, "versions", versionId, "guidance"],
+    queryFn: () => getStudyDesignGuidance(slug!, sessionId!, versionId!),
+    enabled: slug != null && slug !== "" && sessionId != null && versionId != null,
+  });
+}
+
+function invalidateStudyDesignCompiler(queryClient: QueryClient, slug: string, sessionId: number, versionId?: number) {
+  queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions"] });
+  queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "versions"] });
+  queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "assets"] });
+  if (versionId != null) {
+    queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "versions", versionId, "cohorts", "readiness"] });
+    queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "versions", versionId, "lock-readiness"] });
+    queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "versions", versionId, "guidance"] });
+  }
 }
 
 export function useCreateStudyDesignSession() {
@@ -288,11 +333,13 @@ export function useGenerateStudyDesignIntent() {
     mutationFn: ({ slug, sessionId, researchQuestion }: { slug: string; sessionId: number; researchQuestion: string }) =>
       generateStudyDesignIntent(slug, sessionId, researchQuestion),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
     },
   });
+}
+
+export function useGenerateStudyIntent() {
+  return useGenerateStudyDesignIntent();
 }
 
 export function useImportStudyDesignProtocol() {
@@ -301,9 +348,7 @@ export function useImportStudyDesignProtocol() {
     mutationFn: ({ slug, sessionId, file }: { slug: string; sessionId: number; file: File }) =>
       importStudyDesignProtocol(slug, sessionId, file),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
     },
   });
 }
@@ -327,9 +372,7 @@ export function useImportExistingStudyDesign() {
     mutationFn: ({ slug, sessionId }: { slug: string; sessionId: number }) =>
       importExistingStudyDesign(slug, sessionId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
     },
   });
 }
@@ -349,9 +392,7 @@ export function useUpdateStudyDesignVersion() {
       payload: Parameters<typeof updateStudyDesignVersion>[3];
     }) => updateStudyDesignVersion(slug, sessionId, versionId, payload),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions", variables.versionId, "lock-readiness"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
     },
   });
 }
@@ -362,7 +403,268 @@ export function useCritiqueStudyDesignVersion() {
     mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
       critiqueStudyDesignVersion(slug, sessionId, versionId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "assets"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useRecommendStudyPhenotypes() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
+      recommendStudyPhenotypes(slug, sessionId, versionId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useDraftStudyConceptSets() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      payload?: Parameters<typeof draftStudyConceptSets>[3];
+    }) => draftStudyConceptSets(slug, sessionId, versionId, payload),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useVerifyStudyConceptSetDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      verifyStudyConceptSetDraft(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useVerifyStudyConceptSetDrafts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
+      verifyStudyConceptSetDrafts(slug, sessionId, versionId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useUpdateStudyConceptSetDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      assetId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      assetId: number;
+      payload: Record<string, unknown>;
+    }) => updateStudyConceptSetDraft(slug, sessionId, assetId, payload),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useMaterializeStudyConceptSetDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      materializeStudyConceptSetDraft(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useReviewStudyDesignAsset() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      assetId,
+      decision,
+      reviewNotes,
+    }: {
+      slug: string;
+      sessionId: number;
+      assetId: number;
+      decision: "accept" | "reject" | "defer";
+      reviewNotes?: string | null;
+    }) => reviewStudyDesignAsset(slug, sessionId, assetId, {
+      decision,
+      review_notes: reviewNotes,
+    }),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useDraftStudyCohorts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      payload?: Parameters<typeof draftStudyCohorts>[3];
+    }) => draftStudyCohorts(slug, sessionId, versionId, payload),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useVerifyStudyCohortDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      verifyStudyCohortDraft(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useUpdateStudyCohortDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      assetId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      assetId: number;
+      payload: Record<string, unknown>;
+    }) => updateStudyCohortDraft(slug, sessionId, assetId, payload),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useMaterializeStudyCohortDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      materializeStudyCohortDraft(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "cohorts"] });
+    },
+  });
+}
+
+export function useLinkStudyCohortDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      assetId,
+      role,
+    }: {
+      slug: string;
+      sessionId: number;
+      assetId: number;
+      role?: string;
+    }) => linkStudyCohortDraft(slug, sessionId, assetId, { role }),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "cohorts"] });
+    },
+  });
+}
+
+export function useRunStudyFeasibility() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      sourceIds,
+      minCellCount,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      sourceIds: number[];
+      minCellCount: number;
+    }) => runStudyFeasibility(slug, sessionId, versionId, {
+      source_ids: sourceIds,
+      min_cell_count: minCellCount,
+    }),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useDraftStudyAnalysisPlans() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      payload,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      payload?: Parameters<typeof draftStudyAnalysisPlans>[3];
+    }) => draftStudyAnalysisPlans(slug, sessionId, versionId, payload),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
+    },
+  });
+}
+
+export function useVerifyStudyAnalysisPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      verifyStudyAnalysisPlan(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+    },
+  });
+}
+
+export function useMaterializeStudyAnalysisPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, sessionId, assetId }: { slug: string; sessionId: number; assetId: number }) =>
+      materializeStudyAnalysisPlan(slug, sessionId, assetId),
+    onSuccess: (_data, variables) => {
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);
+      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "analyses"] });
     },
   });
 }
@@ -373,9 +675,7 @@ export function useAcceptStudyDesignVersion() {
     mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
       acceptStudyDesignVersion(slug, sessionId, versionId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions", variables.versionId, "lock-readiness"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
     },
   });
 }
@@ -386,10 +686,8 @@ export function useLockStudyDesignVersion() {
     mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
       lockStudyDesignVersion(slug, sessionId, versionId),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions"] });
+      invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "artifacts"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions"] });
-      queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "design-sessions", variables.sessionId, "versions", variables.versionId, "lock-readiness"] });
     },
   });
 }

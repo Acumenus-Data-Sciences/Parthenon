@@ -4,14 +4,12 @@ namespace App\Services\StudyDesign;
 
 use App\Enums\StudyDesignAssetStatus;
 use App\Enums\StudyDesignVerificationStatus;
-use App\Models\App\AiProviderSetting;
 use App\Models\App\Study;
 use App\Models\App\StudyDesignAiEvent;
 use App\Models\App\StudyDesignSession;
 use App\Models\App\StudyDesignVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\AbstractElement;
 use PhpOffice\PhpWord\Element\ListItem;
@@ -23,6 +21,54 @@ use Symfony\Component\Process\Process;
 class StudyDesignProtocolImportService
 {
     private const MAX_PROTOCOL_CHARS = 80000;
+
+    private const PROTOCOL_SOURCE = 'protocol_upload_abby';
+
+    private const ANALYSIS_PACKAGES = [
+        'characterization' => ['package' => 'Characterization', 'endpoint' => '/characterization/run', 'label' => 'Baseline Characterization'],
+        'incidence_rate' => ['package' => 'CohortIncidence', 'endpoint' => '/cohort-incidence/run', 'label' => 'Incidence Rate'],
+        'pathway' => ['package' => 'TreatmentPatterns', 'endpoint' => '/treatment-patterns/run', 'label' => 'Treatment Pathways'],
+        'estimation' => ['package' => 'CohortMethod', 'endpoint' => '/estimation/run', 'label' => 'Population-Level Estimation'],
+        'prediction' => ['package' => 'PatientLevelPrediction', 'endpoint' => '/prediction/run', 'label' => 'Patient-Level Prediction'],
+        'sccs' => ['package' => 'SelfControlledCaseSeries', 'endpoint' => '/sccs/run', 'label' => 'Self-Controlled Case Series'],
+        'self_controlled_cohort' => ['package' => 'SelfControlledCohort', 'endpoint' => '/self-controlled-cohort/run', 'label' => 'Self-Controlled Cohort'],
+        'evidence_synthesis' => ['package' => 'EvidenceSynthesis', 'endpoint' => '/evidence-synthesis/run', 'label' => 'Evidence Synthesis'],
+    ];
+
+    private const ANALYSIS_ALIASES = [
+        'baseline_characterization' => 'characterization',
+        'characterisation' => 'characterization',
+        'cohort_characterization' => 'characterization',
+        'cohortincidence' => 'incidence_rate',
+        'cohort_incidence' => 'incidence_rate',
+        'incidence' => 'incidence_rate',
+        'incidenceprevalence' => 'incidence_rate',
+        'prevalence' => 'incidence_rate',
+        'treatment_pathway' => 'pathway',
+        'treatment_pathways' => 'pathway',
+        'treatmentpatterns' => 'pathway',
+        'comparative_effectiveness' => 'estimation',
+        'cohort_method' => 'estimation',
+        'cohortmethod' => 'estimation',
+        'effect_estimation' => 'estimation',
+        'population_level_estimation' => 'estimation',
+        'patient_level_prediction' => 'prediction',
+        'plp' => 'prediction',
+        'risk_prediction' => 'prediction',
+        'self_controlled_case_series' => 'sccs',
+        'self-controlled_case_series' => 'sccs',
+        'selfcontrolledcaseseries' => 'sccs',
+        'scc' => 'self_controlled_cohort',
+        'self-controlled_cohort' => 'self_controlled_cohort',
+        'selfcontrolledcohort' => 'self_controlled_cohort',
+        'evidencesynthesis' => 'evidence_synthesis',
+        'meta_analysis' => 'evidence_synthesis',
+        'network_meta_analysis' => 'evidence_synthesis',
+    ];
+
+    public function __construct(
+        private readonly StudyDesignAbbyOrchestrator $abbyOrchestrator,
+    ) {}
 
     /**
      * @return array{version: StudyDesignVersion, extracted: array<string, mixed>, metadata: array<string, mixed>}
@@ -43,14 +89,20 @@ class StudyDesignProtocolImportService
         $metadata['text_length'] = strlen($text);
         $metadata['truncated_for_ai'] = $truncated;
 
-        $anthropic = $this->anthropicSettings();
-        $model = $anthropic['model'];
-        $extracted = $this->callClaude($study, $promptText, $metadata, $anthropic['api_key'], $model);
+        $evaluation = $this->abbyOrchestrator->evaluateProtocol($study, $promptText, $metadata);
+        $model = (string) $evaluation['model'];
+        $provenance = $this->abbyOrchestrator->protocolProvenance($evaluation, $metadata);
+        /** @var array<string, mixed> $extracted */
+        $extracted = $evaluation['extracted'];
         $intent = $this->toIntent($study, $extracted, $metadata);
         $normalizedSpec = $this->toNormalizedSpec($study, $intent, $extracted, $metadata);
-        $status = $this->isReviewReady($intent) ? 'review_ready' : 'draft';
+        $normalizedSpec = $this->abbyOrchestrator->validateDraftAssetInputs($normalizedSpec);
+        $initialGate = $this->initialGate($intent, $extracted, $metadata);
+        $intent['initial_gate'] = $initialGate;
+        $normalizedSpec['initial_gate'] = $initialGate;
+        $status = $this->isReviewReady($intent) && ($initialGate['status'] ?? null) === 'ready' ? 'review_ready' : 'draft';
 
-        $version = DB::transaction(function () use ($session, $userId, $intent, $normalizedSpec, $metadata, $extracted, $model, $status): StudyDesignVersion {
+        $version = DB::transaction(function () use ($session, $userId, $intent, $normalizedSpec, $metadata, $extracted, $model, $status, $provenance, $evaluation): StudyDesignVersion {
             $versionNumber = ((int) $session->versions()->max('version_number')) + 1;
 
             /** @var StudyDesignVersion $version */
@@ -59,14 +111,7 @@ class StudyDesignProtocolImportService
                 'status' => $status,
                 'intent_json' => $intent,
                 'normalized_spec_json' => $normalizedSpec,
-                'provenance_json' => [
-                    'source' => 'protocol_upload_claude',
-                    'provider' => 'anthropic',
-                    'model' => $model,
-                    'requires_human_review' => true,
-                    'created_at' => now()->toISOString(),
-                    'protocol_file' => $metadata,
-                ],
+                'provenance_json' => $provenance,
             ]);
 
             $session->update([
@@ -87,32 +132,27 @@ class StudyDesignProtocolImportService
                 'event_type' => 'protocol_import',
                 'provider' => 'anthropic',
                 'model' => $model,
-                'prompt_sha256' => hash('sha256', 'study-design-protocol-v1'.$metadata['text_sha256']),
-                'input_json' => [
-                    'protocol_file' => $metadata,
-                    'raw_protocol_text_stored' => false,
-                ],
+                'prompt_sha256' => hash('sha256', StudyDesignAbbyOrchestrator::PROTOCOL_PROMPT_VERSION.$metadata['text_sha256']),
+                'input_json' => $this->abbyOrchestrator->protocolAiEventInput($evaluation, $metadata),
                 'output_json' => [
                     'extracted' => $extracted,
                     'intent' => $intent,
                     'normalized_spec' => $normalizedSpec,
                 ],
-                'safety_json' => [
-                    'requires_human_review' => true,
-                    'raw_document_not_persisted' => true,
-                    'no_omop_concept_ids_requested' => true,
-                ],
+                'safety_json' => $this->abbyOrchestrator->protocolSafetyFlags(),
                 'created_by' => $userId,
             ]);
 
-            foreach ($this->draftAssets($extracted) as $asset) {
+            foreach ($this->draftAssets($normalizedSpec) as $asset) {
                 $session->assets()->create(array_merge([
                     'version_id' => $version->id,
                     'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
                     'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
                     'provenance_json' => [
-                        'source' => 'protocol_upload_claude',
-                        'provider' => 'anthropic',
+                        'source' => self::PROTOCOL_SOURCE,
+                        'orchestrator' => 'abby',
+                        'evaluator_provider' => 'anthropic',
+                        'evaluator_model' => $model,
                         'version_id' => $version->id,
                     ],
                 ], $asset));
@@ -277,263 +317,6 @@ class StudyDesignProtocolImportService
     }
 
     /**
-     * @return array{api_key: string, model: string}
-     */
-    private function anthropicSettings(): array
-    {
-        $provider = AiProviderSetting::query()
-            ->where('provider_type', 'anthropic')
-            ->where('is_enabled', true)
-            ->orderByDesc('is_active')
-            ->first();
-
-        /** @var array<string, string> $providerSettings */
-        $providerSettings = $provider?->settings ?? [];
-
-        $apiKey = trim((string) ($providerSettings['api_key'] ?? ''));
-        if ($apiKey === '') {
-            $apiKey = trim((string) config('services.anthropic.key'));
-        }
-
-        if ($apiKey === '') {
-            throw new RuntimeException('Anthropic API key is not configured. Add it in System Health > AI Providers.');
-        }
-
-        $model = trim((string) ($provider?->model ?? ''));
-        if ($model === '') {
-            $model = trim((string) config('services.anthropic.model', 'claude-opus-4-7'));
-        }
-
-        return [
-            'api_key' => $apiKey,
-            'model' => $model !== '' ? $model : 'claude-opus-4-7',
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $metadata
-     * @return array<string, mixed>
-     */
-    private function callClaude(Study $study, string $protocolText, array $metadata, string $apiKey, string $model): array
-    {
-        $system = <<<'PROMPT'
-You evaluate observational health research protocols for an OHDSI/OMOP Study Designer.
-Use the extract_protocol tool with only values supported by the protocol.
-Extract only values supported by the protocol. Use empty strings or empty arrays when absent.
-Do not invent OMOP concept IDs, cohort IDs, or analysis IDs.
-PROMPT;
-
-        $response = Http::timeout((int) config('services.anthropic.timeout', 120))
-            ->withHeaders([
-                'x-api-key' => $apiKey,
-                'anthropic-version' => '2023-06-01',
-                'content-type' => 'application/json',
-            ])
-            ->post('https://api.anthropic.com/v1/messages', [
-                'model' => $model,
-                'max_tokens' => 3000,
-                'system' => $system,
-                'tools' => [$this->protocolExtractionTool()],
-                'tool_choice' => [
-                    'type' => 'tool',
-                    'name' => 'extract_protocol',
-                ],
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => json_encode([
-                            'study' => [
-                                'title' => $study->title,
-                                'study_type' => $study->study_type,
-                                'study_design' => $study->study_design,
-                                'primary_objective' => $study->primary_objective,
-                            ],
-                            'protocol_file' => [
-                                'filename' => $metadata['filename'],
-                                'extension' => $metadata['extension'],
-                                'truncated_for_ai' => $metadata['truncated_for_ai'] ?? false,
-                            ],
-                            'protocol_text' => $protocolText,
-                        ], JSON_THROW_ON_ERROR),
-                    ],
-                ],
-            ]);
-
-        if ($response->failed()) {
-            $message = $response->json('error.message');
-            if (! is_string($message) || $message === '') {
-                $message = $response->body();
-            }
-
-            throw new RuntimeException('Anthropic protocol evaluation returned HTTP '.$response->status().': '.$message);
-        }
-
-        $toolInput = $this->decodeToolInput($response->json('content'));
-        if ($toolInput !== []) {
-            return $toolInput;
-        }
-
-        $content = $response->json('content.0.text');
-        if (! is_string($content) || trim($content) === '') {
-            throw new RuntimeException('Anthropic protocol evaluation did not return protocol extraction data.');
-        }
-
-        $decoded = $this->decodeJsonContent($content);
-        if ($decoded === []) {
-            throw new RuntimeException('Anthropic protocol evaluation did not return usable JSON.');
-        }
-
-        return $decoded;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function protocolExtractionTool(): array
-    {
-        $text = ['type' => 'string'];
-        $stringList = ['type' => 'array', 'items' => $text];
-
-        return [
-            'name' => 'extract_protocol',
-            'description' => 'Extract OHDSI/OMOP Study Designer fields from an observational health research protocol.',
-            'input_schema' => [
-                'type' => 'object',
-                'properties' => [
-                    'research_question' => $text,
-                    'primary_objective' => $text,
-                    'population' => $text,
-                    'exposure' => $text,
-                    'comparator' => $text,
-                    'outcome' => $text,
-                    'time_at_risk' => $text,
-                    'study_type' => $text,
-                    'study_design' => $text,
-                    'hypothesis' => $text,
-                    'scientific_rationale' => $text,
-                    'concept_set_drafts' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'title' => $text,
-                                'role' => $text,
-                                'domain' => $text,
-                                'clinical_rationale' => $text,
-                                'search_terms' => $stringList,
-                            ],
-                        ],
-                    ],
-                    'cohort_definition_drafts' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'title' => $text,
-                                'role' => $text,
-                                'description' => $text,
-                                'entry_event' => $text,
-                                'exit_strategy' => $text,
-                            ],
-                        ],
-                    ],
-                    'analysis_plan' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'title' => $text,
-                                'analysis_type' => $text,
-                                'hades_package' => $text,
-                                'rationale' => $text,
-                            ],
-                        ],
-                    ],
-                    'feasibility_plan' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'summary' => $text,
-                            'minimum_cell_count' => ['type' => ['integer', 'null']],
-                            'source_requirements' => $stringList,
-                        ],
-                    ],
-                    'validation_plan' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'summary' => $text,
-                            'checks' => $stringList,
-                        ],
-                    ],
-                    'publication_plan' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'summary' => $text,
-                            'outputs' => $stringList,
-                        ],
-                    ],
-                    'open_questions' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'field' => $text,
-                                'question' => $text,
-                                'severity' => $text,
-                            ],
-                        ],
-                    ],
-                    'risk_notes' => $stringList,
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decodeToolInput(mixed $content): array
-    {
-        if (! is_array($content)) {
-            return [];
-        }
-
-        foreach ($content as $block) {
-            if (
-                is_array($block)
-                && ($block['type'] ?? null) === 'tool_use'
-                && ($block['name'] ?? null) === 'extract_protocol'
-                && isset($block['input'])
-                && is_array($block['input'])
-            ) {
-                return $block['input'];
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decodeJsonContent(string $content): array
-    {
-        $content = trim($content);
-        $decoded = json_decode($content, true);
-
-        if (is_array($decoded)) {
-            return $decoded;
-        }
-
-        if (preg_match('/\{.*\}/s', $content, $matches) === 1) {
-            $decoded = json_decode($matches[0], true);
-
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return [];
-    }
-
-    /**
      * @param  array<string, mixed>  $extracted
      * @param  array<string, mixed>  $metadata
      * @return array<string, mixed>
@@ -561,6 +344,11 @@ PROMPT;
             ],
             'open_questions' => $this->list($extracted['open_questions'] ?? []),
             'risk_notes' => $this->list($extracted['risk_notes'] ?? []),
+            'initial_gate' => $this->object($extracted['initial_gate'] ?? []),
+            'evidence_spans' => $this->objectList($extracted['evidence_spans'] ?? []),
+            'confidence' => $this->object($extracted['confidence'] ?? []),
+            'uncertainty' => $this->objectList($extracted['uncertainty'] ?? []),
+            'design_assumptions' => $this->objectList($extracted['design_assumptions'] ?? []),
             'known_gaps' => ['Protocol-derived fields require ratification before downstream materialization.'],
             'protocol_import' => [
                 'filename' => $metadata['filename'],
@@ -579,6 +367,7 @@ PROMPT;
     private function toNormalizedSpec(Study $study, array $intent, array $extracted, array $metadata): array
     {
         $pico = $intent['pico'];
+        $analysisPlans = $this->analysisPlans($study, $intent, $extracted);
 
         return [
             'schema_version' => '1.0',
@@ -596,12 +385,17 @@ PROMPT;
             'pico' => $pico,
             'concept_set_drafts' => $this->list($extracted['concept_set_drafts'] ?? []),
             'cohort_definition_drafts' => $this->list($extracted['cohort_definition_drafts'] ?? []),
-            'analysis_plan' => $this->list($extracted['analysis_plan'] ?? []),
+            'analysis_plan' => $analysisPlans,
             'feasibility_plan' => $this->object($extracted['feasibility_plan'] ?? []),
             'validation_plan' => $this->object($extracted['validation_plan'] ?? []),
             'publication_plan' => $this->object($extracted['publication_plan'] ?? []),
             'open_questions' => $intent['open_questions'],
             'risk_notes' => $intent['risk_notes'],
+            'initial_gate' => $this->object($extracted['initial_gate'] ?? []),
+            'evidence_spans' => $intent['evidence_spans'],
+            'confidence' => $intent['confidence'],
+            'uncertainty' => $intent['uncertainty'],
+            'design_assumptions' => $intent['design_assumptions'],
             'protocol_import' => [
                 'filename' => $metadata['filename'],
                 'mime_type' => $metadata['mime_type'],
@@ -634,6 +428,7 @@ PROMPT;
                     'domain' => $this->text($draft['domain'] ?? ''),
                     'clinical_rationale' => $this->text($draft['clinical_rationale'] ?? ''),
                     'search_terms' => $this->stringList($draft['search_terms'] ?? []),
+                    'evidence_spans' => $this->objectList($draft['evidence_spans'] ?? []),
                     'concepts' => [],
                 ],
             ];
@@ -652,6 +447,7 @@ PROMPT;
                     'description' => $this->text($draft['description'] ?? ''),
                     'entry_event' => $this->text($draft['entry_event'] ?? ''),
                     'exit_strategy' => $this->text($draft['exit_strategy'] ?? ''),
+                    'evidence_spans' => $this->objectList($draft['evidence_spans'] ?? []),
                 ],
             ];
         }
@@ -661,19 +457,510 @@ PROMPT;
                 continue;
             }
             $assets[] = [
-                'asset_type' => 'analysis_plan_draft',
-                'role' => 'analysis',
+                'asset_type' => 'analysis_plan',
+                'role' => null,
                 'draft_payload_json' => [
-                    'title' => $this->text($plan['title'] ?? '') ?: 'Protocol analysis plan',
+                    ...$plan,
+                    'evidence_spans' => $this->objectList($plan['evidence_spans'] ?? []),
+                    'schema_version' => $this->text($plan['schema_version'] ?? '') ?: 'study-analysis-plan.v1',
+                ],
+                'rank_score' => $this->analysisRankScore($plan),
+                'rank_score_json' => [
                     'analysis_type' => $this->text($plan['analysis_type'] ?? '') ?: 'characterization',
-                    'hades_package' => $this->text($plan['hades_package'] ?? ''),
-                    'rationale' => $this->text($plan['rationale'] ?? ''),
-                    'required_roles' => ['target'],
+                    'source' => self::PROTOCOL_SOURCE,
+                    'requires_feasibility' => true,
                 ],
             ];
         }
 
         return $assets;
+    }
+
+    /**
+     * @param  array<string, mixed>  $intent
+     * @param  array<string, mixed>  $extracted
+     * @return list<array<string, mixed>>
+     */
+    private function analysisPlans(Study $study, array $intent, array $extracted): array
+    {
+        $pico = is_array($intent['pico'] ?? null) ? $intent['pico'] : [];
+        $studyType = strtolower($this->text($extracted['study_type'] ?? '') ?: $this->text($study->study_type ?? ''));
+        $provided = [];
+
+        foreach ($this->list($extracted['analysis_plan'] ?? []) as $plan) {
+            if (! is_array($plan)) {
+                continue;
+            }
+
+            $type = $this->normalizeAnalysisType(
+                $this->text($plan['analysis_type'] ?? ''),
+                $this->text($plan['hades_package'] ?? ''),
+            );
+            $provided[$type] ??= $plan;
+        }
+
+        $types = array_values(array_unique(array_merge(
+            ['characterization'],
+            array_keys($provided),
+            $this->recommendedAnalysisTypes($studyType, $pico),
+        )));
+
+        return array_values(array_map(
+            fn (string $type): array => $this->analysisPlanPayload($type, $study, $pico, $provided[$type] ?? []),
+            $types,
+        ));
+    }
+
+    /**
+     * @param  array<string, mixed>  $pico
+     * @param  array<string, mixed>  $plan
+     * @return array<string, mixed>
+     */
+    private function analysisPlanPayload(string $analysisType, Study $study, array $pico, array $plan): array
+    {
+        $meta = self::ANALYSIS_PACKAGES[$analysisType] ?? self::ANALYSIS_PACKAGES['characterization'];
+        $package = $meta['package'];
+        $description = $this->text($plan['description'] ?? '')
+            ?: $this->text($plan['design_summary'] ?? '')
+            ?: $this->text($plan['rationale'] ?? '')
+            ?: $this->analysisDescription($analysisType, $pico);
+        $designJson = $this->object($plan['design_json'] ?? []);
+
+        return [
+            'schema_version' => 'study-analysis-plan.v1',
+            'title' => $this->text($plan['title'] ?? '') ?: "{$study->title}: {$meta['label']}",
+            'analysis_type' => $analysisType,
+            'description' => $description,
+            'rationale' => $this->text($plan['rationale'] ?? '') ?: $description,
+            'hades_package' => $package,
+            'hades_endpoint' => $meta['endpoint'],
+            'hades_capability' => [
+                'package' => $package,
+                'installed' => false,
+                'status' => 'pending_hades_inventory',
+            ],
+            'required_roles' => $this->analysisRequiredRoles($analysisType, $plan),
+            'cohort_role_map' => [],
+            'design_json' => $designJson !== [] ? $designJson : $this->protocolDesignJson($analysisType, $pico, $plan),
+            'evidence_spans' => $this->objectList($plan['evidence_spans'] ?? []),
+            'feasibility' => [
+                'status' => null,
+                'ready_source_count' => 0,
+                'source_count' => 0,
+                'ran_at' => null,
+            ],
+            'blockers' => [
+                $this->analysisIssue('missing_feasibility', 'Run source feasibility before materializing this protocol-derived analysis plan.'),
+            ],
+            'warnings' => [
+                $this->analysisIssue('requires_human_review', 'Protocol-derived analysis settings require Study Designer review before execution.'),
+            ],
+            'materialization_target' => 'native_'.$analysisType.'_analysis',
+            'policy' => 'Protocol-derived analysis plans compile into native Parthenon analysis records after feasibility, verification, and review.',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $pico
+     * @return list<string>
+     */
+    private function recommendedAnalysisTypes(string $studyType, array $pico): array
+    {
+        $types = [];
+        $hasComparator = $this->text($pico['comparator'] ?? '') !== '';
+        $hasOutcome = $this->text($pico['outcome'] ?? '') !== '';
+        $studyText = strtolower($studyType.' '.$this->text($pico['time_at_risk'] ?? ''));
+
+        if ($hasComparator && $hasOutcome || str_contains($studyText, 'comparative') || str_contains($studyText, 'effect')) {
+            $types[] = 'estimation';
+        }
+
+        if ($hasOutcome && (str_contains($studyText, 'prediction') || str_contains($studyText, 'risk model'))) {
+            $types[] = 'prediction';
+        }
+
+        if (str_contains($studyText, 'incidence') || str_contains($studyText, 'prevalence')) {
+            $types[] = 'incidence_rate';
+        }
+
+        if (str_contains($studyText, 'pathway') || str_contains($studyText, 'sequence')) {
+            $types[] = 'pathway';
+        }
+
+        if ($hasOutcome && (str_contains($studyText, 'self-controlled') || str_contains($studyText, 'sccs') || str_contains($studyText, 'safety'))) {
+            $types[] = 'sccs';
+        }
+
+        if (str_contains($studyText, 'evidence synthesis') || str_contains($studyText, 'meta-analysis') || str_contains($studyText, 'network')) {
+            $types[] = 'evidence_synthesis';
+        }
+
+        return array_values(array_unique($types));
+    }
+
+    private function normalizeAnalysisType(string $type, string $package = ''): string
+    {
+        $key = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '_', $type) ?? '', '_'));
+        if (isset(self::ANALYSIS_PACKAGES[$key])) {
+            return $key;
+        }
+        if (isset(self::ANALYSIS_ALIASES[$key])) {
+            return self::ANALYSIS_ALIASES[$key];
+        }
+
+        return match (strtolower(trim($package))) {
+            'characterization', 'featureextraction' => 'characterization',
+            'cohortincidence', 'incidenceprevalence' => 'incidence_rate',
+            'treatmentpatterns' => 'pathway',
+            'cohortmethod' => 'estimation',
+            'patientlevelprediction' => 'prediction',
+            'selfcontrolledcaseseries' => 'sccs',
+            'selfcontrolledcohort' => 'self_controlled_cohort',
+            'evidencesynthesis' => 'evidence_synthesis',
+            default => 'characterization',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $plan
+     * @return list<string>
+     */
+    private function analysisRequiredRoles(string $analysisType, array $plan): array
+    {
+        $provided = $this->stringList($plan['required_roles'] ?? []);
+        if ($provided !== []) {
+            return $provided;
+        }
+
+        return match ($analysisType) {
+            'estimation' => ['target', 'comparator', 'outcome'],
+            'prediction', 'sccs', 'self_controlled_cohort', 'incidence_rate' => ['target', 'outcome'],
+            'pathway' => ['target', 'comparator'],
+            default => ['target'],
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $pico
+     */
+    private function analysisDescription(string $analysisType, array $pico): string
+    {
+        $outcome = $this->text($pico['outcome'] ?? '');
+        $comparator = $this->text($pico['comparator'] ?? '');
+
+        return match ($analysisType) {
+            'estimation' => 'Estimate the target-comparator effect'.($outcome !== '' ? " on {$outcome}" : '').' with CohortMethod.',
+            'prediction' => 'Train and evaluate patient-level risk prediction models'.($outcome !== '' ? " for {$outcome}" : '').'.',
+            'incidence_rate' => 'Estimate incidence or prevalence for protocol-defined cohorts across selected sources.',
+            'pathway' => 'Describe treatment sequence patterns'.($comparator !== '' ? " including {$comparator}" : '').'.',
+            'sccs' => 'Evaluate self-controlled exposure-outcome association windows with SCCS.',
+            'self_controlled_cohort' => 'Evaluate self-controlled cohort risk windows for protocol-defined exposure and outcome cohorts.',
+            'evidence_synthesis' => 'Prepare multi-source estimates for evidence synthesis.',
+            default => 'Describe baseline covariates and cohort characteristics before inferential analysis.',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $pico
+     * @param  array<string, mixed>  $plan
+     * @return array<string, mixed>
+     */
+    private function protocolDesignJson(string $analysisType, array $pico, array $plan): array
+    {
+        $base = [
+            'source' => self::PROTOCOL_SOURCE,
+            'protocol_fields' => [
+                'population' => $this->text($pico['population'] ?? ''),
+                'exposure' => $this->text($pico['intervention'] ?? ''),
+                'comparator' => $this->text($pico['comparator'] ?? ''),
+                'outcome' => $this->text($pico['outcome'] ?? ''),
+                'time_at_risk' => $this->text($plan['time_at_risk'] ?? '') ?: $this->text($pico['time_at_risk'] ?? ''),
+            ],
+            'covariates' => $this->stringList($plan['covariates'] ?? []),
+            'stratifications' => $this->stringList($plan['stratifications'] ?? []),
+            'sensitivity_analyses' => $this->stringList($plan['sensitivity_analyses'] ?? []),
+        ];
+
+        return $base + match ($analysisType) {
+            'estimation' => [
+                'estimand' => $this->text($plan['estimand'] ?? '') ?: 'comparative effect estimate',
+                'model' => ['type' => 'cox', 'timeAtRiskStart' => 1, 'timeAtRiskEnd' => 365, 'endAnchor' => 'cohort_start'],
+                'propensityScore' => ['enabled' => true, 'method' => 'matching'],
+                'negative_controls' => $this->stringList($plan['negative_controls'] ?? []),
+            ],
+            'prediction' => [
+                'model' => ['type' => 'lasso_logistic_regression'],
+                'timeAtRisk' => ['start' => 1, 'end' => 365, 'endAnchor' => 'cohort_start'],
+                'populationSettings' => ['washoutPeriod' => 365, 'removeSubjectsWithPriorOutcome' => true],
+            ],
+            'incidence_rate' => [
+                'timeAtRisk' => ['start' => 1, 'end' => 365],
+                'stratified' => true,
+            ],
+            'pathway' => [
+                'periodPriorToIndex' => 0,
+                'minEraDuration' => 0,
+            ],
+            'sccs' => [
+                'riskWindows' => [['start' => 1, 'end' => 30, 'label' => 'primary']],
+                'controlInterval' => ['start' => -365, 'end' => -1],
+            ],
+            'self_controlled_cohort' => [
+                'riskWindows' => [['start' => 1, 'end' => 30, 'label' => 'primary']],
+            ],
+            'evidence_synthesis' => [
+                'method' => 'random_effects',
+                'input' => 'study_level_estimates',
+            ],
+            default => [
+                'featureTypes' => ['demographics', 'conditions', 'drugs', 'measurements'],
+                'stratifyByGender' => true,
+                'stratifyByAge' => true,
+                'topN' => 100,
+                'minCellCount' => 5,
+            ],
+        };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function analysisIssue(string $code, string $message): array
+    {
+        return ['code' => $code, 'message' => $message];
+    }
+
+    /**
+     * @param  array<string, mixed>  $plan
+     */
+    private function analysisRankScore(array $plan): float
+    {
+        return ($this->text($plan['analysis_type'] ?? '') === 'characterization') ? 55.0 : 60.0;
+    }
+
+    /**
+     * @param  array<string, mixed>  $intent
+     * @param  array<string, mixed>  $extracted
+     * @param  array<string, mixed>  $metadata
+     * @return array<string, mixed>
+     */
+    private function initialGate(array $intent, array $extracted, array $metadata): array
+    {
+        $pico = $this->object($intent['pico'] ?? []);
+        $issues = [
+            ...$this->llmInitialGateIssues($extracted),
+            ...$this->blockingOpenQuestionIssues($intent),
+        ];
+
+        foreach ([
+            'research_question' => ['label' => 'Research question', 'value' => $intent['research_question'] ?? null],
+            'primary_objective' => ['label' => 'Primary objective', 'value' => $intent['primary_objective'] ?? null],
+            'population' => ['label' => 'Population', 'value' => $pico['population'] ?? null],
+            'exposure' => ['label' => 'Exposure or index event', 'value' => $pico['intervention'] ?? null],
+            'outcome' => ['label' => 'Primary outcome', 'value' => $pico['outcome'] ?? null],
+            'time_at_risk' => ['label' => 'Time at risk', 'value' => $pico['time_at_risk'] ?? null],
+        ] as $field => $definition) {
+            $value = $this->text($definition['value'] ?? '');
+            if ($this->isMissingProtocolValue($value)) {
+                $issues[] = $this->gateIssue(
+                    $field,
+                    'blocking',
+                    "{$definition['label']} is missing or not specific enough in the uploaded protocol.",
+                );
+            }
+        }
+
+        $comparator = $this->text($pico['comparator'] ?? '');
+        if ($this->isMissingProtocolValue($comparator)) {
+            $severity = $this->appearsComparative($intent) ? 'blocking' : 'review';
+            $issues[] = $this->gateIssue(
+                'comparator',
+                $severity,
+                $severity === 'blocking'
+                    ? 'Comparator is required because the protocol appears to describe a comparative design.'
+                    : 'Comparator is not specified; confirm the study is descriptive or single-arm before accepting intent.',
+            );
+        }
+
+        $timeAtRisk = $this->text($pico['time_at_risk'] ?? '');
+        if ($timeAtRisk !== '' && $this->isWeakTimeAtRisk($timeAtRisk)) {
+            $issues[] = $this->gateIssue(
+                'time_at_risk',
+                'blocking',
+                'Time at risk must include an index anchor plus follow-up end or censoring logic.',
+            );
+        }
+
+        $issues = $this->dedupeGateIssues($issues);
+        $blocking = array_values(array_filter($issues, fn (array $issue): bool => $this->isBlockingSeverity($issue['severity'] ?? null)));
+        $gate = [
+            'status' => $blocking === [] ? 'ready' : 'failed',
+            'summary' => $blocking === []
+                ? 'Protocol contains the minimum intent details needed for human review.'
+                : 'Protocol is under-specified for initial Study Design Compiler gates.',
+            'issues' => $issues,
+            'protocol_file' => [
+                'filename' => $metadata['filename'] ?? null,
+                'truncated_for_ai' => $metadata['truncated_for_ai'] ?? false,
+            ],
+        ];
+
+        if ($blocking !== []) {
+            throw new StudyDesignProtocolGateException($issues, [
+                'status' => 'failed',
+                'blocking_count' => count($blocking),
+                'filename' => $metadata['filename'] ?? null,
+            ]);
+        }
+
+        return $gate;
+    }
+
+    /**
+     * @param  array<string, mixed>  $extracted
+     * @return list<array<string, mixed>>
+     */
+    private function llmInitialGateIssues(array $extracted): array
+    {
+        $gate = $this->object($extracted['initial_gate'] ?? []);
+        $issues = [];
+
+        foreach ($this->list($gate['issues'] ?? []) as $issue) {
+            if (! is_array($issue)) {
+                continue;
+            }
+
+            $message = $this->text($issue['message'] ?? $issue['question'] ?? '');
+            if ($message === '') {
+                continue;
+            }
+
+            $issues[] = $this->gateIssue(
+                $this->text($issue['field'] ?? 'protocol'),
+                $this->text($issue['severity'] ?? 'review') ?: 'review',
+                $message,
+                $this->text($issue['evidence'] ?? ''),
+                'llm_initial_gate',
+            );
+        }
+
+        $status = strtolower($this->text($gate['status'] ?? ''));
+        if (in_array($status, ['fail', 'failed', 'blocked', 'insufficient', 'inadequate'], true) && $issues === []) {
+            $issues[] = $this->gateIssue(
+                'protocol',
+                'blocking',
+                $this->text($gate['summary'] ?? '') ?: 'The protocol was flagged as inadequate for initial Study Design gates.',
+                '',
+                'llm_initial_gate',
+            );
+        }
+
+        return $issues;
+    }
+
+    /**
+     * @param  array<string, mixed>  $intent
+     * @return list<array<string, mixed>>
+     */
+    private function blockingOpenQuestionIssues(array $intent): array
+    {
+        $issues = [];
+        foreach ($this->list($intent['open_questions'] ?? []) as $question) {
+            if (! is_array($question)) {
+                continue;
+            }
+
+            $severity = $this->text($question['severity'] ?? 'review') ?: 'review';
+            if (! $this->isBlockingSeverity($severity)) {
+                continue;
+            }
+
+            $message = $this->text($question['question'] ?? $question['message'] ?? '');
+            if ($message === '') {
+                continue;
+            }
+
+            $issues[] = $this->gateIssue(
+                $this->text($question['field'] ?? 'protocol'),
+                'blocking',
+                $message,
+                '',
+                'open_question',
+            );
+        }
+
+        return $issues;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function gateIssue(string $field, string $severity, string $message, string $evidence = '', string $source = 'deterministic_gate'): array
+    {
+        return array_filter([
+            'field' => $field,
+            'severity' => $severity,
+            'message' => $message,
+            'evidence' => $evidence,
+            'source' => $source,
+        ], fn (mixed $value): bool => $value !== '');
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $issues
+     * @return list<array<string, mixed>>
+     */
+    private function dedupeGateIssues(array $issues): array
+    {
+        $seen = [];
+
+        return array_values(array_filter($issues, function (array $issue) use (&$seen): bool {
+            $field = (string) ($issue['field'] ?? '');
+            $key = $field !== '' ? $field : (string) ($issue['message'] ?? '');
+            if (isset($seen[$key])) {
+                return false;
+            }
+            $seen[$key] = true;
+
+            return true;
+        }));
+    }
+
+    private function appearsComparative(array $intent): bool
+    {
+        $text = strtolower(implode(' ', [
+            $this->text($intent['research_question'] ?? ''),
+            $this->text($intent['analysis_family'] ?? ''),
+        ]));
+
+        return str_contains($text, 'compar')
+            || str_contains($text, ' versus ')
+            || str_contains($text, ' vs ')
+            || str_contains($text, 'effectiveness')
+            || str_contains($text, 'estimation');
+    }
+
+    private function isMissingProtocolValue(string $value): bool
+    {
+        $normalized = strtolower(trim($value));
+
+        return $normalized === ''
+            || in_array($normalized, ['n/a', 'na', 'none', 'not applicable', 'not specified', 'unspecified', 'unknown', 'tbd', 'to be determined'], true)
+            || strlen($normalized) < 4;
+    }
+
+    private function isWeakTimeAtRisk(string $value): bool
+    {
+        $normalized = strtolower(trim($value));
+        $hasAnchor = preg_match('/\b(index|entry|start|baseline|exposure|diagnosis|cohort|admission)\b/', $normalized) === 1;
+        $hasEnd = preg_match('/\b(end|until|through|follow|censor|observation|death|disenrollment|day|days|week|weeks|month|months|year|years)\b/', $normalized) === 1;
+
+        return strlen($normalized) < 15 || ! $hasAnchor || ! $hasEnd;
+    }
+
+    private function isBlockingSeverity(mixed $severity): bool
+    {
+        return in_array(strtolower($this->text($severity)), ['blocking', 'blocked', 'high', 'fail', 'failed', 'error'], true);
     }
 
     /**
@@ -699,6 +986,17 @@ PROMPT;
     private function list(mixed $value): array
     {
         return is_array($value) ? array_values($value) : [];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function objectList(mixed $value): array
+    {
+        return array_values(array_filter(
+            $this->list($value),
+            fn (mixed $item): bool => is_array($item) && ! array_is_list($item),
+        ));
     }
 
     /**

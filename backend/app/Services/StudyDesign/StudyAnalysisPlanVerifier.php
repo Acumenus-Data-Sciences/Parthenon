@@ -4,11 +4,14 @@ namespace App\Services\StudyDesign;
 
 use App\Enums\StudyDesignVerificationStatus;
 use App\Models\App\StudyDesignAsset;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class StudyAnalysisPlanVerifier
 {
     public function verify(StudyDesignAsset $asset): StudyDesignAsset
     {
+        $asset = $this->refreshRuntimePayload($asset);
         $result = $this->verificationResult($asset);
 
         $asset->update([
@@ -43,11 +46,21 @@ class StudyAnalysisPlanVerifier
         }
 
         foreach ((array) ($payload['blockers'] ?? []) as $blocker) {
-            $checks[] = $this->check((string) ($blocker['code'] ?? 'plan_blocker'), 'fail', (string) ($blocker['message'] ?? 'Blocked analysis plan prerequisite.'));
+            $meta = is_array($blocker['meta'] ?? null) ? $blocker['meta'] : [];
+            if (is_array($blocker['action'] ?? null)) {
+                $meta['action'] = $blocker['action'];
+            }
+
+            $checks[] = $this->check((string) ($blocker['code'] ?? 'plan_blocker'), 'fail', (string) ($blocker['message'] ?? 'Blocked analysis plan prerequisite.'), $meta);
         }
 
         foreach ((array) ($payload['warnings'] ?? []) as $warning) {
-            $checks[] = $this->check((string) ($warning['code'] ?? 'plan_warning'), 'warn', (string) ($warning['message'] ?? 'Review analysis plan prerequisite.'));
+            $meta = is_array($warning['meta'] ?? null) ? $warning['meta'] : [];
+            if (is_array($warning['action'] ?? null)) {
+                $meta['action'] = $warning['action'];
+            }
+
+            $checks[] = $this->check((string) ($warning['code'] ?? 'plan_warning'), 'warn', (string) ($warning['message'] ?? 'Review analysis plan prerequisite.'), $meta);
         }
 
         if (($payload['hades_capability']['installed'] ?? false) === true) {
@@ -118,5 +131,165 @@ class StudyAnalysisPlanVerifier
         return $meta === []
             ? ['name' => $name, 'status' => $status, 'message' => $message]
             : ['name' => $name, 'status' => $status, 'message' => $message, 'meta' => $meta];
+    }
+
+    private function refreshRuntimePayload(StudyDesignAsset $asset): StudyDesignAsset
+    {
+        if ($asset->asset_type !== 'analysis_plan') {
+            return $asset;
+        }
+
+        $payload = $asset->draft_payload_json ?? [];
+        $packageValue = data_get($payload, 'hades_package');
+        $package = is_scalar($packageValue) ? trim((string) $packageValue) : '';
+        if ($package !== '') {
+            $payload['hades_capability'] = $this->packageCapability($package);
+            $payload['hades_remediation'] = ($payload['hades_capability']['installed'] ?? false) === true
+                ? null
+                : $this->hadesRemediation($package);
+        }
+
+        $feasibility = $this->latestFeasibility($asset);
+        $payload['feasibility'] = [
+            'status' => $feasibility['status'] ?? null,
+            'ready_source_count' => $feasibility['ready_source_count'] ?? 0,
+            'source_count' => $feasibility['source_count'] ?? 0,
+            'ran_at' => $feasibility['ran_at'] ?? null,
+        ];
+
+        $blockers = collect($payload['blockers'] ?? [])
+            ->filter(fn (mixed $blocker): bool => ! is_array($blocker) || ! in_array($blocker['code'] ?? null, [
+                'missing_feasibility',
+                'blocked_feasibility',
+                'missing_hades_package',
+            ], true))
+            ->values()
+            ->all();
+        $warnings = collect($payload['warnings'] ?? [])
+            ->filter(fn (mixed $warning): bool => ! is_array($warning) || ($warning['code'] ?? null) !== 'limited_feasibility')
+            ->values()
+            ->all();
+
+        if ($package !== '' && ($payload['hades_capability']['installed'] ?? false) !== true) {
+            $blockers[] = $this->issue('missing_hades_package', "Darkstar does not report {$package} as installed.", ['package' => $package], [
+                'type' => 'install_hades_package',
+                'target_stage' => 'darkstar',
+                'package' => $package,
+                'label' => 'Install HADES package',
+            ]);
+        }
+
+        if (($payload['feasibility']['status'] ?? null) === null) {
+            $blockers[] = $this->issue('missing_feasibility', 'Run source feasibility before materializing this analysis plan.', [], [
+                'type' => 'run_source_feasibility',
+                'target_stage' => 'feasibility',
+                'label' => 'Run source feasibility',
+            ]);
+        } elseif (($payload['feasibility']['status'] ?? null) === 'blocked') {
+            $blockers[] = $this->issue('blocked_feasibility', 'Resolve source feasibility blockers before materializing this analysis plan.', [], [
+                'type' => 'resolve_feasibility_blockers',
+                'target_stage' => 'feasibility',
+                'label' => 'Resolve feasibility blockers',
+            ]);
+        } elseif (($payload['feasibility']['status'] ?? null) === 'limited') {
+            $warnings[] = $this->issue('limited_feasibility', 'Feasibility is limited; review source warnings before execution.', [], [
+                'type' => 'review_feasibility_scope',
+                'target_stage' => 'feasibility',
+                'label' => 'Review feasibility scope',
+            ]);
+        }
+
+        $payload['blockers'] = $blockers;
+        $payload['warnings'] = $warnings;
+
+        $asset->update(['draft_payload_json' => $payload]);
+
+        return $asset->fresh() ?? $asset;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function latestFeasibility(StudyDesignAsset $asset): array
+    {
+        $versionId = $asset->version_id;
+        if ($versionId === null) {
+            return [];
+        }
+
+        $feasibility = $asset->session
+            ->assets()
+            ->where('version_id', $versionId)
+            ->where('asset_type', 'feasibility_result')
+            ->orderByDesc('created_at')
+            ->first();
+
+        return is_array($feasibility?->draft_payload_json) ? $feasibility->draft_payload_json : [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function packageCapability(string $package): array
+    {
+        $url = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
+
+        try {
+            $payload = Http::timeout(8)->get("{$url}/hades/packages")->json();
+            $packages = is_array($payload) ? ($payload['packages'] ?? []) : [];
+            $row = collect($packages)
+                ->first(fn (mixed $candidate): bool => is_array($candidate) && ($candidate['package'] ?? null) === $package);
+
+            if (is_array($row)) {
+                return [
+                    'package' => $package,
+                    'installed' => (bool) ($row['installed'] ?? false),
+                    'version' => $row['version'] ?? null,
+                    'surface' => $row['surface'] ?? null,
+                    'priority' => $row['priority'] ?? null,
+                    'status' => (bool) ($row['installed'] ?? false) ? 'installed' : 'not_installed',
+                ];
+            }
+        } catch (\Throwable $exception) {
+            Log::warning('Study analysis plan verifier could not retrieve Darkstar HADES capabilities', [
+                'message' => $exception->getMessage(),
+                'package' => $package,
+            ]);
+        }
+
+        return ['package' => $package, 'installed' => false, 'status' => 'missing_from_inventory'];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    /**
+     * @return array<string, mixed>
+     */
+    private function hadesRemediation(string $package): array
+    {
+        return [
+            'package' => $package,
+            'message' => "Install or enable {$package} in Darkstar, refresh the HADES package inventory, then verify this plan again.",
+            'action' => [
+                'type' => 'install_hades_package',
+                'target_stage' => 'darkstar',
+                'package' => $package,
+                'label' => 'Install HADES package',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function issue(string $code, string $message, array $meta = [], ?array $action = null): array
+    {
+        $issue = ['code' => $code, 'message' => $message, 'meta' => $meta];
+        if ($action !== null) {
+            $issue['action'] = $action;
+        }
+
+        return $issue;
     }
 }

@@ -12,6 +12,7 @@ use App\Models\App\StudyDesignSession;
 use App\Models\App\StudyDesignVersion;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudyConceptSetDraftService
 {
@@ -51,6 +52,10 @@ class StudyConceptSetDraftService
             ->unique(fn (array $candidate) => ($candidate['role'] ?? '').':'.($candidate['title'] ?? '').':'.json_encode(collect($candidate['concepts'] ?? [])->pluck('concept_id')->all()))
             ->values();
 
+        if ($candidates->isEmpty()) {
+            $candidates = collect([$this->seedCandidate($version, $role)]);
+        }
+
         return DB::transaction(function () use ($session, $version, $candidates): Collection {
             $session->assets()
                 ->where('version_id', $version->id)
@@ -78,10 +83,29 @@ class StudyConceptSetDraftService
                         'provenance_json' => $candidate['provenance'] ?? ['source' => 'study_designer'],
                     ]);
 
-                    return $this->verifier->verify($asset);
+                    $asset->update($this->verifier->verify($asset->draft_payload_json ?? []));
+
+                    return $asset->fresh() ?? $asset;
                 })
                 ->values();
         });
+    }
+
+    /**
+     * @return Collection<int, StudyDesignAsset>
+     */
+    public function verifyDrafts(StudyDesignSession $session, StudyDesignVersion $version): Collection
+    {
+        return $session->assets()
+            ->where('version_id', $version->id)
+            ->where('asset_type', 'concept_set_draft')
+            ->get()
+            ->map(function (StudyDesignAsset $asset): StudyDesignAsset {
+                $asset->update($this->verifier->verify($asset->draft_payload_json ?? []));
+
+                return $asset->fresh() ?? $asset;
+            })
+            ->values();
     }
 
     /**
@@ -282,6 +306,31 @@ class StudyConceptSetDraftService
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function seedCandidate(StudyDesignVersion $version, ?string $role): array
+    {
+        $resolvedRole = $role ?? 'population';
+        $terms = $this->evidenceSearchTerms($version, $resolvedRole);
+        $fallbackTitle = $terms[0] ?? data_get($version->intent_json ?? [], 'study_title') ?? 'Study Designer';
+
+        return [
+            'title' => Str::limit((string) $fallbackTitle, 180, '').' Concept Set',
+            'role' => $resolvedRole,
+            'domain' => $this->domainForRole($resolvedRole),
+            'clinical_rationale' => 'Abby seeded this draft from reviewed protocol intent. Add verified OMOP standard concept IDs before accepting or materializing it.',
+            'search_terms' => $terms,
+            'concepts' => [],
+            'source_concept_set_references' => [],
+            'provenance' => [
+                'source' => 'abby_protocol_evidence_seed',
+                'role' => $resolvedRole,
+                'requires_user_concepts' => true,
+            ],
+        ];
+    }
+
+    /**
      * @param  array<string, mixed>  $item
      * @return array<string, mixed>|null
      */
@@ -315,6 +364,83 @@ class StudyConceptSetDraftService
             'include_mapped' => $includeMapped,
             'rationale' => is_string($rationale) ? $rationale : null,
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function evidenceSearchTerms(StudyDesignVersion $version, ?string $role = null): array
+    {
+        $intent = $version->intent_json ?? [];
+        $spec = $version->normalized_spec_json ?? $version->spec_json ?? [];
+        $roleValues = match ($role) {
+            'population' => [
+                data_get($intent, 'pico.population'),
+                data_get($spec, 'pico.population.summary'),
+                data_get($spec, 'pico.population'),
+                data_get($spec, 'study.target_population_summary'),
+            ],
+            'exposure', 'intervention' => [
+                data_get($intent, 'pico.exposure'),
+                data_get($intent, 'pico.intervention'),
+                data_get($spec, 'pico.intervention_or_exposure.summary'),
+                data_get($spec, 'pico.exposure.summary'),
+            ],
+            'comparator' => [
+                data_get($intent, 'pico.comparator'),
+                data_get($spec, 'pico.comparator.summary'),
+                data_get($spec, 'pico.comparator'),
+            ],
+            'outcome' => [
+                data_get($intent, 'pico.outcome'),
+                ...collect(data_get($spec, 'pico.outcomes', []))
+                    ->map(fn (mixed $outcome) => is_array($outcome) ? ($outcome['summary'] ?? null) : $outcome)
+                    ->all(),
+            ],
+            default => [
+                data_get($intent, 'research_question'),
+                data_get($spec, 'study.research_question'),
+                data_get($spec, 'study.primary_objective'),
+            ],
+        };
+
+        return collect($roleValues)
+            ->filter(fn (mixed $value) => is_string($value) && trim($value) !== '')
+            ->map(fn (string $value) => trim($value))
+            ->flatMap(fn (string $value) => [$value, ...$this->keywords($value)])
+            ->unique()
+            ->take(8)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function keywords(string $value): array
+    {
+        $stopWords = [
+            'adult', 'adults', 'among', 'cohort', 'compare', 'does', 'estimate', 'evaluate',
+            'event', 'follow', 'index', 'initiation', 'outcome', 'outcomes', 'patient',
+            'patients', 'primary', 'protocol', 'risk', 'study', 'through', 'with',
+        ];
+
+        return collect(preg_split('/[^[:alnum:]]+/u', mb_strtolower($value)) ?: [])
+            ->map(fn (string $token) => trim($token))
+            ->filter(fn (string $token) => mb_strlen($token) >= 4 && ! in_array($token, $stopWords, true))
+            ->unique()
+            ->take(5)
+            ->values()
+            ->all();
+    }
+
+    private function domainForRole(string $role): string
+    {
+        return match ($role) {
+            'exposure', 'intervention', 'comparator' => 'Drug',
+            'outcome', 'population', 'exclusion', 'subgroup' => 'Condition',
+            default => 'Condition',
+        };
     }
 
     /**

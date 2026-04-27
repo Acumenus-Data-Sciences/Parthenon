@@ -28,7 +28,7 @@ def test_check_ollama_health_reports_ok_when_model_is_listed() -> None:
 
         @staticmethod
         def json() -> dict[str, object]:
-            return {"models": [{"name": "ii-medical:8b-q8"}]}
+            return {"models": [{"name": "puyangwang/medgemma-27b-it:q4_0"}]}
 
     class FakeAsyncClient:
         def __init__(self, *args, **kwargs) -> None:
@@ -48,7 +48,7 @@ def test_check_ollama_health_reports_ok_when_model_is_listed() -> None:
         status = asyncio.run(
             check_ollama_health(
                 base_url="http://example.test",
-                model="ii-medical:8b-q8",
+                model="puyangwang/medgemma-27b-it:q4_0",
             )
         )
 

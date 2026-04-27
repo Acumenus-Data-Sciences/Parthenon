@@ -16,14 +16,20 @@ import type {
   StudyResult,
   StudySynthesis,
   StudyDesignAsset,
+  StudyDesignBackendGuidance,
+  StudyCohortReadiness,
   StudyDesignReadiness,
   StudyDesignSession,
   StudyDesignVersion,
+  StudyDesignProtocolImportResult,
   StudyProtocolImportResult,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
 const BASE = "/studies";
+const multipartFormConfig = {
+  headers: { "Content-Type": "multipart/form-data" },
+};
 
 // ---------------------------------------------------------------------------
 // Stats
@@ -136,8 +142,9 @@ export async function listStudyDesignVersions(
 export async function listStudyDesignAssets(
   slug: string,
   sessionId: number,
+  params?: { version_id?: number },
 ): Promise<StudyDesignAsset[]> {
-  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/assets`);
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/assets`, { params });
   return data.data ?? data;
 }
 
@@ -156,12 +163,20 @@ export async function importStudyDesignProtocol(
   slug: string,
   sessionId: number,
   file: File,
-): Promise<StudyDesignVersion> {
+): Promise<StudyDesignProtocolImportResult> {
   const form = new FormData();
   form.append("protocol", file);
 
-  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`, form);
-  return data.data ?? data;
+  const { data } = await apiClient.post(
+    `${BASE}/${slug}/design-sessions/${sessionId}/protocol-import`,
+    form,
+    multipartFormConfig,
+  );
+  return {
+    version: data.data ?? data.version ?? data,
+    extracted: data.extracted ?? {},
+    metadata: data.metadata ?? {},
+  };
 }
 
 export async function importProtocolAsNewStudy(
@@ -170,7 +185,7 @@ export async function importProtocolAsNewStudy(
   const form = new FormData();
   form.append("protocol", file);
 
-  const { data } = await apiClient.post(`${BASE}/protocol-import`, form);
+  const { data } = await apiClient.post(`${BASE}/protocol-import`, form, multipartFormConfig);
   return data.data ?? data;
 }
 
@@ -206,6 +221,167 @@ export async function critiqueStudyDesignVersion(
   return data.data ?? data;
 }
 
+export async function recommendStudyPhenotypes(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/phenotypes/recommend`);
+  return data.data ?? data;
+}
+
+export async function draftStudyConceptSets(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+  payload?: { role?: string; drafts?: Array<Record<string, unknown>> },
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/concept-sets/draft`, payload ?? {});
+  return data.data ?? data;
+}
+
+export async function verifyStudyConceptSetDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/concept-sets/verify`);
+  return data.data ?? data;
+}
+
+export async function verifyStudyConceptSetDrafts(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/concept-sets/verify`);
+  return data.data ?? data;
+}
+
+export async function updateStudyConceptSetDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+  payload: Record<string, unknown>,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.put(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/concept-sets/draft`, payload);
+  return data.data ?? data;
+}
+
+export async function materializeStudyConceptSetDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/concept-sets/materialize`);
+  return data.data ?? data;
+}
+
+export async function draftStudyCohorts(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+  payload?: { role?: string },
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/cohorts/draft`, payload ?? {});
+  return data.data ?? data;
+}
+
+export async function getStudyCohortReadiness(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyCohortReadiness> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/cohorts/readiness`);
+  return data.data ?? data;
+}
+
+export async function verifyStudyCohortDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/cohorts/verify`);
+  return data.data ?? data;
+}
+
+export async function updateStudyCohortDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+  payload: Record<string, unknown>,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.put(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/cohorts/draft`, payload);
+  return data.data ?? data;
+}
+
+export async function materializeStudyCohortDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/cohorts/materialize`);
+  return data.data ?? data;
+}
+
+export async function linkStudyCohortDraft(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+  payload: { role?: string; label?: string; description?: string | null },
+): Promise<unknown> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/cohorts/link-to-study`, payload);
+  return data.data ?? data;
+}
+
+export async function runStudyFeasibility(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+  payload: { source_ids: number[]; min_cell_count?: number },
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/feasibility/run`, payload);
+  return data.data ?? data;
+}
+
+export async function draftStudyAnalysisPlans(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+  payload?: { analysis_type?: string; analysis_types?: string[] },
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/analysis-plans/draft`, payload ?? {});
+  return data.data ?? data;
+}
+
+export async function verifyStudyAnalysisPlan(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/analysis-plans/verify`);
+  return data.data ?? data;
+}
+
+export async function materializeStudyAnalysisPlan(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/analysis-plans/materialize`);
+  return data.data ?? data;
+}
+
+export async function reviewStudyDesignAsset(
+  slug: string,
+  sessionId: number,
+  assetId: number,
+  payload: { decision: "accept" | "reject" | "defer"; review_notes?: string | null },
+): Promise<StudyDesignAsset> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/review`, payload);
+  return data.data ?? data;
+}
+
 export async function acceptStudyDesignVersion(
   slug: string,
   sessionId: number,
@@ -221,6 +397,15 @@ export async function getStudyDesignLockReadiness(
   versionId: number,
 ): Promise<StudyDesignReadiness> {
   const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/lock-readiness`);
+  return data.data ?? data;
+}
+
+export async function getStudyDesignGuidance(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignBackendGuidance> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/guidance`);
   return data.data ?? data;
 }
 

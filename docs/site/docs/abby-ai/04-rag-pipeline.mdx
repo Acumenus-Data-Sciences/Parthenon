@@ -65,7 +65,7 @@ This context block is injected into the system prompt alongside the page-specifi
 
 ### Stage 4: Generation
 
-The assembled prompt is sent to **MedGemma 1.5 (4B)** via Ollama. MedGemma is a medical domain LLM from Google, purpose-built for clinical and biomedical text generation. It runs entirely locally — no API calls to external services.
+The assembled prompt is sent to **MedGemma 27B** via Ollama. MedGemma is a medical domain LLM from Google, purpose-built for clinical and biomedical text generation. It runs entirely locally - no API calls to external services.
 
 The model receives:
 1. **System prompt** — page persona + behavioral instructions
@@ -145,7 +145,7 @@ This metadata enables future enhancements like **citation grounding** — includ
 |--------|--------------|
 | Retrieval (5 collections) | 50-150ms |
 | Prompt assembly | under 10ms |
-| MedGemma generation | 2-8 seconds |
+| MedGemma generation | hardware dependent, typically 8-30 seconds for 27B |
 | Memory storage | under 50ms (async) |
 | **Total response time** | **3-9 seconds** |
 

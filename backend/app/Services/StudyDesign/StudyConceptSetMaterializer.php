@@ -29,17 +29,17 @@ class StudyConceptSetMaterializer
             ]);
         }
 
-        if ($asset->verification_status === StudyDesignVerificationStatus::UNVERIFIED->value) {
+        if ($this->verificationStatusValue($asset) === StudyDesignVerificationStatus::UNVERIFIED->value) {
             $asset = $this->verifier->verify($asset);
         }
 
-        if ($asset->verification_status !== StudyDesignVerificationStatus::VERIFIED->value) {
+        if ($this->verificationStatusValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value) {
             throw ValidationException::withMessages([
                 'verification' => 'Only verified concept set drafts can be materialized.',
             ]);
         }
 
-        if ($asset->status !== StudyDesignAssetStatus::ACCEPTED->value) {
+        if ($this->assetStatusValue($asset) !== StudyDesignAssetStatus::ACCEPTED->value) {
             throw ValidationException::withMessages([
                 'asset' => 'Accept the verified concept set draft before materializing it.',
             ]);
@@ -108,5 +108,19 @@ class StudyConceptSetMaterializer
                 'materialized_at' => now()->toIso8601String(),
             ],
         ];
+    }
+
+    private function assetStatusValue(StudyDesignAsset $asset): string
+    {
+        return $asset->status instanceof StudyDesignAssetStatus
+            ? $asset->status->value
+            : (string) $asset->status;
+    }
+
+    private function verificationStatusValue(StudyDesignAsset $asset): string
+    {
+        return $asset->verification_status instanceof StudyDesignVerificationStatus
+            ? $asset->verification_status->value
+            : (string) $asset->verification_status;
     }
 }

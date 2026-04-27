@@ -839,6 +839,33 @@ const enApp: MessageTree = {
         add: "Add",
         saveChanges: "Save Changes",
       },
+      protocolImport: {
+        timer: "Elapsed {{time}}",
+        file: "File: {{name}}",
+        progressLabel: "Protocol import progress",
+        phases: {
+          uploading: {
+            label: "Uploading protocol",
+            short: "Upload",
+            detail: "Sending the file to Study Designer.",
+          },
+          analyzing: {
+            label: "Abby is analyzing the protocol",
+            short: "Abby Analysis",
+            detail: "Extracting study intent, cohorts, concept drafts, and analysis plan.",
+          },
+          output: {
+            label: "Study Designer output is ready",
+            short: "Output",
+            detail: "Showing the compiled design with extracted assets and provenance.",
+          },
+          error: {
+            label: "Protocol import stopped",
+            short: "Stopped",
+            detail: "Review the import message and try again.",
+          },
+        },
+      },
       sections: {
         intentReview: "Intent Review",
         verificationGates: "Verification Gates",
@@ -5144,6 +5171,35 @@ const esApp: MessageTree = {
         saveIntent: "Guardar intención",
         add: "Añadir",
         saveChanges: "Guardar cambios",
+      },
+      protocolImport: {
+        timer: "Tiempo {{time}}",
+        file: "Archivo: {{name}}",
+        progressLabel: "Progreso de importación del protocolo",
+        phases: {
+          uploading: {
+            label: "Subiendo protocolo",
+            short: "Subida",
+            detail: "Enviando el archivo al Diseñador de estudios.",
+          },
+          analyzing: {
+            label: "Abby está analizando el protocolo",
+            short: "Análisis de Abby",
+            detail:
+              "Extrayendo intención del estudio, cohortes, borradores de conceptos y plan de análisis.",
+          },
+          output: {
+            label: "La salida del Diseñador de estudios está lista",
+            short: "Salida",
+            detail:
+              "Mostrando el diseño compilado con activos extraídos y procedencia.",
+          },
+          error: {
+            label: "La importación del protocolo se detuvo",
+            short: "Detenido",
+            detail: "Revisa el mensaje de importación e inténtalo de nuevo.",
+          },
+        },
       },
       sections: {
         intentReview: "Revisión de intención",
@@ -9474,6 +9530,34 @@ const koApp: MessageTree = {
         saveIntent: "의도 저장",
         add: "추가",
         saveChanges: "변경 사항 저장",
+      },
+      protocolImport: {
+        timer: "경과 {{time}}",
+        file: "파일: {{name}}",
+        progressLabel: "프로토콜 가져오기 진행률",
+        phases: {
+          uploading: {
+            label: "프로토콜 업로드 중",
+            short: "업로드",
+            detail: "파일을 Study Designer로 보내는 중입니다.",
+          },
+          analyzing: {
+            label: "Abby가 프로토콜을 분석 중입니다",
+            short: "Abby 분석",
+            detail:
+              "연구 의도, 코호트, 개념 초안, 분석 계획을 추출하는 중입니다.",
+          },
+          output: {
+            label: "Study Designer 출력이 준비되었습니다",
+            short: "출력",
+            detail: "추출된 자산과 출처가 포함된 컴파일된 설계를 표시하는 중입니다.",
+          },
+          error: {
+            label: "프로토콜 가져오기가 중지되었습니다",
+            short: "중지됨",
+            detail: "가져오기 메시지를 확인한 뒤 다시 시도하세요.",
+          },
+        },
       },
       sections: {
         intentReview: "의도 검토",

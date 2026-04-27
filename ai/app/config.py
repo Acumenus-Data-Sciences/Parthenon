@@ -10,14 +10,15 @@ class Settings(BaseSettings):
 
     # Ollama configuration (for medical LLMs)
     ollama_base_url: str = "http://host.docker.internal:11434"
-    ollama_model: str = "ii-medical:8b-q8"
+    ollama_model: str = "puyangwang/medgemma-27b-it:q4_0"
     ollama_timeout: int = 120
     ollama_num_predict: int = 256
     ollama_embedding_base_url: str = "http://host.docker.internal:11434"
     ollama_embedding_timeout: int = 60
-    abby_ollama_base_url: str = "http://host.docker.internal:11435"
-    abby_ollama_model: str = ""
+    abby_ollama_base_url: str = "http://host.docker.internal:11434"
+    abby_ollama_model: str = "puyangwang/medgemma-27b-it:q4_0"
     abby_ollama_keep_alive: int = 3600
+    abby_cloud_routing_enabled: bool = False
     phenotype_interpreter_enabled: bool = True
     phenotype_interpreter_base_url: str = "http://host.docker.internal:11434"
     phenotype_interpreter_model: str = "MedAIBase/MedGemma1.5:4b"

@@ -99,7 +99,7 @@ If **PHP-FPM**, **PostgreSQL (App)**, or **Redis** show a `down` status, the pla
 | Symptom | Likely Cause | Resolution |
 |---------|-------------|------------|
 | All services show `down` | Docker Compose not running | Run `docker compose up -d` and wait for health checks |
-| AI Service degraded | Ollama model not loaded | Pull the model: `ollama pull MedAIBase/MedGemma1.5:4b` |
+| AI Service degraded | Ollama model not loaded | Pull the model: `ollama pull puyangwang/medgemma-27b-it:q4_0` |
 | Horizon shows high failed count | Job handler error or resource exhaustion | Check failed jobs in **Admin > Jobs** and review error messages |
 | Solr shows 0 documents | Index not built after vocabulary load | Trigger a Solr reindex from Solr Administration |
 | Orthanc shows `down` | DICOM server not running or not configured | Verify the Orthanc container is running and the connection URL is correct |

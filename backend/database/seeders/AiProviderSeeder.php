@@ -15,7 +15,7 @@ class AiProviderSeeder extends Seeder
                 'display_name' => 'Local Ollama',
                 'is_enabled' => true,
                 'is_active' => true,
-                'model' => 'MedAIBase/MedGemma1.5:4b',
+                'model' => 'puyangwang/medgemma-27b-it:q4_0',
                 'settings' => ['base_url' => 'http://host.docker.internal:11434'],
             ],
             [

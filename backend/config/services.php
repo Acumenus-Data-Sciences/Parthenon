@@ -61,6 +61,16 @@ return [
         'timeout' => (int) env('ANTHROPIC_TIMEOUT', env('CLAUDE_TIMEOUT', 120)),
     ],
 
+    'abby' => [
+        'ollama_url' => env('ABBY_OLLAMA_URL', env('OLLAMA_BASE_URL', 'http://host.docker.internal:11434')),
+        'ollama_model' => env('ABBY_OLLAMA_MODEL', env('OLLAMA_MODEL', 'puyangwang/medgemma-27b-it:q4_0')),
+        'ollama_timeout' => (int) env('ABBY_OLLAMA_TIMEOUT', env('OLLAMA_TIMEOUT', 120)),
+        'cloud_routing_enabled' => filter_var(env('ABBY_CLOUD_ROUTING_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'protocol_cloud_evaluation_enabled' => filter_var(env('ABBY_PROTOCOL_CLOUD_EVALUATION_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'protocol_prompt_caching_enabled' => filter_var(env('ABBY_PROTOCOL_PROMPT_CACHING_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'protocol_prompt_cache_ttl' => env('ABBY_PROTOCOL_PROMPT_CACHE_TTL', '5m'),
+    ],
+
     // Hecate: OHDSI semantic vocabulary search engine (Rust/actix-web + Qdrant)
     'hecate' => [
         'url' => env('HECATE_URL', 'http://hecate:8080'),

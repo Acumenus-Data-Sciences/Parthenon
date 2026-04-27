@@ -8,9 +8,9 @@ use App\Models\App\ConceptSetItem;
 use App\Models\App\StudyDesignAsset;
 use App\Models\App\StudyDesignSession;
 use App\Models\App\StudyDesignVersion;
-use App\Models\Vocabulary\Concept;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class StudyCohortDraftService
 {
@@ -24,7 +24,7 @@ class StudyCohortDraftService
      */
     public function draft(StudyDesignSession $session, StudyDesignVersion $version, array $options = []): Collection
     {
-        $fallbackRole = isset($options['role']) && is_string($options['role'])
+        $requestedRole = isset($options['role']) && is_string($options['role'])
             ? $this->normalizeRole($options['role'])
             : null;
 
@@ -36,9 +36,15 @@ class StudyCohortDraftService
             ->get();
 
         $candidates = $conceptSetDrafts
-            ->map(fn (StudyDesignAsset $asset) => $this->candidateFromConceptSetDraft($asset, $fallbackRole))
+            ->map(fn (StudyDesignAsset $asset) => $this->candidateFromConceptSetDraft($asset, $requestedRole))
             ->filter()
             ->values();
+
+        if ($candidates->isEmpty()) {
+            throw ValidationException::withMessages([
+                'cohorts' => 'Materialized, verified concept set drafts are required before Abby can compile cohort drafts.',
+            ]);
+        }
 
         return DB::transaction(function () use ($session, $version, $candidates): Collection {
             $session->assets()
@@ -62,7 +68,9 @@ class StudyCohortDraftService
                         ],
                     ]);
 
-                    return $this->verifier->verify($asset);
+                    $asset->update($this->verifier->verify($asset));
+
+                    return $asset->fresh() ?? $asset;
                 })
                 ->values();
         });
@@ -71,7 +79,7 @@ class StudyCohortDraftService
     /**
      * @return array<string, mixed>|null
      */
-    private function candidateFromConceptSetDraft(StudyDesignAsset $asset, ?string $fallbackRole): ?array
+    private function candidateFromConceptSetDraft(StudyDesignAsset $asset, ?string $requestedRole): ?array
     {
         if ($asset->materialized_id === null) {
             return null;
@@ -82,7 +90,7 @@ class StudyCohortDraftService
             return null;
         }
 
-        $role = $this->normalizeRole((string) ($asset->role ?? $fallbackRole ?? 'target'));
+        $role = $this->normalizeRole((string) ($asset->role ?? $requestedRole ?? 'target'));
         $codesetId = 0;
         $conceptSetExpression = $this->conceptSetExpression($conceptSet, $codesetId);
         $domainKey = $this->domainKey($role, $conceptSet);
@@ -92,7 +100,28 @@ class StudyCohortDraftService
             'role' => $role,
             'logic_description' => 'Entry event cohort generated from a verified Study Designer concept set draft.',
             'concept_set_ids' => [$conceptSet->id],
+            'concept_set_asset_ids' => [$asset->id],
             'source_asset_ids' => [$asset->id],
+            'entry_event' => [
+                'description' => 'First qualifying event from the materialized concept set.',
+                'domain_criteria' => $domainKey,
+                'codeset_id' => $codesetId,
+            ],
+            'observation_window' => [
+                'prior_days' => 365,
+                'post_days' => 0,
+            ],
+            'inclusion_rules' => [],
+            'censoring_criteria' => [],
+            'exit_strategy' => 'End at the earliest of observation period end, death, study end, or downstream censoring rule.',
+            'collapse_settings' => [
+                'collapse_type' => 'ERA',
+                'era_pad' => 0,
+            ],
+            'role_link' => [
+                'role' => $role,
+                'can_link_after_materialization' => true,
+            ],
             'expression_json' => [
                 'ConceptSets' => [$conceptSetExpression],
                 'PrimaryCriteria' => [
@@ -125,7 +154,7 @@ class StudyCohortDraftService
     private function conceptSetExpression(ConceptSet $conceptSet, int $codesetId): array
     {
         $conceptIds = $conceptSet->items->pluck('concept_id')->unique()->values()->all();
-        $vocabularyConcepts = Concept::query()
+        $vocabularyConcepts = DB::table('vocab.concept')
             ->whereIn('concept_id', $conceptIds)
             ->get(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id', 'standard_concept', 'concept_code', 'invalid_reason'])
             ->keyBy('concept_id');
@@ -162,14 +191,17 @@ class StudyCohortDraftService
 
     private function domainKey(string $role, ConceptSet $conceptSet): string
     {
-        if ($role === 'comparator') {
-            return 'DrugExposure';
-        }
-
         $firstConceptId = $conceptSet->items->first()?->concept_id;
-        $domain = $firstConceptId ? Concept::query()->where('concept_id', $firstConceptId)->value('domain_id') : null;
+        $domain = $firstConceptId ? DB::table('vocab.concept')->where('concept_id', $firstConceptId)->value('domain_id') : null;
 
-        return $domain === 'Drug' ? 'DrugExposure' : 'ConditionOccurrence';
+        return match ($domain) {
+            'Drug' => 'DrugExposure',
+            'Procedure' => 'ProcedureOccurrence',
+            'Measurement' => 'Measurement',
+            'Observation' => 'Observation',
+            'Visit' => 'VisitOccurrence',
+            default => 'ConditionOccurrence',
+        };
     }
 
     private function titleForRole(string $role, string $conceptSetName): string

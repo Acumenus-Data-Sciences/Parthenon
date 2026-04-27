@@ -27,7 +27,7 @@ class StudyPhenotypeRecommendationService
      */
     public function recommend(StudyDesignSession $session, StudyDesignVersion $version, int $userId): Collection
     {
-        $spec = $version->normalized_spec_json ?? $version->spec_json ?? [];
+        $spec = $this->recommendationContext($version);
         $terms = $this->queryTerms($spec);
         $started = microtime(true);
         $remote = $this->studyAgentRecommendations($spec, $terms);
@@ -42,7 +42,7 @@ class StudyPhenotypeRecommendationService
             ->take(12)
             ->values();
 
-        return DB::transaction(function () use ($session, $version, $userId, $recommendations, $terms, $remote, $started): Collection {
+        return DB::transaction(function () use ($session, $version, $userId, $recommendations, $terms, $remote, $started, $spec): Collection {
             $session->assets()
                 ->where('version_id', $version->id)
                 ->whereIn('asset_type', ['phenotype_recommendation', 'local_cohort', 'local_concept_set'])
@@ -72,28 +72,44 @@ class StudyPhenotypeRecommendationService
                 return $verified->fresh() ?? $verified;
             })->sortByDesc('rank_score')->values();
 
+            $latencyMs = (int) round((microtime(true) - $started) * 1000);
             StudyDesignAiEvent::create([
                 'session_id' => $session->id,
                 'version_id' => $version->id,
                 'created_by' => $userId,
                 'event_type' => 'phenotype_recommend',
-                'provider' => 'study-agent',
-                'model' => null,
-                'prompt_template_version' => 'phenotype-recommend-v1',
-                'input_summary_json' => [
+                'provider' => 'abby',
+                'model' => 'deterministic-reuse-ranker',
+                'prompt_sha256' => hash('sha256', 'phenotype-recommend-v2'.json_encode($terms)),
+                'input_json' => [
                     'terms' => $terms,
-                    'spec_hash' => hash('sha256', json_encode($version->normalized_spec_json ?? $version->spec_json)),
+                    'spec_hash' => hash('sha256', json_encode($spec)),
                 ],
                 'output_json' => [
                     'remote_count' => count($remote),
                     'recommendation_count' => $assets->count(),
+                    'latency_ms' => $latencyMs,
                 ],
-                'safety_flags_json' => [],
-                'latency_ms' => (int) round((microtime(true) - $started) * 1000),
+                'safety_json' => [
+                    'requires_human_review' => true,
+                    'canonical_acceptance_requires_verification' => true,
+                    'canonical_records_only' => true,
+                ],
             ]);
 
             return $assets->values();
         });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function recommendationContext(StudyDesignVersion $version): array
+    {
+        return [
+            'intent' => $version->intent_json ?? [],
+            'spec' => $version->normalized_spec_json ?? $version->spec_json ?? [],
+        ];
     }
 
     /**
@@ -103,24 +119,70 @@ class StudyPhenotypeRecommendationService
     private function queryTerms(array $spec): array
     {
         $values = [
-            data_get($spec, 'study.research_question'),
-            data_get($spec, 'study.primary_objective'),
-            data_get($spec, 'study.target_population_summary'),
-            data_get($spec, 'pico.population.summary'),
-            data_get($spec, 'pico.intervention_or_exposure.summary'),
-            data_get($spec, 'pico.comparator.summary'),
-            data_get($spec, 'pico.time.summary'),
+            data_get($spec, 'spec.study.research_question'),
+            data_get($spec, 'spec.study.primary_objective'),
+            data_get($spec, 'spec.study.target_population_summary'),
+            data_get($spec, 'spec.research_question'),
+            data_get($spec, 'spec.primary_objective'),
+            data_get($spec, 'intent.research_question'),
+            data_get($spec, 'intent.primary_objective'),
+            data_get($spec, 'intent.pico.population'),
+            data_get($spec, 'intent.pico.intervention'),
+            data_get($spec, 'intent.pico.exposure'),
+            data_get($spec, 'intent.pico.comparator'),
+            data_get($spec, 'intent.pico.outcome'),
+            data_get($spec, 'intent.pico.time_at_risk'),
+            data_get($spec, 'spec.pico.population.summary'),
+            data_get($spec, 'spec.pico.population'),
+            data_get($spec, 'spec.pico.intervention_or_exposure.summary'),
+            data_get($spec, 'spec.pico.intervention_or_exposure'),
+            data_get($spec, 'spec.pico.exposure.summary'),
+            data_get($spec, 'spec.pico.exposure'),
+            data_get($spec, 'spec.pico.comparator.summary'),
+            data_get($spec, 'spec.pico.comparator'),
+            data_get($spec, 'spec.pico.time.summary'),
+            data_get($spec, 'spec.pico.time'),
         ];
 
-        foreach ((array) data_get($spec, 'pico.outcomes', []) as $outcome) {
+        foreach ((array) data_get($spec, 'spec.pico.outcomes', []) as $outcome) {
             $values[] = is_array($outcome) ? ($outcome['summary'] ?? null) : $outcome;
         }
 
-        return collect($values)
+        $phrases = collect($values)
             ->filter(fn (mixed $value) => is_string($value) && trim($value) !== '')
             ->map(fn (string $value) => trim($value))
             ->unique()
-            ->take(8)
+            ->take(8);
+
+        $keywords = $phrases
+            ->flatMap(fn (string $value) => $this->keywords($value))
+            ->unique()
+            ->take(10);
+
+        return $phrases
+            ->merge($keywords)
+            ->unique()
+            ->take(16)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function keywords(string $value): array
+    {
+        $stopWords = [
+            'adult', 'adults', 'among', 'before', 'between', 'cohort', 'compare', 'compared',
+            'does', 'effect', 'estimate', 'evaluate', 'first', 'follow', 'following', 'index',
+            'initiation', 'outcome', 'outcomes', 'patient', 'patients', 'primary', 'risk',
+            'study', 'through', 'treatment', 'usual', 'versus', 'with', 'without',
+        ];
+
+        return collect(preg_split('/[^[:alnum:]]+/u', mb_strtolower($value)) ?: [])
+            ->map(fn (string $token) => trim($token))
+            ->filter(fn (string $token) => mb_strlen($token) >= 4 && ! in_array($token, $stopWords, true))
+            ->unique()
             ->values()
             ->all();
     }
@@ -139,7 +201,12 @@ class StudyPhenotypeRecommendationService
         try {
             $baseUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
             $response = Http::timeout(120)->post("{$baseUrl}/study-agent/recommend-phenotypes", [
-                'description' => (string) data_get($spec, 'study.research_question', implode(' ', $terms)),
+                'description' => (string) (
+                    data_get($spec, 'spec.study.research_question')
+                    ?? data_get($spec, 'spec.research_question')
+                    ?? data_get($spec, 'intent.research_question')
+                    ?? implode(' ', $terms)
+                ),
             ]);
 
             if ($response->failed()) {
@@ -375,7 +442,10 @@ class StudyPhenotypeRecommendationService
         $payload = $asset->draft_payload_json ?? [];
         $provenance = $asset->provenance_json ?? [];
         $source = (string) ($provenance['source'] ?? 'unknown');
-        $verification = StudyDesignVerificationStatus::tryFrom((string) $asset->verification_status)
+        $verificationStatus = $asset->verification_status instanceof StudyDesignVerificationStatus
+            ? $asset->verification_status->value
+            : (string) $asset->verification_status;
+        $verification = StudyDesignVerificationStatus::tryFrom($verificationStatus)
             ?? StudyDesignVerificationStatus::UNVERIFIED;
         $aiScore = (float) ($payload['score'] ?? 0);
         $hasExpression = (bool) ($payload['has_expression'] ?? false);

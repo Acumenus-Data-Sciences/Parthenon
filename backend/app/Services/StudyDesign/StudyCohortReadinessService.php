@@ -36,6 +36,12 @@ class StudyCohortReadinessService
             ->where('asset_type', 'cohort_draft')
             ->orderByDesc('created_at')
             ->get();
+        $materializedConceptSetCount = $session->assets()
+            ->where('version_id', $version->id)
+            ->where('asset_type', 'concept_set_draft')
+            ->where('status', StudyDesignAssetStatus::MATERIALIZED->value)
+            ->count();
+        $unlinkedMaterializedDrafts = $this->unlinkedMaterializedDrafts($cohortDrafts);
 
         $blockers = [];
         $warnings = [];
@@ -43,13 +49,16 @@ class StudyCohortReadinessService
             ->groupBy('role')
             ->map(fn (Collection $cohorts): int => $cohorts->count())
             ->all();
+        $missingRoles = [];
 
         foreach ($requiredRoles as $role) {
             if (($presentRoles[$role] ?? 0) === 0) {
+                $missingRoles[] = $role;
                 $blockers[] = $this->issue(
                     'missing_'.$role.'_cohort',
                     "Add a {$role} cohort before running feasibility or analysis.",
                     ['role' => $role],
+                    $this->linkActionForRole($role, $unlinkedMaterializedDrafts, $materializedConceptSetCount),
                 );
             }
         }
@@ -74,6 +83,11 @@ class StudyCohortReadinessService
                 'deprecated_cohort_definitions',
                 'Replace deprecated cohort definitions before running feasibility or analysis.',
                 ['cohort_definition_ids' => $deprecatedIds],
+                [
+                    'type' => 'replace_deprecated_cohort',
+                    'cohort_definition_ids' => $deprecatedIds,
+                    'label' => 'Replace deprecated cohorts',
+                ],
             );
         }
 
@@ -83,18 +97,35 @@ class StudyCohortReadinessService
                     'missing_concept_set_traceability',
                     'A linked cohort is missing concept set traceability.',
                     ['study_cohort_id' => $cohort->id, 'role' => $cohort->role],
+                    [
+                        'type' => 'review_linked_cohort',
+                        'study_cohort_id' => $cohort->id,
+                        'role' => $cohort->role,
+                        'label' => 'Review linked cohort traceability',
+                    ],
                 );
             }
         }
 
         $this->addRoleConflictIssues($studyCohorts, $blockers, $warnings);
         $this->addDraftIssues($cohortDrafts, $warnings);
+        $ready = $blockers === [];
 
         return [
-            'status' => $blockers === [] ? 'ready' : 'blocked',
-            'ready_for_feasibility' => $blockers === [],
+            'status' => $ready ? 'ready' : 'blocked',
+            'ready' => $ready,
+            'ready_for_feasibility' => $ready,
+            'cohort_asset_count' => $cohortDrafts->count(),
+            'materialized_verified_count' => $cohortDrafts
+                ->filter(fn (StudyDesignAsset $asset): bool => $asset->materialized_id !== null
+                    && $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value)
+                ->count(),
+            'blocked_count' => $cohortDrafts
+                ->filter(fn (StudyDesignAsset $asset): bool => $this->verificationValue($asset) === StudyDesignVerificationStatus::BLOCKED->value)
+                ->count(),
             'required_roles' => $requiredRoles,
             'present_roles' => $presentRoles,
+            'missing_roles' => $missingRoles,
             'linked_cohorts' => $studyCohorts
                 ->map(fn (StudyCohort $cohort): array => [
                     'id' => $cohort->id,
@@ -106,20 +137,34 @@ class StudyCohortReadinessService
                 ])
                 ->values()
                 ->all(),
+            'materialized_unlinked_assets' => $unlinkedMaterializedDrafts
+                ->map(fn (StudyDesignAsset $asset): array => [
+                    'id' => $asset->id,
+                    'role' => $this->cohortDraftRole($asset),
+                    'title' => (string) (data_get($asset->draft_payload_json, 'title') ?: 'Materialized cohort draft'),
+                    'cohort_definition_id' => $asset->materialized_id,
+                ])
+                ->values()
+                ->all(),
             'drafts' => [
                 'total' => $cohortDrafts->count(),
-                'verified' => $cohortDrafts->where('verification_status', StudyDesignVerificationStatus::VERIFIED->value)->count(),
-                'materialized' => $cohortDrafts->where('status', StudyDesignAssetStatus::MATERIALIZED->value)->count(),
+                'verified' => $cohortDrafts
+                    ->filter(fn (StudyDesignAsset $asset): bool => $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value)
+                    ->count(),
+                'materialized' => $cohortDrafts
+                    ->filter(fn (StudyDesignAsset $asset): bool => $this->assetStatusValue($asset) === StudyDesignAssetStatus::MATERIALIZED->value)
+                    ->count(),
                 'linked' => $cohortDrafts
                     ->filter(fn (StudyDesignAsset $asset): bool => is_numeric(data_get($asset->provenance_json, 'study_cohort_id')))
                     ->count(),
                 'unlinked_materialized' => $cohortDrafts
-                    ->filter(fn (StudyDesignAsset $asset): bool => $asset->status === StudyDesignAssetStatus::MATERIALIZED->value
+                    ->filter(fn (StudyDesignAsset $asset): bool => $this->assetStatusValue($asset) === StudyDesignAssetStatus::MATERIALIZED->value
                         && ! is_numeric(data_get($asset->provenance_json, 'study_cohort_id')))
                     ->count(),
             ],
             'blockers' => $blockers,
             'warnings' => $warnings,
+            'action_targets' => $this->actionTargets($blockers, $warnings),
             'policy' => 'A study is ready for feasibility when required OHDSI cohort roles are linked to native, non-deprecated cohort definitions.',
         ];
     }
@@ -164,6 +209,12 @@ class StudyCohortReadinessService
                 'target_comparator_same_cohort',
                 'Target and comparator roles cannot use the same cohort definition.',
                 ['cohort_definition_ids' => $sameTargetComparator],
+                [
+                    'type' => 'relink_conflicting_role',
+                    'roles' => ['target', 'comparator'],
+                    'cohort_definition_ids' => $sameTargetComparator,
+                    'label' => 'Relink target or comparator cohort',
+                ],
             );
         }
 
@@ -205,23 +256,34 @@ class StudyCohortReadinessService
      */
     private function addDraftIssues(Collection $cohortDrafts, array &$warnings): void
     {
-        $unlinkedMaterialized = $cohortDrafts
-            ->filter(fn (StudyDesignAsset $asset): bool => $asset->status === StudyDesignAssetStatus::MATERIALIZED->value
-                && ! is_numeric(data_get($asset->provenance_json, 'study_cohort_id')))
+        $unlinkedMaterializedDrafts = $this->unlinkedMaterializedDrafts($cohortDrafts);
+        $unlinkedMaterialized = $unlinkedMaterializedDrafts
             ->pluck('id')
             ->values()
             ->all();
 
         if ($unlinkedMaterialized !== []) {
+            $singleDraft = $unlinkedMaterializedDrafts->count() === 1 ? $unlinkedMaterializedDrafts->first() : null;
+            $action = [
+                'type' => 'link_materialized_cohort',
+                'asset_ids' => $unlinkedMaterialized,
+                'label' => 'Link materialized cohort drafts',
+            ];
+            if ($singleDraft instanceof StudyDesignAsset) {
+                $action['asset_id'] = $singleDraft->id;
+                $action['role'] = $this->cohortDraftRole($singleDraft);
+            }
+
             $warnings[] = $this->issue(
                 'unlinked_materialized_drafts',
                 'Materialized cohort drafts are not yet linked to study roles.',
                 ['asset_ids' => $unlinkedMaterialized],
+                $action,
             );
         }
 
         $blockedDrafts = $cohortDrafts
-            ->where('verification_status', StudyDesignVerificationStatus::BLOCKED->value)
+            ->filter(fn (StudyDesignAsset $asset): bool => $this->verificationValue($asset) === StudyDesignVerificationStatus::BLOCKED->value)
             ->pluck('id')
             ->values()
             ->all();
@@ -230,8 +292,95 @@ class StudyCohortReadinessService
                 'blocked_cohort_drafts',
                 'Blocked cohort drafts remain in this version and should be corrected or rejected.',
                 ['asset_ids' => $blockedDrafts],
+                [
+                    'type' => 'repair_cohort_draft',
+                    'asset_ids' => $blockedDrafts,
+                    'asset_id' => count($blockedDrafts) === 1 ? $blockedDrafts[0] : null,
+                    'label' => 'Repair blocked cohort drafts',
+                ],
             );
         }
+    }
+
+    /**
+     * @param  Collection<int, StudyDesignAsset>  $cohortDrafts
+     * @return Collection<int, StudyDesignAsset>
+     */
+    private function unlinkedMaterializedDrafts(Collection $cohortDrafts): Collection
+    {
+        return $cohortDrafts
+            ->filter(fn (StudyDesignAsset $asset): bool => $this->assetStatusValue($asset) === StudyDesignAssetStatus::MATERIALIZED->value
+                && ! is_numeric(data_get($asset->provenance_json, 'study_cohort_id')))
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, StudyDesignAsset>  $unlinkedMaterializedDrafts
+     * @return array<string, mixed>
+     */
+    private function linkActionForRole(string $role, Collection $unlinkedMaterializedDrafts, int $materializedConceptSetCount): array
+    {
+        $candidateIds = $unlinkedMaterializedDrafts
+            ->filter(fn (StudyDesignAsset $asset): bool => $this->cohortDraftRole($asset) === $role)
+            ->pluck('id')
+            ->values()
+            ->all();
+
+        if ($candidateIds !== []) {
+            $action = [
+                'type' => 'link_materialized_cohort',
+                'role' => $role,
+                'asset_ids' => $candidateIds,
+                'requires_selection' => count($candidateIds) !== 1,
+                'label' => "Link {$role} cohort",
+            ];
+            if (count($candidateIds) === 1) {
+                $action['asset_id'] = $candidateIds[0];
+            }
+
+            return $action;
+        }
+
+        return [
+            'type' => $materializedConceptSetCount > 0 ? 'draft_cohorts' : 'materialize_concept_sets',
+            'role' => $role,
+            'label' => $materializedConceptSetCount > 0 ? "Draft {$role} cohort" : 'Materialize concept sets',
+        ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $blockers
+     * @param  list<array<string, mixed>>  $warnings
+     * @return list<array<string, mixed>>
+     */
+    private function actionTargets(array $blockers, array $warnings): array
+    {
+        return collect([...$blockers, ...$warnings])
+            ->map(fn (array $issue): mixed => $issue['action'] ?? null)
+            ->filter(fn (mixed $action): bool => is_array($action))
+            ->values()
+            ->all();
+    }
+
+    private function cohortDraftRole(StudyDesignAsset $asset): string
+    {
+        $payloadRole = data_get($asset->draft_payload_json, 'role');
+
+        return $this->normalizeRole((string) ($payloadRole ?: $asset->role ?: 'target'));
+    }
+
+    private function assetStatusValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->status;
+
+        return $status instanceof StudyDesignAssetStatus ? $status->value : (string) $status;
+    }
+
+    private function verificationValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->verification_status;
+
+        return $status instanceof StudyDesignVerificationStatus ? $status->value : (string) $status;
     }
 
     /**
@@ -254,13 +403,18 @@ class StudyCohortReadinessService
      * @param  array<string, mixed>  $meta
      * @return array<string, mixed>
      */
-    private function issue(string $code, string $message, array $meta = []): array
+    private function issue(string $code, string $message, array $meta = [], ?array $action = null): array
     {
-        return [
+        $issue = [
             'code' => $code,
             'message' => $message,
             'meta' => $meta,
         ];
+        if ($action !== null) {
+            $issue['action'] = $action;
+        }
+
+        return $issue;
     }
 
     private function normalizeRole(string $role): string

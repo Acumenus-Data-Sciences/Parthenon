@@ -68,7 +68,16 @@ class StudyFeasibilityService
         $blockers = [];
         $warnings = [];
         if ($studyCohorts->isEmpty()) {
-            $blockers[] = $this->issue('missing_study_cohorts', 'Link study cohorts before running source feasibility.');
+            $blockers[] = $this->issue(
+                'missing_study_cohorts',
+                'Link study cohorts before running source feasibility.',
+                [],
+                [
+                    'type' => 'link_required_cohorts',
+                    'target_stage' => 'cohorts',
+                    'label' => 'Link required cohorts',
+                ],
+            );
         }
 
         $sourceResults = $sources
@@ -82,6 +91,7 @@ class StudyFeasibilityService
             foreach ($sourceResult['blockers'] as $blocker) {
                 $blockers[] = [
                     ...$blocker,
+                    'action' => $this->withSourceAction($blocker['action'] ?? null, $sourceResult),
                     'source_id' => $sourceResult['source_id'],
                     'source_name' => $sourceResult['source_name'],
                 ];
@@ -90,6 +100,7 @@ class StudyFeasibilityService
             foreach ($sourceResult['warnings'] as $warning) {
                 $warnings[] = [
                     ...$warning,
+                    'action' => $this->withSourceAction($warning['action'] ?? null, $sourceResult),
                     'source_id' => $sourceResult['source_id'],
                     'source_name' => $sourceResult['source_name'],
                 ];
@@ -112,6 +123,13 @@ class StudyFeasibilityService
             'sources' => $sourceResults,
             'blockers' => $blockers,
             'warnings' => $warnings,
+            'action_targets' => $this->actionTargets($blockers, $warnings),
+            'previous_run' => $this->previousRunSummary($session, $version, [
+                'status' => $status,
+                'ready_source_count' => $readySources,
+                'source_count' => $sources->count(),
+                'min_cell_count' => $minCellCount,
+            ]),
             'policy' => 'Feasibility is source-specific and requires completed cohort generations for linked study cohorts before analysis planning.',
         ];
 
@@ -143,6 +161,13 @@ class StudyFeasibilityService
                         'role' => $studyCohort->role,
                         'study_cohort_id' => $studyCohort->id,
                         'cohort_definition_id' => $studyCohort->cohort_definition_id,
+                    ], [
+                        'type' => 'generate_cohort_on_source',
+                        'target_stage' => 'cohort_generation',
+                        'role' => $studyCohort->role,
+                        'study_cohort_id' => $studyCohort->id,
+                        'cohort_definition_id' => $studyCohort->cohort_definition_id,
+                        'label' => 'Generate cohort on source',
                     ]);
                 } elseif ($generation->status !== ExecutionStatus::Completed) {
                     $sourceBlockers[] = $this->issue('incomplete_cohort_generation', 'Cohort generation is not completed on this source.', [
@@ -150,18 +175,39 @@ class StudyFeasibilityService
                         'study_cohort_id' => $studyCohort->id,
                         'generation_id' => $generation->id,
                         'status' => $generationStatus,
+                    ], [
+                        'type' => 'review_cohort_generation',
+                        'target_stage' => 'cohort_generation',
+                        'role' => $studyCohort->role,
+                        'study_cohort_id' => $studyCohort->id,
+                        'generation_id' => $generation->id,
+                        'label' => 'Review cohort generation',
                     ]);
                 } elseif ((int) $count === 0) {
                     $sourceBlockers[] = $this->issue('empty_required_cohort', 'A linked study cohort generated zero people on this source.', [
                         'role' => $studyCohort->role,
                         'study_cohort_id' => $studyCohort->id,
                         'generation_id' => $generation->id,
+                    ], [
+                        'type' => 'repair_linked_cohort',
+                        'target_stage' => 'cohorts',
+                        'role' => $studyCohort->role,
+                        'study_cohort_id' => $studyCohort->id,
+                        'generation_id' => $generation->id,
+                        'label' => 'Repair linked cohort logic',
                     ]);
                 } elseif ((int) $count < $minCellCount) {
                     $sourceWarnings[] = $this->issue('small_required_cohort', 'A linked study cohort is below the small-cell threshold on this source.', [
                         'role' => $studyCohort->role,
                         'study_cohort_id' => $studyCohort->id,
                         'generation_id' => $generation->id,
+                    ], [
+                        'type' => 'review_small_cell_threshold',
+                        'target_stage' => 'feasibility',
+                        'role' => $studyCohort->role,
+                        'study_cohort_id' => $studyCohort->id,
+                        'generation_id' => $generation->id,
+                        'label' => 'Review small-cell threshold',
                     ]);
                 }
 
@@ -183,6 +229,7 @@ class StudyFeasibilityService
             ->values()
             ->all();
 
+        /** @var list<array<string, mixed>> $sourceWarnings */
         $overlap = $this->overlapMatrix($source, $studyCohorts, $minCellCount, $sourceWarnings);
         $sourceQuality = $this->sourceQuality($source);
         $coverage = $this->sourceCoverage($source);
@@ -191,32 +238,64 @@ class StudyFeasibilityService
         $observationPeriodCount = $coverage['observation_period']['record_count'] ?? null;
 
         if (($coverage['cdm_schema'] ?? null) === null) {
-            $sourceBlockers[] = $this->issue('missing_cdm_daimon', 'This source does not declare a CDM schema for feasibility checks.');
+            $sourceBlockers[] = $this->issue('missing_cdm_daimon', 'This source does not declare a CDM schema for feasibility checks.', [], [
+                'type' => 'configure_source_cdm',
+                'target_stage' => 'sources',
+                'label' => 'Configure source CDM daimon',
+            ]);
         }
 
         if ($personCount === null) {
-            $sourceBlockers[] = $this->issue('person_records_unavailable', 'Person record availability could not be verified for this source.');
+            $sourceBlockers[] = $this->issue('person_records_unavailable', 'Person record availability could not be verified for this source.', [], [
+                'type' => 'review_source_coverage',
+                'target_stage' => 'sources',
+                'label' => 'Review source coverage',
+            ]);
         } elseif ($personCount === 0) {
-            $sourceBlockers[] = $this->issue('missing_person_records', 'This source has no person records available for feasibility checks.');
+            $sourceBlockers[] = $this->issue('missing_person_records', 'This source has no person records available for feasibility checks.', [], [
+                'type' => 'review_source_coverage',
+                'target_stage' => 'sources',
+                'label' => 'Review person table coverage',
+            ]);
         }
 
         if ($observationPeriodCount === null) {
-            $sourceBlockers[] = $this->issue('observation_periods_unavailable', 'Observation period availability could not be verified for this source.');
+            $sourceBlockers[] = $this->issue('observation_periods_unavailable', 'Observation period availability could not be verified for this source.', [], [
+                'type' => 'review_source_coverage',
+                'target_stage' => 'sources',
+                'label' => 'Review observation period coverage',
+            ]);
         } elseif ($observationPeriodCount === 0) {
-            $sourceBlockers[] = $this->issue('missing_observation_periods', 'This source has no observation periods available for longitudinal study design.');
+            $sourceBlockers[] = $this->issue('missing_observation_periods', 'This source has no observation periods available for longitudinal study design.', [], [
+                'type' => 'review_source_coverage',
+                'target_stage' => 'sources',
+                'label' => 'Review observation period coverage',
+            ]);
         }
 
         if (($coverage['date_coverage']['start_date'] ?? null) === null || ($coverage['date_coverage']['end_date'] ?? null) === null) {
-            $sourceWarnings[] = $this->issue('date_coverage_unavailable', 'Observation-period date coverage could not be established for this source.');
+            $sourceWarnings[] = $this->issue('date_coverage_unavailable', 'Observation-period date coverage could not be established for this source.', [], [
+                'type' => 'review_source_coverage',
+                'target_stage' => 'sources',
+                'label' => 'Review source date coverage',
+            ]);
         }
 
         $freshnessStatus = (string) ($coverage['freshness']['status'] ?? 'unknown');
         if ($freshnessStatus === 'unknown') {
-            $sourceWarnings[] = $this->issue('source_freshness_unknown', 'No source release metadata is available to verify data freshness.');
+            $sourceWarnings[] = $this->issue('source_freshness_unknown', 'No source release metadata is available to verify data freshness.', [], [
+                'type' => 'review_source_freshness',
+                'target_stage' => 'sources',
+                'label' => 'Review source release metadata',
+            ]);
         } elseif ($freshnessStatus === 'stale') {
             $sourceWarnings[] = $this->issue('source_freshness_stale', 'The latest source release metadata is more than one year old.', [
                 'latest_release_at' => $coverage['freshness']['latest_release_at'] ?? null,
                 'days_since_release' => $coverage['freshness']['days_since_release'] ?? null,
+            ], [
+                'type' => 'review_source_freshness',
+                'target_stage' => 'sources',
+                'label' => 'Review source freshness',
             ]);
         }
 
@@ -227,6 +306,11 @@ class StudyFeasibilityService
             $sourceWarnings[] = $this->issue('missing_required_domain_records', 'A linked study cohort role has no records in its expected CDM domains on this source.', [
                 'role' => $missingDomain['role'] ?? null,
                 'required_tables' => $missingDomain['required_tables'] ?? [],
+            ], [
+                'type' => 'review_source_domain_coverage',
+                'target_stage' => 'sources',
+                'role' => $missingDomain['role'] ?? null,
+                'label' => 'Review source domain coverage',
             ]);
         }
 
@@ -238,6 +322,13 @@ class StudyFeasibilityService
                 'role' => $cohort->role,
                 'study_cohort_id' => $cohort->id,
                 'cohort_definition_id' => $cohort->cohort_definition_id,
+            ], [
+                'type' => 'repair_cohort_traceability',
+                'target_stage' => 'cohorts',
+                'role' => $cohort->role,
+                'study_cohort_id' => $cohort->id,
+                'cohort_definition_id' => $cohort->cohort_definition_id,
+                'label' => 'Repair cohort traceability',
             ]);
         }
 
@@ -245,6 +336,10 @@ class StudyFeasibilityService
             $sourceWarnings[] = $this->issue('dqd_failed_checks', 'Data Quality Dashboard checks failed for this source.', [
                 'failed_checks' => $sourceQuality['dqd']['failed_checks'],
                 'severe_failed_checks' => $sourceQuality['dqd']['severe_failed_checks'],
+            ], [
+                'type' => 'review_source_quality',
+                'target_stage' => 'sources',
+                'label' => 'Review DQD failures',
             ]);
         }
 
@@ -332,6 +427,10 @@ class StudyFeasibilityService
         } catch (\Throwable $e) {
             $sourceWarnings[] = $this->issue('overlap_unavailable', 'Overlap matrix could not be computed from the source results cohort table.', [
                 'error' => Str::limit($e->getMessage(), 240),
+            ], [
+                'type' => 'review_overlap_results',
+                'target_stage' => 'sources',
+                'label' => 'Review results cohort table',
             ]);
 
             return ['status' => 'unavailable', 'pairs' => []];
@@ -655,13 +754,89 @@ class StudyFeasibilityService
      * @param  array<string, mixed>  $meta
      * @return array<string, mixed>
      */
-    private function issue(string $code, string $message, array $meta = []): array
+    /**
+     * @param  array<string, mixed>|null  $action
+     * @return array<string, mixed>|null
+     */
+    private function withSourceAction(mixed $action, array $sourceResult): ?array
     {
+        if (! is_array($action)) {
+            return null;
+        }
+
         return [
+            ...$action,
+            'source_id' => $sourceResult['source_id'] ?? null,
+            'source_name' => $sourceResult['source_name'] ?? null,
+        ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $blockers
+     * @param  list<array<string, mixed>>  $warnings
+     * @return list<array<string, mixed>>
+     */
+    private function actionTargets(array $blockers, array $warnings): array
+    {
+        return collect([...$blockers, ...$warnings])
+            ->map(fn (array $issue): mixed => $issue['action'] ?? null)
+            ->filter(fn (mixed $action): bool => is_array($action))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $current
+     * @return array<string, mixed>|null
+     */
+    private function previousRunSummary(StudyDesignSession $session, StudyDesignVersion $version, array $current): ?array
+    {
+        $previousAsset = $session->assets()
+            ->where('version_id', $version->id)
+            ->where('asset_type', 'feasibility_result')
+            ->latest('id')
+            ->first();
+
+        if (! $previousAsset instanceof StudyDesignAsset || ! is_array($previousAsset->draft_payload_json)) {
+            return null;
+        }
+
+        $previous = $previousAsset->draft_payload_json;
+        $previousReady = (int) ($previous['ready_source_count'] ?? 0);
+        $currentReady = (int) ($current['ready_source_count'] ?? 0);
+        $previousSourceCount = (int) ($previous['source_count'] ?? 0);
+        $currentSourceCount = (int) ($current['source_count'] ?? 0);
+
+        return [
+            'asset_id' => $previousAsset->id,
+            'status' => $previous['status'] ?? null,
+            'ready_source_count' => $previousReady,
+            'source_count' => $previousSourceCount,
+            'min_cell_count' => $previous['min_cell_count'] ?? null,
+            'ran_at' => $previous['ran_at'] ?? null,
+            'delta_ready_source_count' => $currentReady - $previousReady,
+            'delta_source_count' => $currentSourceCount - $previousSourceCount,
+            'threshold_changed' => ($previous['min_cell_count'] ?? null) !== ($current['min_cell_count'] ?? null),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     * @param  array<string, mixed>|null  $action
+     * @return array<string, mixed>
+     */
+    private function issue(string $code, string $message, array $meta = [], ?array $action = null): array
+    {
+        $issue = [
             'code' => $code,
             'message' => $message,
             'meta' => $meta,
         ];
+        if ($action !== null) {
+            $issue['action'] = $action;
+        }
+
+        return $issue;
     }
 
     private function normalizeRole(string $role): string

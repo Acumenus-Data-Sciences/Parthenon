@@ -22,6 +22,7 @@ async def health_check() -> dict[str, Any]:
             "provider": "ollama",
             "model": settings.abby_llm_model,
             "base_url": settings.abby_llm_base_url,
+            "cloud_routing_enabled": settings.abby_cloud_routing_enabled,
             "status": ollama_status,
         },
     }

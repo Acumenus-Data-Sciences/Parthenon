@@ -26,7 +26,7 @@ const PROVIDER_META: Record<string, ProviderMeta> = {
   ollama: {
     region: "Local",
     regionBadge: "inactive",
-    models: ["MedAIBase/MedGemma1.5:4b", "llama3.2", "gemma3:4b", "mistral"],
+    models: ["puyangwang/medgemma-27b-it:q4_0", "MedAIBase/MedGemma1.5:4b", "llama3.2", "gemma3:4b", "mistral"],
     hasApiKey: false,
     hasBaseUrl: true,
   },

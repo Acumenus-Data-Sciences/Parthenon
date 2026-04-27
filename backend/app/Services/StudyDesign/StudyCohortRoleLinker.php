@@ -23,7 +23,7 @@ class StudyCohortRoleLinker
             ]);
         }
 
-        if ($asset->status !== StudyDesignAssetStatus::MATERIALIZED->value || $asset->materialized_type !== CohortDefinition::class || $asset->materialized_id === null) {
+        if ($this->assetStatusValue($asset) !== StudyDesignAssetStatus::MATERIALIZED->value || $asset->materialized_type !== CohortDefinition::class || $asset->materialized_id === null) {
             throw ValidationException::withMessages([
                 'asset' => 'Materialize this cohort draft before linking it to the study.',
             ]);
@@ -76,6 +76,13 @@ class StudyCohortRoleLinker
 
             return $studyCohort->fresh('cohortDefinition') ?? $studyCohort;
         });
+    }
+
+    private function assetStatusValue(StudyDesignAsset $asset): string
+    {
+        $status = $asset->status;
+
+        return $status instanceof StudyDesignAssetStatus ? $status->value : (string) $status;
     }
 
     private function normalizeRole(string $role): string
