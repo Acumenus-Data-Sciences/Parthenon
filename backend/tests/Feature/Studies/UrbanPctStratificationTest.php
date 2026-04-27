@@ -18,8 +18,16 @@ declare(strict_types=1);
  * Pest groups: phase19, studies, gis-03 — every test.
  */
 
-use App\Models\App\User;
+use App\Models\User;
 use App\Services\Analysis\IncidenceRateService;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(RolePermissionSeeder::class);
+});
 
 it('IncidenceRateService advertises location_urban_pct as a supported stratification (GIS-03)', function (): void {
     $found = false;

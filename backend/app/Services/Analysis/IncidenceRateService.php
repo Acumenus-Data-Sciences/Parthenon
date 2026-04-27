@@ -15,9 +15,42 @@ use Illuminate\Support\Facades\Log;
 
 class IncidenceRateService
 {
+    /**
+     * Stratifications supported by IncidenceRateService::buildIncidenceRateSql.
+     *
+     * Phase 19 (GIS-03 / D-03 / D-08) added the two location-based variants
+     * which LEFT JOIN gis.external_exposure and bucketize the value at query
+     * time so researchers can re-bucket without re-loading data. RUCC uses
+     * value_as_integer (USDA 1-9 codes); urban_pct uses value_as_number
+     * (Census 2020 POPPCT_URB as a fraction in [0, 1]).
+     *
+     * @var list<string>
+     */
+    public const SUPPORTED_STRATIFICATIONS = [
+        'gender',
+        'age',
+        'location_urban_pct',
+        'location_rucc',
+    ];
+
     public function __construct(
         private readonly SqlRendererService $sqlRenderer,
     ) {}
+
+    /**
+     * The full list of stratification keys this service understands.
+     *
+     * Form Requests and the frontend Studies designer both consume this list
+     * to keep their enum validation in sync with the SQL builder. New
+     * stratifications MUST be added to SUPPORTED_STRATIFICATIONS AND given a
+     * branch in buildIncidenceRateSql.
+     *
+     * @return list<string>
+     */
+    public static function supportedStratifications(): array
+    {
+        return self::SUPPORTED_STRATIFICATIONS;
+    }
 
     /**
      * Execute an incidence rate analysis.
@@ -47,6 +80,12 @@ class IncidenceRateService
             ];
             $stratifyByGender = $design['stratifyByGender'] ?? false;
             $stratifyByAge = $design['stratifyByAge'] ?? false;
+            $stratifyByLocation = (string) ($design['stratifyByLocation'] ?? 'none');
+            if (! in_array($stratifyByLocation, ['none', 'urban_pct', 'rucc'], true)) {
+                throw new \InvalidArgumentException(
+                    "Invalid stratifyByLocation value: {$stratifyByLocation}"
+                );
+            }
             $ageGroups = $design['ageGroups'] ?? ['0-17', '18-34', '35-49', '50-64', '65+'];
             $minCellCount = $design['minCellCount'] ?? 5;
 
@@ -80,6 +119,7 @@ class IncidenceRateService
                     $timeAtRisk,
                     $stratifyByGender,
                     $stratifyByAge,
+                    $stratifyByLocation,
                     $ageGroups,
                     $cdmSchema,
                     $vocabSchema,
@@ -87,6 +127,7 @@ class IncidenceRateService
                     $dialect,
                     $connectionName,
                     $minCellCount,
+                    (int) $source->id,
                     $execution,
                 );
 
@@ -139,6 +180,7 @@ class IncidenceRateService
         array $timeAtRisk,
         bool $stratifyByGender,
         bool $stratifyByAge,
+        string $stratifyByLocation,
         array $ageGroups,
         string $cdmSchema,
         string $vocabSchema,
@@ -146,6 +188,7 @@ class IncidenceRateService
         string $dialect,
         string $connectionName,
         int $minCellCount,
+        int $stratifySourceId,
         AnalysisExecution $execution,
     ): array {
         // Build time-at-risk expressions
@@ -256,6 +299,48 @@ class IncidenceRateService
             );
         }
 
+        // Location stratification (Phase 19 / GIS-03 / D-03 / D-08).
+        // Server-side bucketing of gis.external_exposure rows so the same
+        // exposure value can be re-bucketed without reloading data.
+        if ($stratifyByLocation !== 'none') {
+            $stratifyKey = "location_{$stratifyByLocation}";  // 'location_urban_pct' or 'location_rucc'
+
+            $this->log(
+                $execution,
+                'info',
+                "Computing location-stratified incidence rate ({$stratifyKey}) for outcome {$outcomeCohortId}",
+            );
+
+            $locSql = $this->buildIncidenceRateSql(
+                $targetCohortId,
+                $outcomeCohortId,
+                $tarStartExpr,
+                $tarEndExpr,
+                $cdmSchema,
+                $vocabSchema,
+                $cohortTable,
+                $stratifyKey,
+                null,
+                $stratifySourceId,
+            );
+
+            $renderedLocSql = $this->sqlRenderer->render(
+                $locSql,
+                [
+                    'cdmSchema' => $cdmSchema,
+                    'vocabSchema' => $vocabSchema,
+                    'cohortTable' => $cohortTable,
+                ],
+                $dialect,
+            );
+
+            $locRows = DB::connection($connectionName)->select($renderedLocSql);
+            $result['strata'][$stratifyKey] = array_map(
+                fn ($row) => $this->applyMinCellCount((array) $row, $minCellCount),
+                $locRows,
+            );
+        }
+
         return $result;
     }
 
@@ -292,6 +377,7 @@ class IncidenceRateService
         string $cohortTable,
         ?string $stratifyBy,
         ?array $ageGroups = null,
+        ?int $stratifySourceId = null,
     ): string {
         $stratifySelect = '';
         $stratifyJoin = '';
@@ -311,6 +397,56 @@ class IncidenceRateService
                 JOIN {@cdmSchema}.person p ON target.subject_id = p.person_id
             ';
             $stratifyGroup = "GROUP BY {$ageCase}";
+        } elseif ($stratifyBy === 'location_urban_pct') {
+            // D-03: query-time bucketing of continuous urban_pct (0..1).
+            // Persons without a gis.external_exposure row are bucketed as
+            // 'Unknown' (e.g. synthetic-zip sources or sources where the
+            // patient's ZIP did not match any UA county tract).
+            if ($stratifySourceId === null) {
+                throw new \LogicException(
+                    'stratifySourceId is required for location_urban_pct stratification'
+                );
+            }
+            $sid = (int) $stratifySourceId;  // sanitized
+            $stratifySelect = "
+                CASE
+                    WHEN ee.value_as_number IS NULL THEN 'Unknown'
+                    WHEN ee.value_as_number < 0.25 THEN 'Highly Rural (<25% urban)'
+                    WHEN ee.value_as_number < 0.50 THEN 'Rural (25-50% urban)'
+                    WHEN ee.value_as_number < 0.75 THEN 'Mixed (50-75% urban)'
+                    ELSE 'Urban (>=75% urban)'
+                END AS stratum_name,";
+            $stratifyJoin = "
+                LEFT JOIN gis.external_exposure ee
+                    ON target.subject_id = ee.person_id
+                   AND ee.source_id = {$sid}
+                   AND ee.exposure_type = 'urban_pct'
+                   AND ee.source_dataset LIKE 'census_ua_2020%'
+            ";
+            $stratifyGroup = 'GROUP BY 1';
+        } elseif ($stratifyBy === 'location_rucc') {
+            // USDA Rural-Urban Continuum Codes (1-9): 1-3 Metro, 4-7 Micropolitan,
+            // 8-9 Rural. value_as_integer holds the integer RUCC code.
+            if ($stratifySourceId === null) {
+                throw new \LogicException(
+                    'stratifySourceId is required for location_rucc stratification'
+                );
+            }
+            $sid = (int) $stratifySourceId;
+            $stratifySelect = "
+                CASE
+                    WHEN ee.value_as_integer IS NULL THEN 'Unknown'
+                    WHEN ee.value_as_integer <= 3 THEN 'Metro'
+                    WHEN ee.value_as_integer <= 7 THEN 'Micropolitan'
+                    ELSE 'Rural'
+                END AS stratum_name,";
+            $stratifyJoin = "
+                LEFT JOIN gis.external_exposure ee
+                    ON target.subject_id = ee.person_id
+                   AND ee.source_id = {$sid}
+                   AND ee.exposure_type = 'rucc'
+            ";
+            $stratifyGroup = 'GROUP BY 1';
         }
 
         return "
