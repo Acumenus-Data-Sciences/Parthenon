@@ -1056,22 +1056,27 @@ Route::prefix('v1')->group(function () {
         });
 
         // StudyAgent AI Assistant
-        Route::prefix('study-agent')
-            ->middleware(['role:researcher|super-admin', 'throttle:10,1'])
-            ->group(function () {
+        Route::prefix('study-agent')->group(function () {
+            // Reads — phenotype search and AI helpers that don't generate persisted artifacts
+            Route::middleware(['permission:studies.view', 'throttle:60,1'])->group(function () {
                 Route::get('/health', [StudyAgentController::class, 'health']);
                 Route::get('/tools', [StudyAgentController::class, 'tools']);
                 Route::get('/services', [StudyAgentController::class, 'services']);
                 Route::get('/community-workbench-sdk/demo', [StudyAgentController::class, 'communityWorkbenchSdkDemo']);
                 Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
+                Route::post('/intent/split', [StudyAgentController::class, 'intentSplit']);
+            });
+
+            // Mutations / AI generation — keep tight throttle to protect 120-second LLM calls
+            Route::middleware(['permission:studies.create', 'throttle:10,1'])->group(function () {
                 Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
                 Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
-                Route::post('/intent/split', [StudyAgentController::class, 'intentSplit']);
                 Route::post('/cohort/lint', [StudyAgentController::class, 'cohortLint']);
                 Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
                 Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
                 Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
             });
+        });
 
         // FinnGen SP1 Runtime Foundation routes (replaces /study-agent/finngen-*)
         Route::prefix('finngen')->group(function () {

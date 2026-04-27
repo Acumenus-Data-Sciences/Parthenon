@@ -8,7 +8,7 @@ class PhenotypeSearchRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('studies.view') ?? false;
     }
 
     public function rules(): array
