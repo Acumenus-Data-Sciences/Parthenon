@@ -260,7 +260,7 @@ services:
       context: .
       dockerfile: docker/study-agent/Dockerfile
     ports:
-      - "${STUDY_AGENT_PORT:-8765}:8765"
+      - "127.0.0.1:${STUDY_AGENT_PORT:-8765}:8765"
     volumes:
       - study-agent-data:/data/phenotype-index
       - ./study-agent:/opt/study-agent:ro
