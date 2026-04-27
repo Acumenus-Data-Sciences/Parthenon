@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Phase 19 Plan 02 (Wave 1) — register the census_ua_2020 dataset row in
@@ -21,6 +22,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('gis_datasets')) {
+            return;
+        }
+
         $now = now();
 
         DB::table('gis_datasets')->updateOrInsert(
@@ -50,6 +55,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('gis_datasets')) {
+            return;
+        }
+
         DB::table('gis_datasets')->where('slug', 'census_ua_2020')->delete();
     }
 };
