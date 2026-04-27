@@ -4,6 +4,12 @@
 Downloads CDC SVI 2020 PA data, maps to census tracts, then assigns SVI
 scores to patients via the patient_geography materialized view.
 
+Phase 19 GIS-04: ported from the legacy hardcoded `ohdsi/smudoshi/acumenus`
+DSN to the env-driven ``loader_common.get_dsn()`` against `parthenon`. The
+loader still uses PA-anchored CDC SVI input but now writes through the
+multi-source ``gis.patient_geography`` matview (Plan 03) so coverage extends
+to every real-geography source the matview exposes.
+
 Usage:
     python scripts/gis/load_svi.py
 """
@@ -16,8 +22,16 @@ import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
 
-GIS_DATA = Path(__file__).resolve().parent.parent.parent / "GIS" / "data"
-DB_DSN = "host=localhost port=5432 dbname=ohdsi user=smudoshi password=acumenus options='-c search_path=gis,public,app,topology'"
+# sys.path bootstrap so `python scripts/gis/load_svi.py` works from any cwd
+# (matches the Wave 2 deviation #5 pattern used in the Phase 19 loaders).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.gis.loader_common import get_dsn  # noqa: E402
+
+GIS_DATA = _REPO_ROOT / "GIS" / "data"
+DB_DSN = get_dsn(search_path="gis,public,app,topology")
 PA_FIPS = "42"
 
 SVI_THEMES = {
