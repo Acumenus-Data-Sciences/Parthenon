@@ -4,6 +4,13 @@
 Maps counties to RUCC classifications (1-9 scale), then assigns to patients
 via patient_geography county_fips.
 
+Phase 19 GIS-04: ported from the legacy hardcoded `ohdsi/smudoshi/acumenus`
+DSN to the env-driven ``loader_common.get_dsn()`` against `parthenon`. The
+loader still writes per-Acumenus PA county RUCC values to
+``gis.external_exposure`` (keyed by ``person_id``), but now relies on the
+shared ``gis.patient_geography`` matview built in Plan 03 — which covers all
+real-geography sources, not just Acumenus.
+
 Usage:
     python scripts/gis/load_rucc.py
 """
@@ -16,8 +23,17 @@ import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
 
-GIS_DATA = Path(__file__).resolve().parent.parent.parent / "GIS" / "data"
-DB_DSN = "host=localhost port=5432 dbname=ohdsi user=smudoshi password=acumenus options='-c search_path=gis,public,app,topology'"
+# sys.path bootstrap so `python scripts/gis/load_rucc.py` works from any cwd
+# (matches the Wave 2 deviation #5 pattern used in load_geography.py /
+# load_crosswalk.py / load_ua_county.py).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.gis.loader_common import get_dsn  # noqa: E402
+
+GIS_DATA = _REPO_ROOT / "GIS" / "data"
+DB_DSN = get_dsn(search_path="gis,public,app,topology")
 PA_FIPS = "42"
 
 RUCC_LABELS = {
