@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\DaimonType;
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IncidenceRateStoreRequest;
+use App\Http\Requests\IncidenceRateUpdateRequest;
 use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
@@ -68,28 +70,9 @@ class IncidenceRateController extends Controller
      *
      * Create a new incidence rate analysis.
      */
-    public function store(Request $request): JsonResponse
+    public function store(IncidenceRateStoreRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'design_json' => 'required|array',
-            'design_json.targetCohortId' => 'required|integer',
-            'design_json.outcomeCohortIds' => 'required|array|min:1',
-            'design_json.outcomeCohortIds.*' => 'integer',
-            'design_json.timeAtRisk' => 'nullable|array',
-            'design_json.timeAtRisk.start' => 'nullable|array',
-            'design_json.timeAtRisk.start.dateField' => 'nullable|string|in:StartDate,EndDate',
-            'design_json.timeAtRisk.start.offset' => 'nullable|integer',
-            'design_json.timeAtRisk.end' => 'nullable|array',
-            'design_json.timeAtRisk.end.dateField' => 'nullable|string|in:StartDate,EndDate',
-            'design_json.timeAtRisk.end.offset' => 'nullable|integer',
-            'design_json.stratifyByGender' => 'nullable|boolean',
-            'design_json.stratifyByAge' => 'nullable|boolean',
-            'design_json.ageGroups' => 'nullable|array',
-            'design_json.ageGroups.*' => 'string',
-            'design_json.minCellCount' => 'nullable|integer|min:1',
-        ]);
+        $validated = $request->validated();
 
         try {
             $analysis = IncidenceRateAnalysis::create([
@@ -137,28 +120,9 @@ class IncidenceRateController extends Controller
      *
      * Update an incidence rate analysis.
      */
-    public function update(Request $request, IncidenceRateAnalysis $incidenceRate): JsonResponse
+    public function update(IncidenceRateUpdateRequest $request, IncidenceRateAnalysis $incidenceRate): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'design_json' => 'sometimes|required|array',
-            'design_json.targetCohortId' => 'required_with:design_json|integer',
-            'design_json.outcomeCohortIds' => 'required_with:design_json|array|min:1',
-            'design_json.outcomeCohortIds.*' => 'integer',
-            'design_json.timeAtRisk' => 'nullable|array',
-            'design_json.timeAtRisk.start' => 'nullable|array',
-            'design_json.timeAtRisk.start.dateField' => 'nullable|string|in:StartDate,EndDate',
-            'design_json.timeAtRisk.start.offset' => 'nullable|integer',
-            'design_json.timeAtRisk.end' => 'nullable|array',
-            'design_json.timeAtRisk.end.dateField' => 'nullable|string|in:StartDate,EndDate',
-            'design_json.timeAtRisk.end.offset' => 'nullable|integer',
-            'design_json.stratifyByGender' => 'nullable|boolean',
-            'design_json.stratifyByAge' => 'nullable|boolean',
-            'design_json.ageGroups' => 'nullable|array',
-            'design_json.ageGroups.*' => 'string',
-            'design_json.minCellCount' => 'nullable|integer|min:1',
-        ]);
+        $validated = $request->validated();
 
         try {
             $incidenceRate->update($validated);
