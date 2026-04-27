@@ -203,6 +203,28 @@ restart_running_service() {
   fi
 }
 
+ensure_nginx_docs_mount() {
+  if ! service_exists nginx || ! is_running nginx; then
+    return 0
+  fi
+
+  if [ ! -f docs/site/build/index.html ]; then
+    return 0
+  fi
+
+  if docker compose exec -T nginx test -f /var/www/docs-dist/index.html >/dev/null 2>&1; then
+    return 0
+  fi
+
+  warn "Nginx docs bind mount is stale — restarting nginx to remount docs/site/build"
+  if docker compose restart nginx >/dev/null 2>&1; then
+    ok "Nginx docs bind mount refreshed"
+  else
+    fail "Nginx docs bind mount refresh failed"
+    ERRORS=$((ERRORS + 1))
+  fi
+}
+
 clear_scribe_cache() {
   if is_running php; then
     docker compose exec -T php sh -lc 'rm -rf /var/www/html/.scribe/endpoints.cache' >/dev/null 2>&1 || true
@@ -620,6 +642,7 @@ if $DO_DOCS; then
       # Nginx in Docker runs as UID 101 — build output must be world-readable
       chmod -R o+rX docs/site/build/
       ok "Docs built → docs/site/build"
+      ensure_nginx_docs_mount
     else
       fail "Docs build failed"
       ERRORS=$((ERRORS + 1))
@@ -672,9 +695,11 @@ if ! $DO_DOCS && [ -f docs/site/package.json ]; then
     echo ""
     echo "── Docs: build dir empty — rebuilding Docusaurus site ──"
     mkdir -p docs/site/build
+    rm -rf docs/site/.docusaurus docs/site/node_modules/.cache
     if docker compose --profile docs run --rm docs-build 2>&1 | sed 's/^/   /'; then
       chmod -R o+rX docs/site/build/
       ok "Docs rebuilt → docs/site/build"
+      ensure_nginx_docs_mount
     else
       fail "Docs rebuild failed"
       ERRORS=$((ERRORS + 1))
