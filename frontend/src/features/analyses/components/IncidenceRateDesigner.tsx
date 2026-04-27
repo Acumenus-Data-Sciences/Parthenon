@@ -36,6 +36,9 @@ const DEFAULT_STRAT: StratificationConfig = {
   age_breaks: [0, 18, 35, 50, 65],
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- exported for GIS stratification contract tests.
+export const STRATIFY_BY_LOCATION_OPTIONS = ["none", "urban_pct", "rucc"] as const;
+
 const defaultDesign: IncidenceRateDesign = {
   targetCohortId: 0,
   outcomeCohortIds: [],
@@ -178,6 +181,7 @@ function AgeBreaksEditor({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the text field synchronized when external age breaks change.
     setRaw(breaks.join(", "));
   }, [breaks]);
 
