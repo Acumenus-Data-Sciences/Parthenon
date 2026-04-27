@@ -1,8 +1,9 @@
-import { useCallback, useId, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Brain, CheckCircle2, ChevronDown, ChevronRight, Loader2, Plus, Save, Sparkles, Upload } from "lucide-react";
+import { AlertTriangle, Brain, CheckCircle2, ChevronDown, ChevronRight, Loader2, Lock, Plus, Save, Sparkles, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Modal } from "@/components/ui/Modal";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { searchConcepts } from "@/features/vocabulary/api/vocabularyApi";
 import type { Source } from "@/types/models";
@@ -407,90 +408,69 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
     materializeAnalysisPlan.mutate({ slug, sessionId: selectedSession.id, assetId: asset.id });
   };
 
-  const handleLockVersion = () => {
+  const [lockConfirmOpen, setLockConfirmOpen] = useState(false);
+  const [lockGateMessage, setLockGateMessage] = useState<string | null>(null);
+  const [intentReviewDirty, setIntentReviewDirty] = useState(false);
+
+  const handleLockVersionRequest = async () => {
     if (!selectedSession || !selectedVersion) return;
-    lockDesignVersion.mutate({
-      slug,
-      sessionId: selectedSession.id,
-      versionId: selectedVersion.id,
-    });
+    setLockGateMessage(null);
+    // Refetch readiness so we lock against current state, not stale cache.
+    const fresh = (await lockReadinessQuery.refetch()).data;
+    if (!fresh || fresh.can_lock !== true || fresh.locked === true) {
+      setLockGateMessage(fresh?.locked ? t("studies.workbench.messages.alreadyLocked") : t("studies.workbench.messages.lockGateClosed"));
+      return;
+    }
+    setLockConfirmOpen(true);
   };
 
-  type MutationErrorEntry = { name: string; error: unknown };
-  // Track the last error reference the user dismissed. Stored in state so a
-  // re-render runs once dismiss is clicked; new errors (different reference)
-  // surface a fresh banner.
+  // TODO(backend OCC): pass selectedVersion.updated_at as a precondition once
+  // the lock endpoint accepts it. The backend currently takes no body.
+  const handleConfirmLock = () => {
+    if (!selectedSession || !selectedVersion) return;
+    const close = () => setLockConfirmOpen(false);
+    lockDesignVersion.mutate(
+      { slug, sessionId: selectedSession.id, versionId: selectedVersion.id },
+      { onSuccess: close, onError: close },
+    );
+  };
+
+  const confirmDiscardIfDirty = () =>
+    !intentReviewDirty || window.confirm(t("studies.workbench.confirmDiscardEdits"));
+
+  const guardedSetSelectedVersion = (id: number) => {
+    if (!confirmDiscardIfDirty()) return;
+    setSelectedVersionId(id);
+    setIntentReviewDirty(false);
+  };
+
+  const guardedSelectSession = (id: number) => {
+    if (!confirmDiscardIfDirty()) return;
+    setSelectedSessionId(id);
+    setSelectedVersionId(null);
+    setIntentReviewDirty(false);
+  };
+
+  // Last dismissed error reference; new errors (different reference) re-surface.
   const [dismissedError, setDismissedError] = useState<unknown>(null);
 
-  const trackedMutations = useMemo(
-    () => [
-      { name: "createSession", mutation: createSession },
-      { name: "generateIntent", mutation: generateIntent },
-      { name: "importProtocol", mutation: importProtocol },
-      { name: "updateVersion", mutation: updateVersion },
-      { name: "acceptVersion", mutation: acceptVersion },
-      { name: "importExistingStudy", mutation: importExistingStudy },
-      { name: "critiqueStudyDesign", mutation: critiqueStudyDesign },
-      { name: "recommendPhenotypes", mutation: recommendPhenotypes },
-      { name: "draftConceptSets", mutation: draftConceptSets },
-      { name: "draftCohorts", mutation: draftCohorts },
-      { name: "verifyConceptSetDraft", mutation: verifyConceptSetDraft },
-      { name: "verifyConceptSetDrafts", mutation: verifyConceptSetDrafts },
-      { name: "verifyCohortDraft", mutation: verifyCohortDraft },
-      { name: "updateConceptSetDraft", mutation: updateConceptSetDraft },
-      { name: "updateCohortDraft", mutation: updateCohortDraft },
-      { name: "materializeConceptSetDraft", mutation: materializeConceptSetDraft },
-      { name: "materializeCohortDraft", mutation: materializeCohortDraft },
-      { name: "linkCohortDraft", mutation: linkCohortDraft },
-      { name: "runFeasibility", mutation: runFeasibility },
-      { name: "draftAnalysisPlans", mutation: draftAnalysisPlans },
-      { name: "verifyAnalysisPlan", mutation: verifyAnalysisPlan },
-      { name: "materializeAnalysisPlan", mutation: materializeAnalysisPlan },
-      { name: "lockDesignVersion", mutation: lockDesignVersion },
-      { name: "reviewAsset", mutation: reviewAsset },
-    ],
-    [
-      createSession,
-      generateIntent,
-      importProtocol,
-      updateVersion,
-      acceptVersion,
-      importExistingStudy,
-      critiqueStudyDesign,
-      recommendPhenotypes,
-      draftConceptSets,
-      draftCohorts,
-      verifyConceptSetDraft,
-      verifyConceptSetDrafts,
-      verifyCohortDraft,
-      updateConceptSetDraft,
-      updateCohortDraft,
-      materializeConceptSetDraft,
-      materializeCohortDraft,
-      linkCohortDraft,
-      runFeasibility,
-      draftAnalysisPlans,
-      verifyAnalysisPlan,
-      materializeAnalysisPlan,
-      lockDesignVersion,
-      reviewAsset,
-    ],
+  const trackedMutations: Array<{ error: unknown; reset: () => void }> = [
+    createSession, generateIntent, importProtocol, updateVersion, acceptVersion,
+    importExistingStudy, critiqueStudyDesign, recommendPhenotypes, draftConceptSets,
+    draftCohorts, verifyConceptSetDraft, verifyConceptSetDrafts, verifyCohortDraft,
+    updateConceptSetDraft, updateCohortDraft, materializeConceptSetDraft,
+    materializeCohortDraft, linkCohortDraft, runFeasibility, draftAnalysisPlans,
+    verifyAnalysisPlan, materializeAnalysisPlan, lockDesignVersion, reviewAsset,
+  ];
+  const recentErrorMutation = trackedMutations.find(
+    (mutation) => mutation.error && mutation.error !== dismissedError,
   );
-
-  let recentMutationError: MutationErrorEntry | null = null;
-  for (const { name, mutation } of trackedMutations) {
-    const error = mutation.error;
-    if (error && error !== dismissedError) {
-      recentMutationError = { name, error };
-      break;
-    }
-  }
+  const recentMutationError = recentErrorMutation?.error ?? null;
 
   const dismissMutationError = () => {
-    if (!recentMutationError) return;
-    const entry = trackedMutations.find((item) => item.name === recentMutationError.name);
-    entry?.mutation.reset();
-    setDismissedError(recentMutationError.error);
+    if (!recentErrorMutation) return;
+    recentErrorMutation.reset();
+    setDismissedError(recentErrorMutation.error);
   };
 
   return (
@@ -570,10 +550,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
                 <button
                   key={session.id}
                   type="button"
-                  onClick={() => {
-                    setSelectedSessionId(session.id);
-                    setSelectedVersionId(null);
-                  }}
+                  onClick={() => guardedSelectSession(session.id)}
                   className={cn(
                     "w-full rounded-lg border px-3 py-2 text-left transition-colors",
                     selectedSession?.id === session.id
@@ -619,7 +596,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
                   <button
                     key={version.id}
                     type="button"
-                    onClick={() => setSelectedVersionId(version.id)}
+                    onClick={() => guardedSetSelectedVersion(version.id)}
                     className={cn(
                       "rounded-md border px-2.5 py-1 text-xs",
                       selectedVersion?.id === version.id
@@ -644,6 +621,7 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
                   onAccept={handleAccept}
                   isSaving={updateVersion.isPending}
                   isAccepting={acceptVersion.isPending}
+                  onDirtyChange={setIntentReviewDirty}
                 />
                 <BottomUpCompatibilityPanel
                   assets={assets}
@@ -717,8 +695,14 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
                   isLoading={lockReadinessQuery.isLoading}
                   isLocking={lockDesignVersion.isPending}
                   versionStatus={selectedVersion.status}
-                  onLock={handleLockVersion}
+                  onLock={() => void handleLockVersionRequest()}
                 />
+                {lockGateMessage && (
+                  <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-warning" role="alert">
+                    <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+                    <span>{lockGateMessage}</span>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -759,20 +743,34 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
       )}
 
       {recentMutationError && (
-        <div
-          className="rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical flex items-start gap-3"
-          role="alert"
-        >
-          <span className="flex-1">{mutationError(recentMutationError.error)}</span>
-          <button
-            type="button"
-            onClick={dismissMutationError}
-            className="btn btn-ghost btn-sm shrink-0"
-          >
+        <div className="rounded-lg border border-critical/40 bg-critical/10 p-3 text-sm text-critical flex items-start gap-3" role="alert">
+          <span className="flex-1">{mutationError(recentMutationError)}</span>
+          <button type="button" onClick={dismissMutationError} className="btn btn-ghost btn-sm shrink-0">
             {t("studies.workbench.actions.dismiss")}
           </button>
         </div>
       )}
+
+      <Modal
+        open={lockConfirmOpen}
+        onClose={() => { if (!lockDesignVersion.isPending) setLockConfirmOpen(false); }}
+        title={t("studies.workbench.lockConfirm.title")}
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button type="button" className="btn btn-ghost btn-sm" disabled={lockDesignVersion.isPending} onClick={() => setLockConfirmOpen(false)}>
+              {t("studies.workbench.actions.cancel")}
+            </button>
+            <button type="button" className="btn btn-primary btn-sm" disabled={lockDesignVersion.isPending} onClick={handleConfirmLock}>
+              {lockDesignVersion.isPending ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+              {t("studies.workbench.lockConfirm.confirm")}
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-text-primary">{t("studies.workbench.lockConfirm.body", { version: selectedVersion?.version_number ?? "", updatedAt: selectedVersion?.updated_at ?? "" })}</p>
+        <p className="mt-2 text-xs text-warning">{t("studies.workbench.lockConfirm.irreversibleWarning")}</p>
+      </Modal>
     </div>
   );
 }
@@ -1347,10 +1345,7 @@ function ConceptSetDraftCard({
                 </div>
               )}
               {searchError && (
-                <div
-                  className="mt-2 rounded-md border border-critical/40 bg-critical/10 px-2 py-1 text-[11px] text-critical"
-                  role="alert"
-                >
+                <div className="mt-2 rounded-md border border-critical/40 bg-critical/10 px-2 py-1 text-[11px] text-critical" role="alert">
                   {searchError}
                 </div>
               )}
@@ -3306,6 +3301,7 @@ function IntentReviewPanel({
   onAccept,
   isSaving,
   isAccepting,
+  onDirtyChange,
 }: {
   version: StudyDesignVersion;
   initialFormState: IntentFormState;
@@ -3313,9 +3309,27 @@ function IntentReviewPanel({
   onAccept: () => void;
   isSaving: boolean;
   isAccepting: boolean;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const { t } = useTranslation("app");
   const [formState, setFormState] = useState(initialFormState);
+  // Baseline re-anchors when version.updated_at increments (after parent's
+  // update mutation invalidates+refetches). React docs: "Storing information
+  // from previous renders" — track prev prop in state, update during render.
+  const [baselineFormState, setBaselineFormState] = useState(initialFormState);
+  const [trackedUpdatedAt, setTrackedUpdatedAt] = useState(version.updated_at);
+  if (trackedUpdatedAt !== version.updated_at) {
+    setTrackedUpdatedAt(version.updated_at);
+    if (JSON.stringify(baselineFormState) !== JSON.stringify(formState)) {
+      setBaselineFormState(formState);
+    }
+  }
+  const isDirty = useMemo(
+    () => JSON.stringify(formState) !== JSON.stringify(baselineFormState),
+    [formState, baselineFormState],
+  );
+  useEffect(() => { onDirtyChange?.(isDirty); }, [isDirty, onDirtyChange]);
+
   const lint = version.lint_results_json ?? null;
   const isImmutable = ["accepted", "compiled", "locked"].includes(version.status);
   const lintIssues = lint?.issues ?? [];

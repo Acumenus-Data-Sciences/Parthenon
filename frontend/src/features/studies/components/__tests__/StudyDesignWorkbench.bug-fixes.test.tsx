@@ -340,4 +340,129 @@ describe("StudyDesignWorkbench bug fixes", () => {
     // The mutation reset() should be called to clear the upstream error
     expect(updateVersionMutation.reset).toHaveBeenCalled();
   });
+
+  it("lock-confirm flow — refetches readiness then opens modal then mutates", async () => {
+    const lockMutation = idleMutation();
+    hookMocks.useLockStudyDesignVersion.mockReturnValue(lockMutation);
+    const refetch = vi.fn().mockResolvedValue({
+      data: {
+        can_lock: true,
+        locked: false,
+        status: "ready",
+        blockers: [],
+        warnings: [],
+      },
+    });
+    hookMocks.useStudyDesignLockReadiness.mockReturnValue({
+      data: {
+        can_lock: true,
+        locked: false,
+        status: "ready",
+        blockers: [],
+        warnings: [],
+      },
+      isLoading: false,
+      error: null,
+      refetch,
+    });
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /lock package/i }));
+
+    await waitFor(() => {
+      expect(refetch).toHaveBeenCalled();
+    });
+
+    // Modal opens — title visible
+    await screen.findByText(/lock package\?/i);
+
+    // Click the confirm button inside the modal (Modal renders via portal so
+    // the dialog role helps us scope the search).
+    const dialog = screen.getByRole("dialog");
+    const confirmBtn = Array.from(
+      dialog.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((btn) => btn.textContent?.toLowerCase().includes("lock package"));
+    expect(confirmBtn).toBeDefined();
+    fireEvent.click(confirmBtn!);
+
+    expect(lockMutation.mutate).toHaveBeenCalledWith(
+      {
+        slug: "hypertension-study-v3-2",
+        sessionId: 7,
+        versionId: 11,
+      },
+      expect.any(Object),
+    );
+  });
+
+  it("lock-confirm flow — does NOT mutate if refetch returns can_lock=false", async () => {
+    const lockMutation = idleMutation();
+    hookMocks.useLockStudyDesignVersion.mockReturnValue(lockMutation);
+    const refetch = vi.fn().mockResolvedValue({
+      data: {
+        can_lock: false,
+        locked: false,
+        status: "blocked",
+        blockers: [{ message: "Lock blocked" }],
+        warnings: [],
+      },
+    });
+    hookMocks.useStudyDesignLockReadiness.mockReturnValue({
+      data: {
+        can_lock: true,
+        locked: false,
+        status: "ready",
+        blockers: [],
+        warnings: [],
+      },
+      isLoading: false,
+      error: null,
+      refetch,
+    });
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /lock package/i }));
+
+    await waitFor(() => {
+      expect(refetch).toHaveBeenCalled();
+    });
+
+    // Lock-gate message rendered (alert role with the gateClosed message)
+    expect(
+      await screen.findByText(/package readiness changed/i),
+    ).toBeInTheDocument();
+
+    expect(lockMutation.mutate).not.toHaveBeenCalled();
+  });
+
+  it("version-switch with dirty intent shows discard confirm", () => {
+    // Two versions on the same session.
+    const v2 = { ...version, id: 12, version_number: 2 } satisfies StudyDesignVersion;
+    hookMocks.useStudyDesignVersions.mockReturnValue(queryResult([version, v2]));
+
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    // Make the form dirty: edit a textarea field
+    const researchQuestion = screen.getByLabelText("Research Question") as HTMLTextAreaElement;
+    fireEvent.change(researchQuestion, {
+      target: { value: "A NEW research question" },
+    });
+
+    // Click v2 version button — guard should fire confirm
+    const v2Button = screen.getByRole("button", { name: /v2/i });
+    fireEvent.click(v2Button);
+
+    expect(confirmSpy).toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
 });
