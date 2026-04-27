@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -41,6 +41,7 @@ export default function StudyDesignerPage() {
   const [activeTab, setActiveTab] = useState<
     "intent" | "search" | "recommend" | "lint"
   >("intent");
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [protocolFileName, setProtocolFileName] = useState<string | null>(null);
   const [protocolImportStartedAt, setProtocolImportStartedAt] = useState<
     number | null
@@ -171,6 +172,36 @@ export default function StudyDesignerPage() {
     },
   ];
 
+  // a11y: Roving-focus tablist per WAI-ARIA Authoring Practices.
+  // ArrowRight/Left WRAP between first and last; Home/End jump to ends.
+  // Other keys are ignored so screen-reader virtual cursor keystrokes still pass through.
+  const handleTabKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
+    if (currentIndex === -1) return;
+
+    let nextIndex: number;
+    switch (e.key) {
+      case "ArrowRight":
+        nextIndex = (currentIndex + 1) % tabs.length;
+        break;
+      case "ArrowLeft":
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    setActiveTab(tabs[nextIndex].id);
+    tabRefs.current[nextIndex]?.focus();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -261,11 +292,28 @@ export default function StudyDesignerPage() {
       ) : (
         <>
           {/* Tab bar */}
-          <div className="flex gap-1 rounded-lg bg-surface-base p-1">
-            {tabs.map((tab) => (
+          <div
+            role="tablist"
+            aria-label={t("studyAgent.tabs.label")}
+            onKeyDown={handleTabKeyDown}
+            className="flex gap-1 rounded-lg bg-surface-base p-1"
+          >
+            {tabs.map((tab, index) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                ref={(el) => {
+                  tabRefs.current[index] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`${tab.id}-tab`}
+                aria-controls={`${tab.id}-panel`}
+                aria-selected={activeTab === tab.id}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  tabRefs.current[index]?.focus();
+                }}
                 className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? "bg-surface-raised text-text-primary"
@@ -280,7 +328,12 @@ export default function StudyDesignerPage() {
 
           {/* Intent Tab */}
           {activeTab === "intent" && (
-            <div className="space-y-4">
+            <div
+              role="tabpanel"
+              id="intent-panel"
+              aria-labelledby="intent-tab"
+              className="space-y-4"
+            >
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
                 <h2 className="mb-3 text-lg font-semibold text-text-primary">
                   {t("studyAgent.intent.title")}
@@ -373,7 +426,12 @@ export default function StudyDesignerPage() {
 
           {/* Search Tab */}
           {activeTab === "search" && (
-            <div className="space-y-4">
+            <div
+              role="tabpanel"
+              id="search-panel"
+              aria-labelledby="search-tab"
+              className="space-y-4"
+            >
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
                 <h2 className="mb-3 text-lg font-semibold text-text-primary">
                   {t("studyAgent.search.title")}
@@ -407,7 +465,12 @@ export default function StudyDesignerPage() {
 
               {searchMutation.data && searchMutation.data.length > 0 && (
                 <div className="rounded-lg border border-border-default bg-surface-base/50">
-                  <div className="border-b border-border-default px-4 py-3">
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    className="border-b border-border-default px-4 py-3"
+                  >
                     <span className="text-sm font-medium text-text-secondary">
                       {t("studyAgent.search.resultsFound", {
                         count: searchMutation.data.length,
@@ -448,7 +511,12 @@ export default function StudyDesignerPage() {
               )}
 
               {searchMutation.data && searchMutation.data.length === 0 && (
-                <div className="py-8 text-center text-text-ghost">
+                <div
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className="py-8 text-center text-text-ghost"
+                >
                   {t("studyAgent.search.noneFound")}
                 </div>
               )}
@@ -467,7 +535,12 @@ export default function StudyDesignerPage() {
 
           {/* Recommend Tab */}
           {activeTab === "recommend" && (
-            <div className="space-y-4">
+            <div
+              role="tabpanel"
+              id="recommend-panel"
+              aria-labelledby="recommend-tab"
+              className="space-y-4"
+            >
               {recommendMutation.isPending && (
                 <div className="flex items-center justify-center gap-2 py-8 text-text-muted">
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -509,7 +582,12 @@ export default function StudyDesignerPage() {
 
           {/* Lint Tab */}
           {activeTab === "lint" && (
-            <div className="space-y-4">
+            <div
+              role="tabpanel"
+              id="lint-panel"
+              aria-labelledby="lint-tab"
+              className="space-y-4"
+            >
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
                 <h2 className="mb-3 text-lg font-semibold text-text-primary">
                   {t("studyAgent.lint.title")}
@@ -628,7 +706,12 @@ function RecommendationsList({
   t: TFunction<"app">;
 }) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="rounded-lg border border-border-default bg-surface-base/50 p-6"
+    >
       <h3 className="mb-4 text-lg font-semibold text-text-primary">
         {t("studyAgent.recommendations.title")}
       </h3>

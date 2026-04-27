@@ -103,7 +103,7 @@ describe("StudyDesignerPage", () => {
       initialRoute: "/study-designer",
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Cohort Lint" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Cohort Lint" }));
     fireEvent.change(screen.getByPlaceholderText(/ConceptSets/), {
       target: { value: '{"ConceptSets": [' },
     });
@@ -140,7 +140,7 @@ describe("StudyDesignerPage", () => {
       expect(recommendPhenotypes).toHaveBeenCalled();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Recommendations" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Recommendations" }));
 
     expect(
       await screen.findByText("Type 2 Diabetes Phenotype"),
@@ -181,7 +181,7 @@ describe("StudyDesignerPage", () => {
       initialRoute: "/study-designer",
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Cohort Lint" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Cohort Lint" }));
     fireEvent.change(screen.getByPlaceholderText(/ConceptSets/), {
       target: { value: '{"ConceptSets": []}' },
     });
