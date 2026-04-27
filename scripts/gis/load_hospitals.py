@@ -5,6 +5,12 @@ Loads PA hospitals with emergency departments, creates PostGIS points,
 then calculates Haversine distance from each patient's county centroid
 to the nearest hospital.
 
+Phase 19 GIS-04: ported from the legacy hardcoded `ohdsi/smudoshi/acumenus`
+DSN to the env-driven ``loader_common.get_dsn()`` against `parthenon`. The
+hospital catchment work is independent of the UA county scope but shares
+the same gis.* schema and the ``gis.patient_geography`` matview built in
+Plan 03.
+
 Usage:
     python scripts/gis/load_hospitals.py
 """
@@ -18,8 +24,16 @@ import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
 
-GIS_DATA = Path(__file__).resolve().parent.parent.parent / "GIS" / "data"
-DB_DSN = "host=localhost port=5432 dbname=ohdsi user=smudoshi password=acumenus options='-c search_path=gis,public,app,topology'"
+# sys.path bootstrap so `python scripts/gis/load_hospitals.py` works from
+# any cwd (Wave 2 deviation #5 pattern).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.gis.loader_common import get_dsn  # noqa: E402
+
+GIS_DATA = _REPO_ROOT / "GIS" / "data"
+DB_DSN = get_dsn(search_path="gis,public,app,topology")
 EXPOSURE_DATE = "2024-01-01"
 
 

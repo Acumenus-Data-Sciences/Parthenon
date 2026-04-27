@@ -4,6 +4,12 @@
 Loads PM2.5 and Ozone county-level annual averages from EPA AQS data,
 assigns to patients via county FIPS.
 
+Phase 19 GIS-04: ported from the legacy hardcoded `ohdsi/smudoshi/acumenus`
+DSN to the env-driven ``loader_common.get_dsn()`` against `parthenon`. EPA
+AQS coverage is independent of the UA county work, so this loader continues
+to write PA county air-quality data via the shared ``gis.patient_geography``
+matview (Plan 03).
+
 Usage:
     python scripts/gis/load_air_quality.py
 """
@@ -16,8 +22,16 @@ import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
 
-GIS_DATA = Path(__file__).resolve().parent.parent.parent / "GIS" / "data"
-DB_DSN = "host=localhost port=5432 dbname=ohdsi user=smudoshi password=acumenus options='-c search_path=gis,public,app,topology'"
+# sys.path bootstrap so `python scripts/gis/load_air_quality.py` works from
+# any cwd (Wave 2 deviation #5 pattern).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.gis.loader_common import get_dsn  # noqa: E402
+
+GIS_DATA = _REPO_ROOT / "GIS" / "data"
+DB_DSN = get_dsn(search_path="gis,public,app,topology")
 PA_FIPS = "42"
 EXPOSURE_DATE = "2020-01-01"
 
