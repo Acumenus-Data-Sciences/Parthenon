@@ -466,3 +466,191 @@ describe("StudyDesignWorkbench bug fixes", () => {
     confirmSpy.mockRestore();
   });
 });
+
+describe("ensureSession single-flight (260427-p3t H2 regression)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(fetchSources).mockResolvedValue([]);
+    vi.mocked(searchConcepts).mockResolvedValue({
+      items: [],
+      total: 0,
+      offset: 0,
+      limit: 8,
+    });
+
+    // Zero existing sessions — every entry point must call createSession.
+    hookMocks.useStudyDesignSessions.mockReturnValue(queryResult([]));
+    hookMocks.useStudyDesignVersions.mockReturnValue(queryResult([]));
+    hookMocks.useStudyDesignAssets.mockReturnValue(queryResult([]));
+    hookMocks.useStudyCohortReadiness.mockReturnValue(queryResult(null));
+    hookMocks.useStudyDesignLockReadiness.mockReturnValue(queryResult(null));
+    hookMocks.useStudyDesignGuidance.mockReturnValue(queryResult(null));
+
+    for (const hook of [
+      hookMocks.useImportStudyDesignProtocol,
+      hookMocks.useAcceptStudyDesignVersion,
+      hookMocks.useDraftStudyAnalysisPlans,
+      hookMocks.useDraftStudyCohorts,
+      hookMocks.useDraftStudyConceptSets,
+      hookMocks.useGenerateStudyIntent,
+      hookMocks.useImportExistingStudyDesign,
+      hookMocks.useCritiqueStudyDesignVersion,
+      hookMocks.useLinkStudyCohortDraft,
+      hookMocks.useMaterializeStudyCohortDraft,
+      hookMocks.useMaterializeStudyConceptSetDraft,
+      hookMocks.useMaterializeStudyAnalysisPlan,
+      hookMocks.useLockStudyDesignVersion,
+      hookMocks.useRecommendStudyPhenotypes,
+      hookMocks.useReviewStudyDesignAsset,
+      hookMocks.useRunStudyFeasibility,
+      hookMocks.useVerifyStudyAnalysisPlan,
+      hookMocks.useVerifyStudyConceptSetDrafts,
+      hookMocks.useVerifyStudyCohortDraft,
+      hookMocks.useUpdateStudyConceptSetDraft,
+      hookMocks.useUpdateStudyCohortDraft,
+      hookMocks.useUpdateStudyDesignVersion,
+      hookMocks.useVerifyStudyConceptSetDraft,
+    ]) {
+      hook.mockReturnValue(idleMutation());
+    }
+  });
+
+  function deferredCreateSessionMock() {
+    const createSession = idleMutation();
+    let resolveSession: ((value: { id: number }) => void) | null = null;
+    const sessionPromise = new Promise<{ id: number }>((resolve) => {
+      resolveSession = resolve;
+    });
+    createSession.mutateAsync.mockImplementation(() => sessionPromise);
+    hookMocks.useCreateStudyDesignSession.mockReturnValue(createSession);
+    return {
+      createSession,
+      resolve: () => resolveSession!({ id: 42 }),
+      sessionPromise,
+    };
+  }
+
+  it("dedupes simultaneous generate + protocol-upload entry points (single-flight)", async () => {
+    const { createSession, resolve } = deferredCreateSessionMock();
+    // Stub the downstream mutations so the second-stage awaits don't blow up.
+    const generateIntentMutation = idleMutation();
+    generateIntentMutation.mutateAsync.mockResolvedValue({ id: 1 });
+    hookMocks.useGenerateStudyIntent.mockReturnValue(generateIntentMutation);
+
+    const importProtocolMutation = idleMutation();
+    importProtocolMutation.mutateAsync.mockResolvedValue({
+      version: {
+        id: 1,
+        intent_json: { research_question: "" },
+      },
+    });
+    hookMocks.useImportStudyDesignProtocol.mockReturnValue(importProtocolMutation);
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    // Empty-state path renders a "Create Session and Generate Intent" button + textarea.
+    const textarea = screen.getByPlaceholderText(
+      /describe the study question/i,
+    ) as HTMLTextAreaElement;
+    fireEvent.change(textarea, {
+      target: { value: "Among adults with diabetes, does X reduce Y?" },
+    });
+
+    const createAndGenerateBtn = screen.getByRole("button", {
+      name: /create session and generate intent/i,
+    });
+    const fileInput = screen.getByLabelText(/upload protocol file/i) as HTMLInputElement;
+
+    // Trigger BOTH entry points in rapid succession (no awaits between).
+    fireEvent.click(createAndGenerateBtn);
+    const fakeFile = new File(["protocol body"], "protocol.md", {
+      type: "text/markdown",
+    });
+    fireEvent.change(fileInput, { target: { files: [fakeFile] } });
+
+    // Both flows are now in-flight, both internally awaiting the same
+    // createSession promise. createSession must have been called EXACTLY ONCE.
+    expect(createSession.mutateAsync).toHaveBeenCalledTimes(1);
+
+    // Now resolve the deferred — both flows continue to their next mutation.
+    resolve();
+
+    await waitFor(() => {
+      expect(generateIntentMutation.mutateAsync).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(importProtocolMutation.mutateAsync).toHaveBeenCalled();
+    });
+
+    // Final invariant: still exactly one createSession call after both resolved.
+    expect(createSession.mutateAsync).toHaveBeenCalledTimes(1);
+
+    // Both downstream mutations received sessionId=42 from the shared promise.
+    expect(generateIntentMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: 42 }),
+    );
+    expect(importProtocolMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: 42 }),
+    );
+  });
+
+  it("dedupes when upload fires before generate (alternate ordering)", async () => {
+    const { createSession, resolve } = deferredCreateSessionMock();
+    const generateIntentMutation = idleMutation();
+    generateIntentMutation.mutateAsync.mockResolvedValue({ id: 1 });
+    hookMocks.useGenerateStudyIntent.mockReturnValue(generateIntentMutation);
+
+    const importProtocolMutation = idleMutation();
+    importProtocolMutation.mutateAsync.mockResolvedValue({
+      version: {
+        id: 1,
+        intent_json: { research_question: "" },
+      },
+    });
+    hookMocks.useImportStudyDesignProtocol.mockReturnValue(importProtocolMutation);
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    const textarea = screen.getByPlaceholderText(
+      /describe the study question/i,
+    ) as HTMLTextAreaElement;
+    fireEvent.change(textarea, {
+      target: { value: "Among adults with diabetes, does X reduce Y?" },
+    });
+
+    const createAndGenerateBtn = screen.getByRole("button", {
+      name: /create session and generate intent/i,
+    });
+    const fileInput = screen.getByLabelText(/upload protocol file/i) as HTMLInputElement;
+
+    // Reverse order: protocol upload first, then generate.
+    const fakeFile = new File(["protocol body"], "protocol.md", {
+      type: "text/markdown",
+    });
+    fireEvent.change(fileInput, { target: { files: [fakeFile] } });
+    fireEvent.click(createAndGenerateBtn);
+
+    expect(createSession.mutateAsync).toHaveBeenCalledTimes(1);
+
+    resolve();
+
+    await waitFor(() => {
+      expect(generateIntentMutation.mutateAsync).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(importProtocolMutation.mutateAsync).toHaveBeenCalled();
+    });
+
+    expect(createSession.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(generateIntentMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: 42 }),
+    );
+    expect(importProtocolMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: 42 }),
+    );
+  });
+});
