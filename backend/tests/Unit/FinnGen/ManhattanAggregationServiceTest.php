@@ -55,7 +55,7 @@ beforeEach(function (): void {
     );
 });
 
-afterAll(function (): void {
+afterEach(function (): void {
     DB::statement('DROP SCHEMA IF EXISTS test_thinning_gwas_results CASCADE');
 });
 
