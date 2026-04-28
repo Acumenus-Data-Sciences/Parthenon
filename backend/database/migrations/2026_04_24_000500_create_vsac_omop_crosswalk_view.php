@@ -7,15 +7,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
-            DO \$\$
-            BEGIN
-                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
-                    SET ROLE parthenon_owner;
-                END IF;
-            END
-            \$\$
-        ");
+        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        }
 
         // Materialized view mapping VSAC code-system codes to OMOP concept_ids.
         // VSAC code_system names differ from OMOP vocabulary_id — normalized here.

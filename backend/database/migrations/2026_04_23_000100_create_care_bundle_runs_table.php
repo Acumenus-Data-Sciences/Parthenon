@@ -13,43 +13,43 @@ return new class extends Migration
         // so the FK constraints below can be added when running as parthenon_owner.
         // Use SAVEPOINTs so a failed GRANT (role absent in CI) rolls back only to
         // the savepoint and does NOT poison the outer migration transaction.
-        DB::unprepared('SAVEPOINT grant_refs_1');
-        try {
-            DB::statement('GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner');
-            DB::unprepared('RELEASE SAVEPOINT grant_refs_1');
-        } catch (Exception $e) {
-            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_1');
-        }
+        DB::unprepared("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner;
+                END IF;
+            END
+            \$\$;
+        ");
 
-        DB::unprepared('SAVEPOINT grant_refs_2');
-        try {
-            DB::statement('GRANT REFERENCES ON TABLE app.sources TO parthenon_owner');
-            DB::unprepared('RELEASE SAVEPOINT grant_refs_2');
-        } catch (Exception $e) {
-            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_2');
-        }
+        DB::unprepared("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    GRANT REFERENCES ON TABLE app.sources TO parthenon_owner;
+                END IF;
+            END
+            \$\$;
+        ");
 
-        DB::unprepared('SAVEPOINT grant_refs_3');
-        try {
-            DB::statement('GRANT REFERENCES ON TABLE app.users TO parthenon_owner');
-            DB::unprepared('RELEASE SAVEPOINT grant_refs_3');
-        } catch (Exception $e) {
-            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_3');
-        }
+        DB::unprepared("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    GRANT REFERENCES ON TABLE app.users TO parthenon_owner;
+                END IF;
+            END
+            \$\$;
+        ");
 
         // Ensure tables are owned by parthenon_owner so default privileges
         // fire and parthenon_app receives DML grants automatically.
         // Use a DO block so the SET ROLE is skipped gracefully when
         // parthenon_owner does not exist (CI fresh DB, bare test envs).
-        DB::statement("
-            DO \$\$
-            BEGIN
-                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
-                    SET ROLE parthenon_owner;
-                END IF;
-            END
-            \$\$
-        ");
+        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        }
 
         Schema::create('care_bundle_runs', function (Blueprint $table) {
             $table->id();

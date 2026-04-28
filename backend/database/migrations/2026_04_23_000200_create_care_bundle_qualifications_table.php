@@ -13,33 +13,31 @@ return new class extends Migration
         // the FK constraints below can be added when running as that role.
         // Use SAVEPOINTs so a failed GRANT (role absent in CI) rolls back only to
         // the savepoint and does NOT poison the outer migration transaction.
-        DB::unprepared('SAVEPOINT grant_refs_1');
-        try {
-            DB::statement('GRANT REFERENCES ON TABLE app.sources TO parthenon_owner');
-            DB::unprepared('RELEASE SAVEPOINT grant_refs_1');
-        } catch (Exception $e) {
-            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_1');
-        }
-
-        DB::unprepared('SAVEPOINT grant_refs_2');
-        try {
-            DB::statement('GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner');
-            DB::unprepared('RELEASE SAVEPOINT grant_refs_2');
-        } catch (Exception $e) {
-            DB::unprepared('ROLLBACK TO SAVEPOINT grant_refs_2');
-        }
-
-        // Conditional SET ROLE — skips gracefully when parthenon_owner is absent
-        // (CI fresh DB, bare test envs) so the superuser caller proceeds directly.
-        DB::statement("
+        DB::unprepared("
             DO \$\$
             BEGIN
                 IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
-                    SET ROLE parthenon_owner;
+                    GRANT REFERENCES ON TABLE app.sources TO parthenon_owner;
                 END IF;
             END
-            \$\$
+            \$\$;
         ");
+
+        DB::unprepared("
+            DO \$\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner') THEN
+                    GRANT REFERENCES ON TABLE app.condition_bundles TO parthenon_owner;
+                END IF;
+            END
+            \$\$;
+        ");
+
+        // Conditional SET ROLE — skips gracefully when parthenon_owner is absent
+        // (CI fresh DB, bare test envs) so the superuser caller proceeds directly.
+        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        }
 
         Schema::create('care_bundle_qualifications', function (Blueprint $table) {
             $table->id();
