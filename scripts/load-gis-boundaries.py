@@ -21,11 +21,27 @@ Output: JSON progress lines to stdout:
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import os
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
+
+
+def reexec_with_local_venv() -> None:
+    """Use the repo-local GIS venv when the host python lacks geo packages."""
+    if os.environ.get("PARTHENON_GIS_LOADER_NO_VENV") == "1":
+        return
+
+    venv_python = Path(__file__).resolve().parent.parent / ".venv-gis" / "bin" / "python"
+    if venv_python.exists() and Path(sys.executable).absolute() != venv_python.absolute():
+        os.environ["PARTHENON_GIS_LOADER_NO_VENV"] = "1"
+        os.execv(str(venv_python), [str(venv_python), *sys.argv])
+
+
+reexec_with_local_venv()
 
 import geopandas as gpd
 import psycopg2
@@ -33,22 +49,87 @@ from shapely.geometry import MultiPolygon
 
 GIS_DATA_DIR = Path(__file__).resolve().parent.parent / "GIS"
 
-# Local PG 17 — peer auth, ohdsi database, app schema for PostGIS
+
+def env_first(*names: str, default: str | None = None) -> str | None:
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return default
+
+
+def pg_params(
+    *,
+    database: str | None,
+    user: str | None,
+    password: str | None,
+    host: str | None,
+    port: str | None,
+    options: str,
+) -> dict:
+    params = {
+        "dbname": database or "parthenon",
+        "user": user or getpass.getuser(),
+        "options": options,
+    }
+    if password:
+        params["password"] = password
+    if host:
+        params["host"] = host
+    if port:
+        params["port"] = port
+    return params
+
+
+# Host PostgreSQL app database. Defaults are intentionally host-native:
+# peer auth over the local socket into the current single-database Parthenon DB.
 LOCAL_DB_PARAMS = {
-    "dbname": "ohdsi",
-    "user": "smudoshi",
-    "host": "/var/run/postgresql",
-    "options": "-c search_path=app,public",
+    **pg_params(
+        database=env_first("GIS_DB_DATABASE", "PGDATABASE", "DB_DATABASE", default="parthenon"),
+        user=env_first("GIS_DB_USERNAME", "PGUSER"),
+        password=env_first("GIS_DB_PASSWORD", "PGPASSWORD", "DB_PASSWORD"),
+        host=env_first("GIS_DB_HOST", "PGHOST", default="/var/run/postgresql"),
+        port=env_first("GIS_DB_PORT", "PGPORT"),
+        options="-c search_path=app,public",
+    ),
 }
 
-# Docker PG 16 — for updating gis_datasets progress (optional)
-DOCKER_DB_PARAMS = {
-    "dbname": "parthenon",
-    "user": "parthenon",
-    "password": os.environ.get("DOCKER_DB_PASSWORD", "secret"),
-    "host": "localhost",
-    "port": os.environ.get("DOCKER_DB_PORT", "5480"),
-    "options": "-c search_path=app,public",
+# Optional progress connection. By default this is the same DB as the loader
+# target because app.gis_datasets now lives in the host parthenon database.
+PROGRESS_DB_PARAMS = {
+    **pg_params(
+        database=env_first(
+            "GIS_PROGRESS_DB_DATABASE",
+            "DOCKER_DB_DATABASE",
+            "GIS_DB_DATABASE",
+            "PGDATABASE",
+            "DB_DATABASE",
+            default=LOCAL_DB_PARAMS["dbname"],
+        ),
+        user=env_first(
+            "GIS_PROGRESS_DB_USERNAME",
+            "DOCKER_DB_USERNAME",
+            "GIS_DB_USERNAME",
+            "PGUSER",
+            default=LOCAL_DB_PARAMS["user"],
+        ),
+        password=env_first(
+            "GIS_PROGRESS_DB_PASSWORD",
+            "DOCKER_DB_PASSWORD",
+            "GIS_DB_PASSWORD",
+            "PGPASSWORD",
+            "DB_PASSWORD",
+        ),
+        host=env_first(
+            "GIS_PROGRESS_DB_HOST",
+            "DOCKER_DB_HOST",
+            "GIS_DB_HOST",
+            "PGHOST",
+            default=LOCAL_DB_PARAMS.get("host"),
+        ),
+        port=env_first("GIS_PROGRESS_DB_PORT", "DOCKER_DB_PORT", "GIS_DB_PORT", "PGPORT"),
+        options="-c search_path=app,public",
+    ),
 }
 
 LEVEL_IDS = {
@@ -65,10 +146,10 @@ class ProgressTracker:
         self.docker_conn = None
         if dataset_id:
             try:
-                self.docker_conn = psycopg2.connect(**DOCKER_DB_PARAMS)
+                self.docker_conn = psycopg2.connect(**PROGRESS_DB_PARAMS)
                 self.docker_conn.autocommit = True
             except Exception as e:
-                self.emit({"event": "warning", "message": f"Cannot connect to Docker PG for progress: {e}"})
+                self.emit({"event": "warning", "message": f"Cannot connect to progress database: {e}"})
 
     def emit(self, obj: dict) -> None:
         print(json.dumps(obj), flush=True)
@@ -99,6 +180,125 @@ class ProgressTracker:
     def close(self) -> None:
         if self.docker_conn:
             self.docker_conn.close()
+
+
+def ensure_boundary_schema(conn, tracker: ProgressTracker) -> None:
+    """Create the compatibility tables used by current GIS API endpoints."""
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS app.gis_boundary_levels (
+            id BIGSERIAL PRIMARY KEY,
+            code VARCHAR(10) NOT NULL UNIQUE,
+            label VARCHAR(255) NOT NULL,
+            description TEXT,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP(0) WITHOUT TIME ZONE,
+            updated_at TIMESTAMP(0) WITHOUT TIME ZONE
+        )
+        """
+    )
+    cur.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1
+                FROM pg_constraint
+                WHERE conrelid = 'app.gis_boundary_levels'::regclass
+                  AND contype = 'p'
+            ) THEN
+                ALTER TABLE app.gis_boundary_levels
+                    ADD CONSTRAINT gis_boundary_levels_pkey PRIMARY KEY (id);
+            END IF;
+        END
+        $$;
+        """
+    )
+    cur.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS gis_boundary_levels_code_unique "
+        "ON app.gis_boundary_levels (code)"
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS app.gis_admin_boundaries (
+            id BIGSERIAL PRIMARY KEY,
+            gid VARCHAR(50) NOT NULL UNIQUE,
+            name VARCHAR(255) NOT NULL,
+            name_variant VARCHAR(255),
+            country_code VARCHAR(3) NOT NULL,
+            country_name VARCHAR(255) NOT NULL,
+            boundary_level_id BIGINT NOT NULL REFERENCES app.gis_boundary_levels(id),
+            parent_gid VARCHAR(50),
+            type VARCHAR(255),
+            type_en VARCHAR(255),
+            iso_code VARCHAR(10),
+            hasc_code VARCHAR(20),
+            valid_from DATE,
+            valid_to DATE,
+            source VARCHAR(20) NOT NULL DEFAULT 'gadm',
+            source_version VARCHAR(20),
+            geom geometry(MultiPolygon, 4326),
+            created_at TIMESTAMP(0) WITHOUT TIME ZONE,
+            updated_at TIMESTAMP(0) WITHOUT TIME ZONE
+        )
+        """
+    )
+    cur.execute(
+        """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = 'app'
+                  AND table_name = 'gis_admin_boundaries'
+                  AND column_name = 'geom'
+            ) THEN
+                ALTER TABLE app.gis_admin_boundaries
+                    ADD COLUMN geom geometry(MultiPolygon, 4326);
+            END IF;
+        END
+        $$;
+        """
+    )
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_gis_boundaries_geom ON app.gis_admin_boundaries USING GIST (geom)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_gis_boundaries_parent_gid ON app.gis_admin_boundaries (parent_gid)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_gis_boundaries_country_code ON app.gis_admin_boundaries (country_code)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_gis_boundaries_level_country ON app.gis_admin_boundaries (boundary_level_id, country_code)")
+
+    level_rows = [
+        ("ADM0", "Country", "National boundary", 0),
+        ("ADM1", "Province / State", "First-level administrative division", 1),
+        ("ADM2", "District / County", "Second-level administrative division", 2),
+        ("ADM3", "Sub-district", "Third-level administrative division", 3),
+        ("ADM4", "Municipality", "Fourth-level administrative division", 4),
+        ("ADM5", "Local Area", "Fifth-level administrative division", 5),
+    ]
+    for code, label, description, sort_order in level_rows:
+        cur.execute(
+            """
+            INSERT INTO app.gis_boundary_levels
+                (code, label, description, sort_order, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, NOW(), NOW())
+            ON CONFLICT (code) DO UPDATE SET
+                label = EXCLUDED.label,
+                description = EXCLUDED.description,
+                sort_order = EXCLUDED.sort_order,
+                updated_at = NOW()
+            """,
+            (code, label, description, sort_order),
+        )
+
+    conn.commit()
+    tracker.emit({"event": "schema_ready"})
+
+
+def refresh_level_ids(conn) -> None:
+    cur = conn.cursor()
+    cur.execute("SELECT code, id FROM app.gis_boundary_levels")
+    LEVEL_IDS.clear()
+    LEVEL_IDS.update({code: int(id_) for code, id_ in cur.fetchall()})
 
 
 def build_gadm_sql(level_num: int) -> str:
@@ -143,7 +343,8 @@ def load_gadm(levels: list[str], conn, tracker: ProgressTracker, batch_size: int
         tracker.emit({"event": "inserting", "level": level, "total": len(gdf), "loaded": 0})
         tracker.append_log(f"Inserting {len(gdf)} {level} boundaries into PostGIS...")
         cur = conn.cursor()
-        loaded = 0
+        processed = 0
+        inserted = 0
 
         for _, row in gdf.iterrows():
             geom = row.geometry
@@ -167,7 +368,8 @@ def load_gadm(levels: list[str], conn, tracker: ProgressTracker, batch_size: int
                     source, source_version, geom, created_at, updated_at)
                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                            ST_Multi(ST_GeomFromText(%s, 4326)), NOW(), NOW())
-                   ON CONFLICT (gid) DO NOTHING""",
+                   ON CONFLICT (gid) DO NOTHING
+                   RETURNING id""",
                 (
                     str(row[gid_col]),
                     str(row[name_col]) if row[name_col] else "Unknown",
@@ -182,21 +384,29 @@ def load_gadm(levels: list[str], conn, tracker: ProgressTracker, batch_size: int
                     geom.wkt,
                 ),
             )
-            loaded += 1
+            processed += 1
+            if cur.fetchone() is not None:
+                inserted += 1
 
-            if loaded % batch_size == 0:
+            if processed % batch_size == 0:
                 conn.commit()
-                tracker.emit({"event": "batch", "level": level, "loaded": loaded, "total": len(gdf)})
+                tracker.emit({
+                    "event": "batch",
+                    "level": level,
+                    "loaded": processed,
+                    "inserted": inserted,
+                    "total": len(gdf),
+                })
                 # Update progress: completed levels + fraction of current level
-                level_progress = loaded / len(gdf)
+                level_progress = processed / len(gdf)
                 overall = int(((level_idx + level_progress) / total_levels) * 100)
                 tracker.update_dataset(progress_percentage=overall)
-                tracker.append_log(f"{level}: {loaded}/{len(gdf)} features loaded")
+                tracker.append_log(f"{level}: {processed}/{len(gdf)} features processed, {inserted} inserted")
 
         conn.commit()
-        tracker.emit({"event": "level_done", "level": level, "count": loaded})
-        tracker.append_log(f"{level} complete: {loaded} features loaded")
-        total_loaded += loaded
+        tracker.emit({"event": "level_done", "level": level, "count": inserted, "processed": processed})
+        tracker.append_log(f"{level} complete: {processed} features processed, {inserted} inserted")
+        total_loaded += inserted
 
         overall = int(((level_idx + 1) / total_levels) * 100)
         tracker.update_dataset(progress_percentage=overall, feature_count=total_loaded)
@@ -212,7 +422,8 @@ def load_geoboundaries(levels: list[str], conn, tracker: ProgressTracker, batch_
         filename = f"geoBoundariesCGAZ_{level}.geojson"
         geojson_path = GIS_DATA_DIR / filename
         if not geojson_path.exists():
-            tracker.emit({"event": "error", "message": f"File not found: {geojson_path}"})
+            tracker.emit({"event": "warning", "level": level, "message": f"File not found: {geojson_path}; skipping {level}"})
+            tracker.append_log(f"WARNING: {filename} not found; skipped {level}")
             continue
 
         tracker.emit({"event": "reading", "level": level})
@@ -229,7 +440,8 @@ def load_geoboundaries(levels: list[str], conn, tracker: ProgressTracker, batch_
         tracker.emit({"event": "inserting", "level": level, "total": len(gdf), "loaded": 0})
         tracker.append_log(f"Inserting {len(gdf)} {level} boundaries...")
         cur = conn.cursor()
-        loaded = 0
+        processed = 0
+        inserted = 0
 
         for _, row in gdf.iterrows():
             geom = row.geometry
@@ -249,7 +461,8 @@ def load_geoboundaries(levels: list[str], conn, tracker: ProgressTracker, batch_
                     geom, created_at, updated_at)
                    VALUES (%s, %s, %s, %s, %s, %s, %s,
                            ST_Multi(ST_GeomFromText(%s, 4326)), NOW(), NOW())
-                   ON CONFLICT (gid) DO NOTHING""",
+                   ON CONFLICT (gid) DO NOTHING
+                   RETURNING id""",
                 (
                     str(gid), str(name), str(country_code),
                     str(name) if level == "ADM0" else "",
@@ -258,19 +471,27 @@ def load_geoboundaries(levels: list[str], conn, tracker: ProgressTracker, batch_
                     geom.wkt,
                 ),
             )
-            loaded += 1
+            processed += 1
+            if cur.fetchone() is not None:
+                inserted += 1
 
-            if loaded % batch_size == 0:
+            if processed % batch_size == 0:
                 conn.commit()
-                tracker.emit({"event": "batch", "level": level, "loaded": loaded, "total": len(gdf)})
-                level_progress = loaded / len(gdf)
+                tracker.emit({
+                    "event": "batch",
+                    "level": level,
+                    "loaded": processed,
+                    "inserted": inserted,
+                    "total": len(gdf),
+                })
+                level_progress = processed / len(gdf)
                 overall = int(((level_idx + level_progress) / total_levels) * 100)
                 tracker.update_dataset(progress_percentage=overall)
 
         conn.commit()
-        tracker.emit({"event": "level_done", "level": level, "count": loaded})
-        tracker.append_log(f"{level} complete: {loaded} features loaded")
-        total_loaded += loaded
+        tracker.emit({"event": "level_done", "level": level, "count": inserted, "processed": processed})
+        tracker.append_log(f"{level} complete: {processed} features processed, {inserted} inserted")
+        total_loaded += inserted
 
         overall = int(((level_idx + 1) / total_levels) * 100)
         tracker.update_dataset(progress_percentage=overall, feature_count=total_loaded)
@@ -292,12 +513,19 @@ def main() -> None:
     tracker.emit({"event": "start", "source": args.source, "levels": args.levels, "total_levels": len(args.levels)})
 
     if args.dataset_id:
-        tracker.update_dataset(status="running")
+        tracker.update_dataset(
+            status="running",
+            error_message=None,
+            progress_percentage=0,
+            started_at=datetime.now(),
+        )
         tracker.append_log("Starting GIS boundary load...")
 
     try:
         conn = psycopg2.connect(**LOCAL_DB_PARAMS)
         conn.autocommit = False
+        ensure_boundary_schema(conn, tracker)
+        refresh_level_ids(conn)
 
         if args.clear:
             cur = conn.cursor()
@@ -324,13 +552,16 @@ def main() -> None:
                 status="completed",
                 feature_count=total,
                 progress_percentage=100,
+                error_message=None,
+                loaded_at=datetime.now(),
+                completed_at=datetime.now(),
             )
             tracker.append_log(f"Load complete. Total features: {total}")
 
     except Exception as e:
         tracker.emit({"event": "error", "message": str(e)})
         if args.dataset_id:
-            tracker.update_dataset(status="failed", error_message=str(e))
+            tracker.update_dataset(status="failed", error_message=str(e), completed_at=datetime.now())
             tracker.append_log(f"ERROR: {e}")
         sys.exit(1)
     finally:

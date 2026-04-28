@@ -23,6 +23,31 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["GIS"])
 
 
+def validate_bbox(bbox: str | None) -> None:
+    if bbox is None:
+        return
+
+    try:
+        west, south, east, north = [float(part) for part in bbox.split(",")]
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="bbox must contain four comma-separated numbers: west,south,east,north.",
+        ) from exc
+
+    if west >= east or south >= north:
+        raise HTTPException(
+            status_code=422,
+            detail="bbox coordinates must satisfy west < east and south < north.",
+        )
+
+    if west < -180 or east > 180 or south < -90 or north > 90:
+        raise HTTPException(
+            status_code=422,
+            detail="bbox coordinates must be within longitude [-180, 180] and latitude [-90, 90].",
+        )
+
+
 @router.get("/boundaries")
 async def boundaries(
     level: BoundaryLevel = Query(BoundaryLevel.ADM0),
@@ -31,6 +56,18 @@ async def boundaries(
     bbox: str | None = Query(None),
     simplify: float = Query(0.01, ge=0.0, le=1.0),
 ) -> dict[str, Any]:
+    if level == BoundaryLevel.ADM2 and not (country_code or parent_gid or bbox):
+        raise HTTPException(
+            status_code=422,
+            detail="ADM2 boundary queries must be constrained by country_code, parent_gid, or bbox.",
+        )
+    if level == BoundaryLevel.ADM3 and not (parent_gid or bbox):
+        raise HTTPException(
+            status_code=422,
+            detail="ADM3 boundary queries must be constrained by parent_gid or bbox.",
+        )
+    validate_bbox(bbox)
+
     return await get_boundaries_geojson(
         level=level, country_code=country_code, parent_gid=parent_gid,
         bbox=bbox, simplify_tolerance=simplify,

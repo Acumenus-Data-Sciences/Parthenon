@@ -45,6 +45,15 @@ def get_engine() -> AsyncEngine:
     )
 
 
+async def _table_exists(session: AsyncSession, qualified_name: str) -> bool:
+    """Return True when an optional app cache table is present."""
+    result = await session.execute(
+        text("SELECT to_regclass(CAST(:qualified_name AS text)) IS NOT NULL"),
+        {"qualified_name": qualified_name},
+    )
+    return bool(result.scalar())
+
+
 async def get_all_conditions() -> list[dict[str, Any]]:
     """Get all distinct conditions in the CDM with patient counts and SNOMED categories."""
     engine = get_engine()
@@ -342,15 +351,19 @@ async def get_county_choropleth(
     where = " AND ".join(conditions)
 
     async with async_session() as session:
-        result = await session.execute(text(f"""
-            SELECT cs.gadm_gid, cs.county_name, cs.value, cs.denominator, cs.rate,
-                   b.id as boundary_id
-            FROM app.cdm_county_stats cs
-            JOIN app.gis_admin_boundaries b ON b.gid = cs.gadm_gid
-            WHERE {where}
-            ORDER BY cs.value DESC
-        """), params)
-        rows = result.fetchall()
+        if await _table_exists(session, "app.cdm_county_stats"):
+            result = await session.execute(text(f"""
+                SELECT cs.gadm_gid, cs.county_name, cs.value, cs.denominator, cs.rate,
+                       b.id as boundary_id
+                FROM app.cdm_county_stats cs
+                JOIN app.gis_admin_boundaries b ON b.gid = cs.gadm_gid
+                WHERE {where}
+                ORDER BY cs.value DESC
+            """), params)
+            rows = result.fetchall()
+        else:
+            logger.warning("CDM county stats cache table is missing; returning empty choropleth")
+            rows = []
 
     await engine.dispose()
 
@@ -480,7 +493,7 @@ async def get_county_detail(gadm_gid: str, concept_id: int) -> dict[str, Any] | 
             return None
 
         boundary = await session.execute(text("""
-            SELECT b.id, b.name, ST_Area(b.geom::geography) / 1e6 as area_km2
+            SELECT b.id, b.name, public.ST_Area(b.geom::public.geography) / 1e6 as area_km2
             FROM app.gis_admin_boundaries b WHERE b.gid = :gid
         """), {"gid": gadm_gid})
         b_row = boundary.fetchone()

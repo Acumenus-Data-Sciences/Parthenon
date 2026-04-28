@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
@@ -29,6 +30,7 @@ from app.services.solr_spatial import (
 )
 
 router = APIRouter(prefix="/cdm-spatial", tags=["CDM Spatial"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/conditions", response_model=list[ConditionItem])
@@ -70,6 +72,16 @@ async def condition_categories() -> list[dict[str, Any]]:
 @router.post("/choropleth", response_model=list[CountyChoroplethItem])
 async def choropleth(req: CdmChoroplethRequest) -> list[dict[str, Any]]:
     """Get county-level choropleth data for a given condition + metric."""
+    if solr_available() and req.concept_id is not None:
+        try:
+            return await get_choropleth_from_solr(
+                req.concept_id,
+                metric=req.metric.value,
+                time_period=req.time_period,
+            )
+        except Exception as exc:
+            logger.warning("Solr CDM choropleth lookup failed; falling back to PostgreSQL cache: %s", exc)
+
     return await get_county_choropleth(
         metric_type=req.metric.value,
         concept_id=req.concept_id,

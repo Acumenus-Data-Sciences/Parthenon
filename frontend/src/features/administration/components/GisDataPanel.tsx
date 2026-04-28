@@ -22,6 +22,8 @@ const SOURCES = [
   },
 ] as const;
 
+type BoundarySource = (typeof SOURCES)[number]["id"];
+
 const LEVEL_OPTIONS: { value: AdminLevel; labelKey: string }[] = [
   { value: "ADM0", labelKey: "adm0" },
   { value: "ADM1", labelKey: "adm1" },
@@ -29,13 +31,18 @@ const LEVEL_OPTIONS: { value: AdminLevel; labelKey: string }[] = [
   { value: "ADM3", labelKey: "adm3" },
 ];
 
+const SOURCE_LEVELS: Record<BoundarySource, AdminLevel[]> = {
+  gadm: ["ADM0", "ADM1", "ADM2", "ADM3"],
+  geoboundaries: ["ADM0", "ADM1", "ADM2"],
+};
+
 export function GisDataPanel() {
   const { t } = useTranslation("app");
   const { data: stats, isLoading: statsLoading, refetch } = useGisStats();
   const loadMutation = useLoadDataset();
 
   const [activeTab, setActiveTab] = useState<"boundaries" | "import">("boundaries");
-  const [selectedSource, setSelectedSource] = useState<string>("gadm");
+  const [selectedSource, setSelectedSource] = useState<BoundarySource>("gadm");
   const [selectedLevels, setSelectedLevels] = useState<AdminLevel[]>(["ADM0", "ADM1"]);
   const [activeJobId, setActiveJobId] = useState<number | null>(null);
   const [cliCommand, setCliCommand] = useState<string | null>(null);
@@ -43,8 +50,19 @@ export function GisDataPanel() {
   const [copied, setCopied] = useState(false);
 
   const { data: jobData } = useDatasetStatus(activeJobId);
+  const availableLevels = SOURCE_LEVELS[selectedSource];
+  const availableLevelOptions = LEVEL_OPTIONS.filter((opt) => availableLevels.includes(opt.value));
+
+  const selectSource = (source: BoundarySource) => {
+    setSelectedSource(source);
+    setSelectedLevels((prev) => {
+      const next = prev.filter((level) => SOURCE_LEVELS[source].includes(level));
+      return next.length > 0 ? next : [SOURCE_LEVELS[source][0]];
+    });
+  };
 
   const toggleLevel = (level: AdminLevel) => {
+    if (!availableLevels.includes(level)) return;
     setSelectedLevels((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
@@ -52,7 +70,7 @@ export function GisDataPanel() {
 
   const handleLoad = () => {
     loadMutation.mutate(
-      { source: selectedSource, levels: selectedLevels },
+      { source: selectedSource, levels: selectedLevels.filter((level) => availableLevels.includes(level)) },
       {
         onSuccess: (result) => {
           setActiveJobId(result.dataset.id);
@@ -199,7 +217,7 @@ export function GisDataPanel() {
                 name="gis-source"
                 value={src.id}
                 checked={selectedSource === src.id}
-                onChange={() => setSelectedSource(src.id)}
+                onChange={() => selectSource(src.id)}
                 className="mt-0.5 accent-accent"
               />
               <div>
@@ -216,7 +234,7 @@ export function GisDataPanel() {
         <div>
           <p className="mb-1.5 text-xs text-text-muted">{t("administration.gisData.load.adminLevels")}</p>
           <div className="flex flex-wrap gap-2">
-            {LEVEL_OPTIONS.map((opt) => (
+            {availableLevelOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => toggleLevel(opt.value)}

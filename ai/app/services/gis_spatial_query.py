@@ -48,7 +48,7 @@ async def get_boundaries_geojson(
     if bbox:
         west, south, east, north = [float(x) for x in bbox.split(",")]
         conditions.append(
-            "b.geom && ST_MakeEnvelope(:west, :south, :east, :north, 4326)"
+            "b.geom && public.ST_MakeEnvelope(:west, :south, :east, :north, 4326)"
         )
         params.update({"west": west, "south": south, "east": east, "north": north})
 
@@ -63,7 +63,9 @@ async def get_boundaries_geojson(
             b.country_name,
             b.type_en,
             b.parent_gid,
-            ST_AsGeoJSON(ST_Simplify(b.geom, :tol))::json AS geometry
+            public.ST_AsGeoJSON(
+                public.ST_SimplifyPreserveTopology(b.geom, CAST(:tol AS double precision))
+            )::json AS geometry
         FROM app.gis_admin_boundaries b
         JOIN app.gis_boundary_levels bl ON bl.id = b.boundary_level_id
         WHERE {where_clause}
@@ -110,7 +112,14 @@ async def get_choropleth_data(
     async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     if metric == ChoroplethMetric.PATIENT_COUNT:
-        query = text("""
+        conditions = ["bl.code = :level"]
+        params: dict[str, Any] = {"level": level.value}
+        if country_code:
+            conditions.append("b.country_code = :country_code")
+            params["country_code"] = country_code
+        where_clause = " AND ".join(conditions)
+
+        query = text(f"""
             SELECT
                 b.id AS boundary_id, b.gid, b.name, b.country_code,
                 COUNT(DISTINCT lh.entity_id) AS value
@@ -118,37 +127,43 @@ async def get_choropleth_data(
             JOIN app.gis_boundary_levels bl ON bl.id = b.boundary_level_id
             LEFT JOIN app.location_history lh
                 ON lh.domain_id = 'Person'
-                AND ST_Within(
+                AND public.ST_Within(
                     (SELECT geom FROM app.gis_admin_boundaries WHERE id = lh.location_id LIMIT 1),
                     b.geom
                 )
-            WHERE bl.code = :level
-              AND (:cc IS NULL OR b.country_code = :cc)
+            WHERE {where_clause}
             GROUP BY b.id, b.gid, b.name, b.country_code
             ORDER BY value DESC
         """)
-        params: dict[str, Any] = {"level": level.value, "cc": country_code}
     elif metric == ChoroplethMetric.EXPOSURE_VALUE:
-        query = text("""
+        conditions = ["bl.code = :level"]
+        params = {"level": level.value}
+        if country_code:
+            conditions.append("b.country_code = :country_code")
+            params["country_code"] = country_code
+        if concept_id is not None:
+            conditions.append("ee.exposure_concept_id = :concept_id")
+            params["concept_id"] = concept_id
+        if date_from is not None:
+            conditions.append("ee.exposure_start_date >= CAST(:date_from AS date)")
+            params["date_from"] = date_from
+        if date_to is not None:
+            conditions.append("ee.exposure_end_date <= CAST(:date_to AS date)")
+            params["date_to"] = date_to
+        where_clause = " AND ".join(conditions)
+
+        query = text(f"""
             SELECT
                 b.id AS boundary_id, b.gid, b.name, b.country_code,
                 AVG(ee.value_as_number) AS value
             FROM app.gis_admin_boundaries b
             JOIN app.gis_boundary_levels bl ON bl.id = b.boundary_level_id
             LEFT JOIN app.external_exposure ee ON ee.boundary_id = b.id
-            WHERE bl.code = :level
-              AND (:cc IS NULL OR b.country_code = :cc)
-              AND (:concept_id IS NULL OR ee.exposure_concept_id = :concept_id)
-              AND (:date_from IS NULL OR ee.exposure_start_date >= :date_from::date)
-              AND (:date_to IS NULL OR ee.exposure_end_date <= :date_to::date)
+            WHERE {where_clause}
             GROUP BY b.id, b.gid, b.name, b.country_code
             HAVING AVG(ee.value_as_number) IS NOT NULL
             ORDER BY value DESC
         """)
-        params = {
-            "level": level.value, "cc": country_code,
-            "concept_id": concept_id, "date_from": date_from, "date_to": date_to,
-        }
     else:
         return []
 
@@ -174,7 +189,7 @@ async def get_region_detail(boundary_id: int) -> dict[str, Any] | None:
             text("""
                 SELECT b.id, b.gid, b.name, b.country_code, b.country_name,
                     b.type_en, b.parent_gid, bl.code AS level,
-                    ST_Area(b.geom::geography) / 1e6 AS area_km2
+                    public.ST_Area(b.geom::public.geography) / 1e6 AS area_km2
                 FROM app.gis_admin_boundaries b
                 JOIN app.gis_boundary_levels bl ON bl.id = b.boundary_level_id
                 WHERE b.id = :id

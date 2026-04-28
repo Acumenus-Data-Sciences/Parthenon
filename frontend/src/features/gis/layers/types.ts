@@ -5,6 +5,7 @@ export interface LayerDataParams {
   conceptId: number | null;
   selectedFips: string | null;
   metric: string;
+  enabled?: boolean;
 }
 
 /** Standard result shape from a layer data hook. */

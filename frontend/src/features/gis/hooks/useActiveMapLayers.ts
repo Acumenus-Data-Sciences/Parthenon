@@ -14,6 +14,7 @@ import { useHospitalData } from "../layers/hospital-access/useHospitalData";
 interface UseActiveMapLayersProps {
   conceptId: number | null;
   selectedFips: string | null;
+  enabled?: boolean;
   onRegionClick: (fips: string, name: string) => void;
   onRegionHover: (fips: string | null, name: string | null) => void;
 }
@@ -28,6 +29,7 @@ interface UseActiveMapLayersProps {
 export function useActiveMapLayers({
   conceptId,
   selectedFips,
+  enabled = true,
   onRegionClick,
   onRegionHover,
 }: UseActiveMapLayersProps): Array<Layer | null> {
@@ -36,11 +38,26 @@ export function useActiveMapLayers({
   const params = { conceptId, selectedFips, metric: "cases" };
 
   // Data hooks — always called (Rules of Hooks)
-  const sviData = useSviData(params);
-  const ruccData = useRuccData(params);
-  const comorbidityData = useComorbidityData(params);
-  const airQualityData = useAirQualityData(params);
-  const hospitalData = useHospitalData(params);
+  const sviData = useSviData({
+    ...params,
+    enabled: enabled && activeLayers.has("svi"),
+  });
+  const ruccData = useRuccData({
+    ...params,
+    enabled: enabled && activeLayers.has("rucc"),
+  });
+  const comorbidityData = useComorbidityData({
+    ...params,
+    enabled: enabled && activeLayers.has("comorbidity"),
+  });
+  const airQualityData = useAirQualityData({
+    ...params,
+    enabled: enabled && activeLayers.has("air-quality"),
+  });
+  const hospitalData = useHospitalData({
+    ...params,
+    enabled: enabled && activeLayers.has("hospital-access"),
+  });
 
   // Overlay hooks — always called with visible=false when inactive
   const sviLayer = SviMapOverlay({
