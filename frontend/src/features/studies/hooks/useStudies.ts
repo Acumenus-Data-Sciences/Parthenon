@@ -683,8 +683,17 @@ export function useAcceptStudyDesignVersion() {
 export function useLockStudyDesignVersion() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ slug, sessionId, versionId }: { slug: string; sessionId: number; versionId: number }) =>
-      lockStudyDesignVersion(slug, sessionId, versionId),
+    mutationFn: ({
+      slug,
+      sessionId,
+      versionId,
+      ifUnmodifiedSince,
+    }: {
+      slug: string;
+      sessionId: number;
+      versionId: number;
+      ifUnmodifiedSince?: string | null;
+    }) => lockStudyDesignVersion(slug, sessionId, versionId, ifUnmodifiedSince),
     onSuccess: (_data, variables) => {
       invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId, variables.versionId);
       queryClient.invalidateQueries({ queryKey: ["studies", variables.slug, "artifacts"] });

@@ -1132,6 +1132,8 @@ const enApp: MessageTree = {
           "This version was locked by another action. Refresh to see the latest state.",
         lockGateClosed:
           "Package readiness changed. Resolve blockers, then try again.",
+        lockConflict:
+          "Someone else updated this version. Refresh to see the latest changes.",
       },
       confirmDiscardEdits:
         "You have unsaved intent edits. Discard them?",
@@ -5495,6 +5497,8 @@ const esApp: MessageTree = {
           "Otra acción bloqueó esta versión. Recarga para ver el estado actual.",
         lockGateClosed:
           "La preparación del paquete cambió. Resuelve los bloqueadores y reintenta.",
+        lockConflict:
+          "Otra persona actualizó esta versión. Recarga para ver los últimos cambios.",
       },
       confirmDiscardEdits:
         "Tienes ediciones de intención sin guardar. ¿Descartarlas?",
@@ -9871,6 +9875,8 @@ const koApp: MessageTree = {
           "다른 작업으로 이 버전이 잠겼습니다. 새로고침하여 최신 상태를 확인하세요.",
         lockGateClosed:
           "패키지 준비 상태가 변경되었습니다. 차단 요인을 해결한 후 다시 시도하세요.",
+        lockConflict:
+          "다른 사람이 이 버전을 업데이트했습니다. 새로고침하여 최신 변경 사항을 확인하세요.",
       },
       confirmDiscardEdits:
         "저장되지 않은 의도 편집이 있습니다. 폐기하시겠습니까?",
