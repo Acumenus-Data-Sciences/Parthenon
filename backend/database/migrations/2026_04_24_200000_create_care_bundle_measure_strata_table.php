@@ -9,8 +9,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
-            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        if (DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            DB::statement('SET ROLE parthenon_owner');
         }
 
         // Pre-computed strata results per (run, measure, dimension, stratum).

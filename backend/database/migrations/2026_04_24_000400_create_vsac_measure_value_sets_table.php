@@ -9,8 +9,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
-            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        if (DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            DB::statement('SET ROLE parthenon_owner');
         }
 
         Schema::create('vsac_measure_value_sets', function (Blueprint $table) {

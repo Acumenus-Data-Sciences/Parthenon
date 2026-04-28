@@ -35,8 +35,8 @@ return new class extends Migration
 
         // Conditional SET ROLE — skips gracefully when parthenon_owner is absent
         // (CI fresh DB, bare test envs) so the superuser caller proceeds directly.
-        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
-            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        if (DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            DB::statement('SET ROLE parthenon_owner');
         }
 
         Schema::create('care_bundle_qualifications', function (Blueprint $table) {

@@ -47,8 +47,8 @@ return new class extends Migration
         // fire and parthenon_app receives DML grants automatically.
         // Use a DO block so the SET ROLE is skipped gracefully when
         // parthenon_owner does not exist (CI fresh DB, bare test envs).
-        if (\Illuminate\Support\Facades\DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
-            \Illuminate\Support\Facades\DB::statement('SET ROLE parthenon_owner');
+        if (DB::selectOne("SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_owner'")) {
+            DB::statement('SET ROLE parthenon_owner');
         }
 
         Schema::create('care_bundle_runs', function (Blueprint $table) {
