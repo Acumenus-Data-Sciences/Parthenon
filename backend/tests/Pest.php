@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-pest()->extend(TestCase::class)->in('Feature', 'Integration', 'Smoke', 'Unit/Services', 'Unit/Seeders');
+pest()->extend(TestCase::class)->in('Feature', 'Integration', 'Unit/Services', 'Unit/Seeders');
 
 function hasPgRoleForPrivilegeAssertions(string $role): bool
 {
