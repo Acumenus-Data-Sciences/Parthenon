@@ -765,11 +765,9 @@ describe("StudyDesignWorkbench protocol import", () => {
       }),
       studySource({
         id: 102,
-        source_name: "Vocabulary only source",
+        source_name: "Slim source payload",
         is_default: false,
-        daimons: [
-          { id: 3, source_id: 102, daimon_type: "cdm", table_qualifier: "cdm", priority: 1 },
-        ],
+        daimons: undefined as unknown as Source["daimons"],
       }),
     ]);
     hookMocks.useStudyCohortReadiness.mockReturnValue(queryResult({
