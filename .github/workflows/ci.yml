@@ -37,6 +37,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install PostGIS into postgres service container
+        run: |
+          # Phase 19 (D-04): the gis schema migration MUST fail loudly when
+          # PostGIS is missing, so CI installs postgresql-16-postgis-3 on top
+          # of pgvector/pgvector:pg16 (mirrors docker/postgres/Dockerfile).
+          PG_CID=$(docker ps --filter "ancestor=pgvector/pgvector:pg16" --format '{{.ID}}' | head -n1)
+          if [ -z "$PG_CID" ]; then
+            echo "Could not find pgvector postgres service container" >&2
+            docker ps
+            exit 1
+          fi
+          docker exec "$PG_CID" bash -c "apt-get update -qq && apt-get install -y --no-install-recommends postgresql-16-postgis-3"
+
       - name: Create schemas and extensions
         env:
           PGPASSWORD: secret
@@ -44,6 +57,7 @@ jobs:
           # Setup extensions and schemas on the migration database
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
@@ -58,6 +72,7 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE DATABASE parthenon_testing OWNER parthenon;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS app;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS php;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS omop;"
