@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
  *   (D-03: Highly Rural / Rural / Mixed / Urban)
  * - 'rucc': USDA Rural-Urban Continuum Codes (Metro / Micropolitan / Rural)
  */
+// eslint-disable-next-line react-refresh/only-export-components -- exported for GIS stratification contract tests.
 export const STRATIFY_BY_LOCATION_OPTIONS = ["none", "urban_pct", "rucc"] as const;
 export type StratifyByLocation = (typeof STRATIFY_BY_LOCATION_OPTIONS)[number];
 
@@ -60,9 +61,6 @@ const DEFAULT_STRAT: StratificationConfig = {
   by_year: false,
   age_breaks: [0, 18, 35, 50, 65],
 };
-
-// eslint-disable-next-line react-refresh/only-export-components -- exported for GIS stratification contract tests.
-export const STRATIFY_BY_LOCATION_OPTIONS = ["none", "urban_pct", "rucc"] as const;
 
 const defaultDesign: IncidenceRateDesign = {
   targetCohortId: 0,
