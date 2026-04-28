@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test/test-utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -389,13 +389,88 @@ describe("StudyDesignWorkbench bug fixes", () => {
     fireEvent.click(confirmBtn!);
 
     expect(lockMutation.mutate).toHaveBeenCalledWith(
-      {
+      expect.objectContaining({
         slug: "hypertension-study-v3-2",
         sessionId: 7,
         versionId: 11,
-      },
+        ifUnmodifiedSince: "2026-04-27T00:00:00Z",
+      }),
       expect.any(Object),
     );
+  });
+
+  it("lock-confirm flow — surfaces 409 conflict via lockGateMessage and refetches readiness", async () => {
+    const lockMutation = idleMutation();
+    // Capture the onError callback so we can manually trigger it after click.
+    let capturedOnError: ((error: unknown) => void) | null = null;
+    lockMutation.mutate.mockImplementation((_vars, options?: {
+      onError?: (error: unknown) => void;
+    }) => {
+      capturedOnError = options?.onError ?? null;
+    });
+    hookMocks.useLockStudyDesignVersion.mockReturnValue(lockMutation);
+
+    const refetch = vi.fn().mockResolvedValue({
+      data: {
+        can_lock: true,
+        locked: false,
+        status: "ready",
+        blockers: [],
+        warnings: [],
+      },
+    });
+    hookMocks.useStudyDesignLockReadiness.mockReturnValue({
+      data: {
+        can_lock: true,
+        locked: false,
+        status: "ready",
+        blockers: [],
+        warnings: [],
+      },
+      isLoading: false,
+      error: null,
+      refetch,
+    });
+
+    renderWithProviders(<StudyDesignWorkbench study={study} />, {
+      initialRoute: "/studies/hypertension-study-v3-2?tab=design",
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /lock package/i }));
+    await waitFor(() => expect(refetch).toHaveBeenCalled());
+
+    // Confirm the lock — this triggers the mutate (which captures onError).
+    const dialog = await screen.findByRole("dialog");
+    const confirmBtn = Array.from(
+      dialog.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((btn) => btn.textContent?.toLowerCase().includes("lock package"));
+    fireEvent.click(confirmBtn!);
+
+    expect(capturedOnError).toBeTypeOf("function");
+
+    // Reset refetch tracking — we want to assert it gets called by onError.
+    refetch.mockClear();
+
+    // Simulate a 409-shaped error coming back from the API.
+    act(() => {
+      capturedOnError!({
+        response: {
+          status: 409,
+          data: {
+            message: "Study design version was modified since you loaded it.",
+            current_updated_at: "2026-04-27T01:00:00Z",
+          },
+        },
+      });
+    });
+
+    // lockGateMessage should display the i18n lockConflict copy.
+    expect(
+      await screen.findByText(/someone else updated this version/i),
+    ).toBeInTheDocument();
+
+    // And the readiness refetch should fire so the UI re-evaluates.
+    await waitFor(() => expect(refetch).toHaveBeenCalled());
   });
 
   it("lock-confirm flow — does NOT mutate if refetch returns can_lock=false", async () => {

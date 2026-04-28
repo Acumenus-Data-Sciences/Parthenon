@@ -24,6 +24,7 @@ import {
   conceptDraftPayload,
   draftPayloadRecord,
   formToSpec,
+  isRecord,
   mutationError,
   specToForm,
   textAt,
@@ -425,14 +426,34 @@ export function StudyDesignWorkbench({ study, headingRef }: StudyDesignWorkbench
     setLockConfirmOpen(true);
   };
 
-  // TODO(backend OCC): pass selectedVersion.updated_at as a precondition once
-  // the lock endpoint accepts it. The backend currently takes no body.
   const handleConfirmLock = () => {
     if (!selectedSession || !selectedVersion) return;
     const close = () => setLockConfirmOpen(false);
     lockDesignVersion.mutate(
-      { slug, sessionId: selectedSession.id, versionId: selectedVersion.id },
-      { onSuccess: close, onError: close },
+      {
+        slug,
+        sessionId: selectedSession.id,
+        versionId: selectedVersion.id,
+        ifUnmodifiedSince: selectedVersion.updated_at ?? null,
+      },
+      {
+        onSuccess: close,
+        onError: (error: unknown) => {
+          close();
+          // Optimistic concurrency control: backend returns 409 when the
+          // version was mutated since the user loaded it. Surface a
+          // human-readable message via lockGateMessage and refetch
+          // readiness so the UI re-evaluates against current state.
+          const status =
+            isRecord(error) && isRecord(error.response)
+              ? (error.response.status as unknown)
+              : null;
+          if (status === 409) {
+            setLockGateMessage(t("studies.workbench.messages.lockConflict"));
+            void lockReadinessQuery.refetch();
+          }
+        },
+      },
     );
   };
 

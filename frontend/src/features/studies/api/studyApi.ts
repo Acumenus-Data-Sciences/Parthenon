@@ -413,8 +413,16 @@ export async function lockStudyDesignVersion(
   slug: string,
   sessionId: number,
   versionId: number,
+  ifUnmodifiedSince?: string | null,
 ): Promise<{ data: StudyDesignVersion; package_artifact?: StudyArtifact; readiness?: StudyDesignReadiness }> {
-  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/lock`);
+  const body =
+    ifUnmodifiedSince != null && ifUnmodifiedSince !== ""
+      ? { if_unmodified_since: ifUnmodifiedSince }
+      : undefined;
+  const { data } = await apiClient.post(
+    `${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/lock`,
+    body,
+  );
   return data;
 }
 
