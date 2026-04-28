@@ -178,8 +178,23 @@ PY
   fi
 }
 
+# Cache the compose service list once at script load, with retry to survive
+# transient docker daemon hiccups. The runtime-cache-reset block restarts ~10
+# services back-to-back, briefly saturating the docker socket; a single empty
+# `docker compose config --services` response during the smoke section that
+# follows used to surface as a spurious "service is not configured" warning.
+# Eager-populating here (rather than lazy in service_exists) avoids the
+# subshell-scoping trap where a piped function call can't persist its cache.
+_COMPOSE_SERVICES_CACHE=""
+for _attempt in 1 2 3; do
+  _COMPOSE_SERVICES_CACHE="$(docker compose config --services 2>/dev/null)"
+  [ -n "$_COMPOSE_SERVICES_CACHE" ] && break
+  sleep 1
+done
+unset _attempt
+
 service_exists() {
-  docker compose config --services 2>/dev/null | grep -qx "$1"
+  printf '%s\n' "$_COMPOSE_SERVICES_CACHE" | grep -qx "$1"
 }
 
 restart_running_service() {
