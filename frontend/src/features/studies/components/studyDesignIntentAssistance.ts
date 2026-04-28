@@ -1,4 +1,11 @@
 import type { StudyDesignVersion } from "../types/study";
+import {
+  parseStudyDesignIntent,
+  parseStudyDesignNormalizedSpec,
+  parseStudyDesignProvenance,
+  type StudyDesignIntent,
+  type StudyDesignNormalizedSpec,
+} from "../schemas/studyDesignSchemas";
 
 export type IntentReviewFieldKey =
   | "researchQuestion"
@@ -101,7 +108,14 @@ export function buildIntentReviewAssistance(
   version: StudyDesignVersion,
   fields: IntentReviewFields = {},
 ): IntentReviewAssistance {
-  const resolved = resolveFields(version, fields);
+  // Boundary parse: convert raw JSON payloads into typed objects ONCE per
+  // call. Downstream helpers consume the parsed shapes via property access
+  // — no more defensive dotted-path drilling on raw intent_json/spec_json.
+  const intent = parseStudyDesignIntent(version.intent_json);
+  const spec = parseStudyDesignNormalizedSpec(version.normalized_spec_json);
+  const provenance = parseStudyDesignProvenance(version.provenance_json);
+
+  const resolved = resolveFields(intent, spec, fields);
   const missingFields = REQUIRED_FIELDS
     .filter((fieldKey) => isBlankOrPlaceholder(resolved[fieldKey]))
     .map((fieldKey) => ({
@@ -115,32 +129,14 @@ export function buildIntentReviewAssistance(
     ...missingFields.map((field) => suggestionForField(field.fieldKey, resolved)),
     ...weakFields.map((field) => suggestionForField(field.fieldKey, resolved)),
   ];
-  const protocolSource = protocolSourceFromVersion(version);
-  const evidenceSpans = evidenceSpansFromVersion(version);
-  const confidence = confidenceFromVersion(version);
-  const openQuestions = noteList(
-    firstDefined(
-      valueAt(version.intent_json, "open_questions"),
-      valueAt(version.normalized_spec_json, "open_questions"),
-    ),
-  );
-  const riskNotes = noteList(
-    firstDefined(
-      valueAt(version.intent_json, "risk_notes"),
-      valueAt(version.normalized_spec_json, "risk_notes"),
-    ),
-  );
-  const uncertaintyNotes = noteList(
-    firstDefined(
-      valueAt(version.intent_json, "uncertainty"),
-      valueAt(version.normalized_spec_json, "uncertainty"),
-    ),
-  );
+  const protocolSource = protocolSourceFromVersion(intent, spec, provenance);
+  const evidenceSpans = evidenceSpansFromVersion(intent, spec);
+  const confidence = confidenceFromVersion(intent, spec);
+  const openQuestions = noteList(intent.open_questions ?? spec.open_questions);
+  const riskNotes = noteList(intent.risk_notes ?? spec.risk_notes);
+  const uncertaintyNotes = noteList(intent.uncertainty ?? spec.uncertainty);
   const designAssumptions = noteList(
-    firstDefined(
-      valueAt(version.intent_json, "design_assumptions"),
-      valueAt(version.normalized_spec_json, "design_assumptions"),
-    ),
+    intent.design_assumptions ?? spec.design_assumptions,
   );
   const issueCount = missingFields.length + weakFields.length;
 
@@ -162,47 +158,51 @@ export function buildIntentReviewAssistance(
   };
 }
 
-function resolveFields(version: StudyDesignVersion, fields: IntentReviewFields): Required<IntentReviewFields> {
+function resolveFields(
+  intent: StudyDesignIntent,
+  spec: StudyDesignNormalizedSpec,
+  fields: IntentReviewFields,
+): Required<IntentReviewFields> {
   return {
     researchQuestion: firstText(
       fields.researchQuestion,
-      valueAt(version.normalized_spec_json, "study.research_question"),
-      valueAt(version.intent_json, "research_question"),
+      spec.study?.research_question,
+      intent.research_question,
     ),
     primaryObjective: firstText(
       fields.primaryObjective,
-      valueAt(version.normalized_spec_json, "study.primary_objective"),
-      valueAt(version.intent_json, "primary_objective"),
+      spec.study?.primary_objective,
+      intent.primary_objective,
     ),
     population: firstText(
       fields.population,
-      summaryAt(version.normalized_spec_json, "pico.population"),
-      valueAt(version.intent_json, "pico.population"),
-      valueAt(version.normalized_spec_json, "study.target_population_summary"),
+      summaryFromPico(spec.pico?.population),
+      intent.pico?.population,
+      spec.study?.target_population_summary,
     ),
     exposure: firstText(
       fields.exposure,
-      summaryAt(version.normalized_spec_json, "pico.intervention_or_exposure"),
-      summaryAt(version.normalized_spec_json, "pico.intervention"),
-      valueAt(version.intent_json, "pico.intervention"),
-      valueAt(version.intent_json, "pico.exposure"),
+      summaryFromPico(spec.pico?.intervention_or_exposure),
+      summaryFromPico(spec.pico?.intervention),
+      intent.pico?.intervention,
+      intent.pico?.exposure,
     ),
     comparator: firstText(
       fields.comparator,
-      summaryAt(version.normalized_spec_json, "pico.comparator"),
-      valueAt(version.intent_json, "pico.comparator"),
+      summaryFromPico(spec.pico?.comparator),
+      intent.pico?.comparator,
     ),
     outcome: firstText(
       fields.outcome,
-      summaryAt(version.normalized_spec_json, "pico.outcomes.0"),
-      summaryAt(version.normalized_spec_json, "pico.outcome"),
-      valueAt(version.intent_json, "pico.outcome"),
+      summaryFromPico(spec.pico?.outcomes?.[0]),
+      summaryFromPico(spec.pico?.outcome),
+      intent.pico?.outcome,
     ),
     time: firstText(
       fields.time,
-      summaryAt(version.normalized_spec_json, "pico.time"),
-      summaryAt(version.normalized_spec_json, "pico.time_at_risk"),
-      valueAt(version.intent_json, "pico.time_at_risk"),
+      summaryFromPico(spec.pico?.time),
+      summaryFromPico(spec.pico?.time_at_risk),
+      intent.pico?.time_at_risk,
     ),
   };
 }
@@ -315,25 +315,40 @@ function missingMessage(fieldKey: IntentReviewFieldKey): string {
   }
 }
 
-function protocolSourceFromVersion(version: StudyDesignVersion): IntentReviewProtocolSource | null {
-  const protocolFile = firstRecord(
-    valueAt(version.provenance_json, "protocol_file"),
-    valueAt(version.normalized_spec_json, "protocol_import"),
-    valueAt(version.intent_json, "protocol_import"),
-  );
-  const source = textValue(valueAt(version.provenance_json, "source"));
-  const harnessModel = textValue(valueAt(version.provenance_json, "harness_model"));
-  const evaluatorProvider = textValue(valueAt(version.provenance_json, "evaluator_provider"));
-  const evaluatorModel = textValue(valueAt(version.provenance_json, "evaluator_model"));
+function protocolSourceFromVersion(
+  intent: StudyDesignIntent,
+  spec: StudyDesignNormalizedSpec,
+  provenance: ReturnType<typeof parseStudyDesignProvenance>,
+): IntentReviewProtocolSource | null {
+  // The Zod schema only formally types provenance.protocol_file. The
+  // intent/spec `protocol_import` fields are unstructured fallbacks, so
+  // narrow them defensively before reading filename/text_length/etc.
+  const protocolFile =
+    provenance.protocol_file
+      ?? firstRecord(spec.protocol_import, intent.protocol_import);
+  const source = textValue(provenance.source);
+  const harnessModel = textValue(provenance.harness_model);
+  const evaluatorProvider = textValue(provenance.evaluator_provider);
+  const evaluatorModel = textValue(provenance.evaluator_model);
 
   if (!protocolFile && !source && !harnessModel && !evaluatorProvider && !evaluatorModel) {
     return null;
   }
 
+  const filename = textValue(
+    isRecord(protocolFile) ? protocolFile.filename : undefined,
+  );
+  const textLength = numberValue(
+    isRecord(protocolFile) ? protocolFile.text_length : undefined,
+  );
+  const truncated = booleanValue(
+    isRecord(protocolFile) ? protocolFile.truncated_for_ai : undefined,
+  );
+
   return {
-    filename: textValue(protocolFile?.filename),
-    textLength: numberValue(protocolFile?.text_length),
-    truncated: booleanValue(protocolFile?.truncated_for_ai),
+    filename,
+    textLength,
+    truncated,
     source,
     harnessModel,
     evaluatorProvider,
@@ -341,12 +356,15 @@ function protocolSourceFromVersion(version: StudyDesignVersion): IntentReviewPro
   };
 }
 
-function evidenceSpansFromVersion(version: StudyDesignVersion): IntentReviewEvidenceSpan[] {
-  const sources = [
-    valueAt(version.intent_json, "evidence_spans"),
-    valueAt(version.normalized_spec_json, "evidence_spans"),
-    valueAt(version.intent_json, "protocol_evidence.evidence_spans"),
-    valueAt(version.normalized_spec_json, "protocol_evidence.evidence_spans"),
+function evidenceSpansFromVersion(
+  intent: StudyDesignIntent,
+  spec: StudyDesignNormalizedSpec,
+): IntentReviewEvidenceSpan[] {
+  const sources: unknown[] = [
+    intent.evidence_spans,
+    spec.evidence_spans,
+    intent.protocol_evidence?.evidence_spans,
+    spec.protocol_evidence?.evidence_spans,
   ];
   const seen = new Set<string>();
   const spans: IntentReviewEvidenceSpan[] = [];
@@ -381,12 +399,15 @@ function evidenceSpansFromVersion(version: StudyDesignVersion): IntentReviewEvid
   return spans.slice(0, 8);
 }
 
-function confidenceFromVersion(version: StudyDesignVersion): IntentReviewConfidenceSummary {
+function confidenceFromVersion(
+  intent: StudyDesignIntent,
+  spec: StudyDesignNormalizedSpec,
+): IntentReviewConfidenceSummary {
   const confidence = firstRecord(
-    valueAt(version.intent_json, "confidence"),
-    valueAt(version.normalized_spec_json, "confidence"),
-    valueAt(version.intent_json, "protocol_evidence.confidence"),
-    valueAt(version.normalized_spec_json, "protocol_evidence.confidence"),
+    intent.confidence,
+    spec.confidence,
+    intent.protocol_evidence?.confidence,
+    spec.protocol_evidence?.confidence,
   );
   if (!confidence) {
     return { fields: [] };
@@ -459,25 +480,20 @@ function isBlankOrPlaceholder(value: string | null | undefined): boolean {
     || normalized === "to be determined";
 }
 
-function summaryAt(value: unknown, path: string): string {
-  const selected = valueAt(value, path);
-  if (typeof selected === "string") return selected.trim();
-  if (isRecord(selected)) {
-    return firstText(selected.summary, selected.label, selected.title, selected.description);
-  }
-  return "";
-}
-
-function valueAt(value: unknown, path: string): unknown {
-  return path.split(".").reduce<unknown>((current, part) => {
-    if (current == null) return undefined;
-    if (Array.isArray(current)) {
-      const index = Number(part);
-      return Number.isInteger(index) ? current[index] : undefined;
-    }
-    if (isRecord(current)) return current[part];
-    return undefined;
-  }, value);
+/**
+ * Pull a free-text summary out of a parsed pico subobject. Mirrors the
+ * old `summaryAt(spec, "pico.population")` behaviour but operates on
+ * Zod-parsed objects instead of dotted JSON paths.
+ */
+function summaryFromPico(subObject: unknown): string {
+  if (typeof subObject === "string") return subObject.trim();
+  if (!isRecord(subObject)) return "";
+  return firstText(
+    subObject.summary,
+    subObject.label,
+    subObject.title,
+    subObject.description,
+  );
 }
 
 function firstText(...values: unknown[]): string {
@@ -487,10 +503,6 @@ function firstText(...values: unknown[]): string {
   }
 
   return "";
-}
-
-function firstDefined(...values: unknown[]): unknown {
-  return values.find((value) => value !== undefined && value !== null);
 }
 
 function firstRecord(...values: unknown[]): Record<string, unknown> | null {
