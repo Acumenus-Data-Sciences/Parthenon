@@ -467,13 +467,16 @@ class AppServiceProvider extends ServiceProvider
         $isProtectedDatabase = in_array($databaseName, $protectedDatabases, true);
         $isTestingConnection = $connectionName === 'pgsql_testing' || str_ends_with($databaseName, '_testing');
 
+        if ($command === 'test') {
+            return;
+        }
+
         if ($isTestingConnection || ! $isProtectedDatabase) {
             return;
         }
 
         // Always-blocked destructive commands
         $blockedCommands = [
-            'test',
             'db:wipe',
             'migrate:fresh',
             'migrate:refresh',
