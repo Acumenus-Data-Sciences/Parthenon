@@ -7,6 +7,7 @@ use App\Enums\StudyDesignVerificationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudyDesign\DraftStudyCohortsRequest;
 use App\Http\Requests\StudyDesign\LinkStudyCohortRequest;
+use App\Http\Requests\StudyDesign\LockStudyDesignVersionRequest;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
@@ -31,6 +32,7 @@ use App\Services\StudyDesign\StudyDesignProtocolGateException;
 use App\Services\StudyDesign\StudyDesignProtocolImportService;
 use App\Services\StudyDesign\StudyFeasibilityService;
 use App\Services\StudyDesign\StudyPhenotypeRecommendationService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -728,7 +730,7 @@ class StudyDesignController extends Controller
         return response()->json(['data' => $this->guidanceService->build($study, $session, $version)]);
     }
 
-    public function lockVersion(Request $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
+    public function lockVersion(LockStudyDesignVersionRequest $request, Study $study, StudyDesignSession $session, StudyDesignVersion $version): JsonResponse
     {
         $this->authorizeVersion($study, $session, $version);
         $this->guardUnlocked($version);
@@ -736,6 +738,22 @@ class StudyDesignController extends Controller
         $readiness = $this->lockService->readiness($study, $session, $version);
         if (! $readiness['ready']) {
             return response()->json(['message' => 'Design package is not ready to lock.', 'data' => $readiness], 422);
+        }
+
+        // Optimistic concurrency control: if the client supplied an
+        // if_unmodified_since precondition, refuse the lock when the version
+        // has been mutated since they loaded it. This is OPTIONAL today to
+        // preserve back-compat with no-body legacy callers; future hardening
+        // can flip it to required.
+        $precondition = $request->input('if_unmodified_since');
+        if ($precondition !== null && $precondition !== '') {
+            $expected = CarbonImmutable::parse($precondition);
+            if (! $version->updated_at->equalTo($expected)) {
+                return response()->json([
+                    'message' => 'Study design version was modified since you loaded it.',
+                    'current_updated_at' => $version->updated_at->toIso8601String(),
+                ], 409);
+            }
         }
 
         return response()->json($this->lockService->lock($study, $session, $version, $request->user()->id));
