@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -42,6 +42,7 @@ export default function StudyDesignerPage() {
     "intent" | "search" | "recommend" | "lint"
   >("intent");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const workbenchHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const [protocolFileName, setProtocolFileName] = useState<string | null>(null);
   const [protocolImportStartedAt, setProtocolImportStartedAt] = useState<
     number | null
@@ -202,6 +203,16 @@ export default function StudyDesignerPage() {
     tabRefs.current[nextIndex]?.focus();
   };
 
+  // a11y: Move focus to the workbench heading once a protocol import succeeds
+  // so screen-reader users land on the new content. Depend on the imported study
+  // identity (id) to avoid re-focusing on every parent re-render.
+  useEffect(() => {
+    if (importedStudy && workbenchHeadingRef.current) {
+      workbenchHeadingRef.current.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [importedStudy?.id]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -287,7 +298,10 @@ export default function StudyDesignerPage() {
               </Link>
             )}
           </div>
-          <StudyDesignWorkbench study={importedStudy} />
+          <StudyDesignWorkbench
+            study={importedStudy}
+            headingRef={workbenchHeadingRef}
+          />
         </div>
       ) : (
         <>
