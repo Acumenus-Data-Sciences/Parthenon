@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { Investigation, PhenotypeState } from "../../types";
 import { CohortPicker } from "./CohortPicker";
@@ -29,7 +29,10 @@ interface CohortBuilderProps {
   }) => void;
 }
 
-export function CohortBuilder({ investigation, onStateChange }: CohortBuilderProps) {
+export function CohortBuilder({
+  investigation,
+  onStateChange,
+}: CohortBuilderProps) {
   const { t } = useTranslation("app");
   const [importMode, setImportMode] = useState<ImportMode>(
     investigation.phenotype_state.import_mode ?? "parthenon",
@@ -43,7 +46,11 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
   const [atlasJson, setAtlasJson] = useState("");
   const [atlasParseError, setAtlasParseError] = useState<string | null>(null);
   const [atlasSummary, setAtlasSummary] = useState<string | null>(null);
-  const [fileInfo, setFileInfo] = useState<{ name: string; size: string; summary: string } | null>(null);
+  const [fileInfo, setFileInfo] = useState<{
+    name: string;
+    size: string;
+    summary: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importOptions: ImportOption[] = [
     {
@@ -73,16 +80,22 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
   ];
 
   // Resolved cohort objects (name + count) for display badges
-  const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
-  const cohortList = cohortListData?.items ?? [];
-  const selectedCohorts = selectedIds.map((id) => {
-    const def = cohortList.find((c) => c.id === id);
-    return {
-      id,
-      name: def?.name ?? `Cohort #${id}`,
-      count: def?.latest_generation?.person_count ?? 0,
-    };
+  const { data: cohortListData } = useCohortDefinitions({
+    limit: 200,
+    with_generations: true,
   });
+  const selectedCohorts = useMemo(() => {
+    const cohortList = cohortListData?.items ?? [];
+    const cohortMap = new Map(cohortList.map((c) => [c.id, c]));
+    return selectedIds.map((id) => {
+      const def = cohortMap.get(id);
+      return {
+        id,
+        name: def?.name ?? `Cohort #${id}`,
+        count: def?.latest_generation?.person_count ?? 0,
+      };
+    });
+  }, [cohortListData?.items, selectedIds]);
 
   function handleAtlasParse() {
     setAtlasParseError(null);
@@ -99,18 +112,26 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       return;
     }
     const hasExpression = "expression" in parsed;
-    const inner = (hasExpression ? (parsed.expression as Record<string, unknown>) : parsed) ?? {};
-    const conceptSets = Array.isArray(inner.ConceptSets) ? inner.ConceptSets : [];
+    const inner =
+      (hasExpression
+        ? (parsed.expression as Record<string, unknown>)
+        : parsed) ?? {};
+    const conceptSets = Array.isArray(inner.ConceptSets)
+      ? inner.ConceptSets
+      : [];
     const primaryCriteria = inner.PrimaryCriteria;
-    const hasValidShape = "ConceptSets" in inner || "PrimaryCriteria" in inner || hasExpression;
+    const hasValidShape =
+      "ConceptSets" in inner || "PrimaryCriteria" in inner || hasExpression;
     if (!hasValidShape) {
       setAtlasParseError(t("investigation.phenotype.atlas.parseErrorShape"));
       return;
     }
-    const criteriaCount =
-      Array.isArray((primaryCriteria as Record<string, unknown> | undefined)?.CriteriaList)
-        ? ((primaryCriteria as Record<string, unknown>).CriteriaList as unknown[]).length
-        : primaryCriteria
+    const criteriaCount = Array.isArray(
+      (primaryCriteria as Record<string, unknown> | undefined)?.CriteriaList,
+    )
+      ? ((primaryCriteria as Record<string, unknown>).CriteriaList as unknown[])
+          .length
+      : primaryCriteria
         ? 1
         : 0;
     setAtlasSummary(
@@ -139,8 +160,13 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
         });
         return;
       }
-      const inner = ("expression" in parsed ? (parsed.expression as Record<string, unknown>) : parsed) ?? {};
-      const conceptSets = Array.isArray(inner.ConceptSets) ? inner.ConceptSets : [];
+      const inner =
+        ("expression" in parsed
+          ? (parsed.expression as Record<string, unknown>)
+          : parsed) ?? {};
+      const conceptSets = Array.isArray(inner.ConceptSets)
+        ? inner.ConceptSets
+        : [];
       setFileInfo({
         name: file.name,
         size: `${sizeKB} KB`,
@@ -172,7 +198,12 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handlePhenotypeSelect(phenotype: { id: string; name: string; description: string; expression: Record<string, unknown> }) {
+  function handlePhenotypeSelect(phenotype: {
+    id: string;
+    name: string;
+    description: string;
+    expression: Record<string, unknown>;
+  }) {
     onStateChange({ cohort_definition: phenotype.expression });
   }
 
@@ -191,7 +222,8 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
     onStateChange({ primary_cohort_id: id });
   }
 
-  const conceptSetCount = investigation.phenotype_state.concept_sets?.length ?? 0;
+  const conceptSetCount =
+    investigation.phenotype_state.concept_sets?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-5 h-full overflow-y-auto pr-1">
@@ -219,8 +251,12 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
                 className="mt-0.5 accent-success shrink-0"
               />
               <div>
-                <span className="text-xs font-medium text-text-primary">{opt.label}</span>
-                <p className="text-[11px] text-text-ghost mt-0.5">{opt.description}</p>
+                <span className="text-xs font-medium text-text-primary">
+                  {opt.label}
+                </span>
+                <p className="text-[11px] text-text-ghost mt-0.5">
+                  {opt.description}
+                </p>
               </div>
             </label>
           ))}
@@ -314,7 +350,9 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
           </label>
           {fileInfo && (
             <div className="rounded border border-border-default/50 bg-surface-raised/40 px-3 py-2 flex flex-col gap-0.5">
-              <p className="text-xs text-text-secondary font-medium">{fileInfo.name}</p>
+              <p className="text-xs text-text-secondary font-medium">
+                {fileInfo.name}
+              </p>
               <p className="text-[11px] text-text-ghost">{fileInfo.size}</p>
               <p className="text-[11px] text-success">{fileInfo.summary}</p>
             </div>
@@ -330,7 +368,8 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
       {selectedIds.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            {t("investigation.common.sections.selectedCohorts")} ({selectedIds.length})
+            {t("investigation.common.sections.selectedCohorts")} (
+            {selectedIds.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
             {selectedCohorts.map(({ id, name }) => (
