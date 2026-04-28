@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useMemo, useRef, useState, type ChangeEvent, type Ref } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Brain, Loader2, Lock, Plus, Sparkles, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -66,9 +66,11 @@ import {
 
 interface StudyDesignWorkbenchProps {
   study: Study;
+  /** Optional ref forwarded to the workbench title heading for focus management. */
+  headingRef?: Ref<HTMLHeadingElement>;
 }
 
-export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
+export function StudyDesignWorkbench({ study, headingRef }: StudyDesignWorkbenchProps) {
   const { t } = useTranslation("app");
   const slug = study.slug || String(study.id);
   const protocolInputRef = useRef<HTMLInputElement | null>(null);
@@ -478,7 +480,12 @@ export function StudyDesignWorkbench({ study }: StudyDesignWorkbenchProps) {
         <div>
           <div className="flex items-center gap-2">
             <Brain size={18} className="text-success" />
-            <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
+            <h3
+              ref={headingRef}
+              tabIndex={-1}
+              className="panel-title"
+              style={{ fontSize: "var(--text-base)" }}
+            >
               {t("studies.workbench.title")}
             </h3>
           </div>
