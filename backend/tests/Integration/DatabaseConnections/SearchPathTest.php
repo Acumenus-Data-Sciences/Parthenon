@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\DB;
  *     primarySchema: string,
  *     primaryTable: string,
  *     sentinelTables: list<string>,
+ *     optional: bool,
  * }>
  */
 function databaseConnectionMatrix(): array
@@ -51,6 +52,7 @@ function databaseConnectionMatrix(): array
             'primarySchema' => 'omop',
             'primaryTable' => 'omop.person',
             'sentinelTables' => ['omop.person', 'vocab.concept'],
+            'optional' => false,
         ],
         'results (Achilles output)' => [
             'connection' => 'results',
@@ -58,13 +60,15 @@ function databaseConnectionMatrix(): array
             'primarySchema' => 'results',
             'primaryTable' => 'results.achilles_results',
             'sentinelTables' => ['results.achilles_results'],
+            'optional' => false,
         ],
         'gis (geospatial)' => [
             'connection' => 'gis',
-            'expectedSearchPath' => 'gis,omop,vocab,php',
+            'expectedSearchPath' => 'gis,public,omop,vocab,php',
             'primarySchema' => 'gis',
             'primaryTable' => 'gis.geographic_location',
             'sentinelTables' => ['gis.geographic_location', 'omop.person', 'vocab.concept'],
+            'optional' => false,
         ],
         'eunomia (GiBleed demo)' => [
             'connection' => 'eunomia',
@@ -72,6 +76,7 @@ function databaseConnectionMatrix(): array
             'primarySchema' => 'eunomia',
             'primaryTable' => 'eunomia.person',
             'sentinelTables' => ['eunomia.person'],
+            'optional' => true,
         ],
         'inpatient (Morpheus CDM)' => [
             'connection' => 'inpatient',
@@ -79,6 +84,7 @@ function databaseConnectionMatrix(): array
             'primarySchema' => 'inpatient',
             'primaryTable' => 'inpatient.visit_occurrence',
             'sentinelTables' => ['inpatient.visit_occurrence', 'vocab.concept'],
+            'optional' => true,
         ],
         'pancreas (cancer corpus CDM)' => [
             'connection' => 'pancreas',
@@ -86,6 +92,7 @@ function databaseConnectionMatrix(): array
             'primarySchema' => 'pancreas',
             'primaryTable' => 'pancreas.person',
             'sentinelTables' => ['pancreas.person', 'vocab.concept'],
+            'optional' => true,
         ],
     ];
 }
@@ -128,6 +135,7 @@ it('verifies the configured search_path for each non-default connection', functi
     string $primarySchema,
     string $primaryTable,
     array $sentinelTables,
+    bool $optional,
 ) {
     // 1. Confirm the connection is registered in config.
     $configured = config("database.connections.{$connection}.search_path");
@@ -161,6 +169,12 @@ it('verifies the configured search_path for each non-default connection', functi
         'SELECT to_regclass(?) AS rel',
         [$primaryTable],
     );
+    if ($primary[0]->rel === null && $optional) {
+        $this->markTestSkipped(
+            "Optional connection '{$connection}' is configured, but '{$primaryTable}' "
+            .'is not loaded in this environment.'
+        );
+    }
     expect($primary[0]->rel)->not->toBeNull(
         "Expected '{$primaryTable}' to resolve via search_path on connection '{$connection}'"
     );

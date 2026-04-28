@@ -89,7 +89,7 @@ return [
         //   pgsql     → app,php                      (application tables, Laravel internals)
         //   omop      → omop,vocab,php                (CDM + shared vocabulary)
         //   results   → results,php                  (Achilles/DQD output)
-        //   gis       → gis,omop,vocab,php           (geospatial + CDM + vocab lookup)
+        //   gis       → gis,public,omop,vocab,php    (geospatial + PostGIS + CDM + vocab lookup)
         //   eunomia   → eunomia,php                  (demo dataset)
         //   inpatient → inpatient,inpatient_ext,vocab (Morpheus inpatient CDM + extensions + shared vocab)
         // ────────────────────────────────────────────────────────────────────
@@ -185,7 +185,7 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => 'gis,omop,vocab,php',
+            'search_path' => 'gis,public,omop,vocab,php',
             'sslmode' => 'prefer',
         ],
 

@@ -115,10 +115,10 @@ recorded here so this milestone's roadmap can build on top of them.
 
 ### Geographic stratification (Phase 19)
 
-- [ ] **GIS-01**: Deploy dormant `gis` schema against `parthenon` DB via a Laravel migration owned by `parthenon_migrator`. Six tables: `gis.geographic_location`, `gis.external_exposure`, `gis.location_geography`, `gis.gis_hospital`, `gis.geography_summary`, plus `gis.patient_geography` materialized view. PostGIS 3.5.3 verified prerequisite. Migration MUST `throw \RuntimeException` if PostGIS missing — no silent skip (D-04). `parthenon_app` gets `USAGE` on schema + `SELECT, INSERT, UPDATE, DELETE` on tables; never DDL nor TRUNCATE. Idempotent on re-run.
-- [ ] **GIS-02**: Port `scripts/gis/load_geography.py` and `scripts/gis/load_crosswalk.py` to (a) read DSN from environment variables (`PGHOST`, `PGUSER=parthenon_migrator`, `PGDATABASE=parthenon`, password from `~/.pgpass`), (b) operate nationwide (not PA-only), (c) loop over real-geography source schemas (`omop`, `pancreas`, `irsf`) with synthetic-zip CDMs (`synpuf`, `eunomia`) skipped via explicit allow-list (D-07). Ship new `scripts/gis/load_ua_county.py` that loads 3,234-row Census 2020 UA county dataset into `gis.geographic_location` (counties) AND fans out per-person `urban_pct`, `rural_pct`, `urban_pop_density`, `rural_pop_density`, `aland_pct_urban` rows into `gis.external_exposure` via UPSERT (D-05). Skip `CT_2022` sheet (D-06). Register dataset in `app.gis_datasets`.
-- [ ] **GIS-03**: Wire `location_urban_pct` as the first urban-rural stratification covariate in `IncidenceRateService::buildIncidenceRateSql`. New `design_json.stratifyByLocation` field (string enum: `none|urban_pct|rucc`). FormRequest validates with `Rule::in(['none','urban_pct','rucc'])`. Frontend `IncidenceRateDesigner` exposes a Location dropdown next to existing Gender/Age toggles. Server-side bucketing: `<0.25 Highly Rural`, `<0.50 Rural`, `<0.75 Mixed`, `>=0.75 Urban` (D-03). Existing `$minCellCount = 5` suppression applies. Pancreas active-source warning (D-08).
-- [ ] **GIS-04**: Security regression guards. (a) Pytest test `test_dsn_no_legacy_credentials.py` greps every `scripts/gis/load_*.py` and fails on any literal `dbname=ohdsi` or `password=acumenus`. (b) After Phase 19 ships, audit `load_rucc.py`, `load_svi.py`, `load_geography.py`, `load_crosswalk.py`, `load_air_quality.py`, `load_hospitals.py`, `load_all.py`, `load_real_data.py`, `fetch_data.py` and remediate (env-DSN) or mark deprecated. Plan 05 closes this requirement.
+- [x] **GIS-01**: Deploy dormant `gis` schema against `parthenon` DB via a Laravel migration owned by `parthenon_migrator`. Six tables: `gis.geographic_location`, `gis.external_exposure`, `gis.location_geography`, `gis.gis_hospital`, `gis.geography_summary`, plus `gis.patient_geography` materialized view. PostGIS 3.5.3 verified prerequisite. Migration MUST `throw \RuntimeException` if PostGIS missing — no silent skip (D-04). `parthenon_app` gets `USAGE` on schema + `SELECT, INSERT, UPDATE, DELETE` on tables; never DDL nor TRUNCATE. Idempotent on re-run.
+- [x] **GIS-02**: Port `scripts/gis/load_geography.py` and `scripts/gis/load_crosswalk.py` to (a) read DSN from environment variables (`PGHOST`, `PGUSER=parthenon_migrator`, `PGDATABASE=parthenon`, password from `~/.pgpass`), (b) operate nationwide (not PA-only), (c) loop over real-geography source schemas (`omop`, `pancreas`, `irsf`) with synthetic-zip CDMs (`synpuf`, `eunomia`) skipped via explicit allow-list (D-07). Ship new `scripts/gis/load_ua_county.py` that loads 3,234-row Census 2020 UA county dataset into `gis.geographic_location` (counties) AND fans out per-person `urban_pct`, `rural_pct`, `urban_pop_density`, `rural_pop_density`, `aland_pct_urban` rows into `gis.external_exposure` via UPSERT (D-05). Skip `CT_2022` sheet (D-06). Register dataset in `app.gis_datasets`.
+- [x] **GIS-03**: Wire `location_urban_pct` as the first urban-rural stratification covariate in `IncidenceRateService::buildIncidenceRateSql`. New `design_json.stratifyByLocation` field (string enum: `none|urban_pct|rucc`). FormRequest validates with `Rule::in(['none','urban_pct','rucc'])`. Frontend `IncidenceRateDesigner` exposes a Location dropdown next to existing Gender/Age toggles. Server-side bucketing: `<0.25 Highly Rural`, `<0.50 Rural`, `<0.75 Mixed`, `>=0.75 Urban` (D-03). Existing `$minCellCount = 5` suppression applies. Pancreas active-source warning (D-08).
+- [x] **GIS-04**: Security regression guards. (a) Pytest test `test_dsn_no_legacy_credentials.py` greps every `scripts/gis/load_*.py` and fails on any literal `dbname=ohdsi` or `password=acumenus`. (b) After Phase 19 ships, audit `load_rucc.py`, `load_svi.py`, `load_geography.py`, `load_crosswalk.py`, `load_air_quality.py`, `load_hospitals.py`, `load_all.py`, `load_real_data.py`, `fetch_data.py` and remediate (env-DSN) or mark deprecated. Plan 05 closes this requirement.
 
 ### Polish + closing-the-loop
 
@@ -176,10 +176,10 @@ Coverage: 14 / 14 GENOMICS-* requirements mapped (100%); 4 / 4 GIS-* requirement
 | GENOMICS-12b | Phase 18.5 (deferred) | deferred |
 | GENOMICS-13  | Phase 16  | pending |
 | GENOMICS-14  | Phase 15  | Complete |
-| GIS-01       | Phase 19  | pending |
-| GIS-02       | Phase 19  | pending |
-| GIS-03       | Phase 19  | pending |
-| GIS-04       | Phase 19  | pending |
+| GIS-01       | Phase 19  | Complete |
+| GIS-02       | Phase 19  | Complete |
+| GIS-03       | Phase 19  | Complete |
+| GIS-04       | Phase 19  | Complete |
 
 ## Validated traceability
 

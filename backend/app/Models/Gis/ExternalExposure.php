@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *   omop.person_id=1 ↔ irsf.person_id=1 collision risk and enables ON
  *   CONFLICT UPSERT idempotency in Plan 03 loaders (D-05).
  *
- * Connection 'gis' has search_path 'gis,omop,vocab,php' — it does NOT
+ * Connection 'gis' has search_path 'gis,public,omop,vocab,php' — it does NOT
  * include 'app'. The source() relation MUST therefore call
  * setConnection('pgsql') to find app.sources via the default connection
  * (B-06: cross-connection bridge).

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * gis.geographic_location — census tracts, counties, ZIPs with PostGIS
  * geometry. Phase 19 Plan 02 (Wave 1).
  *
- * Connection: 'gis' (search_path: gis,omop,vocab,php). Table is declared
+ * Connection: 'gis' (search_path: gis,public,omop,vocab,php). Table is declared
  * unqualified ('geographic_location') per B-07 — rely on the connection's
  * search_path; never use 'gis.geographic_location' or duplicate
  * qualification will break under different schema setups.

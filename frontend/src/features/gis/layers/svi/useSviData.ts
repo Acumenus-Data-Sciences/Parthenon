@@ -7,18 +7,19 @@ import {
 } from "./api";
 
 export function useSviData(params: LayerDataParams): LayerDataResult {
-  const { conceptId, selectedFips } = params;
+  const { conceptId, selectedFips, enabled = true } = params;
 
   const choropleth = useQuery({
     queryKey: ["gis", "svi", "choropleth"],
     queryFn: () => fetchSviChoropleth("county", "overall"),
+    enabled,
     staleTime: 5 * 60_000,
   });
 
   const quartiles = useQuery({
     queryKey: ["gis", "svi", "quartiles", conceptId],
     queryFn: () => fetchSviQuartileAnalysis(conceptId!, "cases"),
-    enabled: conceptId !== null,
+    enabled: enabled && conceptId !== null,
     staleTime: 60_000,
   });
 
@@ -27,7 +28,7 @@ export function useSviData(params: LayerDataParams): LayerDataResult {
   const detail = useQuery({
     queryKey: ["gis", "svi", "tract-detail", selectedFips],
     queryFn: () => fetchSviTractDetail(selectedFips!),
-    enabled: isTractFips,
+    enabled: enabled && isTractFips,
   });
 
   return {

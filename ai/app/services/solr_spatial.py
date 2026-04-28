@@ -19,6 +19,15 @@ logger = logging.getLogger(__name__)
 
 SOLR_URL = os.getenv("SOLR_URL", "http://solr:8983/solr")
 SOLR_CORE = "gis_spatial"
+SOLR_CHOROPLETH_METRIC_FIELDS = {
+    "cases": "cases",
+    "deaths": "deaths",
+    "cfr": "cfr",
+    "hospitalization": "hospitalizations",
+    "hospitalizations": "hospitalizations",
+    "patient_count": "population",
+    "population": "population",
+}
 
 _solr: Any | None = None
 
@@ -131,6 +140,9 @@ async def get_choropleth_from_solr(
 ) -> list[dict]:
     """Get county choropleth data from Solr for a given condition + metric."""
     solr = get_solr()
+    metric_field = SOLR_CHOROPLETH_METRIC_FIELDS.get(metric)
+    if metric_field is None:
+        raise ValueError(f"Metric {metric!r} is not available in Solr choropleth documents")
 
     fq = [f"condition_concept_id:{concept_id}"]
     if time_period:
@@ -139,14 +151,14 @@ async def get_choropleth_from_solr(
     results = solr.search(
         q="*:*",
         fq=fq,
-        fl=f"gadm_gid,county_name_exact,{metric},population,cfr",
+        fl=f"gadm_gid,county_name_exact,{metric_field},population,cfr",
         rows=500,
-        sort=f"{metric} desc",
+        sort=f"{metric_field} desc",
     )
 
     items = []
     for doc in results:
-        value = doc.get(metric, 0)
+        value = doc.get(metric_field, 0)
         pop = doc.get("population", 0)
         rate = round(value / pop * 100, 2) if pop and metric in ("cases", "deaths") else None
 

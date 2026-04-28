@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @group GIS Explorer
@@ -31,7 +32,10 @@ class GisController extends Controller
         if ($response->failed()) {
             Log::error('GIS boundary request failed', ['status' => $response->status(), 'body' => $response->body()]);
 
-            return response()->json(['error' => 'Failed to fetch boundaries'], $response->status());
+            return response()->json(
+                $response->json() ?: ['error' => 'Failed to fetch boundaries'],
+                $response->status()
+            );
         }
 
         return response()->json($response->json());
@@ -94,6 +98,17 @@ class GisController extends Controller
         $source = $validated['source'];
         $levels = $validated['levels'] ?? ['ADM0'];
         $countryCodes = $validated['country_codes'] ?? null;
+
+        if ($source === 'geoboundaries') {
+            $unsupported = array_values(array_diff($levels, ['ADM0', 'ADM1', 'ADM2']));
+            if ($unsupported !== []) {
+                throw ValidationException::withMessages([
+                    'levels' => [
+                        'geoBoundaries CGAZ is available for ADM0, ADM1, and ADM2 only. Use GADM for ADM3 and deeper levels.',
+                    ],
+                ]);
+            }
+        }
 
         $dataset = GisDataset::create([
             'name' => ucfirst($source).' '.implode('+', $levels),

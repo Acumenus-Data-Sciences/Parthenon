@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 18-06-PLAN.md
-last_updated: "2026-04-19T20:48:44.548Z"
-last_activity: 2026-04-23 - Completed quick task 260423-qvz: FinnGen Workbench UI improvements
+last_updated: "2026-04-27T23:24:14.212Z"
+last_activity: 2026-04-27
 progress:
   total_phases: 8
-  completed_phases: 4
-  total_plans: 58
-  completed_plans: 51
-  percent: 88
+  completed_phases: 6
+  total_plans: 59
+  completed_plans: 55
+  percent: 93
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomic
 
 ## Current Position
 
-Phase: 18 (risteys-style-endpoint-dashboard) — EXECUTING
-Plan: 6 of 7 (Plan 18-02 complete — Wave 1 foundation shipped)
+Phase: 19
+Plan: Not started
 Status: Ready to execute
-Last activity: 2026-04-19
+Last activity: 2026-04-28 - Completed quick task 260428-gu8: Close 5 deferred Study Designer items (backend OCC, Zod schemas, helper consolidation, useStudyDesignWorkbench hook extraction, ensureSession dedupe test)
 
 Progress: [████████░░] 81%
 
@@ -36,7 +36,7 @@ Progress: [████████░░] 81%
 
 **Velocity:**
 
-- Total plans completed: 28
+- Total plans completed: 33
 - Average duration: 4.0min
 - Total execution time: 0.20 hours
 
@@ -49,6 +49,7 @@ Progress: [████████░░] 81%
 | 17 | 7 | - | - |
 | 16 | 7 | - | - |
 | 15 | 11 | - | - |
+| 19 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -246,6 +247,12 @@ None yet.
 | 260423-qvz | Implement FinnGen Workbench UI improvements: RunStatusBadge pulse animation, CoverageBadge redesign, StatTile visual upgrade, WorkbenchStepper step icons | 2026-04-23 | 896765264 | [260423-qvz-implement-finngen-workbench-ui-improveme](./quick/260423-qvz-implement-finngen-workbench-ui-improveme/) |
 | 260425-iu4 | Commit CareBundles audit fixes — vocab grant migration, backend hardening (HIGH-1/2/3, LOW-3, INTERVAL parameterization), frontend a11y/error/render-pattern | 2026-04-25 | a97160f74, cbf0c9dfc | [260425-iu4-commit-carebundles-audit-fixes-vocab-gra](./quick/260425-iu4-commit-carebundles-audit-fixes-vocab-gra/) |
 | 260425-iyq | Address deferred CareBundles audit findings — HIGH-4 cohort export idempotency, HIGH-5 promote-to-current ordering, HIGH-6 INSERT…SELECT, MEDIUM DQ/gate/personCount, LOW FHIR polish, frontend a11y | 2026-04-25 | 92e91cb84, f0d2bef56, f5309a7a3 | [260425-iyq-address-deferred-carebundles-audit-findi](./quick/260425-iyq-address-deferred-carebundles-audit-findi/) |
+| 260427-owg | HIGHSEC: per-route permissions on /study-agent/* + bind study-agent container to 127.0.0.1 | 2026-04-27 | 5072c6de9, 0cc627b1a | [260427-owg-highsec-per-route-permissions-on-study-a](./quick/260427-owg-highsec-per-route-permissions-on-study-a/) |
+| 260427-p3t | Fix critical Study Designer frontend bugs (C1-followup, C2, C3, C4, H1, H2, H4, H5, L) — Lint error panels, lock-race + confirm modal, NaN concept_id, dirty-form warning, mutation error banner, ensureSession dedupe, dead Recommend tab | 2026-04-27 | 7d2958f0c, d10799c5d, fb8535738 | [260427-p3t-fix-critical-study-designer-frontend-bug](./quick/260427-p3t-fix-critical-study-designer-frontend-bug/) |
+| 260427-pw7 | Delete orphan StudyDesigner.tsx (1380 LOC dead code, zero importers, superseded by StudyDesignWorkbench) | 2026-04-27 | a5bc69925 | [260427-pw7-delete-orphan-studydesigner-tsx-1380-loc](./quick/260427-pw7-delete-orphan-studydesigner-tsx-1380-loc/) |
+| 260427-px8 | Split StudyDesignWorkbench.tsx (3919→779 LOC, 80% reduction) into 13 files under workbench/ — 4 shared atoms, 1 helpers module, 8 panels; pure-byte refactor; all 41 tests pass | 2026-04-27 | a6ce08d4b, 0ff9db2e9, 325c8e5bb | [260427-px8-split-studydesignworkbench-tsx-3919-loc-](./quick/260427-px8-split-studydesignworkbench-tsx-3919-loc-/) |
+| 260427-qvo | Study Designer a11y + missing tests — WAI-ARIA tablist + arrow keys + aria-live, focus-after-import, 3 new keyboard/focus tests | 2026-04-27 | 4b6600d20, 6af87d9e3, 866809e80, d0595731c | [260427-qvo-study-designer-a11y-missing-tests-tablis](./quick/260427-qvo-study-designer-a11y-missing-tests-tablis/) |
+| 260428-gu8 | Close 5 deferred Study Designer items — backend OCC (if_unmodified_since, 409 path, FormRequest), Zod schemas replacing valueAt drilling in intent assistance, consolidate dual analysisDetailPath helpers, extract useStudyDesignWorkbench() hook (786→418 LOC), ensureSession dedupe regression test | 2026-04-28 | 51e423fae, b288209ee, 9591907b2, 238cf46c5, 21b8aa2ed, 1813d32a9 | [260428-gu8-study-designer-deferred-items-backend-oc](./quick/260428-gu8-study-designer-deferred-items-backend-oc/) |
 
 ## Session Continuity
 

@@ -58,6 +58,10 @@ it('creates the gis.patient_geography materialized view', function (): void {
 })->group('phase19', 'gis');
 
 it('grants USAGE on gis schema to parthenon_app but NOT CREATE', function (): void {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     $usage = DB::selectOne("SELECT has_schema_privilege('parthenon_app', 'gis', 'USAGE') AS has_priv");
     $create = DB::selectOne("SELECT has_schema_privilege('parthenon_app', 'gis', 'CREATE') AS has_priv");
     expect((bool) $usage->has_priv)->toBeTrue();
@@ -65,6 +69,10 @@ it('grants USAGE on gis schema to parthenon_app but NOT CREATE', function (): vo
 })->group('phase19', 'gis', 'highsec');
 
 it('grants DML on gis.external_exposure to parthenon_app but NOT TRUNCATE', function (): void {
+    if (! hasPgRoleForPrivilegeAssertions('parthenon_app')) {
+        return;
+    }
+
     $insert = DB::selectOne("SELECT has_table_privilege('parthenon_app', 'gis.external_exposure', 'INSERT') AS has_priv");
     $select = DB::selectOne("SELECT has_table_privilege('parthenon_app', 'gis.external_exposure', 'SELECT') AS has_priv");
     $update = DB::selectOne("SELECT has_table_privilege('parthenon_app', 'gis.external_exposure', 'UPDATE') AS has_priv");

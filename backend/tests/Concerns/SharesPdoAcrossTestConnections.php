@@ -93,6 +93,12 @@ trait SharesPdoAcrossTestConnections
 
         $result = parent::setUpTraits();
 
+        // RefreshDatabase may run migrations after the first rebind. Some
+        // migrations intentionally set a narrow search_path for PostGIS or
+        // cross-schema DDL, so restore the test union path before seeders and
+        // test code run.
+        $this->applySharedPdoSearchPath();
+
         // After parent has opened the master transaction, sync sibling counters.
         $this->syncSiblingTransactionLevels();
 
@@ -170,15 +176,29 @@ trait SharesPdoAcrossTestConnections
             $sibling->setReadPdo($masterPdo);
         }
 
-        // Apply the union search_path to the shared PDO so queries from
-        // any wrapper resolve tables correctly. SESSION scope persists
-        // across savepoints within the same PG backend session.
+        $this->applySharedPdoSearchPath();
+    }
+
+    /**
+     * Apply the union search_path to the shared PDO so queries from any wrapper
+     * resolve tables correctly. SESSION scope persists across savepoints within
+     * the same PG backend session.
+     */
+    private function applySharedPdoSearchPath(): void
+    {
+        /** @var DatabaseManager $dbm */
+        $dbm = $this->app->make(DatabaseManager::class);
+
         $searchPathSchemas = self::collectSearchPathSchemas(
             array_merge(['pgsql_testing'], self::TEST_PDO_SIBLINGS)
         );
-        if ($searchPathSchemas !== []) {
-            $masterPdo->exec('SET SESSION search_path TO '.implode(',', $searchPathSchemas));
+        if ($searchPathSchemas === []) {
+            return;
         }
+
+        $dbm->connection('pgsql_testing')
+            ->getPdo()
+            ->exec('SET SESSION search_path TO '.implode(',', $searchPathSchemas));
     }
 
     /**
