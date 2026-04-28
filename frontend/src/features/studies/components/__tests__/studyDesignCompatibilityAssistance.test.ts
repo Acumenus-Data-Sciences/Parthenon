@@ -1,6 +1,47 @@
 import { describe, expect, it } from "vitest";
 import type { StudyDesignAsset } from "../../types/study";
 import { buildCompatibilityAssistance } from "../studyDesignCompatibilityAssistance";
+import { analysisDetailPath } from "../workbench/studyDesignWorkbenchHelpers";
+
+describe("analysisDetailPath (consolidated helper)", () => {
+  it.each([
+    ["\\OHDSI\\Cohorts\\CohortMethod", 7, "/analyses/estimations/7"],
+    ["\\OHDSI\\PatientLevelPrediction", 12, "/analyses/predictions/12"],
+    ["\\OHDSI\\SelfControlledCaseSeries", 5, "/analyses/sccs/5"],
+    ["\\OHDSI\\TreatmentPatterns", 9, "/analyses/pathways/9"],
+    ["\\OHDSI\\CohortIncidence", 3, "/analyses/incidence-rates/3"],
+    ["\\OHDSI\\EvidenceSynthesis", 11, "/analyses/evidence-synthesis/11"],
+    ["\\OHDSI\\Characterizations", 21, "/analyses/characterizations/21"],
+    ["\\OHDSI\\SelfControlledCohort", 14, "/analyses/self-controlled-cohorts/14"],
+  ])("maps long PHP namespace %s → %s", (type, id, expected) => {
+    expect(analysisDetailPath(type, id)).toBe(expected);
+  });
+
+  it.each([
+    ["characterization", 1, "/analyses/characterizations/1"],
+    ["incidence_rate", 2, "/analyses/incidence-rates/2"],
+    ["pathway", 3, "/analyses/pathways/3"],
+    ["estimation", 4, "/analyses/estimations/4"],
+    ["prediction", 5, "/analyses/predictions/5"],
+    ["sccs", 6, "/analyses/sccs/6"],
+    ["self_controlled_cohort", 7, "/analyses/self-controlled-cohorts/7"],
+    ["evidence_synthesis", 8, "/analyses/evidence-synthesis/8"],
+  ])("preserves short key %s → %s", (type, id, expected) => {
+    expect(analysisDetailPath(type, id)).toBe(expected);
+  });
+
+  it("returns null when id is null", () => {
+    expect(analysisDetailPath("cohortmethod", null)).toBe(null);
+  });
+
+  it("returns null when type is unknown", () => {
+    expect(analysisDetailPath("nonsense", 42)).toBe(null);
+  });
+
+  it("returns null when type is undefined", () => {
+    expect(analysisDetailPath(undefined, 42)).toBe(null);
+  });
+});
 
 describe("buildCompatibilityAssistance", () => {
   it("groups imported native assets by downstream compiler stage", () => {
