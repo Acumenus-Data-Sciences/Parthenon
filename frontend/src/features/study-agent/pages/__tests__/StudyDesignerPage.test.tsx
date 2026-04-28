@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/test/test-utils";
@@ -26,11 +27,21 @@ vi.mock("@/features/studies/components/StudyDesignWorkbench", async () => {
   const React = await import("react");
 
   return {
-    StudyDesignWorkbench: ({ study }: { study: Study }) =>
+    StudyDesignWorkbench: ({
+      study,
+      headingRef,
+    }: {
+      study: Study;
+      headingRef?: React.Ref<HTMLHeadingElement>;
+    }) =>
       React.createElement(
         "section",
         { "data-testid": "study-design-workbench" },
-        study.title,
+        React.createElement(
+          "h2",
+          { ref: headingRef, tabIndex: -1, "data-testid": "workbench-heading" },
+          study.title,
+        ),
       ),
   };
 });
@@ -188,5 +199,81 @@ describe("StudyDesignerPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Run Lint" }));
 
     expect(await screen.findByText("Server boom")).toBeInTheDocument();
+  });
+
+  describe("a11y — tablist", () => {
+    it("exposes WAI-ARIA tablist with aria-selected matching active tab", () => {
+      renderWithProviders(<StudyDesignerPage />, {
+        initialRoute: "/study-designer",
+      });
+
+      const tablist = screen.getByRole("tablist");
+      expect(tablist).toBeInTheDocument();
+
+      const intentTab = screen.getByRole("tab", { name: "Study Intent" });
+      const searchTab = screen.getByRole("tab", { name: "Phenotype Search" });
+      expect(intentTab).toHaveAttribute("aria-selected", "true");
+      expect(searchTab).toHaveAttribute("aria-selected", "false");
+
+      // The selected tab is in the tab order; the rest are roving with tabIndex=-1.
+      expect(intentTab).toHaveAttribute("tabindex", "0");
+      expect(searchTab).toHaveAttribute("tabindex", "-1");
+    });
+
+    it("ArrowRight / ArrowLeft / Home / End cycle and select tabs", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<StudyDesignerPage />, {
+        initialRoute: "/study-designer",
+      });
+
+      const intentTab = screen.getByRole("tab", { name: "Study Intent" });
+      const searchTab = screen.getByRole("tab", { name: "Phenotype Search" });
+      const recommendTab = screen.getByRole("tab", { name: "Recommendations" });
+      const lintTab = screen.getByRole("tab", { name: "Cohort Lint" });
+
+      // Focus the active tab; selection-follows-focus on arrow keys.
+      intentTab.focus();
+      expect(document.activeElement).toBe(intentTab);
+
+      await user.keyboard("{ArrowRight}");
+      expect(searchTab).toHaveAttribute("aria-selected", "true");
+      expect(document.activeElement).toBe(searchTab);
+
+      await user.keyboard("{End}");
+      expect(lintTab).toHaveAttribute("aria-selected", "true");
+      expect(document.activeElement).toBe(lintTab);
+
+      // ArrowRight from last wraps to first
+      await user.keyboard("{ArrowRight}");
+      expect(intentTab).toHaveAttribute("aria-selected", "true");
+
+      // ArrowLeft from first wraps to last
+      await user.keyboard("{ArrowLeft}");
+      expect(lintTab).toHaveAttribute("aria-selected", "true");
+
+      await user.keyboard("{Home}");
+      expect(intentTab).toHaveAttribute("aria-selected", "true");
+      expect(document.activeElement).toBe(intentTab);
+
+      // Recommend tab kept untouched is in DOM and reachable via single ArrowRight twice
+      await user.keyboard("{ArrowRight}{ArrowRight}");
+      expect(recommendTab).toHaveAttribute("aria-selected", "true");
+    });
+
+    it("focuses the workbench heading after a successful protocol import", async () => {
+      const { container } = renderWithProviders(<StudyDesignerPage />, {
+        initialRoute: "/study-designer",
+      });
+
+      const file = new File(["# Protocol"], "p.md", { type: "text/markdown" });
+      const input = container.querySelector('input[type="file"]');
+      expect(input).toBeInstanceOf(HTMLInputElement);
+      fireEvent.change(input!, { target: { files: [file] } });
+
+      const heading = await screen.findByTestId("workbench-heading");
+      await waitFor(() => {
+        expect(document.activeElement).toBe(heading);
+      });
+    });
   });
 });
