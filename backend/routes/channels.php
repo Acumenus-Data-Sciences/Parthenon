@@ -10,7 +10,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('commons.online', function ($user) {
     $request = request();
-    $sessionId = $request->session()?->getId()
+    $sessionId = ($request->hasSession() ? $request->session()->getId() : null)
         ?? $request->header('X-Socket-Id')
         ?? (string) Str::uuid();
 
