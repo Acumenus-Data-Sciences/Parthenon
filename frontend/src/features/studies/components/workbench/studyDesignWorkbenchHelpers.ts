@@ -174,16 +174,29 @@ export function mutationError(error: unknown): string | null {
 export function analysisDetailPath(type: string | undefined, id: number | null): string | null {
   if (id == null) return null;
 
+  // Normalize: strip leading PHP namespace (e.g. "\\OHDSI\\CohortMethod" → "cohortmethod")
+  // and lowercase. The lookup table accepts both short keys (cohort/route names)
+  // and long PHP namespace forms emitted by imported_study_analysis assets.
+  const normalized = (type ?? "").split("\\").pop()?.toLowerCase() ?? "";
+
   const basePath = {
     characterization: "/analyses/characterizations",
+    characterizations: "/analyses/characterizations",
+    cohortincidence: "/analyses/incidence-rates",
     incidence_rate: "/analyses/incidence-rates",
+    treatmentpatterns: "/analyses/pathways",
     pathway: "/analyses/pathways",
+    cohortmethod: "/analyses/estimations",
     estimation: "/analyses/estimations",
+    patientlevelprediction: "/analyses/predictions",
     prediction: "/analyses/predictions",
+    selfcontrolledcaseseries: "/analyses/sccs",
     sccs: "/analyses/sccs",
+    selfcontrolledcohort: "/analyses/self-controlled-cohorts",
     self_controlled_cohort: "/analyses/self-controlled-cohorts",
+    evidencesynthesis: "/analyses/evidence-synthesis",
     evidence_synthesis: "/analyses/evidence-synthesis",
-  }[type ?? ""];
+  }[normalized];
 
   return basePath ? `${basePath}/${id}` : null;
 }

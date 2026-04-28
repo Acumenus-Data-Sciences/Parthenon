@@ -1,4 +1,5 @@
 import type { StudyDesignAsset } from "../types/study";
+import { analysisDetailPath } from "./workbench/studyDesignWorkbenchHelpers";
 
 export type CompatibilityGroupId =
   | "concept_sets"
@@ -296,30 +297,6 @@ function nativeLinkForAsset(
   }
 
   return null;
-}
-
-function analysisDetailPath(type: string, id: number): string | null {
-  const normalized = type.split("\\").pop()?.toLowerCase() ?? type.toLowerCase();
-  const basePath = {
-    characterization: "/analyses/characterizations",
-    characterizations: "/analyses/characterizations",
-    cohortincidence: "/analyses/incidence-rates",
-    incidence_rate: "/analyses/incidence-rates",
-    treatmentpatterns: "/analyses/pathways",
-    pathway: "/analyses/pathways",
-    cohortmethod: "/analyses/estimations",
-    estimation: "/analyses/estimations",
-    patientlevelprediction: "/analyses/predictions",
-    prediction: "/analyses/predictions",
-    selfcontrolledcaseseries: "/analyses/sccs",
-    sccs: "/analyses/sccs",
-    selfcontrolledcohort: "/analyses/self-controlled-cohorts",
-    self_controlled_cohort: "/analyses/self-controlled-cohorts",
-    evidencesynthesis: "/analyses/evidence-synthesis",
-    evidence_synthesis: "/analyses/evidence-synthesis",
-  }[normalized];
-
-  return basePath ? `${basePath}/${id}` : null;
 }
 
 function importedAssetLabel(asset: StudyDesignAsset, payload: Record<string, unknown>): string {
