@@ -45,6 +45,7 @@ jobs:
         if: steps.diff.outputs.changed_files != '0'
         id: review
         uses: anthropics/claude-code-action@beta
+        continue-on-error: true # Workaround for empty balance
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           direct_prompt: |
@@ -67,6 +68,11 @@ jobs:
         with:
           script: |
             const review = `${{ steps.review.outputs.response }}`;
+
+            if (!review || review.includes('Credit balance is too low')) {
+              console.log('Skipping code review due to API issues or lack of credits');
+              return;
+            }
 
             // Determine if review approves or requests changes
             const hasBlocking = review.toLowerCase().includes('blocking');
