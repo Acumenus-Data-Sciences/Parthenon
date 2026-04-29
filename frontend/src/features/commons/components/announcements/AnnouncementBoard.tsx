@@ -24,11 +24,31 @@ function externalLinks(html: string): string {
 // ---------------------------------------------------------------------------
 
 const CATEGORIES = [
-  { value: "general", labelKey: "announcements.categories.general", badge: "badge-info" },
-  { value: "study_recruitment", labelKey: "announcements.categories.studyRecruitment", badge: "badge-success" },
-  { value: "data_update", labelKey: "announcements.categories.dataUpdate", badge: "badge-warning" },
-  { value: "milestone", labelKey: "announcements.categories.milestone", badge: "badge-accent" },
-  { value: "policy", labelKey: "announcements.categories.policy", badge: "badge-critical" },
+  {
+    value: "general",
+    labelKey: "announcements.categories.general",
+    badge: "badge-info",
+  },
+  {
+    value: "study_recruitment",
+    labelKey: "announcements.categories.studyRecruitment",
+    badge: "badge-success",
+  },
+  {
+    value: "data_update",
+    labelKey: "announcements.categories.dataUpdate",
+    badge: "badge-warning",
+  },
+  {
+    value: "milestone",
+    labelKey: "announcements.categories.milestone",
+    badge: "badge-accent",
+  },
+  {
+    value: "policy",
+    labelKey: "announcements.categories.policy",
+    badge: "badge-critical",
+  },
 ] as const;
 
 function getCategoryBadge(category: string): string {
@@ -67,8 +87,21 @@ function AnnouncementCard({
   return (
     <div className="panel" style={{ padding: "var(--space-4)" }}>
       {/* Top row: pin + category + actions */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-2)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-2)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+          }}
+        >
           {announcement.is_pinned && (
             <Pin size={13} style={{ color: "var(--warning)", flexShrink: 0 }} />
           )}
@@ -77,10 +110,21 @@ function AnnouncementCard({
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1)",
+          }}
+        >
           <button
             onClick={() => onBookmark(announcement.id)}
             title={
+              announcement.is_bookmarked
+                ? t("announcements.removeBookmark")
+                : t("announcements.bookmark")
+            }
+            aria-label={
               announcement.is_bookmarked
                 ? t("announcements.removeBookmark")
                 : t("announcements.bookmark")
@@ -101,6 +145,7 @@ function AnnouncementCard({
             <button
               onClick={() => onDelete(announcement.id)}
               title={t("announcements.delete")}
+              aria-label={t("announcements.delete")}
               className="btn btn-ghost btn-icon btn-sm"
             >
               <Trash2 size={13} />
@@ -110,12 +155,14 @@ function AnnouncementCard({
       </div>
 
       {/* Title */}
-      <h3 style={{
-        marginTop: "var(--space-2)",
-        fontSize: "var(--text-sm)",
-        fontWeight: 600,
-        color: "var(--text-primary)",
-      }}>
+      <h3
+        style={{
+          marginTop: "var(--space-2)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          color: "var(--text-primary)",
+        }}
+      >
         {announcement.title}
       </h3>
 
@@ -123,38 +170,55 @@ function AnnouncementCard({
       {announcement.body_html ? (
         <div
           className="body-html"
-          style={{ marginTop: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(externalLinks(announcement.body_html)) }}
+          style={{
+            marginTop: "var(--space-1)",
+            fontSize: "var(--text-xs)",
+            color: "var(--text-muted)",
+            lineHeight: 1.6,
+          }}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(externalLinks(announcement.body_html)),
+          }}
         />
       ) : (
-        <p style={{
-          marginTop: "var(--space-1)",
-          fontSize: "var(--text-xs)",
-          color: "var(--text-muted)",
-          lineHeight: 1.6,
-          whiteSpace: "pre-wrap",
-        }}>
+        <p
+          style={{
+            marginTop: "var(--space-1)",
+            fontSize: "var(--text-xs)",
+            color: "var(--text-muted)",
+            lineHeight: 1.6,
+            whiteSpace: "pre-wrap",
+          }}
+        >
           {announcement.body}
         </p>
       )}
 
       {/* Footer: author + date + expiry */}
-      <div style={{
-        marginTop: "var(--space-3)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        flexWrap: "wrap",
-      }}>
+      <div
+        style={{
+          marginTop: "var(--space-3)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          flexWrap: "wrap",
+        }}
+      >
         {announcement.user && (
           <>
             <UserAvatar user={announcement.user} size="sm" />
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+            <span
+              style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}
+            >
               {announcement.user.name}
             </span>
           </>
         )}
-        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>{time}</span>
+        <span
+          style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}
+        >
+          {time}
+        </span>
         {announcement.expires_at && (
           <span className="badge badge-warning" style={{ fontSize: 10 }}>
             {t("announcements.expires", {
@@ -177,7 +241,11 @@ interface CreateAnnouncementModalProps {
   channelSlug?: string;
 }
 
-function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncementModalProps) {
+function CreateAnnouncementModal({
+  open,
+  onClose,
+  channelSlug,
+}: CreateAnnouncementModalProps) {
   const { t } = useTranslation("commons");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -189,7 +257,13 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     createMutation.mutate(
-      { title: title.trim(), body: body.trim(), category, channel_slug: channelSlug, is_pinned: isPinned },
+      {
+        title: title.trim(),
+        body: body.trim(),
+        category,
+        channel_slug: channelSlug,
+        is_pinned: isPinned,
+      },
       {
         onSuccess: () => {
           setTitle("");
@@ -252,19 +326,30 @@ function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncem
 
         <div style={{ display: "flex", gap: "var(--space-4)" }}>
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">{t("announcements.form.category")}</label>
+            <label className="form-label">
+              {t("announcements.form.category")}
+            </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="form-input form-select"
             >
               {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
+                <option key={c.value} value={c.value}>
+                  {t(c.labelKey)}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="form-group" style={{ display: "flex", alignItems: "flex-end", paddingBottom: "var(--space-4)" }}>
+          <div
+            className="form-group"
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              paddingBottom: "var(--space-4)",
+            }}
+          >
             <label className="form-check">
               <input
                 type="checkbox"
@@ -304,38 +389,69 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Header */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "var(--space-3) var(--space-4)",
-        borderBottom: "1px solid var(--border-default)",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "var(--space-3) var(--space-4)",
+          borderBottom: "1px solid var(--border-default)",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+          }}
+        >
           <Megaphone size={15} style={{ color: "var(--primary)" }} />
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
+          <span
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+            }}
+          >
             {t("announcements.title")}
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+          }}
+        >
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             className="form-input form-select"
-            style={{ minHeight: 30, fontSize: "var(--text-xs)", padding: "var(--space-1) var(--space-6) var(--space-1) var(--space-2)" }}
+            style={{
+              minHeight: 30,
+              fontSize: "var(--text-xs)",
+              padding:
+                "var(--space-1) var(--space-6) var(--space-1) var(--space-2)",
+            }}
           >
             <option value="">{t("announcements.allCategories")}</option>
             {CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
+              <option key={c.value} value={c.value}>
+                {t(c.labelKey)}
+              </option>
             ))}
           </select>
 
           <button
             onClick={() => setShowCreate(true)}
             className="btn btn-primary btn-sm"
-            style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1)",
+            }}
           >
             <Plus size={13} />
             {t("announcements.new")}
@@ -344,7 +460,16 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
       </div>
 
       {/* List */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "var(--space-4)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-3)",
+        }}
+      >
         {isLoading && (
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
             {t("announcements.loading")}
@@ -352,21 +477,30 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
         )}
 
         {!isLoading && announcements.length === 0 && (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "var(--space-2)",
-            paddingTop: "var(--space-12)",
-            paddingBottom: "var(--space-12)",
-            textAlign: "center",
-          }}>
-            <Megaphone size={40} style={{ color: "var(--text-ghost)", opacity: 0.4 }} />
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--space-2)",
+              paddingTop: "var(--space-12)",
+              paddingBottom: "var(--space-12)",
+              textAlign: "center",
+            }}
+          >
+            <Megaphone
+              size={40}
+              style={{ color: "var(--text-ghost)", opacity: 0.4 }}
+            />
+            <p
+              style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}
+            >
               {t("announcements.emptyTitle")}
             </p>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
+            <p
+              style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}
+            >
               {t("announcements.emptyMessage")}
             </p>
           </div>
