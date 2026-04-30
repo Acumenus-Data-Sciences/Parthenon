@@ -1,3 +1,6 @@
 ## 2024-04-22 - Added aria-labels to icon-only chat buttons
 **Learning:** Found several icon-only buttons in the chat components lacking aria-labels, making them inaccessible to screen readers.
 **Action:** Always add aria-labels to icon-only buttons, specifically in chat actions menus, emoji pickers, and reference pickers. Use i18n translation keys whenever possible for localized accessibility.
+## $(date +%Y-%m-%d) - Adding accessibility tags to icon-only buttons
+**Learning:** Icon-only UI elements, like the X close button in `CovariateSettingsPanel.tsx`, are often overlooked for accessibility because the component visually implies "remove" or "close." Without an `aria-label`, screen readers have no context. Adding `title` provides a native tooltip on hover, adding further UX delight. We must take care not to inadvertently commit lock files (`pnpm-lock.yaml`) during the testing and package installation process.
+**Action:** When creating or modifying reusable layout panels and components (like setting drawers, or modal windows) that use icon-only action buttons, always ensure an `aria-label` and, if applicable, `title` attribute is included. Watch out for unintended `pnpm-lock.yaml` file creation during test preparations.
