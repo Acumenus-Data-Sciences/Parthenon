@@ -123,6 +123,10 @@ backend/api.json
 frontend/src/types/api.generated.ts
 .superpowers/
 
+# Generated Graphify knowledge graph artifacts
+graphify-out/
+graphify-views/
+
 # OHDSI Scraper corpus data (large, generated locally)
 OHDSI-scraper/ohdsi_corpus/
 OHDSI-scraper/book_of_ohdsi/

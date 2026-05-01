@@ -1,0 +1,15 @@
+# Dependency and generated trees
+vendor/
+backend/vendor/
+node_modules/
+storage/
+bootstrap/cache/
+public/build/
+coverage/
+graphify-views/
+
+# Local assistant/config instructions
+AGENTS.md
+CLAUDE.md
+.claude/
+.codex/
