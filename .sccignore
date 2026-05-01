@@ -1,0 +1,79 @@
+# Source-focused scc profile for Parthenon.
+# scc already honors .gitignore; these rules keep prose, corpora, generated
+# output, dependency trees, and local runtime state out of code metrics.
+
+# Documentation and prose
+docs/
+*.md
+*.mdx
+*.rst
+*.txt
+*.pdf
+
+# Data, fixtures, assets, and generated metadata
+backend/database/fixtures/
+backend/resources/help/
+*.csv
+*.json
+*.jsonl
+*.xml
+*.svg
+*.patch
+
+# Dependency, build, and generated output directories
+**/node_modules/
+backend/vendor/
+frontend/dist/
+frontend/reports/
+docs/site/build/
+docs/site/.docusaurus/
+docs/site/.docusaurus-tmp/
+graphify-out/
+graphify-views/
+build/
+dist/
+output/
+tmp/
+backend/tmp/
+
+# Runtime state, caches, and local data
+.parthenon-data/
+.worktrees/
+.planning/
+.planning.archive/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv*/
+__pycache__/
+**/__pycache__/
+backend/storage/
+backups/
+chroma/
+ai/app/chroma/
+ai/models/
+docker/postgres-data/
+docker/redis-data/
+
+# Large local/source corpora and third-party snapshots
+GIS/
+dicom_samples/
+backend/dicom_samples/
+external/
+data/wiki/
+OHDSI-scraper/OHDSI Papers/
+OHDSI-scraper/OHDSI_Papers/
+OHDSI-scraper/book_of_ohdsi/
+OHDSI-scraper/corpus/
+OHDSI-scraper/hades_vignettes/
+OHDSI-scraper/medical_textbooks_extracted/
+OHDSI-scraper/ohdsi_corpus/
+OHDSI-scraper/ohdsi_forums/
+OHDSI-scraper/validated_oa_corpus/
+ai/book_of_ohdsi/
+ai/gis_data/
+ai/hades_vignettes/
+ai/medical_textbooks/
+ai/ohdsi_corpus/
+ai/ohdsi_forums/
+ai/ohdsi_papers/
