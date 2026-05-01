@@ -30,14 +30,14 @@ on:
       - "installer/rust-gui/**"
 
 permissions:
-  contents: write
-  id-token: write
-  attestations: write
+  contents: read
 
 jobs:
   installer-bundle:
     name: Build installer bundle
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,8 +75,21 @@ jobs:
           if-no-files-found: error
           path: dist/installer-bundle/*
 
-      - name: Stage canonical bundle filename + sha256 sidecar for release
-        if: ${{ github.event_name == 'release' }}
+  publish-installer-bundle:
+    name: Publish installer bundle
+    needs: installer-bundle
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Download source-backed installer bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: parthenon-community-bootstrap-bundle
+          path: dist/installer-bundle
+
+      - name: Stage canonical bundle filename + sha256 sidecar
         shell: bash
         run: |
           set -euo pipefail
@@ -89,7 +102,6 @@ jobs:
           ls -la dist/release-bundle/
 
       - name: Attach installer bundle to release
-        if: ${{ github.event_name == 'release' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -104,7 +116,12 @@ jobs:
   build:
     name: Build ${{ matrix.label }}
     needs: installer-bundle
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -692,6 +709,8 @@ jobs:
     needs: [build, installer-bundle]
     runs-on: ubuntu-22.04
     if: ${{ github.event_name == 'release' }}
+    permissions:
+      contents: write
     env:
       TAURI_UPDATER_PRIVATE_KEY_CONFIGURED: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY != '' }}
     steps:
@@ -786,9 +805,12 @@ jobs:
 
   verify-release:
     name: Verify release artifacts
-    needs: [build, installer-bundle, publish-updater-manifest]
+    needs: [build, publish-installer-bundle, publish-updater-manifest]
     runs-on: ubuntu-22.04
     if: ${{ github.event_name == 'release' }}
+    permissions:
+      contents: read
+      attestations: read
     steps:
       - uses: actions/checkout@v4
 

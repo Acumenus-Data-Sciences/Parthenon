@@ -2,14 +2,24 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "release/**"]
+    tags:
+      - "v*"
   pull_request:
     branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
     name: Backend (Laravel)
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -50,39 +60,14 @@ jobs:
           fi
           docker exec "$PG_CID" bash -c "apt-get update -qq && apt-get install -y --no-install-recommends postgresql-16-postgis-3"
 
-      - name: Create schemas and extensions
+      - name: Prepare Postgres schemas and extensions
         env:
           PGPASSWORD: secret
-        run: |
-          # Setup extensions and schemas on the migration database
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS gis;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
-          # Pest tests use pgsql_testing connection → parthenon_testing database (phpunit.xml)
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE DATABASE parthenon_testing OWNER parthenon;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS app;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS php;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS omop;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS vocab;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS results;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS gis;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS finngen;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
+          PGDATABASE: parthenon_test
+          PGUSER: parthenon
+          POSTGRES_CREATE_TEST_DATABASE: "1"
+          POSTGRES_ENABLE_POSTGIS: "1"
+        run: bash scripts/ci/prepare-postgres.sh
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -152,6 +137,7 @@ jobs:
   frontend:
     name: Frontend (React)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
 
@@ -185,6 +171,7 @@ jobs:
   ai:
     name: AI Service (Python)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
 
@@ -213,6 +200,7 @@ jobs:
   docs-build:
     name: Documentation (Docusaurus)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
@@ -236,6 +224,7 @@ jobs:
     # Only runs on release branches (release/*, v*.*.*)
     if: startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
 
@@ -323,6 +312,7 @@ jobs:
   openapi-export:
     name: OpenAPI Spec (Scribe)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -340,22 +330,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Create schemas
+      - name: Prepare Postgres schemas
         env:
           PGPASSWORD: secret
-        run: |
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS gis;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          PGDATABASE: parthenon_test
+          PGUSER: parthenon
+        run: bash scripts/ci/prepare-postgres.sh
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -383,34 +363,28 @@ jobs:
           DB_PASSWORD: secret
           DB_SEARCH_PATH: app,public
         run: |
-          php artisan scribe:generate --no-interaction || true
-          if [ -f public/docs/openapi.yaml ]; then
-            cp public/docs/openapi.yaml api.json
-            echo "OpenAPI spec exported"
-          else
-            echo '{"paths":{}}' > api.json
-            echo "Scribe did not produce openapi.yaml — skipping validation"
-          fi
+          php artisan scribe:generate --no-interaction
+          test -s public/docs/openapi.yaml
+          php -r '
+            require "vendor/autoload.php";
+            $spec = Symfony\Component\Yaml\Yaml::parseFile("public/docs/openapi.yaml");
+            if (! is_array($spec)) {
+                fwrite(STDERR, "OpenAPI spec is not a map.\n");
+                exit(1);
+            }
+            $paths = $spec["paths"] ?? [];
+            if (! is_array($paths) || count($paths) === 0) {
+                fwrite(STDERR, "OpenAPI spec has no paths.\n");
+                exit(1);
+            }
+            file_put_contents("api.json", json_encode($spec, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+            fwrite(STDOUT, "OpenAPI spec exported with " . count($paths) . " paths.\n");
+          '
 
       - name: Validate OpenAPI spec
         working-directory: backend
         run: |
-          python3 -c "
-          import json, yaml, sys
-          fname = 'api.json'
-          with open(fname) as f:
-              content = f.read()
-          try:
-              spec = json.loads(content)
-          except json.JSONDecodeError:
-              spec = yaml.safe_load(content) if 'yaml' in dir(__import__('yaml')) else {}
-          paths = len(spec.get('paths', {}))
-          print(f'Paths: {paths}')
-          if paths == 0:
-              print('WARN: no paths found — spec may not have been generated')
-          else:
-              print('Spec valid.')
-          "
+          python3 -m json.tool api.json >/dev/null
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -427,17 +401,16 @@ jobs:
         working-directory: frontend
         run: npm run generate:api-types
 
-      - name: Detect OpenAPI type drift
+      - name: Detect OpenAPI artifact drift
         run: |
-          # Fail if the freshly-regenerated api.generated.ts differs from
-          # what's committed. Contributors must run ./deploy.sh --openapi
-          # whenever backend routes/requests/responses change.
-          if ! git diff --exit-code -- frontend/src/types/api.generated.ts; then
+          # Fail if regenerated OpenAPI artifacts differ from what's committed.
+          # Contributors must run ./deploy.sh --openapi whenever backend
+          # routes, requests, or responses change.
+          if ! git diff --exit-code -- backend/api.json frontend/src/types/api.generated.ts; then
             echo ""
-            echo "::error::OpenAPI type drift detected — frontend/src/types/api.generated.ts is out of sync with the backend OpenAPI spec."
+            echo "::error::OpenAPI artifact drift detected."
             echo ""
-            echo "The committed TypeScript types do not match what would be generated from the current backend routes."
-            echo "This means a backend route/request/response was changed without regenerating the frontend types."
+            echo "The committed OpenAPI spec or TypeScript types do not match what would be generated from the current backend routes."
             echo ""
             echo "To fix locally:"
             echo "  ./deploy.sh --openapi"
