@@ -2,6 +2,7 @@
 #
 # Triggers:
 #   - Push to main (builds all images whose Docker inputs changed)
+#   - Pull request (validates affected images without pushing)
 #   - Manual dispatch (builds all images or a specific one)
 #
 # Images are tagged with: latest, sha-<short>, and date-based tags.
@@ -21,6 +22,22 @@ on:
       - 'solr/**'
       - '.github/workflows/docker-build.yml'
       # Dependency files — rebuild base images when deps change
+      - 'backend/composer.json'
+      - 'backend/composer.lock'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - 'ai/requirements.txt'
+      - 'ai/requirements-dev.txt'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docker/**'
+      - 'backend/**'
+      - 'frontend/**'
+      - 'ai/**'
+      - 'blackrabbit/**'
+      - 'solr/**'
+      - '.github/workflows/docker-build.yml'
       - 'backend/composer.json'
       - 'backend/composer.lock'
       - 'frontend/package.json'
@@ -61,12 +78,17 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # ---------------------------------------------------------------------------
   # Determine which images need building based on changed files
   # ---------------------------------------------------------------------------
   changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -146,12 +168,17 @@ jobs:
             done
           else
             # Only build images whose Dockerfiles, service code, or dependency files changed.
-            BEFORE="${{ github.event.before }}"
-            AFTER="${{ github.sha }}"
-            if [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
-              CHANGED=$(git diff --name-only "${AFTER}^" "$AFTER")
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              git fetch origin "${{ github.base_ref }}" --depth=1
+              CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD)
             else
-              CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+              BEFORE="${{ github.event.before }}"
+              AFTER="${{ github.sha }}"
+              if [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+                CHANGED=$(git diff --name-only "${AFTER}^" "$AFTER")
+              else
+                CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+              fi
             fi
 
             if path_changed ".github/workflows/docker-build.yml"; then
@@ -198,6 +225,7 @@ jobs:
     needs: changes
     if: ${{ fromJson(needs.changes.outputs.matrix).include[0] != null }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.changes.outputs.matrix) }}
@@ -252,6 +280,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -263,7 +292,7 @@ jobs:
         with:
           context: ${{ steps.meta.outputs.context }}
           file: ${{ steps.meta.outputs.dockerfile }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}

@@ -6,11 +6,12 @@ on:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 jobs:
   auto-merge:
-    name: Auto-merge safe updates
+    name: Auto-merge security and patch updates
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
 
@@ -21,9 +22,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Auto-merge security patches immediately (after CI passes)
+      # Auto-merge non-major security patches after required checks pass.
       - name: Auto-merge security patches
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major' && contains(steps.metadata.outputs.dependency-names, 'security') || steps.metadata.outputs.ghsa-id != ''
+        if: steps.metadata.outputs.ghsa-id != '' && steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -31,16 +32,21 @@ jobs:
 
       # Auto-merge patch updates (e.g., 1.2.3 → 1.2.4)
       - name: Auto-merge patch updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        if: steps.metadata.outputs.ghsa-id == '' && steps.metadata.outputs.update-type == 'version-update:semver-patch'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Auto-merge minor updates (e.g., 1.2.0 → 1.3.0)
-      - name: Auto-merge minor updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+      # Label minor updates for manual review.
+      - name: Label minor updates for review
+        if: steps.metadata.outputs.ghsa-id == '' && steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: |
+          gh pr edit "$PR_URL" --add-label "needs-review,minor-bump"
+          gh pr comment "$PR_URL" --body "Minor dependency update detected. Please review the changelog before merging.
+
+          **Package:** ${{ steps.metadata.outputs.dependency-names }}
+          **Update:** ${{ steps.metadata.outputs.previous-version }} → ${{ steps.metadata.outputs.new-version }}"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

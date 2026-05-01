@@ -13,7 +13,7 @@ jobs:
   fix:
     name: Diagnose & Fix Issue
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'claude-fix'
+    if: github.event.label.name == 'claude-fix' && github.event.sender.login == github.repository_owner
 
     steps:
       - name: Checkout code

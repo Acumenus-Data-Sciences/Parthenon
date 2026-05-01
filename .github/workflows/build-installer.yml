@@ -1,8 +1,6 @@
-name: Source Installer Release Check
+name: Source Installer Smoke Check
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       ref:
@@ -12,7 +10,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   source-installer-check:
@@ -21,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.release.tag_name || inputs.ref || github.ref_name }}
+          ref: ${{ inputs.ref || github.ref_name }}
 
       - uses: actions/setup-python@v6
         with:
@@ -86,17 +84,6 @@ jobs:
       - name: Confirm release asset policy
         run: |
           echo "Workflow artifacts include the source-backed installer bundle until signed native installers are ready."
-
-      - name: Publish source-backed installer bundle
-        if: github.event_name == 'release'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release upload "${{ github.event.release.tag_name }}" \
-            dist/installer-bundle/parthenon-community-bootstrap.tar.gz \
-            dist/installer-bundle/parthenon-community-bootstrap.tar.gz.sha256 \
-            --repo "${{ github.repository }}" \
-            --clobber
 
       - name: Upload source-backed installer bundle
         uses: actions/upload-artifact@v7
