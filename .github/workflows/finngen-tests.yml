@@ -146,6 +146,15 @@ jobs:
           DB_DATABASE: parthenon_test
           DB_USERNAME: parthenon
           DB_PASSWORD: secret
+          # phpunit.xml forces DB_CONNECTION=pgsql_testing, which reads DB_TEST_*
+          # with fallback to DB_*. Its DB_TEST_PORT default is 5480 (host PG17
+          # dev convention), so without these explicit overrides the test
+          # connection ignores the CI postgres service and tries port 5480.
+          DB_TEST_HOST: 127.0.0.1
+          DB_TEST_PORT: 5432
+          DB_TEST_DATABASE: parthenon_testing
+          DB_TEST_USERNAME: parthenon
+          DB_TEST_PASSWORD: secret
           FINNGEN_PG_RO_PASSWORD: ci-ro-secret
           FINNGEN_PG_RW_PASSWORD: ci-rw-secret
           REDIS_HOST: 127.0.0.1
