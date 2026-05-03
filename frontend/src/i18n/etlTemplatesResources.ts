@@ -27,6 +27,14 @@ export const etlTemplatesEn: MessageTree = {
       cancel: "Cancel",
       run: "Run",
       running: "Running...",
+      close: "Close",
+    },
+    templates: {
+      empty:
+        "No templates available — check the templates service is running",
+      error:
+        "Failed to load templates. Check that the templates service is running.",
+      retry: "Retry",
     },
     status: {
       pending: "Pending",
