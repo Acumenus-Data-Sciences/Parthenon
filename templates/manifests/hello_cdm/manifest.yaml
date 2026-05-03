@@ -1,0 +1,85 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: hello_cdm
+  name: "Hello CDM — bootstrap a tiny OMOP CDM and insert one PERSON row"
+  version: 0.1.0
+  category: ingestion
+  tags: [demo, bootstrap, smoke-test]
+  cdm_versions: ["5.3", "5.4"]
+  author: "Parthenon Project"
+  singleton: false
+spec:
+  parameters:
+    type: object
+    required: [target_schema, cdm_version]
+    properties:
+      target_schema:
+        type: string
+        description: "Target OMOP schema name (will be created if absent)"
+        default: "hello_cdm_demo"
+        pattern: "^[a-z][a-z0-9_]*$"
+      cdm_version:
+        type: string
+        enum: ["5.3", "5.4"]
+        default: "5.4"
+        description: "OMOP CDM version to bootstrap"
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    - node_id: bootstrap
+      type: python
+      params:
+        # Calls runtime.cdm.bootstrap.bootstrap(version, schema, engine) against
+        # context.db_dsn. Idempotent — safe to re-run.
+        code: |
+          from sqlalchemy import create_engine
+          from runtime.cdm.bootstrap import bootstrap
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("hello_cdm bootstrap requires context.db_dsn")
+              engine = create_engine(context.db_dsn, future=True)
+              bootstrap(
+                  version=params["cdm_version"],
+                  schema=params["target_schema"],
+                  engine=engine,
+              )
+              return {"bootstrapped": True, "schema": params["target_schema"]}
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          cdm_version: "${parameters.cdm_version}"
+    - node_id: insert_person
+      type: sql
+      depends_on: [bootstrap]
+      params:
+        statements:
+          - |
+            INSERT INTO ${parameters.target_schema}.person (
+              person_id, gender_concept_id, year_of_birth,
+              race_concept_id, ethnicity_concept_id
+            ) VALUES (1, 8507, 1970, 0, 0)
+    - node_id: query_person
+      type: sql
+      depends_on: [insert_person]
+      params:
+        statements:
+          - "SELECT 1"
+        fetch_query: |
+          SELECT person_id, year_of_birth
+          FROM ${parameters.target_schema}.person
+          WHERE person_id = 1
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.person"
+        min: 1
+        max: 1
+    - kind: dqd_check
+      params:
+        check: person_yob_in_range
+        schema: "${parameters.target_schema}"
+    - kind: artifact_present
+      params:
+        artifact: query_result
