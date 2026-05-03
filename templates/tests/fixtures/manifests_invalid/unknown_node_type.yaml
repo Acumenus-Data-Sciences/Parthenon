@@ -1,0 +1,17 @@
+# expected_error: dag — unknown node type 'totally_made_up'
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: unknown_type
+  name: Unknown Type
+  version: 0.1.0
+  category: diagnostic
+  cdm_versions: []
+spec:
+  parameters: {type: object, properties: {}, required: []}
+  requires: {cdm_initialized: false, vocabularies: []}
+  nodes:
+    - node_id: a
+      type: totally_made_up
+      params: {}
+  post_conditions: []

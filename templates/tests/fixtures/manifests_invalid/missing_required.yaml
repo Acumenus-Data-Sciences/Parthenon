@@ -1,0 +1,16 @@
+# expected_error: schema — missing metadata.id
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  name: No Id
+  version: 0.1.0
+  category: diagnostic
+  cdm_versions: []
+spec:
+  parameters: {type: object, properties: {}, required: []}
+  requires: {cdm_initialized: false, vocabularies: []}
+  nodes:
+    - node_id: a
+      type: python
+      params: {code: "def main(c,p): return {}", inputs: {}}
+  post_conditions: []
