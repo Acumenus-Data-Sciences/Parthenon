@@ -8,6 +8,7 @@ use App\Providers\NetworkAnalysisServiceProvider;
 use App\Providers\PopulationCharacterizationServiceProvider;
 use App\Providers\PopulationRiskServiceProvider;
 use App\Providers\SolrServiceProvider;
+use App\Providers\TemplatesServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -18,4 +19,5 @@ return [
     NetworkAnalysisServiceProvider::class,
     PopulationCharacterizationServiceProvider::class,
     SolrServiceProvider::class,
+    TemplatesServiceProvider::class,
 ];
