@@ -40,7 +40,9 @@ dev = [
     "black==24.10.0",
     "mypy==1.13.0",
     "testcontainers[postgres]==4.9.0",
+    "respx==0.21.1",
 ]
+
 
 [project.scripts]
 parthenon-nodes = "runtime.runner:app"
@@ -58,6 +60,10 @@ packages = ["runtime"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests that take >30s to run (skip in CI fast-path)",
+    "integration: tests that require real services (Postgres, sidecar containers)",
+]
 
 [tool.coverage.run]
 source = ["runtime"]

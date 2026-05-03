@@ -17,6 +17,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import httpx
 import polars as pl
 
 from runtime.nodes.base import Node, NodeContext, NodeResult, NodeStatus
@@ -124,8 +125,69 @@ class FhirResourceNode(Node):
         params: dict[str, Any],
         allowed_types: set[str],
     ) -> NodeResult:
-        # Implemented in Task 4.
+        base_url = params.get("fhir_base_url", "").rstrip("/")
+        if not base_url:
+            return NodeResult(
+                status=NodeStatus.FAILED,
+                error_message="search source requires 'fhir_base_url' param",
+            )
+        requested = list(params.get("resource_types", []))
+        if not requested:
+            return NodeResult(
+                status=NodeStatus.FAILED,
+                error_message="search source requires 'resource_types' (non-empty list)",
+            )
+
+        headers: dict[str, str] = {"Accept": "application/fhir+json"}
+        bearer = params.get("bearer_token")
+        if bearer:
+            headers["Authorization"] = f"Bearer {bearer}"
+
+        per_type: dict[str, list[dict[str, Any]]] = {}
+        skipped: set[str] = set()
+        pages_seen = 0
+
+        with httpx.Client(headers=headers, timeout=30.0) as client:
+            for rtype in requested:
+                if rtype not in allowed_types:
+                    skipped.add(rtype)
+                    continue
+                url: str | None = f"{base_url}/{rtype}"
+                while url:
+                    resp = client.get(url)
+                    if resp.status_code != 200:
+                        return NodeResult(
+                            status=NodeStatus.FAILED,
+                            error_message=f"FHIR search {url} returned {resp.status_code}",
+                        )
+                    bundle = resp.json()
+                    pages_seen += 1
+                    for entry in bundle.get("entry", []) or []:
+                        resource = entry.get("resource") or {}
+                        if resource.get("resourceType") == rtype:
+                            per_type.setdefault(rtype, []).append(resource)
+                    url = self._next_link(bundle)
+
+        for rtype, rows in per_type.items():
+            if not rows:
+                continue
+            df = pl.from_dicts(rows)
+            df.write_parquet(context.artifact_dir / f"{rtype.lower()}.parquet")
+
         return NodeResult(
-            status=NodeStatus.FAILED,
-            error_message="search source is not yet implemented (Task 4)",
+            status=NodeStatus.SUCCESS,
+            outputs={
+                "pages_processed": pages_seen,
+                "resource_types_emitted": sorted(per_type.keys()),
+                "skipped_resource_types": sorted(skipped),
+            },
         )
+
+    @staticmethod
+    def _next_link(bundle: dict[str, Any]) -> str | None:
+        """Return the URL of the bundle's 'next' link, if any."""
+        for link in bundle.get("link", []) or []:
+            if link.get("relation") == "next":
+                url = link.get("url")
+                return str(url) if url else None
+        return None
