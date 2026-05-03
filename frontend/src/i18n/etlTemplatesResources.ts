@@ -28,6 +28,14 @@ export const etlTemplatesEn: MessageTree = {
       run: "Run",
       running: "Running...",
     },
+    status: {
+      pending: "Pending",
+      queued: "Queued",
+      running: "Running",
+      completed: "Completed",
+      failed: "Failed",
+      cancelled: "Cancelled",
+    },
   },
 };
 
