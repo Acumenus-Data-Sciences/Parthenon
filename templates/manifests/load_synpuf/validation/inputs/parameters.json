@@ -1,0 +1,8 @@
+{
+  "target_schema": "synpuf_validation",
+  "patient_count": "1k",
+  "cdm_version": "5.4",
+  "force": true,
+  "vocab_schema": "vocab",
+  "synpuf_base_url": "https://ftp.ohdsi.org/synpuf"
+}

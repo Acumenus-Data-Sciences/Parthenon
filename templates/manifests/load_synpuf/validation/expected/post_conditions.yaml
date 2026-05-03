@@ -1,0 +1,25 @@
+post_conditions:
+  - kind: row_count
+    table: synpuf_validation.person
+    min: 1000
+    max: 1200
+    description: "1K SynPUF should have ~1116 patients per OHDSI publication"
+  - kind: row_count
+    table: synpuf_validation.observation_period
+    min: 1000
+    description: "Each patient has at least one observation period"
+  - kind: row_count
+    table: synpuf_validation.visit_occurrence
+    min: 50000
+    description: "1K SynPUF visits — actual count depends on slice but >50K is the floor"
+  - kind: row_count
+    table: synpuf_validation.condition_occurrence
+    min: 100000
+    description: "1K SynPUF conditions floor"
+  - kind: row_count
+    table: synpuf_validation.drug_exposure
+    min: 100000
+    description: "1K SynPUF drug exposures floor"
+  - kind: artifact_present
+    artifact_name: achilles_summary.json
+    min_size_bytes: 1
