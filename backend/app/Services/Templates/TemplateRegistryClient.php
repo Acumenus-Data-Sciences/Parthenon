@@ -60,6 +60,50 @@ class TemplateRegistryClient
     }
 
     /**
+     * @return array<string,mixed>
+     */
+    public function getRun(string $prefectRunId): array
+    {
+        /** @var array<string,mixed> $decoded */
+        $decoded = $this->json('GET', sprintf('/runs/%s', $prefectRunId));
+
+        return $decoded;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getLogs(string $prefectRunId): array
+    {
+        /** @var array<string,mixed> $decoded */
+        $decoded = $this->json('GET', sprintf('/runs/%s/logs', $prefectRunId));
+
+        return $decoded;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getArtifacts(string $prefectRunId): array
+    {
+        /** @var array<string,mixed> $decoded */
+        $decoded = $this->json('GET', sprintf('/runs/%s/artifacts', $prefectRunId));
+
+        return $decoded;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function cancelRun(string $prefectRunId): array
+    {
+        /** @var array<string,mixed> $decoded */
+        $decoded = $this->json('DELETE', sprintf('/runs/%s', $prefectRunId));
+
+        return $decoded;
+    }
+
+    /**
      * @param  array<string,mixed>  $options
      * @return array<int|string,mixed>
      */

@@ -117,4 +117,53 @@ class TemplateRegistryClientTest extends TestCase
         $this->expectException(TemplateRegistryException::class);
         $client->submitRun('hello_cdm', '0.1.0', [], 'corr');
     }
+
+    public function test_get_run_returns_status_payload(): void
+    {
+        $payload = ['status' => 'running', 'progress' => 0.4, 'current_node' => 'load_csv'];
+        $client = $this->makeClient(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload)),
+        ]));
+
+        $this->assertSame($payload, $client->getRun('abc-123'));
+        /** @var Request $req */
+        $req = $this->history[0]['request'];
+        $this->assertSame('/runs/abc-123', $req->getUri()->getPath());
+    }
+
+    public function test_get_logs_returns_log_lines(): void
+    {
+        $payload = ['lines' => [['ts' => '2026-05-02T00:00:00Z', 'level' => 'info', 'message' => 'started']]];
+        $client = $this->makeClient(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload)),
+        ]));
+
+        $this->assertSame($payload, $client->getLogs('abc-123'));
+        $this->assertSame('/runs/abc-123/logs', $this->history[0]['request']->getUri()->getPath());
+    }
+
+    public function test_get_artifacts_returns_artifact_list(): void
+    {
+        $payload = ['artifacts' => [['name' => 'summary.json', 'size' => 1024]]];
+        $client = $this->makeClient(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload)),
+        ]));
+
+        $this->assertSame($payload, $client->getArtifacts('abc-123'));
+        $this->assertSame('/runs/abc-123/artifacts', $this->history[0]['request']->getUri()->getPath());
+    }
+
+    public function test_cancel_run_issues_delete(): void
+    {
+        $payload = ['status' => 'cancelled'];
+        $client = $this->makeClient(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload)),
+        ]));
+
+        $this->assertSame($payload, $client->cancelRun('abc-123'));
+        /** @var Request $req */
+        $req = $this->history[0]['request'];
+        $this->assertSame('DELETE', $req->getMethod());
+        $this->assertSame('/runs/abc-123', $req->getUri()->getPath());
+    }
 }
