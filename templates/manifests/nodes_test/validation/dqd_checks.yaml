@@ -1,0 +1,3 @@
+checks: []
+# nodes_test does not produce CDM data — emits_cdm is implicit-false because
+# cdm_versions is the empty list. No DQD checks apply.
