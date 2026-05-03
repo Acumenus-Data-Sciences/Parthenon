@@ -278,6 +278,9 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [TemplatesController::class, 'show'])
                 ->where('id', '[A-Za-z0-9_\-]+')
                 ->middleware('permission:ingestion.view');
+            Route::post('/{id}/runs', [TemplatesController::class, 'submitRun'])
+                ->where('id', '[A-Za-z0-9_\-]+')
+                ->middleware('permission:ingestion.run');
         });
 
         // Ingestion Projects (multi-file)
