@@ -80,14 +80,20 @@ jobs:
 
       - name: Validate manifests
         working-directory: templates
-        # `|| true` for Plan 1: the manifests directory is empty until Plan 4.
-        # Once Plan 4 lands, drop the trailing `|| true`.
-        run: uv run parthenon-templates validate-manifests --root manifests || true
+        run: uv run parthenon-templates validate-manifests --root manifests
 
       - name: Lint secret keys
         working-directory: templates
-        run: uv run parthenon-templates lint-secret-keys --root manifests || true
+        run: uv run parthenon-templates lint-secret-keys --root manifests
 
       - name: Pytest
         working-directory: templates
         run: uv run pytest -q --maxfail=1
+
+      - name: hello_cdm E2E
+        working-directory: templates
+        # Dedicated step so the validation pack failure mode is obvious in CI.
+        # Until Plans 5/6 wire ${parameters.*} substitution + db_dsn threading,
+        # the full-flow test is xfail; the catalog/structural assertions still
+        # run green and gate the manifest contents.
+        run: uv run pytest tests/e2e/test_hello_cdm.py -v
