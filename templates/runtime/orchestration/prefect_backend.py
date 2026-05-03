@@ -50,9 +50,11 @@ class PrefectBackend(OrchestrationBackend):
         self,
         *,
         storage: LocalFilesystemStorage,
+        db_dsn: str | None = None,
         logger: logging.Logger | None = None,
     ) -> None:
         self.storage = storage
+        self.db_dsn = db_dsn
         self.logger = logger or logging.getLogger("parthenon.templates.prefect")
         self._runs: dict[str, _RunRecord] = {}
         self._lock = threading.Lock()
@@ -139,7 +141,7 @@ class PrefectBackend(OrchestrationBackend):
                 logger=logging.getLogger(f"node.{node.node_id}"),
                 secrets={},
                 artifact_dir=artifact_dir,
-                db_dsn=None,
+                db_dsn=backend.db_dsn,
             )
             cls = get_node_class(node.type_name)
             backend._append_log(backend_id, node.node_id, "INFO", f"start {node.type_name}")

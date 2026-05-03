@@ -81,6 +81,42 @@ def test_three_node_hello_runs_to_completion(backend: PrefectBackend) -> None:
     assert any("generate" in line.message or line.node_id == "generate" for line in logs)
 
 
+def test_backend_threads_db_dsn_into_node_context(
+    storage: LocalFilesystemStorage,
+) -> None:
+    """PrefectBackend(db_dsn=...) propagates the DSN into NodeContext for db nodes."""
+    dsn = "postgresql+psycopg://example:5432/probe"
+    backend_with_dsn = PrefectBackend(
+        storage=storage, db_dsn=dsn, logger=logging.getLogger("test.prefect.dsn")
+    )
+    flow = FlowSpec(
+        flow_id="dsn-probe",
+        nodes=[
+            FlowNode(
+                node_id="echo_dsn",
+                type_name="python",
+                params={
+                    "code": (
+                        "def main(context, params):\n"
+                        "    path = context.write_artifact('observed_dsn.txt',"
+                        " (context.db_dsn or '').encode('utf-8'))\n"
+                        "    return {'path': str(path)}\n"
+                    ),
+                    "inputs": {},
+                },
+            ),
+        ],
+    )
+    handle = backend_with_dsn.submit(flow)
+    final_status = backend_with_dsn.wait_for(handle, timeout_seconds=30)
+    assert final_status == RunStatus.COMPLETED
+    artifacts = backend_with_dsn.list_artifacts(handle)
+    matching = [a for a in artifacts if a.name == "observed_dsn.txt"]
+    assert matching, f"observed_dsn.txt not in artifacts: {[a.name for a in artifacts]}"
+    observed = (storage.root / matching[0].relative_path).read_text(encoding="utf-8")
+    assert observed == dsn
+
+
 def test_failed_node_marks_run_failed(backend: PrefectBackend) -> None:
     flow = FlowSpec(
         flow_id="hello-fail",
