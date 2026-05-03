@@ -36,6 +36,9 @@ export const etlTemplatesEn: MessageTree = {
       failed: "Failed",
       cancelled: "Cancelled",
     },
+    runInspector: {
+      noLogs: "No logs yet",
+    },
   },
 };
 
