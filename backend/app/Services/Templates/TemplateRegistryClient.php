@@ -41,6 +41,25 @@ class TemplateRegistryClient
     }
 
     /**
+     * @param  array<string,mixed>  $parameters
+     * @return array<string,mixed>
+     */
+    public function submitRun(string $templateId, string $version, array $parameters, string $correlationId): array
+    {
+        /** @var array<string,mixed> $decoded */
+        $decoded = $this->json('POST', '/runs', [
+            'json' => [
+                'template_id' => $templateId,
+                'version' => $version,
+                'parameters' => $parameters,
+                'correlation_id' => $correlationId,
+            ],
+        ]);
+
+        return $decoded;
+    }
+
+    /**
      * @param  array<string,mixed>  $options
      * @return array<int|string,mixed>
      */

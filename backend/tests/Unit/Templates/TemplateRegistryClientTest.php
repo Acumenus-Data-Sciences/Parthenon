@@ -80,4 +80,41 @@ class TemplateRegistryClientTest extends TestCase
         $this->expectException(TemplateRegistryException::class);
         $client->listTemplates();
     }
+
+    public function test_submit_run_posts_payload_and_returns_response(): void
+    {
+        $payload = ['prefect_run_id' => '11111111-1111-1111-1111-111111111111', 'manifest' => ['singleton' => true]];
+        $client = $this->makeClient(new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], (string) json_encode($payload)),
+        ]));
+
+        $result = $client->submitRun(
+            'hello_cdm',
+            '0.1.0',
+            ['target_schema' => 'eunomia'],
+            '99999999-9999-9999-9999-999999999999',
+        );
+
+        $this->assertSame($payload, $result);
+        /** @var Request $req */
+        $req = $this->history[0]['request'];
+        $this->assertSame('POST', $req->getMethod());
+        $this->assertSame('/runs', $req->getUri()->getPath());
+        /** @var array<string,mixed> $body */
+        $body = json_decode((string) $req->getBody(), true);
+        $this->assertSame('hello_cdm', $body['template_id']);
+        $this->assertSame('0.1.0', $body['version']);
+        $this->assertSame(['target_schema' => 'eunomia'], $body['parameters']);
+        $this->assertSame('99999999-9999-9999-9999-999999999999', $body['correlation_id']);
+    }
+
+    public function test_submit_run_throws_on_422(): void
+    {
+        $client = $this->makeClient(new MockHandler([
+            new Response(422, [], json_encode(['detail' => 'parameter X required']) ?: ''),
+        ]));
+
+        $this->expectException(TemplateRegistryException::class);
+        $client->submitRun('hello_cdm', '0.1.0', [], 'corr');
+    }
 }
