@@ -70,6 +70,7 @@ spec:
           SELECT person_id, year_of_birth
           FROM ${parameters.target_schema}.person
           WHERE person_id = 1
+        result_artifact: query_result
   post_conditions:
     - kind: row_count
       params:

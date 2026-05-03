@@ -8,5 +8,5 @@ post_conditions:
     expected: 1970
     where: "person_id = 1"
   - kind: artifact_present
-    artifact_name: query_result
+    artifact_name: query_result.json
     min_rows: 1

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -82,3 +83,35 @@ def test_invalid_sql_fails(context: NodeContext) -> None:
     result = SqlNode().run(context, {"statements": ["NOT VALID SQL"]})
     assert result.status == NodeStatus.FAILED
     assert result.error_message is not None
+
+
+def test_writes_result_artifact_when_named(context: NodeContext, tmp_path: Path) -> None:
+    """When result_artifact is set, fetch_query rows are also written as a JSON file."""
+    params: dict[str, Any] = {
+        "statements": [
+            "CREATE TABLE t (id INTEGER, label TEXT)",
+            "INSERT INTO t VALUES (1, 'a'), (2, 'b')",
+        ],
+        "fetch_query": "SELECT id, label FROM t ORDER BY id",
+        "result_artifact": "query_result",
+    }
+    result = SqlNode().run(context, params)
+    assert result.status == NodeStatus.SUCCESS
+    artifact_path = tmp_path / "query_result.json"
+    assert artifact_path.exists(), f"artifact not written: {list(tmp_path.iterdir())}"
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert payload == {
+        "columns": ["id", "label"],
+        "rows": [{"id": 1, "label": "a"}, {"id": 2, "label": "b"}],
+    }
+
+
+def test_no_artifact_when_unnamed(context: NodeContext, tmp_path: Path) -> None:
+    """fetch_query without result_artifact does not write a file (back-compat)."""
+    params: dict[str, Any] = {
+        "statements": ["CREATE TABLE t (id INTEGER)", "INSERT INTO t VALUES (1)"],
+        "fetch_query": "SELECT id FROM t",
+    }
+    result = SqlNode().run(context, params)
+    assert result.status == NodeStatus.SUCCESS
+    assert not list(tmp_path.glob("*.json"))

@@ -121,15 +121,6 @@ def test_hello_cdm_validation_pack_files_present_and_parse() -> None:
     assert {"row_count", "column_value", "artifact_present"} <= kinds
 
 
-@pytest.mark.xfail(
-    reason=(
-        "Runtime gap (parameter interpolation + db_dsn threading) is closed. "
-        "Remaining gap: SqlNode with fetch_query does not write a 'query_result' "
-        "file artifact, so the manifest's artifact_present post-condition fails. "
-        "Track as a Phase A polish item — manifest expectation vs node behavior."
-    ),
-    strict=False,
-)
 def test_hello_cdm_runs_and_passes_validation_pack(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
