@@ -47,7 +47,11 @@ def _split_sql(body: str) -> list[str]:
 
 
 def bootstrap(*, version: str, schema: str, engine: Engine) -> None:
-    """Create all CDM tables for ``version`` inside ``schema`` (idempotent)."""
+    """Create all CDM tables for ``version`` inside ``schema`` (idempotent).
+
+    For ``oncology_ext`` the v5.4 DDL is applied first; the oncology DDL is
+    then layered on top so its foreign keys resolve.
+    """
     if version not in SUPPORTED_CDM_VERSIONS:
         raise ValueError(f"unsupported CDM version {version!r}")
     metadata: MetaData = Schema.for_version(version)
@@ -55,6 +59,20 @@ def bootstrap(*, version: str, schema: str, engine: Engine) -> None:
     with engine.begin() as conn:
         conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema}"'))
         conn.execute(text(f'SET search_path TO "{schema}"'))
+
+        if version == "oncology_ext":
+            base_sql = _load_sql("5.4") or ""
+            for stmt in _split_sql(base_sql):
+                if stmt:
+                    conn.execute(text(stmt))
+            ext_body = _load_sql("oncology_ext") or ""
+            # Strip the psql-only ``\i v5_4.sql`` include directive — we
+            # already applied the v5.4 SQL above.
+            ext_body = ext_body.replace("\\i v5_4.sql", "")
+            for stmt in _split_sql(ext_body):
+                if stmt:
+                    conn.execute(text(stmt))
+            return
 
         sql_body = _load_sql(version)
         if sql_body is not None:
