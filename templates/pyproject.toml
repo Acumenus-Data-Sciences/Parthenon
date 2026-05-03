@@ -27,6 +27,8 @@ dependencies = [
     "python-multipart==0.0.20",
     "honcho==2.0.0",
     "multimethod<2.0",
+    "fhir.resources==8.2.0",
+    "pydicom==3.0.2",
 ]
 
 [project.optional-dependencies]
