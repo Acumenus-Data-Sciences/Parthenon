@@ -14,6 +14,7 @@
 #   ./deploy.sh --db        # migrations + cache clear only
 #   ./deploy.sh --docs      # documentation build only
 #   ./deploy.sh --openapi   # OpenAPI spec export + TypeScript type generation only
+#   ./deploy.sh --templates-sync # pull manifest catalog from parthenon-templates only
 
 set -uo pipefail
 # NOTE: not using set -e — we handle errors explicitly per section
@@ -45,14 +46,16 @@ FRONTEND_ONLY=false
 DB_ONLY=false
 DOCS_ONLY=false
 OPENAPI_ONLY=false
+TEMPLATES_SYNC_ONLY=false
 
 for arg in "$@"; do
   case $arg in
-    --php)      PHP_ONLY=true ;;
-    --frontend) FRONTEND_ONLY=true ;;
-    --db)       DB_ONLY=true ;;
-    --docs)     DOCS_ONLY=true ;;
-    --openapi)  OPENAPI_ONLY=true ;;
+    --php)             PHP_ONLY=true ;;
+    --frontend)        FRONTEND_ONLY=true ;;
+    --db)              DB_ONLY=true ;;
+    --docs)            DOCS_ONLY=true ;;
+    --openapi)         OPENAPI_ONLY=true ;;
+    --templates-sync)  TEMPLATES_SYNC_ONLY=true ;;
   esac
 done
 
@@ -61,12 +64,14 @@ DO_FRONTEND=true
 DO_DB=true
 DO_DOCS=true
 DO_OPENAPI=true
+DO_TEMPLATES_SYNC=true
 
-if $PHP_ONLY;      then DO_FRONTEND=false; DO_DB=false;      DO_DOCS=false; DO_OPENAPI=false; fi
-if $FRONTEND_ONLY; then DO_PHP=false;      DO_DB=false;      DO_DOCS=false; DO_OPENAPI=false; fi
-if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; DO_OPENAPI=false; fi
-if $DOCS_ONLY;     then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_OPENAPI=false;  fi
-if $OPENAPI_ONLY;  then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_DOCS=false;     fi
+if $PHP_ONLY;            then DO_FRONTEND=false; DO_DB=false;       DO_DOCS=false; DO_OPENAPI=false; DO_TEMPLATES_SYNC=false; fi
+if $FRONTEND_ONLY;       then DO_PHP=false;      DO_DB=false;       DO_DOCS=false; DO_OPENAPI=false; DO_TEMPLATES_SYNC=false; fi
+if $DB_ONLY;             then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; DO_OPENAPI=false; fi
+if $DOCS_ONLY;           then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;   DO_OPENAPI=false; DO_TEMPLATES_SYNC=false; fi
+if $OPENAPI_ONLY;        then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;   DO_DOCS=false;    DO_TEMPLATES_SYNC=false; fi
+if $TEMPLATES_SYNC_ONLY; then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;   DO_DOCS=false;    DO_OPENAPI=false; fi
 
 DEFAULT_APP_URL="https://parthenon.acumenus.net"
 ENV_FILE="$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/backend/.env"
@@ -570,6 +575,17 @@ if $DO_DB; then
   #   php artisan db:seed --class=AiProviderSeeder
   #   php artisan db:seed --class=AuthProviderSeeder
   #   php artisan admin:seed
+fi
+
+# ── Templates catalog sync ────────────────────────────────────────────────────
+if $DO_TEMPLATES_SYNC; then
+  echo ""
+  echo "── Templates catalog sync ──"
+  if docker compose exec -T php php artisan templates:sync 2>&1 | sed 's/^/     /'; then
+    ok "templates:sync"
+  else
+    warn "templates:sync failed (continuing — non-fatal in deploy)"
+  fi
 fi
 
 # ── Frontend production build ─────────────────────────────────────────────────
