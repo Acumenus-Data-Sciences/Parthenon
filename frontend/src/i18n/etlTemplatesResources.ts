@@ -54,6 +54,21 @@ export const etlTemplatesEn: MessageTree = {
       logs: "Logs",
       artifacts: "Artifacts",
     },
+    runs: {
+      backToList: "← Back to runs",
+      empty: "No runs match the current filters.",
+      pageOf: "Page {{page}} of {{total}}",
+      prev: "Prev",
+      next: "Next",
+      columns: {
+        template: "Template",
+        version: "Version",
+        status: "Status",
+        started: "Started",
+        duration: "Duration",
+        submitted_by: "Submitted by",
+      },
+    },
   },
 };
 
