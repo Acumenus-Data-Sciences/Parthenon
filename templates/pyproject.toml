@@ -43,6 +43,7 @@ dev = [
 [project.scripts]
 parthenon-nodes = "runtime.runner:app"
 parthenon-templates = "runtime.cli:app"
+parthenon-vocab = "runtime.cli.vocab_diff:app"
 
 [build-system]
 requires = ["hatchling"]
