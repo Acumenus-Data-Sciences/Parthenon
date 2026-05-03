@@ -1,0 +1,53 @@
+/**
+ * i18n resource shell for the ingestion templates feature (Plan 3, Phase 0).
+ *
+ * Each subsequent component task appends the keys it actually uses;
+ * the final consolidation pass (Task 15) audits the full key tree.
+ *
+ * Structure mirrors the existing `etlAqueductResources` pattern:
+ *   - English (`etlTemplatesEn`) is the authoritative source.
+ *   - Per-locale entries in `etlTemplatesResources` point at the English tree
+ *     so the i18n parity invariant (`locales.test.ts` "shell translation key
+ *     parity") is preserved. Localization team supplies real translations in
+ *     a follow-up by replacing individual locale entries.
+ */
+
+type MessageTree = {
+  [key: string]: string | MessageTree;
+};
+
+export const etlTemplatesEn = {
+  aqueduct: {
+    subtabs: {
+      mappings: "Mappings",
+      templates: "Templates",
+      runs: "Runs",
+    },
+  },
+} as const;
+
+// Stub kept for the plan's literal contract (referenced in the docs) — empty
+// because all non-English locales currently fall through to the English tree
+// via the aggregator below.
+export const etlTemplatesEs: MessageTree = {};
+
+/**
+ * Per-locale aggregator consumed by `resources.ts` via the `appForLocale()`
+ * reducer. All locales currently point at the English tree to preserve key
+ * parity; the localization team replaces individual entries as translations
+ * land.
+ */
+export const etlTemplatesResources: Record<string, MessageTree> = {
+  "en-US": etlTemplatesEn,
+  "es-ES": etlTemplatesEn,
+  "fr-FR": etlTemplatesEn,
+  "de-DE": etlTemplatesEn,
+  "pt-BR": etlTemplatesEn,
+  "fi-FI": etlTemplatesEn,
+  "ja-JP": etlTemplatesEn,
+  "zh-Hans": etlTemplatesEn,
+  "ko-KR": etlTemplatesEn,
+  "hi-IN": etlTemplatesEn,
+  ar: etlTemplatesEn,
+  "en-XA": etlTemplatesEn,
+};

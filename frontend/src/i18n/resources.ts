@@ -8,6 +8,7 @@ import { commonsResources } from "./commonsResources";
 import { dashboardResources } from "./dashboardResources";
 import { dataSourceIngestionResources } from "./dataSourceIngestionResources";
 import { etlAqueductResources } from "./etlAqueductResources";
+import { etlTemplatesResources } from "./etlTemplatesResources";
 import { gisToolsResources } from "./gisToolsResources";
 import { heorResources } from "./heorResources";
 import { imagingGenomicsResources } from "./imagingGenomicsResources";
@@ -7775,6 +7776,7 @@ function appForLocale(locale: string): MessageTree {
     abbyLegacyResources,
     dataSourceIngestionResources,
     etlAqueductResources,
+    etlTemplatesResources,
     cohortDefinitionResources,
     conceptSetResources,
     analysisResources,
