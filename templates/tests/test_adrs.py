@@ -28,15 +28,7 @@ ADR_DIR = REPO / "docs" / "adr"
 # the marker being removed — forcing a one-line cleanup at that moment.
 EXPECTED_ADRS = [
     pytest.param("0001-node-sdk-design.md", "Node SDK", id="0001"),
-    pytest.param(
-        "0002-orchestration-backend.md",
-        "Orchestration",
-        id="0002",
-        marks=pytest.mark.xfail(
-            reason="ADR 0002 is written in Task 23; remove this xfail when it lands.",
-            strict=True,
-        ),
-    ),
+    pytest.param("0002-orchestration-backend.md", "Orchestration", id="0002"),
     pytest.param(
         "0003-template-manifest-format.md",
         "Manifest",
