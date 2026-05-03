@@ -1,8 +1,5 @@
 /**
- * i18n resource shell for the ingestion templates feature (Plan 3, Phase 0).
- *
- * Each subsequent component task appends the keys it actually uses;
- * the final consolidation pass (Task 15) audits the full key tree.
+ * i18n resources for the ingestion templates feature (Plan 3, Phase 0).
  *
  * Structure mirrors the existing `etlAqueductResources` pattern:
  *   - English (`etlTemplatesEn`) is the authoritative source.
@@ -10,6 +7,11 @@
  *     so the i18n parity invariant (`locales.test.ts` "shell translation key
  *     parity") is preserved. Localization team supplies real translations in
  *     a follow-up by replacing individual locale entries.
+ *
+ * Task 16 (consolidation): backfilled the full key tree used by all
+ * components in Tasks 6-15. The `defaultValue` fallbacks scattered through
+ * earlier tasks remain harmless safety nets — these real keys now satisfy
+ * them.
  */
 
 type MessageTree = {
@@ -19,44 +21,20 @@ type MessageTree = {
 export const etlTemplatesEn: MessageTree = {
   aqueduct: {
     subtabs: {
+      aria: "Aqueduct sub-tabs",
       mappings: "Mappings",
       templates: "Templates",
       runs: "Runs",
     },
-    parameterForm: {
-      cancel: "Cancel",
-      run: "Run",
-      running: "Running...",
-      close: "Close",
-    },
     templates: {
-      empty:
-        "No templates available — check the templates service is running",
+      empty: "No templates available — check the templates service is running",
       error:
         "Failed to load templates. Check that the templates service is running.",
       retry: "Retry",
     },
-    status: {
-      pending: "Pending",
-      queued: "Queued",
-      running: "Running",
-      completed: "Completed",
-      failed: "Failed",
-      cancelled: "Cancelled",
-    },
-    runInspector: {
-      noLogs: "No logs yet",
-      noArtifacts: "No artifacts produced by this run.",
-      versionLabel: "Version",
-      cancel: "Cancel run",
-      retry: "Retry",
-      dag: "DAG",
-      logs: "Logs",
-      artifacts: "Artifacts",
-    },
     runs: {
-      backToList: "← Back to runs",
       empty: "No runs match the current filters.",
+      backToList: "← Back to runs",
       pageOf: "Page {{page}} of {{total}}",
       prev: "Prev",
       next: "Next",
@@ -69,19 +47,43 @@ export const etlTemplatesEn: MessageTree = {
         submitted_by: "Submitted by",
       },
     },
+    runInspector: {
+      dag: "DAG",
+      logs: "Logs",
+      artifacts: "Artifacts",
+      cancel: "Cancel run",
+      retry: "Retry",
+      noLogs: "No logs yet",
+      noArtifacts: "No artifacts produced by this run.",
+      versionLabel: "Version",
+    },
+    parameterForm: {
+      run: "Run",
+      running: "Running...",
+      cancel: "Cancel",
+      close: "Close",
+    },
+    status: {
+      pending: "Pending",
+      queued: "Queued",
+      running: "Running",
+      completed: "Completed",
+      failed: "Failed",
+      cancelled: "Cancelled",
+    },
   },
 };
 
-// Stub kept for the plan's literal contract (referenced in the docs) — empty
-// because all non-English locales currently fall through to the English tree
-// via the aggregator below.
+// Stub kept for the plan's literal contract — empty because all non-English
+// locales currently fall through to the English tree via the aggregator below.
+// The localization team replaces individual entries when translations land.
 export const etlTemplatesEs: MessageTree = {};
 
 /**
  * Per-locale aggregator consumed by `resources.ts` via the `appForLocale()`
  * reducer. All locales currently point at the English tree to preserve key
- * parity; the localization team replaces individual entries as translations
- * land.
+ * parity (enforced by `locales.test.ts` "shell translation key parity").
+ * The localization team replaces individual entries as translations land.
  */
 export const etlTemplatesResources: Record<string, MessageTree> = {
   "en-US": etlTemplatesEn,
