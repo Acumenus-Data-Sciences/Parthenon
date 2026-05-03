@@ -64,7 +64,7 @@ class TemplateRunService
                 'status' => TemplateRun::STATUS_QUEUED,
             ]);
 
-            PollTemplateRunJob::dispatch($run->id)->delay(now()->addSeconds(2));
+            PollTemplateRunJob::dispatch($run->id, 0)->delay(now()->addSeconds(2));
 
             return $run->refresh();
         });
