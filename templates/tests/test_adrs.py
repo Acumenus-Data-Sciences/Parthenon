@@ -3,13 +3,9 @@
 This guards three Architecture Decision Records that anchor Phase 0 of the
 parthenon-templates milestone:
 
-* 0001 — Node SDK design (this task; T-001).
+* 0001 — Node SDK design (T-001).
 * 0002 — Orchestration backend (Task 23).
 * 0003 — Template manifest format (Task 31).
-
-Until tasks 23 and 31 land, the latter two parametrized cases are expected
-to fail. The matrix is asserted as one parametrized test so adding the next
-ADR is a one-line update here.
 """
 
 from __future__ import annotations
@@ -21,23 +17,12 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 ADR_DIR = REPO / "docs" / "adr"
 
-# Each entry: (filename, title_keyword, pending_task). ``pending_task`` is the
-# Phase 0 task number that will write the ADR; ``None`` means the ADR is in
-# the tree right now. Pending entries are marked xfail(strict=True) so the
-# suite is green today and automatically goes red when the file lands without
-# the marker being removed — forcing a one-line cleanup at that moment.
+# Each entry: (filename, title_keyword). Add the next ADR with a one-line
+# extension when it lands.
 EXPECTED_ADRS = [
     pytest.param("0001-node-sdk-design.md", "Node SDK", id="0001"),
     pytest.param("0002-orchestration-backend.md", "Orchestration", id="0002"),
-    pytest.param(
-        "0003-template-manifest-format.md",
-        "Manifest",
-        id="0003",
-        marks=pytest.mark.xfail(
-            reason="ADR 0003 is written in Task 31; remove this xfail when it lands.",
-            strict=True,
-        ),
-    ),
+    pytest.param("0003-template-manifest-format.md", "Manifest", id="0003"),
 ]
 
 
