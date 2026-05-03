@@ -1,0 +1,16 @@
+{
+  "profile": "ips",
+  "name": "International Patient Summary",
+  "version": "1.1.0",
+  "url": "https://hl7.org/fhir/uv/ips/STU1.1/",
+  "pinned_at": "2026-05-03",
+  "resources": [
+    {"type": "Patient", "must_support": ["identifier", "name", "gender", "birthDate", "address"]},
+    {"type": "AllergyIntolerance", "must_support": ["clinicalStatus", "verificationStatus", "code", "patient", "reaction"]},
+    {"type": "Condition", "must_support": ["clinicalStatus", "verificationStatus", "code", "subject", "onset"]},
+    {"type": "MedicationStatement", "must_support": ["status", "medication", "subject", "effective"]},
+    {"type": "Immunization", "must_support": ["status", "vaccineCode", "patient", "occurrence"]},
+    {"type": "Procedure", "must_support": ["status", "code", "subject", "performed"]},
+    {"type": "DiagnosticReport", "must_support": ["status", "category", "code", "subject", "result"]}
+  ]
+}
