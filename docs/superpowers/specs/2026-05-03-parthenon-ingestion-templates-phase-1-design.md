@@ -1,7 +1,7 @@
 # Parthenon Ingestion Templates — Phase 1 Design
 
 **Date:** 2026-05-03
-**Status:** Draft — pending user review
+**Status:** Approved 2026-05-03 — 9 review questions settled (§11); ready for per-plan drafting
 **Scope:** Phase 1 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-010 through T-015)
 **Owners:** Platform engineer + 1 ETL engineer (per devplan §4)
 **Predecessor:** `docs/superpowers/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
@@ -413,19 +413,23 @@ Captured for future iteration. Each was actively considered and ruled out for Ph
 - **EuroQol-licensed value set distribution mechanism.** Currently customer-supplied via mounted file. Revisit if a "managed value-set service" customer ask emerges.
 - **Parthenon-Certified template author program.** Already a Workstream 4 deferred item; Phase 1 doesn't change posture.
 
-## 11. Open questions for human review
+## 11. Review questions — settled (2026-05-03)
 
-Phase-1-specific. Devplan §9 questions still apply (esp. Q8 EuroQol, Q3 orchestration default).
+The 9 review questions surfaced during spec drafting were settled by the orchestrator (Dr. Udoshi). Devplan §9 questions still apply (esp. Q8 EuroQol, Q3 orchestration default — those are Phase-0/2-level and not relitigated here).
 
-1. **MS FHIR Anonymizer image distribution.** Confirm we pull from MS's container registry at customer install time rather than mirroring to a Parthenon registry. Trade-off: supply-chain provenance (mirror is auditable, MS-direct is fresher).
-2. **Profile pack curation cadence.** v1 packs are hand-maintained snapshots. Quarterly refresh? On-demand? Tied to upstream IG releases?
-3. **`fhir_to_omop` profile-conflict behavior.** When a bundle declares mCODE but the run parameter says US Core — fail loudly, warn-and-coerce, or auto-detect-override? Recommend "fail loudly" (matches `fail loudly in dev` from global instructions).
-4. **EQ-5D-3L scaffold proof.** Is shipping a half-baked EQ-5D-3L scaffold (parameter form + manifest stub, no real value-set lookup) acceptable as the second consumer of `_shared/pro_base.yaml`? Alternative: ship only EQ-5D-5L in Phase 1, scaffold proof in Phase 2 alongside PHQ-9.
-5. **Performance reference hardware.** Devplan T-015 cites "8 vCPU, 32GB." Is this the right Parthenon-canonical reference? Confirm or pin to a specific cloud SKU.
-6. **Plan 7 Rust-assisted bulk-export ingestion.** Conditional on profiling. If profiling shows Python is fine, Plan 7 contracts. Confirm this conditional is acceptable to project-management or if a fixed-scope Plan 7 is preferred.
-7. **Anonymizer config-format compatibility.** Plan 4's "config-format compatibility tests" — how strict? Bit-identical output, or only "anonymized fields match"? Recommend the latter for non-deterministic transformers (date-shift uses entropy).
-8. **DICOMweb auth model.** QIDO-RS test instance is open; production deployments use mutual-TLS or OAuth2 token. Phase 1 supports bearer-token via secrets manager; mTLS deferred to whenever the first customer needs it.
-9. **HL7 FHIR-OMOP IG version pin.** The IG is still moving. Pin to a specific commit hash? Re-pin on each Phase 1 PR? Recommend pin per PR with the bump as a deliberate finding.
+| # | Question | Decision | Rationale |
+|---|---|---|---|
+| 1 | MS FHIR Anonymizer image distribution | **Mirror to Parthenon GHCR.** | Air-gap-friendly per project posture; no external dependency on `mcr.microsoft.com` at deploy time. |
+| 2 | Profile pack curation cadence | **Pin per Phase.** Phase 1 ships US Core / mCODE / IPS / MII at fixed versions. | Bumps are deliberate plan items (matches Plan 1's pyomop pinning pattern). |
+| 3 | `fhir_to_omop` profile-conflict behavior | **Fail loudly.** | Clinical-data integrity > convenience. Silent coercion is a footgun; customers should know when their profile assumption breaks. Aligns with global rule "fail loudly in dev." |
+| 4 | EQ-5D-3L scaffold proof in Phase 1 | **Include in Plan 3.** | Devplan T-011 acceptance criterion explicitly requires "at least 2 instruments exercising `_shared/pro_base.yaml`." Cheap once the framework is being built. |
+| 5 | Performance reference hardware | **"8 vCPU / 32 GB RAM, NVMe-class disk"** as the generic target; benchmarks run on the Parthenon CI runner / n8n test VM (Darkstar). | Don't pin a cloud SKU — keeps the spec portable. Footnote the actual benchmark target. |
+| 6 | Plan 7 Rust-assisted bulk-export | **Conditional on profiling.** Python with `httpx.stream` + multiprocessing is the default; switch to Rust only if profiling shows otherwise during PR-C execution. | Avoid premature optimization. If escalated, becomes a separate plan, not a Plan 7 surprise. |
+| 7 | Anonymizer config-format equivalence | **Semantic equivalence.** | Date-shift uses per-patient pseudo-random offsets; bit-identical is impossible without sharing the seed. Comparison oracle: (a) same fields redacted, (b) shifted dates within tolerance, (c) preserved fields byte-equal. |
+| 8 | DICOMweb auth model | **Bearer token only in Phase 1.** | Covers dcm4chee + token and Orthanc + token (the two real-world cases). mTLS deferred until first customer ask. |
+| 9 | HL7 FHIR-OMOP IG version pin | **Single Phase 1 pin.** All 3 `fhir_to_omop` PRs target the same IG version. | Atomic. Prevents PR-B from re-mapping fields PR-A established. Bumps are a dedicated plan item if needed. |
+
+These decisions are now binding for the per-plan drafters.
 
 ## 12. References
 
