@@ -287,6 +287,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:ingestion.view');
             Route::get('/runs/{run}/artifacts', [TemplatesController::class, 'runArtifacts'])
                 ->middleware('permission:ingestion.view');
+            Route::delete('/runs/{run}', [TemplatesController::class, 'cancelRun'])
+                ->middleware('permission:ingestion.delete');
         });
 
         // Ingestion Projects (multi-file)

@@ -77,4 +77,14 @@ class TemplatesController extends Controller
 
         return response()->json($this->registry->getArtifacts((string) $run->prefect_run_id));
     }
+
+    public function cancelRun(TemplateRun $run): JsonResponse
+    {
+        app(TemplateRunService::class)->cancel($run);
+
+        return response()->json([
+            'template_run_id' => $run->id,
+            'status' => $run->refresh()->status,
+        ]);
+    }
 }
