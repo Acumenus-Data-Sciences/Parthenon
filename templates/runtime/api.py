@@ -1,14 +1,11 @@
-"""FastAPI app for parthenon-templates.
-
-This module owns ONLY the app object and route registration. Business
-logic lives in runtime/registry/ and runtime/orchestration/.
-"""
+"""FastAPI app for parthenon-templates."""
 
 from __future__ import annotations
 
 from fastapi import FastAPI
 
 from runtime import __version__
+from runtime.middleware.internal_token import InternalTokenMiddleware
 
 app = FastAPI(
     title="parthenon-templates",
@@ -18,6 +15,8 @@ app = FastAPI(
     redoc_url=None,
     openapi_url="/openapi.json",
 )
+
+app.add_middleware(InternalTokenMiddleware)
 
 
 @app.get("/health", tags=["meta"])
