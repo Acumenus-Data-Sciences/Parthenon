@@ -18,6 +18,30 @@ from runtime.registry.manifest import Manifest
 
 REDACTED_VALUE = "***REDACTED***"
 _SECRET_NAME_PATTERN = re.compile(r"(_key|_token|_password|_secret)$", re.IGNORECASE)
+_PARAM_REF_PATTERN = re.compile(r"\$\{parameters\.([a-zA-Z_][a-zA-Z0-9_]*)\}")
+
+
+def _interpolate(value: Any, parameters: dict[str, Any]) -> Any:
+    """Substitute ``${parameters.foo}`` references with values from ``parameters``.
+
+    Supports strings, dicts, and lists. Other types pass through unchanged.
+    A whole-string reference (e.g. ``"${parameters.count}"``) is replaced
+    with the raw value (preserving its type, e.g. int). A partial-string
+    reference is stringified and embedded.
+    """
+    if isinstance(value, str):
+        match = _PARAM_REF_PATTERN.fullmatch(value)
+        if match:
+            return parameters.get(match.group(1), value)
+        return _PARAM_REF_PATTERN.sub(
+            lambda m: str(parameters[m.group(1)]) if m.group(1) in parameters else m.group(0),
+            value,
+        )
+    if isinstance(value, dict):
+        return {k: _interpolate(v, parameters) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_interpolate(v, parameters) for v in value]
+    return value
 
 
 class ParameterValidationError(ValueError):
@@ -73,7 +97,7 @@ class Materializer:
             FlowNode(
                 node_id=n.node_id,
                 type_name=n.type,
-                params=dict(n.params),
+                params=_interpolate(dict(n.params), parameters),
                 depends_on=list(n.depends_on),
             )
             for n in manifest.spec.nodes

@@ -96,3 +96,77 @@ def test_materializer_redacts_in_flowspec_parameters_echo() -> None:
     flow, sanitized = materializer.materialize(manifest, {"api_key": "live-secret"})
     assert sanitized == {"api_key": "***REDACTED***"}
     assert flow.parameters == {"api_key": "***REDACTED***"}
+
+
+def _build_manifest_with_node_params(node_params: dict[str, object]) -> Manifest:
+    return load_manifest(
+        {
+            "apiVersion": "parthenon.acumenus.net/v1",
+            "kind": "Template",
+            "metadata": {
+                "id": "interp_demo",
+                "name": "Interpolation Demo",
+                "version": "0.1.0",
+                "category": "diagnostic",
+                "cdm_versions": [],
+            },
+            "spec": {
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "target_schema": {"type": "string", "minLength": 1},
+                        "row_count": {"type": "integer"},
+                    },
+                    "required": ["target_schema", "row_count"],
+                },
+                "requires": {"cdm_initialized": False, "vocabularies": []},
+                "nodes": [
+                    {
+                        "node_id": "n",
+                        "type": "sql",
+                        "params": node_params,
+                    }
+                ],
+                "post_conditions": [],
+            },
+        }
+    )
+
+
+def test_materializer_substitutes_parameter_reference_in_string() -> None:
+    manifest = _build_manifest_with_node_params(
+        {"statement": "CREATE SCHEMA ${parameters.target_schema}"}
+    )
+    materializer = Materializer()
+    flow, _ = materializer.materialize(manifest, {"target_schema": "demo", "row_count": 42})
+    assert flow.nodes[0].params["statement"] == "CREATE SCHEMA demo"
+
+
+def test_materializer_preserves_type_for_full_string_reference() -> None:
+    manifest = _build_manifest_with_node_params({"limit": "${parameters.row_count}"})
+    materializer = Materializer()
+    flow, _ = materializer.materialize(manifest, {"target_schema": "x", "row_count": 42})
+    assert flow.nodes[0].params["limit"] == 42
+
+
+def test_materializer_substitutes_inside_nested_dicts_and_lists() -> None:
+    manifest = _build_manifest_with_node_params(
+        {
+            "nested": {"schema": "${parameters.target_schema}"},
+            "items": ["${parameters.target_schema}", "literal"],
+        }
+    )
+    materializer = Materializer()
+    flow, _ = materializer.materialize(manifest, {"target_schema": "demo", "row_count": 1})
+    assert flow.nodes[0].params["nested"] == {"schema": "demo"}
+    assert flow.nodes[0].params["items"] == ["demo", "literal"]
+
+
+def test_materializer_leaves_unreferenced_placeholders_intact() -> None:
+    manifest = _build_manifest_with_node_params(
+        {"statement": "SELECT '${parameters.unknown}' AS s"}
+    )
+    materializer = Materializer()
+    flow, _ = materializer.materialize(manifest, {"target_schema": "x", "row_count": 1})
+    # Unknown reference passes through (not in parameters dict).
+    assert flow.nodes[0].params["statement"] == "SELECT '${parameters.unknown}' AS s"
