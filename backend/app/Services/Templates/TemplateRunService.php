@@ -70,6 +70,57 @@ class TemplateRunService
         });
     }
 
+    public function pollAndUpdate(TemplateRun $run): void
+    {
+        if ($run->isTerminal() || $run->prefect_run_id === null) {
+            return;
+        }
+
+        $payload = $this->registry->getRun((string) $run->prefect_run_id);
+        $newStatus = (string) ($payload['status'] ?? $run->status);
+        $update = [
+            'status' => $newStatus,
+            'progress' => isset($payload['progress']) ? (float) $payload['progress'] : $run->progress,
+            'current_node' => $payload['current_node'] ?? $run->current_node,
+        ];
+
+        if (isset($payload['started_at']) && $run->started_at === null) {
+            $update['started_at'] = $payload['started_at'];
+        }
+        if (isset($payload['finished_at'])) {
+            $update['finished_at'] = $payload['finished_at'];
+        }
+        if (isset($payload['post_conditions']) && is_array($payload['post_conditions'])) {
+            $update['post_conditions'] = $payload['post_conditions'];
+        }
+        if (isset($payload['error'])) {
+            $update['error_message'] = (string) $payload['error'];
+        }
+
+        DB::transaction(function () use ($run, $update, $newStatus): void {
+            $run->update($update);
+            if (in_array($newStatus, TemplateRun::TERMINAL_STATUSES, true)) {
+                IngestionJob::query()
+                    ->where('template_run_id', $run->id)
+                    ->each(fn (IngestionJob $job) => $job->update(['status' => $newStatus]));
+            }
+        });
+    }
+
+    public function cancel(TemplateRun $run): void
+    {
+        if ($run->isTerminal()) {
+            return;
+        }
+        if ($run->prefect_run_id !== null) {
+            $this->registry->cancelRun((string) $run->prefect_run_id);
+        }
+        $run->update([
+            'status' => TemplateRun::STATUS_CANCELLED,
+            'finished_at' => now(),
+        ]);
+    }
+
     private function assertNoActiveRun(string $templateId, string $version): void
     {
         TemplateRun::query()
