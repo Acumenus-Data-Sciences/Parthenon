@@ -20,10 +20,13 @@ _BACKENDS: dict[str, type[OrchestrationBackend]] = {
 
 def build_backend(*, storage: LocalFilesystemStorage) -> OrchestrationBackend:
     """Return an OrchestrationBackend selected by ``PARTHENON_ORCHESTRATION_BACKEND``."""
-    name = get_settings().orchestration_backend.lower().strip()
+    settings = get_settings()
+    name = settings.orchestration_backend.lower().strip()
     if name not in _BACKENDS:
         raise ValueError(
             f"unknown orchestration backend {name!r}; expected one of {sorted(_BACKENDS)}"
         )
     cls = _BACKENDS[name]
+    if cls is PrefectBackend:
+        return PrefectBackend(storage=storage, db_dsn=settings.database_url)
     return cls(storage=storage)  # type: ignore[call-arg]
