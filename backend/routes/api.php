@@ -281,6 +281,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/{id}/runs', [TemplatesController::class, 'submitRun'])
                 ->where('id', '[A-Za-z0-9_\-]+')
                 ->middleware('permission:ingestion.run');
+            Route::get('/runs/{run}', [TemplatesController::class, 'showRun'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/runs/{run}/logs', [TemplatesController::class, 'runLogs'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/runs/{run}/artifacts', [TemplatesController::class, 'runArtifacts'])
+                ->middleware('permission:ingestion.view');
         });
 
         // Ingestion Projects (multi-file)
