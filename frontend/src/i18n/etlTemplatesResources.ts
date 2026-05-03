@@ -39,6 +39,12 @@ export const etlTemplatesEn: MessageTree = {
     runInspector: {
       noLogs: "No logs yet",
       noArtifacts: "No artifacts produced by this run.",
+      versionLabel: "Version",
+      cancel: "Cancel run",
+      retry: "Retry",
+      dag: "DAG",
+      logs: "Logs",
+      artifacts: "Artifacts",
     },
   },
 };
