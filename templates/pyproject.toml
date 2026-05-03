@@ -26,6 +26,7 @@ dependencies = [
     "typer==0.13.1",
     "python-multipart==0.0.20",
     "honcho==2.0.0",
+    "multimethod<2.0",
 ]
 
 [project.optional-dependencies]
