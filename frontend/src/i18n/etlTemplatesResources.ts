@@ -16,15 +16,20 @@ type MessageTree = {
   [key: string]: string | MessageTree;
 };
 
-export const etlTemplatesEn = {
+export const etlTemplatesEn: MessageTree = {
   aqueduct: {
     subtabs: {
       mappings: "Mappings",
       templates: "Templates",
       runs: "Runs",
     },
+    parameterForm: {
+      cancel: "Cancel",
+      run: "Run",
+      running: "Running...",
+    },
   },
-} as const;
+};
 
 // Stub kept for the plan's literal contract (referenced in the docs) — empty
 // because all non-English locales currently fall through to the English tree
