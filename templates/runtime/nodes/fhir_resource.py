@@ -84,6 +84,11 @@ class FhirResourceNode(Node):
                 error_message=f"ndjson_dir does not exist: {ndjson_dir}",
             )
 
+        profile_name = params["profile"]
+        pack = _load_profile_pack(profile_name)
+        strict = bool(params.get("strict_profile_match", False))
+        allowed_profile_urls = self._profile_urls(pack) if strict else None
+
         per_type: dict[str, list[dict[str, Any]]] = {}
         skipped: set[str] = set()
         files_seen = 0
@@ -102,6 +107,15 @@ class FhirResourceNode(Node):
                     if rtype not in allowed_types:
                         skipped.add(rtype)
                         continue
+                    if strict and not self._profile_url_match(record, allowed_profile_urls):
+                        return NodeResult(
+                            status=NodeStatus.FAILED,
+                            error_message=(
+                                f"strict_profile_match: resource {rtype}/{record.get('id')} "
+                                f"declares meta.profile not in {profile_name!r} pack — "
+                                f"refusing to coerce"
+                            ),
+                        )
                     per_type.setdefault(rtype, []).append(record)
 
         for rtype, rows in per_type.items():
@@ -118,6 +132,25 @@ class FhirResourceNode(Node):
                 "skipped_resource_types": sorted(skipped),
             },
         )
+
+    @staticmethod
+    def _profile_urls(pack: dict[str, Any]) -> set[str]:
+        """Return the set of profile URLs this pack accepts.
+
+        For Phase 1, packs declare a single top-level ``url``; resources inherit it.
+        Any meta.profile entry must equal that URL or be a strict prefix subpath.
+        """
+        base = str(pack.get("url", "")).rstrip("/")
+        return {base} if base else set()
+
+    @staticmethod
+    def _profile_url_match(resource: dict[str, Any], allowed: set[str] | None) -> bool:
+        if allowed is None:
+            return True
+        declared = resource.get("meta", {}).get("profile") or []
+        if not declared:
+            return True  # no claim, accept
+        return any(any(d.startswith(a) for a in allowed) for d in declared)
 
     def _run_search(
         self,

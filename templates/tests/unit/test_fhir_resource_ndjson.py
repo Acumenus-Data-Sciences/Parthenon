@@ -119,3 +119,54 @@ def test_unknown_profile_fails(context: NodeContext, tmp_path: Path) -> None:
     )
     assert result.status == NodeStatus.FAILED
     assert "profile" in (result.error_message or "")
+
+
+def test_resource_with_unknown_profile_in_meta_fails_loudly(
+    context: NodeContext, tmp_path: Path
+) -> None:
+    """Per spec Q3: meta.profile that doesn't match the run's profile pack -> FAILED."""
+    bulk_dir = tmp_path / "bulk"
+    bulk_dir.mkdir()
+    _write_ndjson(
+        bulk_dir / "Patient.ndjson",
+        [
+            {
+                "resourceType": "Patient",
+                "id": "p1",
+                "meta": {
+                    "profile": ["http://hl7.org/fhir/us/davinci-pdex/StructureDefinition/Patient"]
+                },
+            }
+        ],
+    )
+    result = FhirResourceNode().run(
+        context,
+        {
+            "source": "ndjson",
+            "ndjson_dir": str(bulk_dir),
+            "profile": "us-core",
+            "strict_profile_match": True,
+        },
+    )
+    assert result.status == NodeStatus.FAILED
+    assert "profile" in (result.error_message or "").lower()
+
+
+def test_resource_without_meta_profile_is_accepted(context: NodeContext, tmp_path: Path) -> None:
+    """A resource without meta.profile uses base FHIR semantics; no conflict possible."""
+    bulk_dir = tmp_path / "bulk"
+    bulk_dir.mkdir()
+    _write_ndjson(
+        bulk_dir / "Patient.ndjson",
+        [{"resourceType": "Patient", "id": "p1"}],  # no meta
+    )
+    result = FhirResourceNode().run(
+        context,
+        {
+            "source": "ndjson",
+            "ndjson_dir": str(bulk_dir),
+            "profile": "us-core",
+            "strict_profile_match": True,
+        },
+    )
+    assert result.status == NodeStatus.SUCCESS
