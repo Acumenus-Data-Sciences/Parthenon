@@ -142,6 +142,7 @@ use App\Http\Controllers\Api\V1\SurveyConductController;
 use App\Http\Controllers\Api\V1\SurveyHonestBrokerController;
 use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
+use App\Http\Controllers\Api\V1\TemplatesController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
@@ -269,6 +270,15 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:ingestion.view');
         Route::get('/ingestion/jobs/{ingestionJob}/validation/summary', [IngestionController::class, 'validationSummary'])
             ->middleware('permission:ingestion.view');
+
+        // Ingestion Templates (Phase 0)
+        Route::prefix('ingestion/templates')->group(function () {
+            Route::get('/', [TemplatesController::class, 'index'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/{id}', [TemplatesController::class, 'show'])
+                ->where('id', '[A-Za-z0-9_\-]+')
+                ->middleware('permission:ingestion.view');
+        });
 
         // Ingestion Projects (multi-file)
         Route::prefix('ingestion-projects')->group(function () {
