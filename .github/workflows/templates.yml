@@ -113,3 +113,17 @@ jobs:
         # file:// URL, exercises the full template lifecycle and asserts
         # the concept rowcount post-load.
         run: uv run pytest tests/e2e/test_load_imaging_vocabulary.py -v -m integration
+
+      - name: Stage etl_dicom_metadata fixtures
+        working-directory: templates
+        # Materialize the 3-DICOM fixture corpus (CT, MR, SR) from pydicom
+        # bundled test data. Required by the E2E test below.
+        run: uv run python manifests/etl_dicom_metadata/fixtures/sample/build_fixtures.py
+
+      - name: etl_dicom_metadata E2E
+        working-directory: templates
+        # Phase 1 DICOM metadata-only ETL: bootstrap vocab + omop schemas,
+        # run load_imaging_vocabulary first to seed Parthenon-Imaging
+        # concepts, then run etl_dicom_metadata against the staged fixture
+        # corpus. Asserts >=3 image_occurrence rows.
+        run: uv run pytest tests/e2e/test_etl_dicom_metadata.py -v -m integration

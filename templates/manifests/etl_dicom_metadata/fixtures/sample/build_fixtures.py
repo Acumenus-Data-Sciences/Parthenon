@@ -18,7 +18,11 @@ OUT = Path(__file__).resolve().parent / "dicom"
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    for name in ("CT_small.dcm", "MR_small.dcm", "OT-PAL-8-face.dcm"):
+    # CT_small.dcm and MR_small.dcm have proper File Meta Information headers.
+    # reportsi.dcm is a Structured Report (Modality=SR) for the third modality;
+    # the older OT-PAL sample bundled with pydicom lacks a DICM header and is
+    # rejected by pydicom.dcmread without force=True.
+    for name in ("CT_small.dcm", "MR_small.dcm", "reportsi.dcm"):
         for src in get_testdata_files(name):
             dest = OUT / Path(src).name
             dest.write_bytes(Path(src).read_bytes())

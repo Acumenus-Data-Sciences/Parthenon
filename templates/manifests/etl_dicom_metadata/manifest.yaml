@@ -82,6 +82,13 @@ spec:
                       ).fetchone()
                       modality_concept_id = cid_row[0] if cid_row else 0
 
+                      raw_date = row.get("StudyDate") or ""
+                      if raw_date and len(raw_date) == 8 and raw_date.isdigit():
+                          # DICOM dates are YYYYMMDD; convert to ISO for Postgres.
+                          study_date = f"{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+                      else:
+                          study_date = None
+
                       conn.execute(
                           text(
                               f"INSERT INTO {schema}.image_occurrence "
@@ -94,7 +101,7 @@ spec:
                           {
                               "study_uid": row.get("StudyInstanceUID"),
                               "series_uid": row.get("SeriesInstanceUID"),
-                              "study_date": row.get("StudyDate"),
+                              "study_date": study_date,
                               "modality_concept_id": modality_concept_id,
                           },
                       )
