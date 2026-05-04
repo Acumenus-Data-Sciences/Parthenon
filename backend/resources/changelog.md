@@ -2,6 +2,15 @@
 
 All notable changes to Parthenon are documented here.
 
+## [Unreleased] — 2026-05-03
+
+### Added (Phase 1 templates work — not yet in a release)
+
+- `app.unmapped_concepts_queue` table for the FHIR→OMOP mapping review flow.
+  Surfaces unmapped (system, code) pairs to the existing Laravel
+  MappingReviewController. Phase 1 does NOT call any AI mapping pathway
+  (devplan §6.7).
+
 ## [1.0.3] — 2026-03-30
 
 ### Added
