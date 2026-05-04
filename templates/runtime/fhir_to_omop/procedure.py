@@ -54,9 +54,7 @@ def map_procedure(resource: dict[str, Any], resolver: ConceptResolver) -> Proced
                 proc_concept_id = cid
                 break
 
-    when = resource.get("performedDateTime") or (resource.get("performedPeriod") or {}).get(
-        "start"
-    )
+    when = resource.get("performedDateTime") or (resource.get("performedPeriod") or {}).get("start")
     proc_date = _date_only(when) or "1970-01-01"
     proc_dt = str(when) if when and "T" in str(when) else None
 

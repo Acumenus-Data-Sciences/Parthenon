@@ -44,7 +44,12 @@ def test_map_medication_request(engine) -> None:
         "subject": {"reference": "Patient/p1"},
         "encounter": {"reference": "Encounter/e1"},
         "medicationCodeableConcept": {
-            "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "6809"}],
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "6809",
+                }
+            ],
         },
         "authoredOn": "2026-04-01T10:00:00Z",
     }
@@ -62,7 +67,12 @@ def test_map_medication_statement(engine) -> None:
         "status": "active",
         "subject": {"reference": "Patient/p1"},
         "medicationCodeableConcept": {
-            "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "6809"}],
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "6809",
+                }
+            ],
         },
         "effectivePeriod": {"start": "2026-03-01", "end": "2026-04-01"},
     }
@@ -80,7 +90,12 @@ def test_map_medication_administration(engine) -> None:
         "subject": {"reference": "Patient/p1"},
         "context": {"reference": "Encounter/e1"},
         "medicationCodeableConcept": {
-            "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "6809"}],
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "6809",
+                }
+            ],
         },
         "effectiveDateTime": "2026-04-01T08:00:00Z",
     }
@@ -97,7 +112,12 @@ def test_unknown_medication_returns_zero(engine) -> None:
         "intent": "order",
         "subject": {"reference": "Patient/p1"},
         "medicationCodeableConcept": {
-            "coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "999999"}],
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "999999",
+                }
+            ],
         },
         "authoredOn": "2026-04-01",
     }

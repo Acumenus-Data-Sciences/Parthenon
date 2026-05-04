@@ -56,7 +56,10 @@ def test_map_procedure_with_period(engine) -> None:
         "status": "completed",
         "subject": {"reference": "Patient/p1"},
         "code": {"coding": [{"system": "http://www.ama-assn.org/go/cpt", "code": "44950"}]},
-        "performedPeriod": {"start": "2026-04-01T10:00:00Z", "end": "2026-04-01T12:00:00Z"},
+        "performedPeriod": {
+            "start": "2026-04-01T10:00:00Z",
+            "end": "2026-04-01T12:00:00Z",
+        },
     }
     proc = map_procedure(fhir, _resolver(engine))
     assert proc.procedure_date == "2026-04-01"

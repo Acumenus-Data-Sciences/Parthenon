@@ -241,12 +241,8 @@ def test_fhir_to_omop_prb_runs_to_completion(
             conditions = conn.execute(
                 text("SELECT COUNT(*) FROM omop.condition_occurrence")
             ).scalar()
-            measurements = conn.execute(
-                text("SELECT COUNT(*) FROM omop.measurement")
-            ).scalar()
-            observations = conn.execute(
-                text("SELECT COUNT(*) FROM omop.observation")
-            ).scalar()
+            measurements = conn.execute(text("SELECT COUNT(*) FROM omop.measurement")).scalar()
+            observations = conn.execute(text("SELECT COUNT(*) FROM omop.observation")).scalar()
             procedures = conn.execute(
                 text("SELECT COUNT(*) FROM omop.procedure_occurrence")
             ).scalar()
