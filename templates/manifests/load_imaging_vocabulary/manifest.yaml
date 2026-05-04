@@ -1,0 +1,162 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: load_imaging_vocabulary
+  name: Load DICOM Imaging Vocabulary (JAMIA)
+  version: "0.1.0"
+  category: vocabulary
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["imaging", "dicom", "vocabulary", "jamia"]
+  author: "Acumenus Data Sciences"
+  singleton: true
+spec:
+  parameters:
+    type: object
+    properties:
+      source_url:
+        type: string
+        description: |
+          URL of the JAMIA-derived DICOM-to-OMOP CSV bundle (zip). Defaults to
+          a Parthenon-mirrored snapshot pinned to upstream commit. Override to
+          load a newer snapshot — bumping is a deliberate manifest update.
+        default: "https://github.com/sudoshi/parthenon-imaging-vocab/releases/download/v0.1.0/dicom2omop_v0.1.0.zip"
+      vocab_schema:
+        type: string
+        description: "OMOP vocabulary schema (per source's vocabulary daimon table_qualifier)."
+        default: "vocab"
+      concept_id_start:
+        type: integer
+        description: "First concept_id in the Parthenon-namespaced range."
+        default: 2000000000
+        minimum: 2000000000
+        maximum: 2099999999
+      vocabulary_id:
+        type: string
+        description: "Vocabulary identifier inserted into vocab.vocabulary."
+        default: "Parthenon-Imaging"
+    required: ["source_url", "vocab_schema"]
+  requires:
+    cdm_initialized: true
+    vocabularies: []
+  nodes:
+    - node_id: download_bundle
+      type: generic_file
+      params:
+        url: "${parameters.source_url}"
+        artifact_name: dicom2omop_bundle.zip
+        max_bytes: 524288000
+        sha256_required: false
+
+    - node_id: extract_and_stage
+      type: python
+      depends_on: [download_bundle]
+      params:
+        code: |
+          import zipfile
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "download_bundle" / "dicom2omop_bundle.zip"
+              if not upstream.exists():
+                  raise FileNotFoundError(f"upstream bundle missing: {upstream}")
+              with zipfile.ZipFile(upstream) as zf:
+                  zf.extractall(context.artifact_dir)
+              csvs = sorted(context.artifact_dir.glob("**/*.csv"))
+              return {"csv_files_extracted": [p.name for p in csvs]}
+        inputs: {}
+
+    - node_id: load_vocabulary
+      type: python
+      depends_on: [extract_and_stage]
+      params:
+        code: |
+          import csv
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_vocabulary requires context.db_dsn")
+              schema = params["vocab_schema"]
+              start = int(params["concept_id_start"])
+              vocab_id = params["vocabulary_id"]
+
+              concept_csv = context.artifact_dir.parent / "extract_and_stage" / "CONCEPT.csv"
+              if not concept_csv.exists():
+                  candidates = list(
+                      (context.artifact_dir.parent / "extract_and_stage").glob("**/CONCEPT.csv")
+                  )
+                  if not candidates:
+                      raise FileNotFoundError("CONCEPT.csv missing from staged bundle")
+                  concept_csv = candidates[0]
+
+              engine = create_engine(context.db_dsn, future=True)
+              loaded = 0
+              with engine.begin() as conn:
+                  conn.execute(
+                      text(f"DELETE FROM {schema}.concept WHERE vocabulary_id = :vid"),
+                      {"vid": vocab_id},
+                  )
+                  conn.execute(
+                      text(
+                          f"INSERT INTO {schema}.vocabulary "
+                          f"(vocabulary_id, vocabulary_name, vocabulary_concept_id) "
+                          f"VALUES (:vid, :vname, :vcid) "
+                          f"ON CONFLICT (vocabulary_id) DO NOTHING"
+                      ),
+                      {
+                          "vid": vocab_id,
+                          "vname": "Parthenon DICOM Imaging Vocabulary",
+                          "vcid": start,
+                      },
+                  )
+                  with open(concept_csv, encoding="utf-8") as f:
+                      reader = csv.DictReader(f)
+                      for offset, row in enumerate(reader):
+                          conn.execute(
+                              text(
+                                  f"INSERT INTO {schema}.concept "
+                                  f"(concept_id, concept_name, domain_id, vocabulary_id, "
+                                  f"concept_class_id, standard_concept, concept_code, "
+                                  f"valid_start_date, valid_end_date) "
+                                  f"VALUES (:cid, :cname, :did, :vid, :ccid, :std, :ccode, "
+                                  f"'1970-01-01', '2099-12-31')"
+                              ),
+                              {
+                                  "cid": start + offset,
+                                  "cname": row["concept_name"][:255],
+                                  "did": row.get("domain_id", "Observation"),
+                                  "vid": vocab_id,
+                                  "ccid": row.get("concept_class_id", "DICOM Attribute"),
+                                  "std": row.get("standard_concept") or None,
+                                  "ccode": row.get("concept_code", "")[:50],
+                              },
+                          )
+                          loaded += 1
+
+              return {"concepts_loaded": loaded, "vocabulary_id": vocab_id}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+          concept_id_start: "${parameters.concept_id_start}"
+          vocabulary_id: "${parameters.vocabulary_id}"
+
+    - node_id: emit_summary
+      type: sql
+      depends_on: [load_vocabulary]
+      params:
+        statements:
+          - "SELECT 1"
+        fetch_query: |
+          SELECT vocabulary_id, COUNT(*) AS concept_count
+          FROM ${parameters.vocab_schema}.concept
+          WHERE vocabulary_id = '${parameters.vocabulary_id}'
+          GROUP BY vocabulary_id
+        result_artifact: imaging_vocab_summary
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.vocab_schema}.concept"
+        where: "vocabulary_id = '${parameters.vocabulary_id}'"
+        min: 1
+    - kind: artifact_present
+      params:
+        artifact: imaging_vocab_summary.json
+        min_rows: 1
