@@ -145,6 +145,13 @@ jobs:
         # corpus and zero source PHI strings survive in the output.
         run: uv run pytest tests/e2e/test_fhir_anonymizer_native.py -v -m integration
 
+      - name: Build parthenon-anonymizer sidecar image
+        # The compose service references ghcr.io/sudoshi/parthenon-fhir-anonymizer
+        # which is not accessible to the CI runner without registry auth. Build
+        # the image locally from docker/parthenon-anonymizer/Dockerfile so that
+        # `up -d` finds it cached and skips the pull.
+        run: docker compose build parthenon-anonymizer
+
       - name: Start parthenon-anonymizer sidecar
         # Required by the MS-backend E2E below. Brought up only after the
         # cheaper native test succeeds.
