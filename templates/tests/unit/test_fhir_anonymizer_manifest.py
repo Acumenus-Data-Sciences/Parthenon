@@ -73,3 +73,27 @@ def test_fixture_marked_synthetic() -> None:
             assert any(
                 t.get("code") == "SYNTHETIC" for t in tag
             ), f"fixture line missing SYNTHETIC tag: {f}"
+
+
+REQUIRED_HEADINGS = [
+    "## What it does",
+    "## When to use it",
+    "## Parameters",
+    "## Prerequisites",
+    "## Examples",
+    "## Limitations",
+    "## License / attribution",
+    "## Security notes",
+]
+
+
+def test_readme_has_required_sections() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for h in REQUIRED_HEADINGS:
+        assert h in text, f"README missing section: {h}"
+
+
+def test_readme_warns_about_hipaa_disclaimer() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    assert "HIPAA" in text
+    assert "Safe Harbor" in text
