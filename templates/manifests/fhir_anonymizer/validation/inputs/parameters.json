@@ -1,0 +1,8 @@
+{
+  "input_kind": "ndjson_dir",
+  "input_path": "/var/parthenon/manifests/fhir_anonymizer/fixtures/sample_with_phi",
+  "backend": "native",
+  "config_source": "library",
+  "config_name": "hipaa_safe_harbor",
+  "sidecar_url": "http://parthenon-anonymizer:8080"
+}
