@@ -73,3 +73,27 @@ def test_dqd_checks_include_pixel_data_guard() -> None:
     checks = yaml.safe_load((VAL_ROOT / "dqd_checks.yaml").read_text(encoding="utf-8"))
     check_ids = {c["check_id"] for c in checks["checks"]}
     assert "dicom_etl_no_pixel_data_columns" in check_ids
+
+
+REQUIRED_HEADINGS = [
+    "## What it does",
+    "## When to use it",
+    "## Parameters",
+    "## Prerequisites",
+    "## Examples",
+    "## Limitations",
+    "## License / attribution",
+    "## Security notes",
+]
+
+
+def test_readme_has_required_sections() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for heading in REQUIRED_HEADINGS:
+        assert heading in text, f"README missing section: {heading}"
+
+
+def test_readme_calls_out_pixels_never_copied() -> None:
+    """Defense in depth surface area: README must explicitly flag the no-pixels guarantee."""
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8").lower()
+    assert "pixel" in text and "never" in text
