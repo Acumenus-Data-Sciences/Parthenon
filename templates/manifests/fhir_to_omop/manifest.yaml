@@ -2,11 +2,11 @@ apiVersion: parthenon.acumenus.net/v1
 kind: Template
 metadata:
   id: fhir_to_omop
-  name: FHIR R4 to OMOP CDM (PR-A — Visit Spine)
+  name: FHIR R4 to OMOP CDM (PR-A + PR-B + PR-C)
   version: "0.1.0"
   category: ingestion
   cdm_versions: ["5.3", "5.4"]
-  tags: ["fhir", "omop", "etl", "pr-a", "visit-spine"]
+  tags: ["fhir", "omop", "etl", "pr-a", "pr-b", "pr-c", "visit-spine"]
   author: "Acumenus Data Sciences"
 spec:
   parameters:
@@ -22,6 +22,8 @@ spec:
       vocab_schema: {type: string, default: "vocab"}
       app_schema: {type: string, default: "app"}
       strict_concept_resolution: {type: boolean, default: false}
+      consent_permit_concept_id: {type: integer, default: 4055893}
+      consent_deny_concept_id: {type: integer, default: 4054745}
     required: ["source", "target_schema"]
   requires:
     cdm_initialized: true
@@ -46,6 +48,8 @@ spec:
           - MedicationStatement
           - MedicationAdministration
           - Immunization
+          - DiagnosticReport
+          - Consent
 
     - node_id: map_patients
       type: python
@@ -255,6 +259,80 @@ spec:
         inputs:
           vocab_schema: "${parameters.vocab_schema}"
 
+    - node_id: map_diagnostic_reports
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.diagnostic_report import map_diagnostic_report
+
+          def main(context, params):
+              upstream = (
+                  context.artifact_dir.parent / "ingest_fhir" / "diagnosticreport.parquet"
+              )
+              if not upstream.exists():
+                  return {"diagnostic_reports_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  rows.append(map_diagnostic_report(dict(raw), resolver).model_dump())
+              (context.artifact_dir / "diagnostic_reports.json").write_text(
+                  json.dumps(rows), encoding="utf-8"
+              )
+              return {"diagnostic_reports_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_consents
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.consent import map_consent
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "consent.parquet"
+              if not upstream.exists():
+                  return {"consents_mapped": 0, "consent_decisions": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              obs_rows, decisions = [], []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  row, decision = map_consent(
+                      dict(raw),
+                      resolver,
+                      permit_concept_id=int(params["permit_concept_id"]),
+                      deny_concept_id=int(params["deny_concept_id"]),
+                  )
+                  obs_rows.append(row.model_dump())
+                  decisions.append(
+                      {
+                          "person_source_value": decision.person_source_value,
+                          "decision": decision.decision,
+                          "consent_id": decision.consent_id,
+                      }
+                  )
+              (context.artifact_dir / "consents.json").write_text(
+                  json.dumps(obs_rows), encoding="utf-8"
+              )
+              (context.artifact_dir / "consent_decisions.json").write_text(
+                  json.dumps(decisions), encoding="utf-8"
+              )
+              return {"consents_mapped": len(obs_rows), "consent_decisions": len(decisions)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+          permit_concept_id: "${parameters.consent_permit_concept_id}"
+          deny_concept_id: "${parameters.consent_deny_concept_id}"
+
     - node_id: load_to_cdm
       type: python
       depends_on:
@@ -265,6 +343,8 @@ spec:
         - map_procedures
         - map_medications
         - map_immunizations
+        - map_diagnostic_reports
+        - map_consents
       params:
         code: |
           import json
@@ -273,6 +353,7 @@ spec:
           def main(context, params):
               engine = create_engine(context.db_dsn, future=True)
               schema = params["target_schema"]
+              app_schema = params["app_schema"]
               base = context.artifact_dir.parent
               persons = json.loads(
                   (base / "map_patients" / "patients.json").read_text(encoding="utf-8")
@@ -303,7 +384,25 @@ spec:
                   json.loads(imm_path.read_text(encoding="utf-8")) if imm_path.exists() else []
               )
 
+              dr_path = base / "map_diagnostic_reports" / "diagnostic_reports.json"
+              diag_reports = (
+                  json.loads(dr_path.read_text(encoding="utf-8")) if dr_path.exists() else []
+              )
+              con_obs_path = base / "map_consents" / "consents.json"
+              consent_obs = (
+                  json.loads(con_obs_path.read_text(encoding="utf-8"))
+                  if con_obs_path.exists()
+                  else []
+              )
+              con_dec_path = base / "map_consents" / "consent_decisions.json"
+              consent_decisions = (
+                  json.loads(con_dec_path.read_text(encoding="utf-8"))
+                  if con_dec_path.exists()
+                  else []
+              )
+
               n_persons = n_visits = n_conds = n_meas = n_obs = n_proc = n_drug = 0
+              n_diag = n_consent_obs = n_consent_dec = 0
               with engine.begin() as conn:
                   pid_map = {}
                   for i, p in enumerate(persons, start=1):
@@ -452,13 +551,58 @@ spec:
                       })
                       n_drug += 1
 
+                  for dr in diag_reports + consent_obs:
+                      pid = pid_map.get(dr["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = (
+                          vid_map.get(dr["visit_source_value"])
+                          if dr["visit_source_value"]
+                          else None
+                      )
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.observation "
+                          f"(person_id, observation_concept_id, observation_date, "
+                          f"observation_datetime, observation_type_concept_id, "
+                          f"value_as_string, observation_source_value, "
+                          f"observation_source_concept_id, visit_occurrence_id) "
+                          f"VALUES (:pid, :oc, :od, :odt, :otc, :vas, :osv, :osc, :vid)"
+                      ), {
+                          "pid": pid, "oc": dr["observation_concept_id"],
+                          "od": dr["observation_date"], "odt": dr["observation_datetime"],
+                          "otc": dr["observation_type_concept_id"],
+                          "vas": dr.get("value_as_string"),
+                          "osv": dr["observation_source_value"],
+                          "osc": dr["observation_source_concept_id"], "vid": vid,
+                      })
+                      if dr in diag_reports:
+                          n_diag += 1
+                      else:
+                          n_consent_obs += 1
+
+                  for cd in consent_decisions:
+                      conn.execute(text(
+                          f"INSERT INTO {app_schema}.consent_decisions "
+                          f"(person_source_value, decision, consent_id) "
+                          f"VALUES (:psv, :dec, :cid)"
+                      ), {
+                          "psv": cd["person_source_value"],
+                          "dec": cd["decision"],
+                          "cid": cd["consent_id"],
+                      })
+                      n_consent_dec += 1
+
               return {
                   "persons": n_persons, "visits": n_visits, "conditions": n_conds,
                   "measurements": n_meas, "observations": n_obs,
                   "procedures": n_proc, "drug_exposures": n_drug,
+                  "diagnostic_reports": n_diag,
+                  "consent_observations": n_consent_obs,
+                  "consent_decisions": n_consent_dec,
               }
         inputs:
           target_schema: "${parameters.target_schema}"
+          app_schema: "${parameters.app_schema}"
 
     - node_id: summarize
       type: sql

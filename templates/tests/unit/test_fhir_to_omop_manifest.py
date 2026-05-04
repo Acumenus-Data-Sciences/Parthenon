@@ -187,3 +187,41 @@ def test_adr_0008_has_pr_b_amendment() -> None:
     assert "drug_type_concept_id" in text
     assert "medicationReference" in text
     assert "CVX" in text
+
+
+# --- PR-C (Plan 7) extension tests ---
+
+
+def test_manifest_pr_c_imports() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    for module in (
+        "runtime.fhir_to_omop.diagnostic_report",
+        "runtime.fhir_to_omop.consent",
+    ):
+        assert module in text
+
+
+def test_manifest_pr_c_resource_types_in_ingestion() -> None:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    ingest = next(n for n in payload["spec"]["nodes"] if n["node_id"] == "ingest_fhir")
+    rt = ingest["params"]["resource_types"]
+    for resource in ("DiagnosticReport", "Consent"):
+        assert resource in rt, f"manifest missing PR-C resource type: {resource}"
+
+
+def test_manifest_pr_c_consent_params() -> None:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    props = payload["spec"]["parameters"]["properties"]
+    assert "consent_permit_concept_id" in props
+    assert "consent_deny_concept_id" in props
+
+
+def test_manifest_pr_c_load_writes_consent_decisions() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    assert "consent_decisions" in text
+
+
+def test_pr_c_consent_decisions_migration_exists() -> None:
+    backend = Path(__file__).resolve().parents[3] / "backend"
+    matches = list(backend.glob("database/migrations/*_create_consent_decisions_table.php"))
+    assert matches, "Laravel migration for app.consent_decisions not found"
