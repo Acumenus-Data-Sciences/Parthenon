@@ -88,3 +88,28 @@ def test_post_conditions_assert_pra_resource_counts() -> None:
     assert tables["omop.condition_occurrence"]["expected"] == 2
     assert tables["omop.measurement"]["expected"] == 2
     assert tables["omop.observation"]["expected"] == 2
+
+
+REQUIRED_HEADINGS = [
+    "## What it does",
+    "## When to use it",
+    "## Parameters",
+    "## Prerequisites",
+    "## Examples",
+    "## Limitations",
+    "## License / attribution",
+    "## Security notes",
+]
+
+
+def test_readme_has_required_sections() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for h in REQUIRED_HEADINGS:
+        assert h in text, f"README missing section: {h}"
+
+
+def test_readme_documents_pr_a_scope_and_pr_b_pr_c_deferral() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    assert "PR-A" in text
+    assert "PR-B" in text or "Plan 6" in text
+    assert "PR-C" in text or "Plan 7" in text
