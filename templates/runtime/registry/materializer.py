@@ -34,7 +34,7 @@ def _interpolate(value: Any, parameters: dict[str, Any]) -> Any:
         if match:
             return parameters.get(match.group(1), value)
         return _PARAM_REF_PATTERN.sub(
-            lambda m: str(parameters[m.group(1)]) if m.group(1) in parameters else m.group(0),
+            lambda m: (str(parameters[m.group(1)]) if m.group(1) in parameters else m.group(0)),
             value,
         )
     if isinstance(value, dict):
@@ -59,7 +59,10 @@ def redact_secrets(*, params: dict[str, Any], properties: dict[str, Any]) -> dic
     out: dict[str, Any] = {}
     for key, value in params.items():
         prop = properties.get(key)
-        if _is_secret(key, prop if isinstance(prop, dict) else None) and value not in (None, ""):
+        if _is_secret(key, prop if isinstance(prop, dict) else None) and value not in (
+            None,
+            "",
+        ):
             out[key] = REDACTED_VALUE
         else:
             out[key] = value

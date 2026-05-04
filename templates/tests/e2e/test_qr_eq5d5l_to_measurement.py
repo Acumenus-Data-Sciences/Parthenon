@@ -48,9 +48,7 @@ def _wait_for(client: TestClient, run_id: str, timeout: int = 90) -> str:
 
 
 @pytest.mark.integration
-def test_eq5d5l_runs_and_derives_utility(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_eq5d5l_runs_and_derives_utility(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("testcontainers.postgres")
     from testcontainers.postgres import PostgresContainer
 
@@ -131,9 +129,7 @@ def test_eq5d5l_runs_and_derives_utility(
                 )
             ).scalar()
             vas = conn.execute(
-                text(
-                    "SELECT COUNT(*) FROM omop.measurement WHERE measurement_source_value = 'VAS'"
-                )
+                text("SELECT COUNT(*) FROM omop.measurement WHERE measurement_source_value = 'VAS'")
             ).scalar()
             utilities = conn.execute(
                 text(

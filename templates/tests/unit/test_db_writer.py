@@ -57,7 +57,11 @@ def test_appends_parquet_to_table(
     }
     result = DbWriterNode().run(context, params)
     assert result.status == NodeStatus.SUCCESS
-    assert result.outputs == {"rows_written": 3, "target_table": "concept", "mode": "append"}
+    assert result.outputs == {
+        "rows_written": 3,
+        "target_table": "concept",
+        "mode": "append",
+    }
 
     engine = create_engine(empty_db)
     with engine.connect() as conn:
