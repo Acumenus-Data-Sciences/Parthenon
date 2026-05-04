@@ -1,0 +1,16 @@
+# PLACEHOLDER VALUE SET — REPLACE WITH YOUR EUROQOL-LICENSED EQ-5D-3L VALUE SET
+# This file ships with Parthenon as DIMENSIONAL PLACEHOLDER DATA only.
+# DO NOT use these values for real clinical analysis.
+# To obtain a real EQ-5D-3L value set, register with EuroQol:
+#   https://euroqol.org/eq-5d-instruments/
+profile,utility_index
+11111,1.000
+11112,0.900
+11211,0.880
+12111,0.870
+21111,0.860
+22222,0.500
+33333,0.150
+13333,0.300
+12321,0.480
+11221,0.700

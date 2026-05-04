@@ -1,0 +1,154 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: qr_eq5d3l_to_measurement
+  name: EQ-5D-3L QuestionnaireResponse to OMOP Measurement (Scaffold)
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["pro", "eq5d", "fhir", "scaffold", "phase-1-proof"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source:
+        type: string
+        enum: ["ndjson", "search"]
+      ndjson_dir: {type: string}
+      fhir_base_url: {type: string}
+      bearer_token: {type: string, secret: true}
+      profile:
+        type: string
+        enum: ["us-core", "mcode", "ips", "mii"]
+        default: "us-core"
+      target_schema: {type: string}
+      vocab_schema: {type: string, default: "vocab"}
+      eq5d_value_set_path:
+        type: string
+        default: "/app/runtime/instruments/value_sets/eq5d3l_placeholder.csv"
+      questionnaire_url:
+        type: string
+        default: "https://www.euroqol.org/instruments/eq-5d-3l"
+      mo_concept_id: {type: integer}
+      sc_concept_id: {type: integer}
+      ua_concept_id: {type: integer}
+      pd_concept_id: {type: integer}
+      ad_concept_id: {type: integer}
+      vas_concept_id: {type: integer}
+      utility_concept_id: {type: integer}
+    required:
+      - source
+      - target_schema
+      - mo_concept_id
+      - sc_concept_id
+      - ua_concept_id
+      - pd_concept_id
+      - ad_concept_id
+      - vas_concept_id
+      - utility_concept_id
+  requires:
+    cdm_initialized: true
+    vocabularies: []
+  nodes:
+    - node_id: ingest_responses
+      type: fhir_resource
+      params:
+        source: "${parameters.source}"
+        ndjson_dir: "${parameters.ndjson_dir}"
+        fhir_base_url: "${parameters.fhir_base_url}"
+        bearer_token: "${parameters.bearer_token}"
+        profile: "${parameters.profile}"
+        resource_types: ["QuestionnaireResponse"]
+
+    - node_id: project_to_measurement
+      type: python
+      depends_on: [ingest_responses]
+      params:
+        code: |
+          # Same logic as qr_eq5d5l_to_measurement: imports runtime.instruments.pro_base.
+          # The reuse is the proof point for spec decision Q4.
+          from sqlalchemy import create_engine, text
+          import polars as pl
+          from runtime.instruments.pro_base import (
+              ItemMapping, ProInstrumentDefinition, parse_questionnaire_response,
+          )
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("project_to_measurement requires context.db_dsn")
+              upstream = (
+                  context.artifact_dir.parent / "ingest_responses" / "questionnaireresponse.parquet"
+              )
+              if not upstream.exists():
+                  return {"questionnaire_responses_processed": 0, "items_inserted": 0}
+              df = pl.read_parquet(upstream)
+              definition = ProInstrumentDefinition(
+                  instrument_id="eq5d3l",
+                  items=[
+                      ItemMapping(
+                          item_code=c,
+                          measurement_concept_id=int(params[f"{c.lower()}_concept_id"]),
+                      )
+                      for c in ("MO", "SC", "UA", "PD", "AD")
+                  ],
+                  vas_item_code="VAS",
+                  vas_measurement_concept_id=int(params["vas_concept_id"]),
+              )
+              schema = params["target_schema"]
+              questionnaire_url = params["questionnaire_url"]
+              engine = create_engine(context.db_dsn, future=True)
+              qr_count = 0
+              row_count = 0
+              with engine.begin() as conn:
+                  for raw in df.iter_rows(named=True):
+                      qr = dict(raw) if not isinstance(raw, dict) else raw
+                      qid = qr.get("questionnaire") or qr.get("questionnaireCanonical") or ""
+                      if questionnaire_url not in str(qid):
+                          continue
+                      qr_count += 1
+                      for r in parse_questionnaire_response(qr, definition):
+                          conn.execute(
+                              text(
+                                  f"INSERT INTO {schema}.measurement "
+                                  f"(person_id, measurement_concept_id, measurement_date, "
+                                  f"measurement_type_concept_id, value_as_number, unit_concept_id, "
+                                  f"measurement_source_value) "
+                                  f"VALUES (NULL, :mcid, CAST(:mdate AS DATE), 32817, "
+                                  f":vnum, :ucid, :msv)"
+                              ),
+                              {
+                                  "mcid": r.measurement_concept_id,
+                                  "mdate": r.measurement_date,
+                                  "vnum": r.value_as_number,
+                                  "ucid": r.unit_concept_id,
+                                  "msv": r.measurement_source_value,
+                              },
+                          )
+                          row_count += 1
+              return {"questionnaire_responses_processed": qr_count, "items_inserted": row_count}
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          questionnaire_url: "${parameters.questionnaire_url}"
+          mo_concept_id: "${parameters.mo_concept_id}"
+          sc_concept_id: "${parameters.sc_concept_id}"
+          ua_concept_id: "${parameters.ua_concept_id}"
+          pd_concept_id: "${parameters.pd_concept_id}"
+          ad_concept_id: "${parameters.ad_concept_id}"
+          vas_concept_id: "${parameters.vas_concept_id}"
+
+    - node_id: emit_summary
+      type: sql
+      depends_on: [project_to_measurement]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query: |
+          SELECT COUNT(*) AS items
+          FROM ${parameters.target_schema}.measurement
+          WHERE measurement_source_value IN ('MO','SC','UA','PD','AD')
+        result_artifact: eq5d3l_summary
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: eq5d3l_summary.json
+        min_rows: 0
