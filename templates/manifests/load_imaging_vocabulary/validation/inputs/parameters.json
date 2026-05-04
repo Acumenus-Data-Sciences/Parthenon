@@ -1,0 +1,6 @@
+{
+  "source_url": "https://github.com/sudoshi/parthenon-imaging-vocab/releases/download/v0.1.0/dicom2omop_v0.1.0.zip",
+  "vocab_schema": "vocab",
+  "concept_id_start": 2000000000,
+  "vocabulary_id": "Parthenon-Imaging"
+}

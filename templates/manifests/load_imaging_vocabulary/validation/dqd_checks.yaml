@@ -1,0 +1,40 @@
+# DQD-equivalent checks for the loaded imaging vocabulary.
+# Run via your DQD runner; these are NOT enforced by the manifest itself
+# (they are post-load integrity checks, not gating post-conditions).
+checks:
+  - check_id: imaging_vocab_concept_id_in_range
+    description: "Every Parthenon-Imaging concept_id is in [2_000_000_000, 2_100_000_000)."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM vocab.concept
+      WHERE vocabulary_id = 'Parthenon-Imaging'
+        AND (concept_id < 2000000000 OR concept_id >= 2100000000)
+    expected: 0
+
+  - check_id: imaging_vocab_no_collision_with_athena
+    description: "No Parthenon-Imaging concept shares an ID with an Athena-loaded concept."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM vocab.concept p
+      JOIN vocab.concept a USING (concept_id)
+      WHERE p.vocabulary_id = 'Parthenon-Imaging'
+        AND a.vocabulary_id != 'Parthenon-Imaging'
+    expected: 0
+
+  - check_id: imaging_vocab_concept_class_known
+    description: "Every concept_class_id is a recognized DICOM mapping class."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM vocab.concept
+      WHERE vocabulary_id = 'Parthenon-Imaging'
+        AND concept_class_id NOT IN ('DICOM Attribute', 'DICOM Coded Value', 'DICOM Modality')
+    expected: 0
+
+  - check_id: imaging_vocab_dates_set
+    description: "Every concept has valid_start_date and valid_end_date set."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM vocab.concept
+      WHERE vocabulary_id = 'Parthenon-Imaging'
+        AND (valid_start_date IS NULL OR valid_end_date IS NULL)
+    expected: 0
