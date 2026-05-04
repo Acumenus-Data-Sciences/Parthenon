@@ -35,9 +35,7 @@ def _wait_for(client: TestClient, run_id: str, timeout: int = 60) -> str:
 
 
 @pytest.mark.integration
-def test_fhir_anonymizer_native_runs(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_fhir_anonymizer_native_runs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     fixture_dir = tmp_path / "fhir_in"
     fixture_dir.mkdir()
     src_fixtures = MANIFEST_DIR / "fixtures" / "sample_with_phi"

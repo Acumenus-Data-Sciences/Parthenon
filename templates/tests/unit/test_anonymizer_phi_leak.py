@@ -23,9 +23,7 @@ from runtime.nodes.base import NodeContext
 
 REPO = Path(__file__).resolve().parents[2]
 FIXTURES = REPO / "manifests" / "fhir_anonymizer" / "fixtures" / "sample_with_phi"
-HIPAA_CONFIG = (
-    REPO / "runtime" / "instruments" / "anonymizer_configs" / "hipaa_safe_harbor.json"
-)
+HIPAA_CONFIG = REPO / "runtime" / "instruments" / "anonymizer_configs" / "hipaa_safe_harbor.json"
 
 
 # The full set of synthetic PHI strings present in the fixture.
@@ -95,6 +93,4 @@ def test_no_phi_leaks_through_native_backend(tmp_path: Path) -> None:
     out_blob = "\n".join(f.read_text("utf-8") for f in out_dir.glob("*.json"))
 
     leaks = [s for s in PHI_STRINGS if s in out_blob]
-    assert (
-        not leaks
-    ), f"PHI strings leaked through HIPAA Safe Harbor anonymization: {leaks!r}"
+    assert not leaks, f"PHI strings leaked through HIPAA Safe Harbor anonymization: {leaks!r}"
