@@ -1055,6 +1055,31 @@ services:
       - parthenon
     restart: unless-stopped
 
+  parthenon-anonymizer:
+    container_name: parthenon-anonymizer
+    image: ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.2.1
+    build:
+      context: ./docker/parthenon-anonymizer
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - parthenon
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "curl --fail --silent http://127.0.0.1:8080/health || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   parthenon-templates:
     container_name: parthenon-templates
     build:
