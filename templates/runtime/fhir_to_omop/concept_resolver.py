@@ -84,3 +84,38 @@ class ConceptResolver:
     def vocabulary_for_system(self, system: str) -> str | None:
         """Return the OMOP vocabulary_id for a FHIR system URI, or None."""
         return self._system_to_vocab.get(system)
+
+    def resolve_with_vocabulary(self, *, vocabulary_id: str, code: str) -> int:
+        """Resolve a code against a known-good OMOP vocabulary_id.
+
+        Used when the FHIR system URI is ambiguous — the OMB category
+        OID (urn:oid:2.16.840.1.113883.6.238), for instance, is used
+        for both Race and Ethnicity codings. Callers know which they
+        intend; this method bypasses system_to_vocabulary and goes
+        straight to the explicit vocabulary.
+        """
+        key = (f"vocab:{vocabulary_id}", code)
+        if key in self._cache:
+            return self._cache[key]
+
+        qual = "concept" if self.vocab_schema in {"main", ""} else f"{self.vocab_schema}.concept"
+        with self.engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    f"SELECT concept_id FROM {qual} "
+                    "WHERE vocabulary_id = :vocab AND concept_code = :code "
+                    "  AND (standard_concept = 'S' OR standard_concept IS NULL) "
+                    "LIMIT 1"
+                ),
+                {"vocab": vocabulary_id, "code": code},
+            ).fetchone()
+
+        if row is None:
+            if self.strict:
+                raise UnmappedConceptError(f"no OMOP concept for ({vocabulary_id}, {code})")
+            self._cache[key] = 0
+            return 0
+
+        cid = int(row[0])
+        self._cache[key] = cid
+        return cid
