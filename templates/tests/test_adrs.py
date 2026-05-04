@@ -331,7 +331,12 @@ def test_adr_0007_native_backend_handles_period() -> None:
 
 # ADR 0008: fhir_to_omop architecture — per-resource mappers, IG snapshot
 # pin, ConceptResolver, staging-map approach, observation split.
-ADR_0008_EXPECTED_MAPPER_FILES = ["patient.py", "encounter.py", "condition.py", "observation.py"]
+ADR_0008_EXPECTED_MAPPER_FILES = [
+    "patient.py",
+    "encounter.py",
+    "condition.py",
+    "observation.py",
+]
 
 
 @pytest.mark.parametrize("filename", ADR_0008_EXPECTED_MAPPER_FILES)

@@ -90,7 +90,11 @@ def test_social_history_routes_to_observation(engine) -> None:
         "effectiveDateTime": "2026-04-01",
         "valueCodeableConcept": {
             "coding": [
-                {"system": "http://loinc.org", "code": "LA15920-4", "display": "Never smoker"}
+                {
+                    "system": "http://loinc.org",
+                    "code": "LA15920-4",
+                    "display": "Never smoker",
+                }
             ]
         },
     }

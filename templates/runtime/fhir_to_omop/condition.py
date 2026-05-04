@@ -76,7 +76,7 @@ def map_condition(resource: dict[str, Any], resolver: ConceptResolver) -> Condit
         condition_concept_id=condition_concept_id,
         condition_source_concept_id=condition_source_concept_id,
         condition_start_date=_date_only(start_iso) or "1970-01-01",
-        condition_start_datetime=str(start_iso) if start_iso and "T" in str(start_iso) else None,
+        condition_start_datetime=(str(start_iso) if start_iso and "T" in str(start_iso) else None),
         condition_end_date=_date_only(abatement),
-        condition_end_datetime=str(abatement) if abatement and "T" in str(abatement) else None,
+        condition_end_datetime=(str(abatement) if abatement and "T" in str(abatement) else None),
     )

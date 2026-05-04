@@ -60,7 +60,12 @@ def test_validation_pack_present() -> None:
 
 def test_fixture_corpus_present() -> None:
     """4 NDJSON files (Patient, Encounter, Condition, Observation)."""
-    expected = {"Patient.ndjson", "Encounter.ndjson", "Condition.ndjson", "Observation.ndjson"}
+    expected = {
+        "Patient.ndjson",
+        "Encounter.ndjson",
+        "Condition.ndjson",
+        "Observation.ndjson",
+    }
     actual = {p.name for p in FIXTURES.glob("*.ndjson")}
     assert expected.issubset(actual), f"missing fixture files: {expected - actual}"
 

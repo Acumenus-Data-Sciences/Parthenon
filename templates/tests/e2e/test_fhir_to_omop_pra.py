@@ -226,12 +226,8 @@ def test_fhir_to_omop_pra_runs_to_completion(
             conditions = conn.execute(
                 text("SELECT COUNT(*) FROM omop.condition_occurrence")
             ).scalar()
-            measurements = conn.execute(
-                text("SELECT COUNT(*) FROM omop.measurement")
-            ).scalar()
-            observations = conn.execute(
-                text("SELECT COUNT(*) FROM omop.observation")
-            ).scalar()
+            measurements = conn.execute(text("SELECT COUNT(*) FROM omop.measurement")).scalar()
+            observations = conn.execute(text("SELECT COUNT(*) FROM omop.observation")).scalar()
         assert persons == 2, f"expected 2 persons, got {persons}"
         assert visits == 2, f"expected 2 visits, got {visits}"
         assert conditions == 2, f"expected 2 conditions, got {conditions}"
