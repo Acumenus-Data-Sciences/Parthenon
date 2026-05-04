@@ -197,3 +197,13 @@ jobs:
         # without SERIAL), runs the 10-stage pipeline against 13 fixture FHIR
         # resources, and asserts 2/2/2/2/2/1/2 row counts.
         run: uv run pytest tests/e2e/test_fhir_to_omop_prb.py -v -m integration
+
+      - name: fhir_to_omop PR-C E2E
+        working-directory: templates
+        # Phase 1 PR-C: extends PR-A + PR-B with DiagnosticReport + Consent.
+        # Seeds 15 concepts (PR-B 12 + LOINC 24331-1 lipid panel, OMOP 4055893
+        # consent-given, 4054745 consent-withdrawn), creates app.consent_decisions
+        # inline, runs the 12-stage pipeline against 16 fixture FHIR resources,
+        # and asserts 2/2/2/2/5/1/2 row counts plus 3 type-32856 OBSERVATION
+        # rows + 2 consent_decisions with co2 recording 'deny'.
+        run: uv run pytest tests/e2e/test_fhir_to_omop_prc.py -v -m integration
