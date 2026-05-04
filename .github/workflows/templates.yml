@@ -144,3 +144,23 @@ jobs:
         # Asserts 5 anonymized files emitted from the synthetic-PHI fixture
         # corpus and zero source PHI strings survive in the output.
         run: uv run pytest tests/e2e/test_fhir_anonymizer_native.py -v -m integration
+
+      - name: Start parthenon-anonymizer sidecar
+        # Required by the MS-backend E2E below. Brought up only after the
+        # cheaper native test succeeds.
+        run: docker compose up -d parthenon-anonymizer
+
+      - name: Wait for sidecar healthy
+        run: |
+          for i in $(seq 1 30); do
+            status=$(docker compose ps --format json parthenon-anonymizer | jq -r '.[0].Health // .[].Health // empty')
+            if [ "$status" = "healthy" ]; then exit 0; fi
+            sleep 2
+          done
+          echo "sidecar did not become healthy"; exit 1
+
+      - name: fhir_anonymizer MS E2E
+        working-directory: templates
+        # Same fixture corpus as the native test, but routes through the
+        # MS .NET CLI via the parthenon-anonymizer sidecar HTTP shim.
+        run: uv run pytest tests/e2e/test_fhir_anonymizer_ms.py -v -m integration
