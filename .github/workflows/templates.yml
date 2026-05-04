@@ -179,3 +179,12 @@ jobs:
         # Same fixture corpus as the native test, but routes through the
         # MS .NET CLI via the parthenon-anonymizer sidecar HTTP shim.
         run: uv run pytest tests/e2e/test_fhir_anonymizer_ms.py -v -m integration
+
+      - name: fhir_to_omop PR-A E2E
+        working-directory: templates
+        # Phase 1 PR-A: Patient/Encounter/Condition/Observation -> OMOP CDM.
+        # Bootstraps vocab + omop, seeds 9 concepts the mappers need, runs
+        # the full 7-stage pipeline against 10 fixture FHIR resources, and
+        # asserts 2/2/2/2/2 row counts for PERSON/VISIT/CONDITION/MEASUREMENT/
+        # OBSERVATION.
+        run: uv run pytest tests/e2e/test_fhir_to_omop_pra.py -v -m integration
