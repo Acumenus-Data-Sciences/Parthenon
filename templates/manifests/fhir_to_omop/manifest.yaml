@@ -1,0 +1,319 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: fhir_to_omop
+  name: FHIR R4 to OMOP CDM (PR-A — Visit Spine)
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["fhir", "omop", "etl", "pr-a", "visit-spine"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source: {type: string, enum: ["ndjson", "search"]}
+      ndjson_dir: {type: string}
+      fhir_base_url: {type: string}
+      bearer_token: {type: string, secret: true}
+      profile: {type: string, enum: ["us-core", "mcode", "ips", "mii"], default: "us-core"}
+      strict_profile_match: {type: boolean, default: false}
+      target_schema: {type: string}
+      vocab_schema: {type: string, default: "vocab"}
+      app_schema: {type: string, default: "app"}
+      strict_concept_resolution: {type: boolean, default: false}
+    required: ["source", "target_schema"]
+  requires:
+    cdm_initialized: true
+    vocabularies: []
+  nodes:
+    - node_id: ingest_fhir
+      type: fhir_resource
+      params:
+        source: "${parameters.source}"
+        ndjson_dir: "${parameters.ndjson_dir}"
+        fhir_base_url: "${parameters.fhir_base_url}"
+        bearer_token: "${parameters.bearer_token}"
+        profile: "${parameters.profile}"
+        strict_profile_match: "${parameters.strict_profile_match}"
+        resource_types: ["Patient", "Encounter", "Condition", "Observation"]
+
+    - node_id: map_patients
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.patient import map_patient
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "patient.parquet"
+              if not upstream.exists():
+                  return {"persons_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  person = map_patient(dict(raw), resolver)
+                  rows.append(person.model_dump())
+              (context.artifact_dir / "patients.json").write_text(json.dumps(rows), encoding="utf-8")
+              return {"persons_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_encounters
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.encounter import map_encounter
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "encounter.parquet"
+              if not upstream.exists():
+                  return {"visits_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  visit = map_encounter(dict(raw), resolver)
+                  rows.append(visit.model_dump())
+              (context.artifact_dir / "visits.json").write_text(json.dumps(rows), encoding="utf-8")
+              return {"visits_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_conditions
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.condition import map_condition
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "condition.parquet"
+              if not upstream.exists():
+                  return {"conditions_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  cond = map_condition(dict(raw), resolver)
+                  rows.append(cond.model_dump())
+              (context.artifact_dir / "conditions.json").write_text(
+                  json.dumps(rows), encoding="utf-8"
+              )
+              return {"conditions_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_observations
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.observation import (
+              map_observation, MeasurementRow, ObservationRow,
+          )
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "observation.parquet"
+              if not upstream.exists():
+                  return {"measurements_mapped": 0, "observations_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              measurements, observations = [], []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  row = map_observation(dict(raw), resolver)
+                  if isinstance(row, MeasurementRow):
+                      measurements.append(row.model_dump())
+                  else:
+                      observations.append(row.model_dump())
+              (context.artifact_dir / "measurements.json").write_text(
+                  json.dumps(measurements), encoding="utf-8"
+              )
+              (context.artifact_dir / "observations.json").write_text(
+                  json.dumps(observations), encoding="utf-8"
+              )
+              return {
+                  "measurements_mapped": len(measurements),
+                  "observations_mapped": len(observations),
+              }
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: load_to_cdm
+      type: python
+      depends_on: [map_patients, map_encounters, map_conditions, map_observations]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              engine = create_engine(context.db_dsn, future=True)
+              schema = params["target_schema"]
+              base = context.artifact_dir.parent
+              persons = json.loads(
+                  (base / "map_patients" / "patients.json").read_text(encoding="utf-8")
+              )
+              visits = json.loads(
+                  (base / "map_encounters" / "visits.json").read_text(encoding="utf-8")
+              )
+              conditions = json.loads(
+                  (base / "map_conditions" / "conditions.json").read_text(encoding="utf-8")
+              )
+              measurements = json.loads(
+                  (base / "map_observations" / "measurements.json").read_text(encoding="utf-8")
+              )
+              observations = json.loads(
+                  (base / "map_observations" / "observations.json").read_text(encoding="utf-8")
+              )
+
+              n_persons = n_visits = n_conds = n_meas = n_obs = 0
+              with engine.begin() as conn:
+                  pid_map = {}
+                  for i, p in enumerate(persons, start=1):
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.person "
+                          f"(person_id, gender_concept_id, year_of_birth, month_of_birth, "
+                          f"day_of_birth, birth_datetime, race_concept_id, ethnicity_concept_id, "
+                          f"person_source_value) "
+                          f"VALUES (:pid, :g, :y, :m, :d, :bdt, :r, :e, :psv)"
+                      ), {
+                          "pid": i, "g": p["gender_concept_id"], "y": p["year_of_birth"],
+                          "m": p["month_of_birth"], "d": p["day_of_birth"],
+                          "bdt": p["birth_datetime"], "r": p["race_concept_id"],
+                          "e": p["ethnicity_concept_id"], "psv": p["person_source_value"],
+                      })
+                      pid_map[p["person_source_value"]] = i
+                      n_persons += 1
+
+                  vid_map = {}
+                  for i, v in enumerate(visits, start=1):
+                      pid = pid_map.get(v["person_source_value"])
+                      if pid is None:
+                          continue
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.visit_occurrence "
+                          f"(visit_occurrence_id, person_id, visit_concept_id, visit_start_date, "
+                          f"visit_start_datetime, visit_end_date, visit_end_datetime, "
+                          f"visit_type_concept_id, visit_source_value, visit_source_concept_id) "
+                          f"VALUES (:vid, :pid, :vc, :vsd, :vsdt, :ved, :vedt, :vtc, :vsv, :vsc)"
+                      ), {
+                          "vid": i, "pid": pid, "vc": v["visit_concept_id"],
+                          "vsd": v["visit_start_date"], "vsdt": v["visit_start_datetime"],
+                          "ved": v["visit_end_date"], "vedt": v["visit_end_datetime"],
+                          "vtc": v["visit_type_concept_id"], "vsv": v["visit_source_value"],
+                          "vsc": v["visit_source_concept_id"],
+                      })
+                      vid_map[v["visit_source_value"]] = i
+                      n_visits += 1
+
+                  for c in conditions:
+                      pid = pid_map.get(c["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = vid_map.get(c["visit_source_value"]) if c["visit_source_value"] else None
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.condition_occurrence "
+                          f"(person_id, condition_concept_id, condition_start_date, "
+                          f"condition_start_datetime, condition_end_date, condition_type_concept_id, "
+                          f"condition_source_value, condition_source_concept_id, visit_occurrence_id) "
+                          f"VALUES (:pid, :cc, :csd, :csdt, :ced, :ctc, :csv, :csc, :vid)"
+                      ), {
+                          "pid": pid, "cc": c["condition_concept_id"],
+                          "csd": c["condition_start_date"], "csdt": c["condition_start_datetime"],
+                          "ced": c["condition_end_date"], "ctc": c["condition_type_concept_id"],
+                          "csv": c["condition_source_value"],
+                          "csc": c["condition_source_concept_id"], "vid": vid,
+                      })
+                      n_conds += 1
+
+                  for m in measurements:
+                      pid = pid_map.get(m["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = vid_map.get(m["visit_source_value"]) if m["visit_source_value"] else None
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.measurement "
+                          f"(person_id, measurement_concept_id, measurement_date, "
+                          f"measurement_datetime, measurement_type_concept_id, value_as_number, "
+                          f"unit_concept_id, measurement_source_value, measurement_source_concept_id, "
+                          f"visit_occurrence_id) "
+                          f"VALUES (:pid, :mc, :md, :mdt, :mtc, :van, :uc, :msv, :msc, :vid)"
+                      ), {
+                          "pid": pid, "mc": m["measurement_concept_id"],
+                          "md": m["measurement_date"], "mdt": m["measurement_datetime"],
+                          "mtc": m["measurement_type_concept_id"], "van": m["value_as_number"],
+                          "uc": m["unit_concept_id"], "msv": m["measurement_source_value"],
+                          "msc": m["measurement_source_concept_id"], "vid": vid,
+                      })
+                      n_meas += 1
+
+                  for o in observations:
+                      pid = pid_map.get(o["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = vid_map.get(o["visit_source_value"]) if o["visit_source_value"] else None
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.observation "
+                          f"(person_id, observation_concept_id, observation_date, "
+                          f"observation_datetime, observation_type_concept_id, value_as_number, "
+                          f"value_as_string, value_as_concept_id, observation_source_value, "
+                          f"observation_source_concept_id, visit_occurrence_id) "
+                          f"VALUES (:pid, :oc, :od, :odt, :otc, :van, :vas, :vac, :osv, :osc, :vid)"
+                      ), {
+                          "pid": pid, "oc": o["observation_concept_id"],
+                          "od": o["observation_date"], "odt": o["observation_datetime"],
+                          "otc": o["observation_type_concept_id"], "van": o["value_as_number"],
+                          "vas": o["value_as_string"], "vac": o["value_as_concept_id"],
+                          "osv": o["observation_source_value"],
+                          "osc": o["observation_source_concept_id"], "vid": vid,
+                      })
+                      n_obs += 1
+
+              return {
+                  "persons": n_persons, "visits": n_visits, "conditions": n_conds,
+                  "measurements": n_meas, "observations": n_obs,
+              }
+        inputs:
+          target_schema: "${parameters.target_schema}"
+
+    - node_id: summarize
+      type: sql
+      depends_on: [load_to_cdm]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query: |
+          SELECT
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.person) AS persons,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.visit_occurrence) AS visits,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.condition_occurrence) AS conditions,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.measurement) AS measurements,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.observation) AS observations
+        result_artifact: fhir_to_omop_summary
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: fhir_to_omop_summary.json
+        min_rows: 1
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.person"
+        min: 1
