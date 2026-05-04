@@ -44,3 +44,14 @@ def test_eq5d3l_placeholder_value_set_exists() -> None:
     assert "PLACEHOLDER" in text.upper()
     assert "EUROQOL" in text.upper()
     assert "11111" in text
+
+
+def test_readme_marks_template_as_scaffold() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8").lower()
+    assert "scaffold" in text
+    assert "phase 2" in text or "phase-2" in text
+
+
+def test_readme_references_eq5d5l_for_full_functionality() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    assert "qr_eq5d5l_to_measurement" in text
