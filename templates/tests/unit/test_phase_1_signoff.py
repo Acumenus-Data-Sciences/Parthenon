@@ -5,9 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SIGNOFF = (
-    REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-signoff.md"
-)
+SIGNOFF = REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-signoff.md"
 
 
 def test_phase_1_signoff_exists() -> None:
@@ -16,7 +14,15 @@ def test_phase_1_signoff_exists() -> None:
 
 def test_phase_1_signoff_lists_all_plans() -> None:
     text = SIGNOFF.read_text(encoding="utf-8")
-    for marker in ("Plan 1", "Plan 2", "Plan 3", "Plan 4", "Plan 5", "Plan 6", "Plan 7"):
+    for marker in (
+        "Plan 1",
+        "Plan 2",
+        "Plan 3",
+        "Plan 4",
+        "Plan 5",
+        "Plan 6",
+        "Plan 7",
+    ):
         assert marker in text, f"signoff missing reference to {marker}"
 
 

@@ -139,7 +139,12 @@ def test_1m_observations_under_10_minutes(tmp_path: Path, monkeypatch: pytest.Mo
         monkeypatch.setenv("DATABASE_URL", db_url)
 
         from runtime.api import app
-        from runtime.dependencies import get_backend, get_registry, get_settings, get_storage
+        from runtime.dependencies import (
+            get_backend,
+            get_registry,
+            get_settings,
+            get_storage,
+        )
 
         for c in (get_settings, get_registry, get_storage, get_backend):
             c.cache_clear()

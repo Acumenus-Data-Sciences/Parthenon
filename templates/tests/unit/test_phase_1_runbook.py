@@ -5,9 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-RUNBOOK = (
-    REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-0-runbook.md"
-)
+RUNBOOK = REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-0-runbook.md"
 
 PHASE_1_SECTION_MARKERS = [
     "Phase 1 surfaces",

@@ -16,7 +16,15 @@ def test_phase_1_security_doc_exists() -> None:
 
 def test_phase_1_security_doc_covers_all_plans() -> None:
     text = SECURITY_DOC.read_text(encoding="utf-8")
-    for marker in ("Plan 1", "Plan 2", "Plan 3", "Plan 4", "Plan 5", "Plan 6", "Plan 7"):
+    for marker in (
+        "Plan 1",
+        "Plan 2",
+        "Plan 3",
+        "Plan 4",
+        "Plan 5",
+        "Plan 6",
+        "Plan 7",
+    ):
         assert marker in text, f"security doc missing reference to {marker}"
 
 
