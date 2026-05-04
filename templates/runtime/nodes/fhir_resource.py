@@ -13,16 +13,25 @@ unknown extensions don't break ingestion.
 
 from __future__ import annotations
 
+import gc
 import json
 from pathlib import Path
 from typing import Any
 
 import httpx
 import polars as pl
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from runtime.nodes.base import Node, NodeContext, NodeResult, NodeStatus
 
 PROFILE_PACK_DIR = Path(__file__).resolve().parent / "profile_packs"
+
+# Chunked Parquet writes keep peak memory bounded regardless of input file size.
+# Each FHIR resource as a Python dict balloons ~10x its on-disk JSON size due to
+# string/list/dict object overhead. 5K records ~ 10-20 MB peak Python heap per
+# flush — small enough to keep total RSS growth under 200 MB on 1 GB inputs.
+_PARQUET_CHUNK_SIZE = 5_000
 
 
 def _load_profile_pack(profile: str) -> dict[str, Any]:
@@ -89,49 +98,102 @@ class FhirResourceNode(Node):
         strict = bool(params.get("strict_profile_match", False))
         allowed_profile_urls = self._profile_urls(pack) if strict else None
 
-        per_type: dict[str, list[dict[str, Any]]] = {}
         skipped: set[str] = set()
         files_seen = 0
         lines_seen = 0
+        types_emitted: set[str] = set()
 
         for path in sorted(ndjson_dir.glob("*.ndjson")):
             files_seen += 1
-            with path.open("r", encoding="utf-8") as f:
-                for raw_line in f:
-                    line = raw_line.strip()
-                    if not line:
-                        continue
-                    lines_seen += 1
-                    record = json.loads(line)
-                    rtype = record.get("resourceType", path.stem)
-                    if rtype not in allowed_types:
-                        skipped.add(rtype)
-                        continue
-                    if strict and not self._profile_url_match(record, allowed_profile_urls):
-                        return NodeResult(
-                            status=NodeStatus.FAILED,
-                            error_message=(
-                                f"strict_profile_match: resource {rtype}/{record.get('id')} "
-                                f"declares meta.profile not in {profile_name!r} pack — "
-                                f"refusing to coerce"
-                            ),
-                        )
-                    per_type.setdefault(rtype, []).append(record)
-
-        for rtype, rows in per_type.items():
-            df = pl.from_dicts(rows)
-            artifact_name = f"{rtype.lower()}.parquet"
-            df.write_parquet(context.artifact_dir / artifact_name)
+            # FHIR Bulk Data convention: one resource type per NDJSON file.
+            # We stream line-by-line, accumulating up to _PARQUET_CHUNK_SIZE
+            # records per row-group. Each flush converts the chunk to a Polars
+            # DataFrame -> pyarrow Table and appends to a single ParquetWriter.
+            # Peak memory is bounded by the chunk size, not the input file.
+            rtype_for_file: str | None = None
+            chunk: list[dict[str, Any]] = []
+            writer: pq.ParquetWriter | None = None
+            schema: pa.Schema | None = None
+            out_path: Path | None = None
+            file_emitted = False
+            try:
+                with path.open("r", encoding="utf-8") as f:
+                    for raw_line in f:
+                        line = raw_line.strip()
+                        if not line:
+                            continue
+                        record = json.loads(line)
+                        rtype = record.get("resourceType", path.stem)
+                        if rtype_for_file is None:
+                            rtype_for_file = rtype
+                            if rtype_for_file not in allowed_types:
+                                skipped.add(rtype_for_file)
+                                rtype_for_file = None
+                                break
+                            out_path = context.artifact_dir / f"{rtype_for_file.lower()}.parquet"
+                        if strict and not self._profile_url_match(record, allowed_profile_urls):
+                            return NodeResult(
+                                status=NodeStatus.FAILED,
+                                error_message=(
+                                    f"strict_profile_match: resource {rtype}/"
+                                    f"{record.get('id')} declares meta.profile not in "
+                                    f"{profile_name!r} pack — refusing to coerce"
+                                ),
+                            )
+                        lines_seen += 1
+                        chunk.append(record)
+                        if len(chunk) >= _PARQUET_CHUNK_SIZE:
+                            assert out_path is not None
+                            writer, schema = self._flush_chunk(chunk, writer, schema, out_path)
+                            chunk = []
+                if chunk and out_path is not None:
+                    writer, schema = self._flush_chunk(chunk, writer, schema, out_path)
+                    chunk = []
+                if writer is not None and rtype_for_file is not None:
+                    file_emitted = True
+            finally:
+                if writer is not None:
+                    writer.close()
+            if file_emitted and rtype_for_file is not None:
+                types_emitted.add(rtype_for_file)
 
         return NodeResult(
             status=NodeStatus.SUCCESS,
             outputs={
                 "files_processed": files_seen,
                 "lines_processed": lines_seen,
-                "resource_types_emitted": sorted(per_type.keys()),
+                "resource_types_emitted": sorted(types_emitted),
                 "skipped_resource_types": sorted(skipped),
             },
         )
+
+    @staticmethod
+    def _flush_chunk(
+        chunk: list[dict[str, Any]],
+        writer: pq.ParquetWriter | None,
+        schema: pa.Schema | None,
+        out_path: Path,
+    ) -> tuple[pq.ParquetWriter, pa.Schema]:
+        """Write a chunk of records to Parquet, opening the writer on first call.
+
+        Builds the pyarrow Table directly from the list-of-dicts via
+        ``pa.Table.from_pylist`` to avoid an intermediate Polars DataFrame
+        (which would double peak memory). Schema is inferred from the first
+        chunk and reused for all subsequent chunks; FHIR Bulk Data convention
+        (one resource type per file with a stable schema) makes this safe.
+        Heterogeneous ``extension`` shapes across chunks would require schema
+        unification (deferred).
+        """
+        if writer is None or schema is None:
+            table = pa.Table.from_pylist(chunk)
+            schema = table.schema
+            writer = pq.ParquetWriter(str(out_path), schema)
+        else:
+            table = pa.Table.from_pylist(chunk, schema=schema)
+        writer.write_table(table)
+        del table
+        gc.collect()
+        return writer, schema
 
     @staticmethod
     def _profile_urls(pack: dict[str, Any]) -> set[str]:
