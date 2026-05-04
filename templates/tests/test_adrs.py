@@ -35,6 +35,7 @@ EXPECTED_ADRS = [
     pytest.param("0005-imaging-vocabulary-namespace.md", "Imaging Vocabulary", id="0005"),
     pytest.param("0006-pro-instrument-framework.md", "PRO Instrument", id="0006"),
     pytest.param("0007-fhir-anonymizer-template.md", "FHIR Anonymizer", id="0007"),
+    pytest.param("0008-fhir-to-omop-architecture.md", "FHIR", id="0008"),
 ]
 
 
@@ -326,3 +327,56 @@ def test_adr_0007_native_backend_handles_period() -> None:
         encoding="utf-8"
     )
     assert "_shift_value" in native
+
+
+# ADR 0008: fhir_to_omop architecture — per-resource mappers, IG snapshot
+# pin, ConceptResolver, staging-map approach, observation split.
+ADR_0008_EXPECTED_MAPPER_FILES = ["patient.py", "encounter.py", "condition.py", "observation.py"]
+
+
+@pytest.mark.parametrize("filename", ADR_0008_EXPECTED_MAPPER_FILES)
+def test_adr_0008_per_resource_mapper_module_exists(filename: str) -> None:
+    """ADR 0008 §1 promises a mapper module per FHIR resource type (PR-A scope)."""
+    text = _adr_text("0008-fhir-to-omop-architecture.md")
+    assert filename in text, f"ADR 0008 doesn't reference {filename}"
+    module = RUNTIME_DIR / "fhir_to_omop" / filename
+    assert module.exists(), f"ADR 0008 promises {filename} — module is missing"
+
+
+def test_adr_0008_ig_snapshot_pinned() -> None:
+    """ADR 0008 §2 promises a single IG version pin (v0.1.0-parthenon)."""
+    text = _adr_text("0008-fhir-to-omop-architecture.md")
+    assert "v0.1.0-parthenon" in text
+    ig_path = RUNTIME_DIR / "fhir_to_omop" / "ig" / "v0.1.0-parthenon.json"
+    assert ig_path.exists()
+
+
+def test_adr_0008_concept_resolver_module_exists() -> None:
+    """ADR 0008 §3 promises a ConceptResolver class with cache + strict mode."""
+    text = _adr_text("0008-fhir-to-omop-architecture.md")
+    assert "ConceptResolver" in text
+    resolver = (RUNTIME_DIR / "fhir_to_omop" / "concept_resolver.py").read_text(encoding="utf-8")
+    assert "class ConceptResolver" in resolver
+    assert "resolve_with_vocabulary" in resolver  # OID-disambiguation method
+
+
+def test_adr_0008_unmapped_queue_table_migrated() -> None:
+    """ADR 0008 §5 promises app.unmapped_concepts_queue (shipped in Plan 5 Task 6)."""
+    text = _adr_text("0008-fhir-to-omop-architecture.md")
+    assert "unmapped_concepts_queue" in text
+    migration = (
+        REPO
+        / "backend"
+        / "database"
+        / "migrations"
+        / "2026_05_03_120000_create_unmapped_concepts_queue_table.php"
+    )
+    assert migration.exists()
+
+
+def test_adr_0008_pra_manifest_exists() -> None:
+    """ADR 0008 §7 promises a fhir_to_omop manifest scoped to PR-A."""
+    manifest = REPO / "templates" / "manifests" / "fhir_to_omop" / "manifest.yaml"
+    assert manifest.exists()
+    text = _adr_text("0008-fhir-to-omop-architecture.md")
+    assert "PR-A" in text and "PR-B" in text and "PR-C" in text
