@@ -19,6 +19,14 @@ post_conditions:
     table: omop.observation
     expected: 2
     description: "Social-history observations route to OBSERVATION (2 of 4)"
+  - kind: row_count
+    table: omop.procedure_occurrence
+    expected: 1
+    description: "1 fixture procedure -> PROCEDURE_OCCURRENCE (PR-B)"
+  - kind: row_count
+    table: omop.drug_exposure
+    expected: 2
+    description: "1 MedicationRequest + 1 Immunization -> DRUG_EXPOSURE (PR-B)"
   - kind: artifact_present
     artifact_name: fhir_to_omop_summary.json
     min_rows: 1
