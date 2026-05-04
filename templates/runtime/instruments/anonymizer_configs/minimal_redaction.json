@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "default_action": "keep",
+  "rules": [
+    {"path": "Patient.id", "operation": "cryptoHash", "params": {"algorithm": "sha256"}},
+    {"path": "Patient.name", "operation": "redact"},
+    {"path": "Patient.telecom", "operation": "redact"},
+    {"path": "Patient.address", "operation": "redact"},
+    {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Patient.gender", "operation": "keep"},
+    {"path": "Patient.communication", "operation": "keep"},
+    {"path": "Observation.note", "operation": "redact"},
+    {"path": "Condition.note", "operation": "redact"},
+    {"path": "Procedure.note", "operation": "redact"}
+  ]
+}
