@@ -31,6 +31,7 @@ EXPECTED_ADRS = [
     pytest.param("0001-node-sdk-design.md", "Node SDK", id="0001"),
     pytest.param("0002-orchestration-backend.md", "Orchestration", id="0002"),
     pytest.param("0003-template-manifest-format.md", "Manifest", id="0003"),
+    pytest.param("0004-phase-1-node-design.md", "Phase 1 Node", id="0004"),
 ]
 
 
@@ -131,16 +132,20 @@ def test_adr_0003_schema_path_exists() -> None:
     assert "templates/runtime/registry/schema/template.v1.json" in text
 
 
-def test_adr_0003_node_type_enum_matches_adr_0001() -> None:
-    """The schema's node-type enum is the same set ADR 0001 promises."""
+def test_adr_0003_node_type_enum_includes_adr_0001() -> None:
+    """The schema's node-type enum must contain every node ADR 0001 promises.
+
+    Phase 1 (ADR 0004) extends the set with fhir_resource, dicom_metadata,
+    anonymizer; the assertion is therefore a *superset*, not equality. The
+    Phase-1-specific guard lives in ``test_adr_0004_*`` below.
+    """
     schema_path = RUNTIME_DIR / "registry" / "schema" / "template.v1.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     enum = schema["properties"]["spec"]["properties"]["nodes"]["items"]["properties"]["type"][
         "enum"
     ]
-    assert set(enum) == set(
-        ADR_0001_EXPECTED_NODE_FILES.keys()
-    ), "ADR 0003 schema enum drifted from the ADR 0001 node SDK list"
+    missing = set(ADR_0001_EXPECTED_NODE_FILES.keys()) - set(enum)
+    assert not missing, f"schema enum drifted from ADR 0001 — missing: {sorted(missing)}"
 
 
 def test_adr_0003_materializer_redacts_secrets() -> None:
@@ -150,3 +155,49 @@ def test_adr_0003_materializer_redacts_secrets() -> None:
     materializer = (RUNTIME_DIR / "registry" / "materializer.py").read_text(encoding="utf-8")
     assert "redact_secrets" in materializer
     assert "REDACTED" in materializer
+
+
+# ADR 0004: every Phase 1 node ADR 0004 names must exist as a runtime module
+# AND be wired into the orchestrator's NODE_REGISTRY. Decision-text-vs-code
+# guards mirror the ADR-0001 pattern.
+ADR_0004_EXPECTED_NODE_FILES = {
+    "fhir_resource": "fhir_resource.py",
+    "dicom_metadata": "dicom_metadata.py",
+    "anonymizer": "anonymizer.py",
+}
+
+
+@pytest.mark.parametrize("type_name,filename", sorted(ADR_0004_EXPECTED_NODE_FILES.items()))
+def test_adr_0004_phase_1_node_module_exists(type_name: str, filename: str) -> None:
+    text = _adr_text("0004-phase-1-node-design.md")
+    assert f"`{type_name}`" in text, f"ADR 0004 does not mention type_name `{type_name}`"
+    module = RUNTIME_DIR / "nodes" / filename
+    assert module.exists(), f"ADR 0004 promises {type_name} ({filename}) — module is missing"
+
+
+def test_adr_0004_anonymizer_config_schema_exists() -> None:
+    """ADR 0004 §5 promises a v1 anonymizer config JSON Schema."""
+    text = _adr_text("0004-phase-1-node-design.md")
+    assert "anonymizer_config.v1.json" in text
+    schema_path = RUNTIME_DIR / "nodes" / "schemas" / "anonymizer_config.v1.json"
+    assert schema_path.exists()
+
+
+def test_adr_0004_sidecar_image_path_exists() -> None:
+    """ADR 0004 §6 promises a parthenon-anonymizer Dockerfile under docker/."""
+    text = _adr_text("0004-phase-1-node-design.md")
+    assert "parthenon-anonymizer" in text
+    assert "ghcr.io/sudoshi/parthenon-fhir-anonymizer" in text
+    dockerfile = REPO / "docker" / "parthenon-anonymizer" / "Dockerfile"
+    assert dockerfile.exists()
+
+
+def test_adr_0004_phase_1_nodes_in_schema_enum() -> None:
+    """ADR 0004 §1 says the new types are added to the manifest schema enum."""
+    schema_path = RUNTIME_DIR / "registry" / "schema" / "template.v1.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    enum = schema["properties"]["spec"]["properties"]["nodes"]["items"]["properties"]["type"][
+        "enum"
+    ]
+    for type_name in ADR_0004_EXPECTED_NODE_FILES:
+        assert type_name in enum, f"ADR 0004 promises {type_name!r} in the manifest enum"
