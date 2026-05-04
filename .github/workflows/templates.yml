@@ -136,3 +136,11 @@ jobs:
         # 10 item + 2 VAS + 2 utility rows. Exercises the shared pro_base
         # module path that the EQ-5D-3L scaffold also depends on.
         run: uv run pytest tests/e2e/test_qr_eq5d5l_to_measurement.py -v -m integration
+
+      - name: fhir_anonymizer native E2E
+        working-directory: templates
+        # Phase 1 PHI redaction: prepare_resources -> resolve_config ->
+        # anonymize -> summarize. Native backend (no sidecar dependency).
+        # Asserts 5 anonymized files emitted from the synthetic-PHI fixture
+        # corpus and zero source PHI strings survive in the output.
+        run: uv run pytest tests/e2e/test_fhir_anonymizer_native.py -v -m integration

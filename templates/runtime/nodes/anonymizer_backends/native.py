@@ -65,7 +65,7 @@ class ParthenonNativeBackend:
             return value
         if op == "dateShift":
             max_days = int(rule.params["max_days"])
-            return self._shift_date(str(value), max_days, str(resource.get("id", "")))
+            return self._shift_value(value, max_days, str(resource.get("id", "")))
         # op == "cryptoHash" — the AnonymizerRule.operation Literal makes this
         # case exhaustive, so no fallback needed (the schema validator rejects
         # other values upstream).
@@ -80,9 +80,40 @@ class ParthenonNativeBackend:
             return hashlib.sha512(salted).hexdigest()
         raise ValueError(f"unsupported hash algorithm: {algorithm}")
 
+    def _shift_value(self, value: Any, max_days: int, patient_id: str) -> Any:
+        """Apply dateShift to anything FHIR could legitimately store as a date.
+
+        - Plain ISO date string -> shifted date string
+        - dict with ``start``/``end`` (FHIR Period) -> recursively shifted dict
+        - list -> recursively shifted list (Patient.deceasedDateTime can show up
+          as a single value but other paths may carry arrays)
+        - anything else -> REDACTED (we'd rather drop the data than emit a
+          malformed value)
+        """
+        if isinstance(value, str):
+            try:
+                return self._shift_date(value, max_days, patient_id)
+            except ValueError:
+                return REDACTED
+        if isinstance(value, dict):
+            shifted = dict(value)
+            for k in ("start", "end"):
+                if k in shifted and isinstance(shifted[k], str):
+                    try:
+                        shifted[k] = self._shift_date(shifted[k], max_days, patient_id)
+                    except ValueError:
+                        shifted[k] = REDACTED
+            return shifted
+        if isinstance(value, list):
+            return [self._shift_value(v, max_days, patient_id) for v in value]
+        return REDACTED
+
     def _shift_date(self, iso_date: str, max_days: int, patient_id: str) -> str:
         # Deterministic per (salt, patient_id) via HMAC. Shift in [-max_days, +max_days].
+        # Trim trailing 'Z' / time component so date.fromisoformat accepts it
+        # across DateTime, Instant, and plain Date FHIR types.
+        normalized = iso_date.split("T", 1)[0].rstrip("Z")
         mac = hmac.new(self.salt.encode(), patient_id.encode(), hashlib.sha256)
         offset = int.from_bytes(mac.digest()[:4], "big") % (2 * max_days + 1) - max_days
-        d = date.fromisoformat(iso_date)
+        d = date.fromisoformat(normalized)
         return (d + timedelta(days=offset)).isoformat()

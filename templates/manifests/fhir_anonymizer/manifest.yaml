@@ -200,7 +200,7 @@ spec:
 
           def main(context, params):
               prepared = context.artifact_dir.parent / "prepare_resources" / "prepared"
-              anonymized = context.artifact_dir.parent / "anonymize_wrapper" / "anonymized"
+              anonymized = context.artifact_dir.parent / "anonymize" / "anonymized"
               before = Counter()
               after = Counter()
               for f in prepared.glob("*.json"):
