@@ -1,10 +1,10 @@
-# Built from MS Tools-for-Health-Data-Anonymization v3.2.1
-# Mirrored to ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.2.1 per spec Q1.
+# Built from MS Tools-for-Health-Data-Anonymization v3.1.1
+# Mirrored to ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.1.1 per spec Q1.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dotnet-build
 WORKDIR /build
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
-RUN git clone --depth 1 --branch v3.2.1 \
+RUN git clone --depth 1 --branch v3.1.1 \
     https://github.com/microsoft/Tools-for-Health-Data-Anonymization /build/src
 WORKDIR /build/src/FHIR/src/Microsoft.Health.Fhir.Anonymizer.R4.CommandLineTool
 RUN dotnet publish -c Release -o /out --self-contained false /p:PublishSingleFile=false

@@ -1057,7 +1057,7 @@ services:
 
   parthenon-anonymizer:
     container_name: parthenon-anonymizer
-    image: ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.2.1
+    image: ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.1.1
     build:
       context: ./docker/parthenon-anonymizer
       dockerfile: Dockerfile
