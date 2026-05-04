@@ -1,0 +1,30 @@
+post_conditions:
+  - kind: row_count
+    table: omop.measurement
+    where: "measurement_source_value IN ('MO','SC','UA','PD','AD')"
+    expected: 10
+    description: "Each QR's 5 items inserted as MEASUREMENT rows (2 QRs x 5 items)"
+
+  - kind: row_count
+    table: omop.measurement
+    where: "measurement_source_value = 'VAS'"
+    expected: 2
+    description: "Each QR's VAS score inserted"
+
+  - kind: row_count
+    table: omop.measurement
+    where: "measurement_source_value = 'EQ5D5L_UTILITY'"
+    expected: 2
+    description: "One utility-index row per (patient, date) combination"
+
+  - kind: column_value_range
+    table: omop.measurement
+    column: value_as_number
+    where: "measurement_source_value = 'EQ5D5L_UTILITY'"
+    min: -1.0
+    max: 1.0
+    description: "Utility index falls in conventional EQ-5D range"
+
+  - kind: artifact_present
+    artifact_name: eq5d5l_summary.json
+    min_rows: 1
