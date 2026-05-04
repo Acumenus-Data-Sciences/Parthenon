@@ -73,3 +73,27 @@ def test_inputs_parameters_satisfy_required() -> None:
         "utility_concept_id",
     ):
         assert required in inputs, f"missing: {required}"
+
+
+REQUIRED_HEADINGS = [
+    "## What it does",
+    "## When to use it",
+    "## Parameters",
+    "## Prerequisites",
+    "## Examples",
+    "## Limitations",
+    "## License / attribution",
+    "## Security notes",
+]
+
+
+def test_readme_has_required_sections() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for h in REQUIRED_HEADINGS:
+        assert h in text, f"README missing section: {h}"
+
+
+def test_readme_calls_out_euroqol_obligation() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8").lower()
+    assert "euroqol" in text
+    assert "register" in text or "license" in text
