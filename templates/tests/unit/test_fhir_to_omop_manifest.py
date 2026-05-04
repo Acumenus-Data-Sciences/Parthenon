@@ -165,10 +165,25 @@ def test_pr_b_fixtures_present() -> None:
 
 def test_pr_b_post_conditions_added() -> None:
     pc = yaml.safe_load(
-        (MANIFEST.parent / "validation" / "expected" / "post_conditions.yaml").read_text(
-            "utf-8"
-        )
+        (MANIFEST.parent / "validation" / "expected" / "post_conditions.yaml").read_text("utf-8")
     )
     tables = {p.get("table") for p in pc["post_conditions"]}
     assert any("procedure_occurrence" in str(t) for t in tables)
     assert any("drug_exposure" in str(t) for t in tables)
+
+
+def test_readme_documents_pr_b_resources() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for resource in ("Procedure", "MedicationRequest", "Immunization"):
+        assert resource in text
+    for cid in ("32839", "38000179", "38000180", "581452"):
+        assert cid in text
+
+
+def test_adr_0008_has_pr_b_amendment() -> None:
+    adr = Path(__file__).resolve().parents[3] / "docs" / "adr" / "0008-fhir-to-omop-architecture.md"
+    text = adr.read_text(encoding="utf-8")
+    assert "PR-B" in text
+    assert "drug_type_concept_id" in text
+    assert "medicationReference" in text
+    assert "CVX" in text
