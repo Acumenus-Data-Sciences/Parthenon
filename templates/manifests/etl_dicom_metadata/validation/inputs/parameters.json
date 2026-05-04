@@ -1,0 +1,6 @@
+{
+  "source": "filesystem",
+  "dicom_dir": "/var/parthenon/manifests/etl_dicom_metadata/fixtures/sample/dicom",
+  "target_schema": "omop",
+  "vocab_schema": "vocab"
+}
