@@ -15,7 +15,7 @@ class DataInterrogationService
 
     /** Patterns that are NOT allowed on non-temp schemas. */
     private const FORBIDDEN_PATTERNS = [
-        '/\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM|DROP|ALTER|TRUNCATE|CREATE\s+TABLE|CREATE\s+INDEX)\b(?!.*temp_abby)/i',
+        '/\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM|DROP|ALTER|TRUNCATE|CREATE\s+TABLE|CREATE\s+INDEX)\b/i',
         '/\bpg_/i',
     ];
 
@@ -182,17 +182,23 @@ class DataInterrogationService
 
     private function checkSqlSafety(string $sql): ?string
     {
+        // Remove string literals to prevent matching inside them (replaced with space to preserve token boundaries)
+        $stripped = preg_replace("/'[^']*'/", ' ', $sql) ?? $sql;
+
+        // Remove comments to prevent bypasses like "DROP TABLE omop.concept; -- temp_abby"
+        // Replace with space to preserve token boundaries like "DROP/**/TABLE"
+        $stripped = preg_replace('/--.*$|\/\*[\s\S]*?\*\//m', ' ', $stripped) ?? $stripped;
+
         // Check for multi-statement
-        $stripped = preg_replace("/'[^']*'/", '', $sql) ?? $sql;
         if (substr_count($stripped, ';') > 1) {
             return 'Multiple statements are not allowed. Send one query at a time.';
         }
 
         // Check for forbidden patterns (excluding temp_abby operations)
         foreach (self::FORBIDDEN_PATTERNS as $pattern) {
-            if (preg_match($pattern, $sql)) {
+            if (preg_match($pattern, $stripped)) {
                 // Allow CREATE/INSERT/DROP on temp_abby schema
-                if (preg_match('/temp_abby/i', $sql)) {
+                if (preg_match('/temp_abby\./i', $stripped)) {
                     continue;
                 }
 
