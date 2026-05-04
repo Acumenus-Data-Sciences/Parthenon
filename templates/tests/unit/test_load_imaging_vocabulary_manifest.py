@@ -64,3 +64,21 @@ def test_dqd_checks_parse_and_have_required_fields() -> None:
         assert "check_id" in check
         assert "sql" in check
         assert "expected" in check
+
+
+REQUIRED_HEADINGS = [
+    "## What it does",
+    "## When to use it",
+    "## Parameters",
+    "## Prerequisites",
+    "## Examples",
+    "## Limitations",
+    "## License / attribution",
+    "## Security notes",
+]
+
+
+def test_readme_has_required_sections() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for heading in REQUIRED_HEADINGS:
+        assert heading in text, f"README missing section: {heading}"
