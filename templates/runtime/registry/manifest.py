@@ -25,6 +25,9 @@ NODE_TYPES = (
     "py2table",
     "generic_file",
     "r",
+    "fhir_resource",
+    "dicom_metadata",
+    "anonymizer",
 )
 
 
