@@ -148,21 +148,15 @@ spec:
           config_path: "${parameters.config_path}"
 
     - node_id: anonymize
-      type: anonymizer
+      type: python
       depends_on: [resolve_config]
       params:
-        backend: "${parameters.backend}"
-        sidecar_url: "${parameters.sidecar_url}"
-
-    - node_id: anonymize_wrapper
-      type: python
-      depends_on: [anonymize, resolve_config]
-      params:
         code: |
-          # Bridge: read resolved config + prepared dir, run AnonymizerNode-equivalent
-          # logic by importing the AnonymizerNode class directly. The orchestrator's
-          # Materializer doesn't substitute path expressions across nodes, so we
-          # construct the AnonymizerNode params here from sibling-node artifacts.
+          # Bridge: read resolved config + prepared dir, run AnonymizerNode in-process.
+          # The orchestrator's Materializer doesn't substitute path expressions across
+          # nodes, so we construct AnonymizerNode params here from sibling artifacts.
+          # Phase 2 cleanup: extend the Materializer to support ${node.<id>.artifact_dir}
+          # references so we can drop the wrapper.
           import json
 
           from runtime.nodes.anonymizer import AnonymizerNode
@@ -176,7 +170,7 @@ spec:
               result = node.run(
                   NodeContext(
                       run_id=context.run_id,
-                      node_id="anonymize_wrapper_inner",
+                      node_id="anonymize_inner",
                       logger=context.logger,
                       secrets=context.secrets,
                       artifact_dir=context.artifact_dir,
@@ -198,7 +192,7 @@ spec:
 
     - node_id: summarize
       type: python
-      depends_on: [anonymize_wrapper]
+      depends_on: [anonymize]
       params:
         code: |
           import json

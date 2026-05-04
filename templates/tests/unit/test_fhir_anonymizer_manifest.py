@@ -18,10 +18,12 @@ def test_manifest_loads() -> None:
     assert manifest.metadata.category == "transform"
 
 
-def test_manifest_uses_anonymizer_node() -> None:
-    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
-    types = {n["type"] for n in payload["spec"]["nodes"]}
-    assert "anonymizer" in types
+def test_manifest_uses_anonymizer_class_via_python_wrapper() -> None:
+    """Phase 1's Materializer doesn't resolve cross-node paths, so the manifest
+    wraps AnonymizerNode in a python node. Phase 2 cleanup tracked in ADR 0007.
+    """
+    text = MANIFEST.read_text(encoding="utf-8")
+    assert "from runtime.nodes.anonymizer import AnonymizerNode" in text
 
 
 def test_manifest_supports_three_config_sources() -> None:
