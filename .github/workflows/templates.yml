@@ -127,3 +127,12 @@ jobs:
         # concepts, then run etl_dicom_metadata against the staged fixture
         # corpus. Asserts >=3 image_occurrence rows.
         run: uv run pytest tests/e2e/test_etl_dicom_metadata.py -v -m integration
+
+      - name: qr_eq5d5l_to_measurement E2E
+        working-directory: templates
+        # Phase 1 PRO instrument: ingest 2 EQ-5D-5L QuestionnaireResponse
+        # fixtures, project to omop.measurement via runtime.instruments.pro_base,
+        # derive utility-index rows from the placeholder value set. Asserts
+        # 10 item + 2 VAS + 2 utility rows. Exercises the shared pro_base
+        # module path that the EQ-5D-3L scaffold also depends on.
+        run: uv run pytest tests/e2e/test_qr_eq5d5l_to_measurement.py -v -m integration
