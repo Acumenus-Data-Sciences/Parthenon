@@ -105,3 +105,11 @@ jobs:
         # breaks its contract, this fails before any real ETL template is
         # touched.
         run: uv run pytest tests/e2e/test_nodes_test.py -v
+
+      - name: load_imaging_vocabulary E2E
+        working-directory: templates
+        # Phase 1 imaging-vocabulary load against testcontainers Postgres.
+        # Bootstraps vocab schema, serves a 3-concept fixture bundle via
+        # file:// URL, exercises the full template lifecycle and asserts
+        # the concept rowcount post-load.
+        run: uv run pytest tests/e2e/test_load_imaging_vocabulary.py -v -m integration
