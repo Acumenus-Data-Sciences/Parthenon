@@ -1,3 +1,0 @@
-## $(date +%Y-%m-%d) - Memoize UserAvatar component
-**Learning:** In a React application where parent components (e.g. lists, grids) dynamically generate or reconstruct inline objects and pass them as props, reference equality fails, which causes child components to re-render.
-**Action:** When a component such as an avatar or badge accepts a complex object as a prop, and is used frequently within loops/lists where object references change but scalar data remains the same, consider wrapping it with `React.memo` using a custom comparison function that checks deep value equality on specific fields.
