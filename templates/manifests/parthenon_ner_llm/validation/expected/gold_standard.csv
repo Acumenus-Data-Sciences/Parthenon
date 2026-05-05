@@ -1,0 +1,32 @@
+note_id,start,end,text,label,concept_id,vocabulary_id
+doc-0001,16,39,urinary tract infection,condition,4053838,SNOMED
+doc-0001,49,59,lisinopril,drug,1308216,RxNorm
+doc-0001,85,99,hemoglobin A1c,measurement,3004410,LOINC
+doc-0001,121,133,appendectomy,procedure,4181995,SNOMED
+doc-0002,16,39,urinary tract infection,condition,4053838,SNOMED
+doc-0002,49,59,lisinopril,drug,1308216,RxNorm
+doc-0003,16,26,chest pain,condition,4030518,SNOMED
+doc-0003,36,48,atorvastatin,drug,1545958,RxNorm
+doc-0003,74,97,systolic blood pressure,measurement,3004249,LOINC
+doc-0003,119,131,appendectomy,procedure,4181995,SNOMED
+doc-0004,16,33,acute pharyngitis,condition,4029798,SNOMED
+doc-0004,43,55,atorvastatin,drug,1545958,RxNorm
+doc-0004,81,92,body weight,measurement,3025315,LOINC
+doc-0005,16,39,urinary tract infection,condition,4053838,SNOMED
+doc-0005,49,61,atorvastatin,drug,1545958,RxNorm
+doc-0005,87,104,white blood cells,measurement,3010813,LOINC
+doc-0006,16,26,chest pain,condition,4030518,SNOMED
+doc-0006,36,45,metformin,drug,1503297,RxNorm
+doc-0006,70,82,appendectomy,procedure,4181995,SNOMED
+doc-0007,16,28,hypertension,condition,4267416,SNOMED
+doc-0007,38,49,amoxicillin,drug,1713332,RxNorm
+doc-0007,75,92,white blood cells,measurement,3010813,LOINC
+doc-0007,114,123,mri brain,procedure,4087933,SNOMED
+doc-0008,16,33,acute pharyngitis,condition,4029798,SNOMED
+doc-0008,43,54,amoxicillin,drug,1713332,RxNorm
+doc-0009,16,33,acute pharyngitis,condition,4029798,SNOMED
+doc-0009,43,53,lisinopril,drug,1308216,RxNorm
+doc-0009,78,95,electrocardiogram,procedure,4019823,SNOMED
+doc-0010,16,40,type 2 diabetes mellitus,condition,201826,SNOMED
+doc-0010,50,62,atorvastatin,drug,1545958,RxNorm
+doc-0010,87,99,appendectomy,procedure,4181995,SNOMED

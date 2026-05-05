@@ -296,3 +296,57 @@ jobs:
           path: templates/_perf/throughput.log
           if-no-files-found: warn
           retention-days: 90
+
+  # Live-LLM canary — runs the parthenon_ner_llm pipeline through the real
+  # OpenAI API (gated by OPENAI_LLM_ENABLED + OPENAI_API_KEY secret) on the
+  # 100-note benchmark to detect prompt-drift regressions. Mirrors the perf
+  # job's gating: schedule + workflow_dispatch only. Per-job spend is
+  # capped via OPENAI_BUDGET_USD ($1) per Phase 2 spec decision Q11.
+  ner-live:
+    name: NER live-LLM canary (parthenon-templates, slow lane)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: lint-and-test
+    env:
+      OPENAI_LLM_ENABLED: "true"
+      OPENAI_BUDGET_USD: "1.00"
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.11"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        working-directory: templates
+        run: uv sync --all-extras
+
+      - name: Build the 100-note benchmark fixture
+        working-directory: templates
+        run: |
+          uv run python manifests/parthenon_ner_llm/fixtures/synthetic/build_fixtures.py \
+            --count 100
+
+      - name: Live-LLM canary
+        working-directory: templates
+        run: |
+          mkdir -p _ner_live
+          uv run pytest tests/e2e/test_parthenon_ner_llm.py -v --maxfail=1 \
+            2>&1 | tee _ner_live/live.log
+
+      - name: Upload canary log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ner-live-${{ github.run_id }}
+          path: templates/_ner_live/live.log
+          if-no-files-found: warn
+          retention-days: 90

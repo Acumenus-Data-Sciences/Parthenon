@@ -1,0 +1,11 @@
+# Post-conditions for parthenon_ner_llm runs.
+#
+# Phase 2 spec §6 acceptance criterion: 100-note fixture with ≥90% recall
+# vs gold-standard. The 10-note default is for fast unit/E2E iteration;
+# the live-LLM CI lane (Task 14) bumps to 100.
+#
+# `recall_threshold` is checked by the harness in tests/e2e/.
+
+recall_threshold: 0.90
+gold_standard_csv: ../../validation/expected/gold_standard.csv
+artifact_name: note_nlp_inference.json
