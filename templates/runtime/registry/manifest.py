@@ -29,6 +29,7 @@ NODE_TYPES = (
     "dicom_metadata",
     "anonymizer",
     "note_nlp",
+    "sdtm_domain",
 )
 
 

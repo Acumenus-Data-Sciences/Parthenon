@@ -1,0 +1,4 @@
+# CDISC LZZT reference data — fetched via `make fetch-fixtures`, never committed.
+*
+!.gitignore
+!README.md

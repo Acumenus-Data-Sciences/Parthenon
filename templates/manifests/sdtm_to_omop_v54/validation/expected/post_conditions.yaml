@@ -1,0 +1,18 @@
+# Acceptance thresholds for sdtm_to_omop_v54 against the LZZT pilot dataset.
+#
+# The 5 v1 domains (DM/AE/CM/VS/LB) on LZZT typically yield:
+# - persons: ~254
+# - conditions (AE): ~1191
+# - drug_exposures (CM): ~1029
+# - measurements (VS+LB): ~50,000+
+#
+# The E2E asserts row counts > 0 for each table; tighter shape assertions
+# come from the LZZT-anchored test in tests/e2e/test_sdtm_to_omop_v54.py.
+
+reference_counts:
+  persons_min: 100
+  conditions_min: 500
+  drug_exposures_min: 500
+  measurements_min: 10000
+
+artifact_name: sdtm_to_omop_summary.json

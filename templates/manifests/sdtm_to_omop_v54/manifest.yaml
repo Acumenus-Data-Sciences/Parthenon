@@ -1,0 +1,117 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: sdtm_to_omop_v54
+  name: CDISC SDTM v3.4 → OMOP CDM v5.4 bridge
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.4"]
+  tags: ["sdtm", "cdisc", "omop", "etl", "phase-2"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      xpt_root:
+        type: string
+        description: Directory containing the SDTM XPT files (dm.xpt, ae.xpt, cm.xpt, vs.xpt, lb.xpt).
+      cdm_schema: {type: string, default: "sdtm_lzzt"}
+      vocab_schema: {type: string, default: "vocab"}
+      app_schema: {type: string, default: "app"}
+      run_id:
+        type: string
+        description: UUID for this template run; threaded into unmapped_concepts_queue.
+        default: "00000000-0000-0000-0000-000000000000"
+    required: ["xpt_root"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["SNOMED", "LOINC", "RxNorm", "MedDRA"]
+  nodes:
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_source_schema.sql
+    - node_id: bootstrap_cdm
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_bootstrap_cdm_schema.sql
+    - node_id: read_dm
+      type: sdtm_domain
+      depends_on: [bootstrap_source, bootstrap_cdm]
+      params:
+        domain: DM
+        xpt_path: ${parameters.xpt_root}/dm.xpt
+    - node_id: read_ae
+      type: sdtm_domain
+      depends_on: [bootstrap_source, bootstrap_cdm]
+      params:
+        domain: AE
+        xpt_path: ${parameters.xpt_root}/ae.xpt
+    - node_id: read_cm
+      type: sdtm_domain
+      depends_on: [bootstrap_source, bootstrap_cdm]
+      params:
+        domain: CM
+        xpt_path: ${parameters.xpt_root}/cm.xpt
+    - node_id: read_vs
+      type: sdtm_domain
+      depends_on: [bootstrap_source, bootstrap_cdm]
+      params:
+        domain: VS
+        xpt_path: ${parameters.xpt_root}/vs.xpt
+    - node_id: read_lb
+      type: sdtm_domain
+      depends_on: [bootstrap_source, bootstrap_cdm]
+      params:
+        domain: LB
+        xpt_path: ${parameters.xpt_root}/lb.xpt
+    - node_id: map_person_location
+      type: sql
+      depends_on: [read_dm]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02a_map_person_location.sql
+    - node_id: map_condition_from_ae
+      type: sql
+      depends_on: [read_ae, map_person_location]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02b_map_condition_from_ae.sql
+    - node_id: map_drug_from_cm
+      type: sql
+      depends_on: [read_cm, map_person_location]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02c_map_drug_from_cm.sql
+    - node_id: map_measurement_from_vs
+      type: sql
+      depends_on: [read_vs, map_person_location]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02d_map_measurement_from_vs.sql
+    - node_id: map_measurement_from_lb
+      type: sql
+      depends_on: [read_lb, map_person_location]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02e_map_measurement_from_lb.sql
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_person_location
+        - map_condition_from_ae
+        - map_drug_from_cm
+        - map_measurement_from_vs
+        - map_measurement_from_lb
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/03_summarize.sql
+        result_artifact: sdtm_to_omop_summary
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: sdtm_to_omop_summary.json
+        min_rows: 1
