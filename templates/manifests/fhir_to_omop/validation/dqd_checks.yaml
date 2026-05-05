@@ -1,0 +1,41 @@
+checks:
+  - check_id: fhir_to_omop_no_orphan_visits
+    description: "Every VISIT_OCCURRENCE.person_id resolves to a PERSON row."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.visit_occurrence v
+      LEFT JOIN omop.person p ON p.person_id = v.person_id
+      WHERE p.person_id IS NULL
+    expected: 0
+
+  - check_id: fhir_to_omop_no_orphan_conditions
+    description: "Every CONDITION_OCCURRENCE.person_id resolves to a PERSON row."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.condition_occurrence c
+      LEFT JOIN omop.person p ON p.person_id = c.person_id
+      WHERE p.person_id IS NULL
+    expected: 0
+
+  - check_id: fhir_to_omop_visit_links_intact
+    description: "Conditions/measurements/observations with non-NULL visit_occurrence_id resolve."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM (
+        SELECT visit_occurrence_id FROM omop.condition_occurrence WHERE visit_occurrence_id IS NOT NULL
+        UNION ALL
+        SELECT visit_occurrence_id FROM omop.measurement WHERE visit_occurrence_id IS NOT NULL
+        UNION ALL
+        SELECT visit_occurrence_id FROM omop.observation WHERE visit_occurrence_id IS NOT NULL
+      ) refs
+      LEFT JOIN omop.visit_occurrence v ON v.visit_occurrence_id = refs.visit_occurrence_id
+      WHERE v.visit_occurrence_id IS NULL
+    expected: 0
+
+  - check_id: fhir_to_omop_observation_split_correct
+    description: "Vital-signs/lab/imaging/exam observations are in MEASUREMENT, not OBSERVATION."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.observation
+      WHERE observation_source_value LIKE 'o1' OR observation_source_value LIKE 'o2'
+    expected: 0
