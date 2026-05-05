@@ -1,0 +1,21 @@
+post_conditions:
+  - kind: row_count
+    table: vocab_validation.concept
+    min: 1000000
+    description: "Real Athena bundle should have at least 1M concepts"
+  - kind: row_count
+    table: vocab_validation.vocabulary
+    min: 30
+    description: "Real bundle should have at least 30 vocabularies"
+  - kind: row_count
+    table: vocab_validation.concept_ancestor
+    min: 5000000
+    description: "concept_ancestor is the largest table — at least 5M rows"
+  - kind: row_count
+    table: vocab_validation.concept_relationship
+    min: 1000000
+    description: "Sanity floor for concept_relationship"
+  - kind: row_count
+    table: vocab_validation.vocabulary_load
+    min: 1
+    description: "Audit row recorded for this bundle's SHA256"

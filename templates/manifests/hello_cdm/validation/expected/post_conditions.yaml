@@ -1,0 +1,12 @@
+post_conditions:
+  - kind: row_count
+    table: hello_cdm_demo_validation.person
+    expected: 1
+  - kind: column_value
+    table: hello_cdm_demo_validation.person
+    column: year_of_birth
+    expected: 1970
+    where: "person_id = 1"
+  - kind: artifact_present
+    artifact_name: query_result.json
+    min_rows: 1

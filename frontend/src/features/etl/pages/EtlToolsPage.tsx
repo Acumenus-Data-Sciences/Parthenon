@@ -1,14 +1,14 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import {
-  Loader2,
-  GitMerge,
-  Plus,
-} from "lucide-react";
+import { Loader2, GitMerge, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
-import { fetchIngestionProjects, type IngestionProject } from "@/features/ingestion/api/ingestionApi";
+import {
+  fetchIngestionProjects,
+  type IngestionProject,
+} from "@/features/ingestion/api/ingestionApi";
 import { AqueductCanvas } from "../components/aqueduct/AqueductCanvas";
 import {
   useEtlProjects,
@@ -21,10 +21,31 @@ import {
   suggestMappings,
   type PersistedFieldProfile,
 } from "../api";
+import { useTemplatesEnabled } from "../hooks/useAppSettings";
 
-// ---------------------------------------------------------------------------
-// Aqueduct canvas content
-// ---------------------------------------------------------------------------
+// Lazy-load template sub-tabs (matches DataIngestionPage pattern).
+const AqueductTemplatesPage = lazy(() =>
+  import("./AqueductTemplatesPage").then((m) => ({
+    default: m.AqueductTemplatesPage,
+  })),
+);
+const AqueductRunsPage = lazy(() =>
+  import("./AqueductRunsPage").then((m) => ({
+    default: m.AqueductRunsPage,
+  })),
+);
+
+type SubTabId = "mappings" | "templates" | "runs";
+
+function SubTabFallback() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 size={20} className="animate-spin text-text-muted" />
+    </div>
+  );
+}
+
+// ── Mappings sub-tab content (preserves existing behavior verbatim) ────────
 
 function AqueductContent({
   ingestionProjectId,
@@ -39,7 +60,11 @@ function AqueductContent({
   // Find existing ETL project for this ingestion project
   const existingProject = useMemo(() => {
     if (!projectsData?.data) return null;
-    return projectsData.data.find((p) => p.ingestion_project_id === ingestionProjectId) ?? null;
+    return (
+      projectsData.data.find(
+        (p) => p.ingestion_project_id === ingestionProjectId,
+      ) ?? null
+    );
   }, [projectsData, ingestionProjectId]);
 
   const projectId = existingProject?.id ?? 0;
@@ -161,11 +186,7 @@ function AqueductContent({
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// Main Page (Aqueduct tab content)
-// ---------------------------------------------------------------------------
-
-export default function EtlToolsPage() {
+function MappingsTab() {
   const { t } = useTranslation("app");
   const [searchParams] = useSearchParams();
   const projectParam = searchParams.get("project");
@@ -177,29 +198,25 @@ export default function EtlToolsPage() {
 
   const readyProjects = useMemo(() => {
     const all = projectsData?.data ?? [];
-    return all.filter((p: IngestionProject) => p.status === "ready" || p.status === "mapping" || p.status === "completed");
+    return all.filter(
+      (p: IngestionProject) =>
+        p.status === "ready" ||
+        p.status === "mapping" ||
+        p.status === "completed",
+    );
   }, [projectsData]);
 
   const selectedProjectIdNum = projectParam ? Number(projectParam) || 0 : 0;
-  const hasJobs = readyProjects.some((p: IngestionProject) => p.id === selectedProjectIdNum);
+  const hasJobs = readyProjects.some(
+    (p: IngestionProject) => p.id === selectedProjectIdNum,
+  );
 
   if (projectParam && hasJobs) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <HelpButton helpKey="etl-tools" />
-        </div>
-        <AqueductContent ingestionProjectId={selectedProjectIdNum} />
-      </div>
-    );
+    return <AqueductContent ingestionProjectId={selectedProjectIdNum} />;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <HelpButton helpKey="etl-tools" />
-      </div>
-      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
+    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
       <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
         <GitMerge size={28} className="text-text-muted" />
       </div>
@@ -210,6 +227,97 @@ export default function EtlToolsPage() {
         {t("etl.toolsPage.emptyDescription")}
       </p>
     </div>
+  );
+}
+
+// ── Sub-tab strip ──────────────────────────────────────────────────────────
+
+const ALL_SUBTABS: { id: SubTabId; labelKey: string }[] = [
+  { id: "mappings", labelKey: "aqueduct.subtabs.mappings" },
+  { id: "templates", labelKey: "aqueduct.subtabs.templates" },
+  { id: "runs", labelKey: "aqueduct.subtabs.runs" },
+];
+
+// ---------------------------------------------------------------------------
+// Main Page (Aqueduct tab content)
+//
+// NOTE: This component is the default export because DataIngestionPage.tsx
+// lazy-imports it via the default slot. Preserve that contract.
+// ---------------------------------------------------------------------------
+
+export default function EtlToolsPage() {
+  const { t } = useTranslation("app");
+  const templatesEnabled = useTemplatesEnabled();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const subtabParam = searchParams.get("subtab");
+
+  const visibleSubtabs = useMemo(
+    () =>
+      templatesEnabled
+        ? ALL_SUBTABS
+        : ALL_SUBTABS.filter((s) => s.id === "mappings"),
+    [templatesEnabled],
+  );
+
+  // Derive activeSubtab from URL — no useState/useEffect cascade.
+  // If subtabParam is invalid or hidden by the feature flag, fall back to "mappings".
+  const activeSubtab: SubTabId = useMemo(() => {
+    if (subtabParam && visibleSubtabs.some((s) => s.id === subtabParam)) {
+      return subtabParam as SubTabId;
+    }
+    return "mappings";
+  }, [subtabParam, visibleSubtabs]);
+
+  const handleSubtabClick = useCallback(
+    (id: SubTabId) => {
+      const next = new URLSearchParams(searchParams);
+      next.set("subtab", id);
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div
+          role="tablist"
+          aria-label={t("aqueduct.subtabs.aria", {
+            defaultValue: "Aqueduct sub-tabs",
+          })}
+          className="flex items-center gap-1 border-b border-border-default flex-1"
+        >
+          {visibleSubtabs.map((sub) => (
+            <button
+              key={sub.id}
+              role="tab"
+              aria-selected={activeSubtab === sub.id}
+              type="button"
+              onClick={() => handleSubtabClick(sub.id)}
+              className={cn(
+                "relative px-4 py-2.5 text-sm uppercase tracking-wide transition-colors",
+                activeSubtab === sub.id
+                  ? "text-text-primary font-medium"
+                  : "text-text-muted hover:text-text-secondary",
+              )}
+            >
+              {t(sub.labelKey)}
+              {activeSubtab === sub.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              )}
+            </button>
+          ))}
+        </div>
+        <HelpButton helpKey="etl-tools" />
+      </div>
+
+      <Suspense fallback={<SubTabFallback />}>
+        {activeSubtab === "mappings" && <MappingsTab />}
+        {activeSubtab === "templates" && templatesEnabled && (
+          <AqueductTemplatesPage />
+        )}
+        {activeSubtab === "runs" && templatesEnabled && <AqueductRunsPage />}
+      </Suspense>
     </div>
   );
 }

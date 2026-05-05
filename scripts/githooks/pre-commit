@@ -23,6 +23,9 @@ STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
 HAS_PHP=$(echo "$STAGED" | grep -c '\.php$' || true)
 HAS_TS=$(echo "$STAGED" | grep -c '\.\(ts\|tsx\)$' || true)
 HAS_PY=$(echo "$STAGED" | grep -c '\.py$' || true)
+STAGED_TEMPLATES_PY=$(echo "$STAGED" | grep '^templates/.*\.py$' || true)
+STAGED_TEMPLATES_MANIFESTS=$(echo "$STAGED" | grep '^templates/manifests/.*manifest\.yaml$' || true)
+HAS_TEMPLATES_MANIFESTS=$([ -n "$STAGED_TEMPLATES_MANIFESTS" ] && echo 1 || echo 0)
 
 # ── Migration gate: require paired devlog entry ─────────────────────────────
 # Migrations mutate production schema. Every migration commit must include a
@@ -41,8 +44,9 @@ if [ -n "$STAGED_MIGRATIONS" ]; then
     fi
 fi
 
-# Skip all checks for docs-only commits
-if [ "$HAS_PHP" -eq 0 ] && [ "$HAS_TS" -eq 0 ] && [ "$HAS_PY" -eq 0 ]; then
+# Skip all checks for docs-only commits (no PHP/TS/Python/templates manifests).
+if [ "$HAS_PHP" -eq 0 ] && [ "$HAS_TS" -eq 0 ] && [ "$HAS_PY" -eq 0 ] \
+    && [ "$HAS_TEMPLATES_MANIFESTS" -eq 0 ]; then
     exit 0
 fi
 
@@ -162,6 +166,44 @@ if [ "$HAS_PY" -gt 0 ]; then
     else
         echo "  ✗ Python syntax — $PY_FAIL file(s) with errors"
         ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── Parthenon templates: ruff + mypy + manifest validation ──────────────────
+# Runs only when templates/ files are staged. Requires uv on the host so the
+# checks match what CI runs in .github/workflows/templates.yml.
+if [ -d templates ] && command -v uv >/dev/null 2>&1; then
+    if [ -n "$STAGED_TEMPLATES_PY" ]; then
+        echo "Pre-commit: Templates ruff..."
+        if ( cd "$REPO_ROOT/templates" && uv run ruff check . ) > /dev/null 2>&1; then
+            echo "  ✓ Templates ruff"
+        else
+            echo "  ✗ Templates ruff — run: cd templates && uv run ruff check ."
+            ERRORS=$((ERRORS + 1))
+        fi
+        echo "Pre-commit: Templates mypy --strict..."
+        if ( cd "$REPO_ROOT/templates" && uv run mypy --strict runtime ) > /dev/null 2>&1; then
+            echo "  ✓ Templates mypy"
+        else
+            echo "  ✗ Templates mypy — run: cd templates && uv run mypy --strict runtime"
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+    if [ -n "$STAGED_TEMPLATES_MANIFESTS" ]; then
+        echo "Pre-commit: Templates validate-manifests..."
+        if ( cd "$REPO_ROOT/templates" && uv run parthenon-templates validate-manifests --root manifests ) > /dev/null 2>&1; then
+            echo "  ✓ Templates validate-manifests"
+        else
+            echo "  ✗ Templates validate-manifests — run: cd templates && uv run parthenon-templates validate-manifests --root manifests"
+            ERRORS=$((ERRORS + 1))
+        fi
+        echo "Pre-commit: Templates lint-secret-keys..."
+        if ( cd "$REPO_ROOT/templates" && uv run parthenon-templates lint-secret-keys --root manifests ) > /dev/null 2>&1; then
+            echo "  ✓ Templates lint-secret-keys"
+        else
+            echo "  ✗ Templates lint-secret-keys — run: cd templates && uv run parthenon-templates lint-secret-keys --root manifests"
+            ERRORS=$((ERRORS + 1))
+        fi
     fi
 fi
 

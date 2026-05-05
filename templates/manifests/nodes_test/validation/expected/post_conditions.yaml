@@ -1,0 +1,24 @@
+post_conditions:
+  - kind: artifact_present
+    artifact_name: sample.parquet
+    min_size_bytes: 1
+  - kind: artifact_present
+    artifact_name: sample_copy.csv
+    min_size_bytes: 1
+  - kind: artifact_present
+    artifact_name: extracted.parquet
+    min_size_bytes: 1
+  - kind: artifact_present
+    artifact_name: doubled.parquet
+    min_size_bytes: 1
+  - kind: artifact_present
+    artifact_name: r_summary.txt
+    min_size_bytes: 1
+  - kind: row_count
+    table: nodes_test_validation.sample
+    expected: 5
+  - kind: column_value
+    table: nodes_test_validation.sample
+    column: value
+    expected: 30
+    where: "id = 3"

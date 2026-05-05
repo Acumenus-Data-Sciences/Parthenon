@@ -1,0 +1,351 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: load_synpuf
+  name: "Load CMS SynPUF (1K or 100K) into OMOP CDM"
+  version: 0.1.0
+  category: ingestion
+  tags: [synpuf, cms, demo, omop, user-initiated]
+  cdm_versions: ["5.3", "5.4"]
+  author: "Parthenon Project"
+  singleton: false
+spec:
+  parameters:
+    type: object
+    required: [target_schema, patient_count]
+    properties:
+      target_schema:
+        type: string
+        default: "synpuf"
+        description: "Target OMOP schema name. Created if absent."
+        pattern: "^[a-z][a-z0-9_]*$"
+      patient_count:
+        type: string
+        enum: ["1k", "100k"]
+        default: "1k"
+        description: "Patient count slice — 1K (~1116 patients, ~15 min) or 100K (~111K patients, ~3 hours)."
+      cdm_version:
+        type: string
+        enum: ["5.3", "5.4"]
+        default: "5.4"
+        description: "OMOP CDM version to bootstrap in the target schema."
+      force:
+        type: boolean
+        default: false
+        description: "If true, drops existing data in target_schema before loading. Required for re-runs."
+      vocab_schema:
+        type: string
+        default: "vocab"
+        description: "Schema containing the loaded Athena vocabulary tables."
+        pattern: "^[a-z][a-z0-9_]*$"
+      synpuf_base_url:
+        type: string
+        default: "https://ftp.ohdsi.org/synpuf"
+        description: "Base URL for the OHDSI-hosted SynPUF CDM-shaped CSV bundle. Override only for mirror or air-gapped staging."
+        pattern: "^https?://[^\\s]+$"
+  requires:
+    cdm_initialized: false
+    vocabularies: ["snomed", "rxnorm", "loinc"]
+  nodes:
+    # Node 1 of 5 — bootstrap an empty OMOP CDM in target_schema. Idempotent.
+    - node_id: bootstrap_cdm
+      type: python
+      params:
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          cdm_version: "${parameters.cdm_version}"
+        code: |
+          from sqlalchemy import create_engine
+
+          from runtime.cdm.bootstrap import bootstrap
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_synpuf requires context.db_dsn")
+              engine = create_engine(context.db_dsn, future=True)
+              bootstrap(
+                  version=params["cdm_version"],
+                  schema=params["target_schema"],
+                  engine=engine,
+              )
+              return {
+                  "schema": params["target_schema"],
+                  "cdm_version": params["cdm_version"],
+              }
+
+    # Node 2 of 5 — pre-check and optional truncate of existing target tables.
+    - node_id: precheck
+      type: python
+      depends_on: [bootstrap_cdm]
+      params:
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          force: "${parameters.force}"
+        code: |
+          from sqlalchemy import create_engine, text
+
+          TABLES = [
+              "person",
+              "observation_period",
+              "visit_occurrence",
+              "condition_occurrence",
+              "drug_exposure",
+              "procedure_occurrence",
+              "measurement",
+          ]
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("precheck requires context.db_dsn")
+              schema = params["target_schema"]
+              force = bool(params.get("force", False))
+              engine = create_engine(context.db_dsn, future=True)
+
+              existing_persons = 0
+              with engine.connect() as conn:
+                  existing_persons = int(
+                      conn.execute(
+                          text(f"SELECT COUNT(*) FROM {schema}.person")
+                      ).scalar_one()
+                  )
+
+              if existing_persons > 0 and not force:
+                  raise RuntimeError(
+                      f"{schema}.person already contains {existing_persons} "
+                      "rows. Pass force=true to overwrite."
+                  )
+
+              if existing_persons > 0 and force:
+                  with engine.begin() as conn:
+                      for table in TABLES:
+                          conn.execute(
+                              text(f"TRUNCATE TABLE {schema}.{table}")
+                          )
+
+              return {
+                  "schema": schema,
+                  "previous_persons": existing_persons,
+                  "truncated": existing_persons > 0 and force,
+              }
+
+    # Node 3 of 5 — download the SynPUF CSV bundle. The OHDSI-hosted bundle is a
+    # set of named CSVs under <base>/<slice>/. This node fetches them via HTTPS
+    # into the run's artifact directory; downstream nodes consume from there.
+    - node_id: download_synpuf
+      type: python
+      depends_on: [precheck]
+      params:
+        inputs:
+          synpuf_base_url: "${parameters.synpuf_base_url}"
+          patient_count: "${parameters.patient_count}"
+        code: |
+          import urllib.parse
+
+          import httpx
+
+          FILES = [
+              "PERSON.csv",
+              "OBSERVATION_PERIOD.csv",
+              "VISIT_OCCURRENCE.csv",
+              "CONDITION_OCCURRENCE.csv",
+              "DRUG_EXPOSURE.csv",
+              "PROCEDURE_OCCURRENCE.csv",
+              "MEASUREMENT.csv",
+          ]
+
+          def main(context, params):
+              base = params["synpuf_base_url"].rstrip("/")
+              slice_id = params["patient_count"]
+              prefix = f"{base}/{slice_id}/"
+
+              # SECURITY: only allow http/https schemes through urllib parse —
+              # protects against file:// or other unexpected schemes from a
+              # bad caller. The default is the public OHDSI HTTPS host.
+              scheme = urllib.parse.urlparse(base).scheme.lower()
+              if scheme not in {"http", "https"}:
+                  raise RuntimeError(
+                      f"synpuf_base_url scheme {scheme!r} not allowed; "
+                      "must be http or https"
+                  )
+
+              context.artifact_dir.mkdir(parents=True, exist_ok=True)
+              downloaded: dict[str, int] = {}
+              for name in FILES:
+                  url = urllib.parse.urljoin(prefix, name)
+                  target = context.artifact_dir / name
+                  with httpx.stream(
+                      "GET", url, timeout=600.0, follow_redirects=True
+                  ) as response:
+                      response.raise_for_status()
+                      with target.open("wb") as fh:
+                          for chunk in response.iter_bytes():
+                              fh.write(chunk)
+                  downloaded[name] = target.stat().st_size
+              return {
+                  "slice": slice_id,
+                  "prefix": prefix,
+                  "downloaded": downloaded,
+              }
+
+    # Node 4 of 5 — load all 7 SynPUF tables in dependency order via COPY.
+    - node_id: load_tables
+      type: python
+      depends_on: [download_synpuf]
+      params:
+        inputs:
+          target_schema: "${parameters.target_schema}"
+        code: |
+          from sqlalchemy import create_engine, text
+
+          # Load order respects OMOP foreign-key dependencies. PERSON first,
+          # OBSERVATION_PERIOD next (FK→person), then visit/condition/drug/etc.
+          LOAD_ORDER = [
+              ("person", "PERSON.csv"),
+              ("observation_period", "OBSERVATION_PERIOD.csv"),
+              ("visit_occurrence", "VISIT_OCCURRENCE.csv"),
+              ("condition_occurrence", "CONDITION_OCCURRENCE.csv"),
+              ("drug_exposure", "DRUG_EXPOSURE.csv"),
+              ("procedure_occurrence", "PROCEDURE_OCCURRENCE.csv"),
+              ("measurement", "MEASUREMENT.csv"),
+          ]
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_tables requires context.db_dsn")
+              schema = params["target_schema"]
+              engine = create_engine(context.db_dsn, future=True)
+
+              # Resolve the download artifact directory. The download node
+              # writes into its own artifact_dir under the run root; the
+              # downstream node's artifact_dir is sibling to it.
+              run_root = context.artifact_dir.parent
+              download_dir = run_root / "download_synpuf"
+
+              row_counts: dict[str, int] = {}
+              with engine.begin() as conn:
+                  for table, file_name in LOAD_ORDER:
+                      src = download_dir / file_name
+                      if not src.exists():
+                          raise FileNotFoundError(
+                              f"missing SynPUF file: {src}"
+                          )
+                      raw = conn.connection.driver_connection
+                      with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                          cur.copy_expert(
+                              f"COPY {schema}.{table} FROM STDIN WITH ("
+                              "FORMAT csv, HEADER true, DELIMITER ',', "
+                              "NULL ''"
+                              ")",
+                              fh,
+                          )
+                      n = conn.execute(
+                          text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                      ).scalar_one()
+                      row_counts[table] = int(n)
+              return {"schema": schema, "row_counts": row_counts}
+
+    # Node 5 of 5 — Achilles-style summary: write a compact JSON artifact.
+    - node_id: achilles_summary
+      type: python
+      depends_on: [load_tables]
+      params:
+        inputs:
+          target_schema: "${parameters.target_schema}"
+        code: |
+          import json
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError(
+                      "achilles_summary requires context.db_dsn"
+                  )
+              schema = params["target_schema"]
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.connect() as conn:
+                  summary = {
+                      "person_count": int(
+                          conn.execute(
+                              text(f"SELECT COUNT(*) FROM {schema}.person")
+                          ).scalar_one()
+                      ),
+                      "visit_count": int(
+                          conn.execute(
+                              text(
+                                  f"SELECT COUNT(*) FROM {schema}.visit_occurrence"
+                              )
+                          ).scalar_one()
+                      ),
+                      "condition_count": int(
+                          conn.execute(
+                              text(
+                                  f"SELECT COUNT(*) FROM {schema}.condition_occurrence"
+                              )
+                          ).scalar_one()
+                      ),
+                      "drug_count": int(
+                          conn.execute(
+                              text(
+                                  f"SELECT COUNT(*) FROM {schema}.drug_exposure"
+                              )
+                          ).scalar_one()
+                      ),
+                      "procedure_count": int(
+                          conn.execute(
+                              text(
+                                  f"SELECT COUNT(*) FROM {schema}.procedure_occurrence"
+                              )
+                          ).scalar_one()
+                      ),
+                  }
+                  earliest = conn.execute(
+                      text(
+                          f"SELECT MIN(observation_period_start_date) "
+                          f"FROM {schema}.observation_period"
+                      )
+                  ).scalar_one()
+                  latest = conn.execute(
+                      text(
+                          f"SELECT MAX(observation_period_end_date) "
+                          f"FROM {schema}.observation_period"
+                      )
+                  ).scalar_one()
+                  summary["earliest_observation_period_start"] = (
+                      str(earliest) if earliest is not None else None
+                  )
+                  summary["latest_observation_period_end"] = (
+                      str(latest) if latest is not None else None
+                  )
+
+              context.artifact_dir.mkdir(parents=True, exist_ok=True)
+              artifact_path = context.artifact_dir / "achilles_summary.json"
+              artifact_path.write_text(
+                  json.dumps(summary, indent=2),
+                  encoding="utf-8",
+              )
+              return {
+                  "schema": schema,
+                  "summary": summary,
+                  "artifact_name": "achilles_summary.json",
+              }
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.person"
+        min: 1000
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.visit_occurrence"
+        min: 1
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.condition_occurrence"
+        min: 1
+    - kind: artifact_present
+      params:
+        artifact: achilles_summary.json
+    - kind: dqd_check
+      params:
+        check: person_yob_in_range
+        schema: "${parameters.target_schema}"

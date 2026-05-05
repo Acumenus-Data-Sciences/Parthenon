@@ -1,0 +1,21 @@
+checks:
+  - name: vocabulary_concept_id_unique
+    table: concept
+    column: concept_id
+    severity: error
+    expected_pass: true
+  - name: vocabulary_concept_id_not_null
+    table: concept
+    column: concept_id
+    severity: error
+    expected_pass: true
+  - name: vocabulary_relationship_no_self_loops
+    table: concept_relationship
+    description: "concept_id_1 != concept_id_2 unless relationship_id = 'Maps to self'"
+    severity: warning
+    expected_pass: true
+  - name: vocabulary_vocabulary_id_unique
+    table: vocabulary
+    column: vocabulary_id
+    severity: error
+    expected_pass: true

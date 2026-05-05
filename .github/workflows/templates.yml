@@ -1,0 +1,107 @@
+name: parthenon-templates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "templates/**"
+      - "docker/templates/**"
+      - ".github/workflows/templates.yml"
+  pull_request:
+    paths:
+      - "templates/**"
+      - "docker/templates/**"
+      - ".github/workflows/templates.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parthenon-templates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: Lint + Test (parthenon-templates)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: parthenon
+          POSTGRES_PASSWORD: parthenon
+          POSTGRES_DB: parthenon
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U parthenon"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://parthenon:parthenon@localhost:5432/parthenon
+      PARTHENON_INTERNAL_TOKEN: ci-internal-token
+      PARTHENON_STORAGE_ROOT: ${{ github.workspace }}/_storage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.11"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install R
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends r-base-core
+
+      - name: Sync dependencies
+        working-directory: templates
+        run: uv sync --all-extras
+
+      - name: Ruff
+        working-directory: templates
+        run: uv run ruff check .
+
+      - name: Black --check
+        working-directory: templates
+        run: uv run black --check --line-length 100 runtime tests
+
+      - name: Mypy --strict
+        working-directory: templates
+        run: uv run mypy --strict runtime
+
+      - name: Validate manifests
+        working-directory: templates
+        run: uv run parthenon-templates validate-manifests --root manifests
+
+      - name: Lint secret keys
+        working-directory: templates
+        run: uv run parthenon-templates lint-secret-keys --root manifests
+
+      - name: Pytest
+        working-directory: templates
+        run: uv run pytest -q --maxfail=1
+
+      - name: hello_cdm E2E
+        working-directory: templates
+        # Dedicated step so the validation pack failure mode is obvious in CI.
+        # Until Plans 5/6 wire ${parameters.*} substitution + db_dsn threading,
+        # the full-flow test is xfail; the catalog/structural assertions still
+        # run green and gate the manifest contents.
+        run: uv run pytest tests/e2e/test_hello_cdm.py -v
+
+      - name: nodes_test E2E
+        working-directory: templates
+        # Exercises every Phase 0 node type end-to-end against a
+        # testcontainers-managed Postgres. Runs in <2 minutes; if any node
+        # breaks its contract, this fails before any real ETL template is
+        # touched.
+        run: uv run pytest tests/e2e/test_nodes_test.py -v

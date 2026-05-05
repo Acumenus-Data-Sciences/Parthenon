@@ -1,0 +1,26 @@
+checks:
+  - name: person_yob_in_range
+    table: person
+    column: year_of_birth
+    severity: error
+    expected_pass: true
+  - name: person_id_unique
+    table: person
+    column: person_id
+    severity: error
+    expected_pass: true
+  - name: visit_occurrence_person_id_fk
+    table: visit_occurrence
+    description: "Every visit_occurrence.person_id resolves to person.person_id"
+    severity: error
+    expected_pass: true
+  - name: condition_occurrence_person_id_fk
+    table: condition_occurrence
+    description: "Every condition_occurrence.person_id resolves to person.person_id"
+    severity: error
+    expected_pass: true
+  - name: drug_exposure_person_id_fk
+    table: drug_exposure
+    description: "Every drug_exposure.person_id resolves to person.person_id"
+    severity: error
+    expected_pass: true
