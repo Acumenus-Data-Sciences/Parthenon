@@ -22,6 +22,9 @@ dependencies = [
     "jsonschema==4.23.0",
     "structlog==24.4.0",
     "httpx==0.28.1",
+    # Phase 2 Plan 1 — NER LLM backend + audit encryption (T-016 + T-017).
+    "openai==2.34.0",
+    "cryptography==44.0.0",
     # NOTE: plan pinned typer==0.15.1, but prefect==3.1.5 constrains typer<0.14.0.
     # Using latest 0.13.x compatible with prefect 3.1.5; revisit when upgrading prefect.
     "typer==0.13.1",
