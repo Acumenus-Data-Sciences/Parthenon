@@ -46,8 +46,16 @@ CFG: dict = {
     "version": "1",
     "rules": [
         {"path": "Patient.name", "operation": "redact"},
-        {"path": "Patient.id", "operation": "cryptoHash", "params": {"algorithm": "sha256"}},
-        {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}},
+        {
+            "path": "Patient.id",
+            "operation": "cryptoHash",
+            "params": {"algorithm": "sha256"},
+        },
+        {
+            "path": "Patient.birthDate",
+            "operation": "dateShift",
+            "params": {"max_days": 30},
+        },
         {"path": "Patient.gender", "operation": "keep"},
     ],
 }

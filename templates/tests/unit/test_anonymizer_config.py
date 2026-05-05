@@ -17,7 +17,11 @@ VALID_MINIMAL: dict = {
     "version": "1",
     "rules": [
         {"path": "Patient.name", "operation": "redact"},
-        {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}},
+        {
+            "path": "Patient.birthDate",
+            "operation": "dateShift",
+            "params": {"max_days": 30},
+        },
     ],
 }
 
@@ -25,8 +29,16 @@ VALID_FULL: dict = {
     "version": "1",
     "rules": [
         {"path": "Patient.name", "operation": "redact"},
-        {"path": "Patient.id", "operation": "cryptoHash", "params": {"algorithm": "sha256"}},
-        {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 60}},
+        {
+            "path": "Patient.id",
+            "operation": "cryptoHash",
+            "params": {"algorithm": "sha256"},
+        },
+        {
+            "path": "Patient.birthDate",
+            "operation": "dateShift",
+            "params": {"max_days": 60},
+        },
         {"path": "Patient.gender", "operation": "keep"},
     ],
     "default_action": "redact",
@@ -43,7 +55,12 @@ def test_load_minimal_config() -> None:
 def test_load_full_config() -> None:
     cfg = load_config(VALID_FULL)
     assert cfg.default_action == "redact"
-    assert {r.operation for r in cfg.rules} == {"redact", "cryptoHash", "dateShift", "keep"}
+    assert {r.operation for r in cfg.rules} == {
+        "redact",
+        "cryptoHash",
+        "dateShift",
+        "keep",
+    }
 
 
 def test_unknown_operation_rejected() -> None:
@@ -77,7 +94,11 @@ def test_cryptohash_unknown_algorithm_rejected() -> None:
     bad = {
         "version": "1",
         "rules": [
-            {"path": "Patient.id", "operation": "cryptoHash", "params": {"algorithm": "md4"}}
+            {
+                "path": "Patient.id",
+                "operation": "cryptoHash",
+                "params": {"algorithm": "md4"},
+            }
         ],
     }
     with pytest.raises(AnonymizerConfigError, match="algorithm"):

@@ -1,0 +1,16 @@
+{
+  "source": "ndjson",
+  "ndjson_dir": "/var/parthenon/manifests/qr_eq5d5l_to_measurement/fixtures/sample",
+  "profile": "us-core",
+  "target_schema": "omop",
+  "vocab_schema": "vocab",
+  "eq5d_value_set_path": "/app/runtime/instruments/value_sets/eq5d5l_placeholder.csv",
+  "questionnaire_url": "https://www.euroqol.org/instruments/eq-5d-5l",
+  "mo_concept_id": 4231411,
+  "sc_concept_id": 4231412,
+  "ua_concept_id": 4231413,
+  "pd_concept_id": 4231414,
+  "ad_concept_id": 4231415,
+  "vas_concept_id": 4231416,
+  "utility_concept_id": 4231417
+}

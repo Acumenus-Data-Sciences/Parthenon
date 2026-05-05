@@ -44,7 +44,11 @@ def test_dateshift_is_deterministic_per_patient() -> None:
         {
             "version": "1",
             "rules": [
-                {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}}
+                {
+                    "path": "Patient.birthDate",
+                    "operation": "dateShift",
+                    "params": {"max_days": 30},
+                }
             ],
         }
     )
@@ -62,7 +66,11 @@ def test_dateshift_differs_across_patients() -> None:
         {
             "version": "1",
             "rules": [
-                {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}}
+                {
+                    "path": "Patient.birthDate",
+                    "operation": "dateShift",
+                    "params": {"max_days": 30},
+                }
             ],
         }
     )

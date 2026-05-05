@@ -33,6 +33,7 @@ EXPECTED_ADRS = [
     pytest.param("0003-template-manifest-format.md", "Manifest", id="0003"),
     pytest.param("0004-phase-1-node-design.md", "Phase 1 Node", id="0004"),
     pytest.param("0005-imaging-vocabulary-namespace.md", "Imaging Vocabulary", id="0005"),
+    pytest.param("0006-pro-instrument-framework.md", "PRO Instrument", id="0006"),
 ]
 
 
@@ -243,3 +244,45 @@ def test_adr_0005_etl_requires_parthenon_imaging_vocabulary() -> None:
     payload = yaml.safe_load(manifest_text)
     requires = payload["spec"]["requires"]
     assert "Parthenon-Imaging" in requires["vocabularies"]
+
+
+# ADR 0006: PRO instrument framework — pro_base module exists, both EQ-5D
+# variants ship as separate manifests, customer-supplied EuroQol value sets.
+ADR_0006_EXPECTED_MANIFESTS = (
+    "qr_eq5d5l_to_measurement",
+    "qr_eq5d3l_to_measurement",
+)
+
+
+def test_adr_0006_pro_base_module_exists() -> None:
+    """ADR 0006 §1 promises a runtime.instruments.pro_base Python module."""
+    text = _adr_text("0006-pro-instrument-framework.md")
+    assert "runtime.instruments.pro_base" in text
+    module = RUNTIME_DIR / "instruments" / "pro_base.py"
+    assert module.exists()
+
+
+@pytest.mark.parametrize("template_id", ADR_0006_EXPECTED_MANIFESTS)
+def test_adr_0006_each_pro_instrument_is_separate_manifest(template_id: str) -> None:
+    """ADR 0006 §2 promises each instrument is a separate manifest file."""
+    text = _adr_text("0006-pro-instrument-framework.md")
+    assert template_id in text or "EQ-5D" in text, f"ADR 0006 doesn't reference {template_id}"
+    manifest = REPO / "templates" / "manifests" / template_id / "manifest.yaml"
+    assert manifest.exists(), f"ADR 0006 promises {template_id}, manifest is missing"
+
+
+def test_adr_0006_placeholder_value_set_marked_as_placeholder() -> None:
+    """ADR 0006 §3 promises customer-supplied value set; placeholder must be loud."""
+    text = _adr_text("0006-pro-instrument-framework.md")
+    assert "PLACEHOLDER" in text.upper()
+    assert "EUROQOL" in text.upper()
+    csv = RUNTIME_DIR / "instruments" / "value_sets" / "eq5d5l_placeholder.csv"
+    assert csv.exists()
+    csv_text = csv.read_text(encoding="utf-8")
+    assert "PLACEHOLDER" in csv_text.upper()
+
+
+def test_adr_0006_cross_instrument_test_exists() -> None:
+    """ADR 0006 §6 promises a cross-instrument regression test."""
+    test_path = Path(__file__).resolve().parents[1] / "tests" / "unit" / "test_pro_pattern_reuse.py"
+    assert test_path.exists()

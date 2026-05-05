@@ -82,9 +82,13 @@ def test_redact_secrets_marks_explicit_secret_true() -> None:
 
 
 def test_redact_secrets_detects_shaped_names() -> None:
-    properties = {"github_token": {"type": "string"}, "user_password": {"type": "string"}}
+    properties = {
+        "github_token": {"type": "string"},
+        "user_password": {"type": "string"},
+    }
     sanitized = redact_secrets(
-        params={"github_token": "ghp_xxx", "user_password": "p@ss"}, properties=properties
+        params={"github_token": "ghp_xxx", "user_password": "p@ss"},
+        properties=properties,
     )
     assert sanitized["github_token"] == "***REDACTED***"
     assert sanitized["user_password"] == "***REDACTED***"

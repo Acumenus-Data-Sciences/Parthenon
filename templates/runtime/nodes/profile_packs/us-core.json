@@ -14,6 +14,7 @@
     {"type": "Immunization", "must_support": ["status", "vaccineCode", "patient", "occurrence"]},
     {"type": "DiagnosticReport", "must_support": ["status", "category", "code", "subject", "effective"]},
     {"type": "AllergyIntolerance", "must_support": ["clinicalStatus", "verificationStatus", "code", "patient"]},
-    {"type": "DocumentReference", "must_support": ["status", "type", "subject", "content"]}
+    {"type": "DocumentReference", "must_support": ["status", "type", "subject", "content"]},
+    {"type": "QuestionnaireResponse", "must_support": ["status", "questionnaire", "subject", "authored", "item"]}
   ]
 }
