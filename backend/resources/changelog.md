@@ -10,6 +10,10 @@ All notable changes to Parthenon are documented here.
   Surfaces unmapped (system, code) pairs to the existing Laravel
   MappingReviewController. Phase 1 does NOT call any AI mapping pathway
   (devplan §6.7).
+- `app.consent_decisions` table for the FHIR→OMOP PR-C Consent flow.
+  Records every Consent resource's permit/deny decision so downstream
+  cohort exports can exclude denied patients. Phase 1 policy: never
+  silently drop a Consent — malformed Consents fail the run.
 
 ## [1.0.3] — 2026-03-30
 

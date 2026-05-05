@@ -6,5 +6,7 @@
   "target_schema": "omop",
   "vocab_schema": "vocab",
   "app_schema": "app",
-  "strict_concept_resolution": false
+  "strict_concept_resolution": false,
+  "consent_permit_concept_id": 4055893,
+  "consent_deny_concept_id": 4054745
 }

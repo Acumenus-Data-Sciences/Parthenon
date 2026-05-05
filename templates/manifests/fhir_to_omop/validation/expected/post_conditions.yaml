@@ -27,6 +27,21 @@ post_conditions:
     table: omop.drug_exposure
     expected: 2
     description: "1 MedicationRequest + 1 Immunization -> DRUG_EXPOSURE (PR-B)"
+  - kind: row_count
+    table: omop.observation
+    where: "observation_type_concept_id = 32856"
+    min: 3
+    description: "PR-C: DiagnosticReport (1) + Consent (2) -> OBSERVATION rows of type 32856"
+  - kind: row_count
+    table: app.consent_decisions
+    expected: 2
+    description: "PR-C: both Consent fixtures recorded in the audit table"
+  - kind: column_value
+    table: app.consent_decisions
+    column: decision
+    where: "consent_id = 'co2'"
+    expected: "deny"
+    description: "PR-C: co2 records a deny decision"
   - kind: artifact_present
     artifact_name: fhir_to_omop_summary.json
     min_rows: 1

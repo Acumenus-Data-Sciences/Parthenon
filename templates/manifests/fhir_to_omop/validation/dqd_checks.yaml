@@ -39,3 +39,13 @@ checks:
       FROM omop.observation
       WHERE observation_source_value LIKE 'o1' OR observation_source_value LIKE 'o2'
     expected: 0
+
+  - check_id: pr_c_consent_decision_links_back_to_observation
+    description: "Every consent_decisions row has a matching OBSERVATION row (Plan 7 PR-C)."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM app.consent_decisions cd
+      LEFT JOIN omop.observation o
+        ON o.observation_source_value = cd.consent_id
+      WHERE o.observation_id IS NULL
+    expected: 0

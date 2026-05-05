@@ -87,7 +87,14 @@ def test_post_conditions_assert_pra_resource_counts() -> None:
     pc = yaml.safe_load(
         (VAL_ROOT / "expected" / "post_conditions.yaml").read_text(encoding="utf-8")
     )
-    tables = {p["table"]: p for p in pc["post_conditions"] if p["kind"] == "row_count"}
+    # Only consider unfiltered row_count entries — PR-C adds filtered entries
+    # (where clause) for the same omop.observation table that we don't want
+    # to collide with PR-A's table-wide totals.
+    tables = {
+        p["table"]: p
+        for p in pc["post_conditions"]
+        if p["kind"] == "row_count" and "where" not in p
+    }
     assert tables["omop.person"]["expected"] == 2
     assert tables["omop.visit_occurrence"]["expected"] == 2
     assert tables["omop.condition_occurrence"]["expected"] == 2
@@ -187,3 +194,80 @@ def test_adr_0008_has_pr_b_amendment() -> None:
     assert "drug_type_concept_id" in text
     assert "medicationReference" in text
     assert "CVX" in text
+
+
+# --- PR-C (Plan 7) extension tests ---
+
+
+def test_manifest_pr_c_imports() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    for module in (
+        "runtime.fhir_to_omop.diagnostic_report",
+        "runtime.fhir_to_omop.consent",
+    ):
+        assert module in text
+
+
+def test_manifest_pr_c_resource_types_in_ingestion() -> None:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    ingest = next(n for n in payload["spec"]["nodes"] if n["node_id"] == "ingest_fhir")
+    rt = ingest["params"]["resource_types"]
+    for resource in ("DiagnosticReport", "Consent"):
+        assert resource in rt, f"manifest missing PR-C resource type: {resource}"
+
+
+def test_manifest_pr_c_consent_params() -> None:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    props = payload["spec"]["parameters"]["properties"]
+    assert "consent_permit_concept_id" in props
+    assert "consent_deny_concept_id" in props
+
+
+def test_manifest_pr_c_load_writes_consent_decisions() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    assert "consent_decisions" in text
+
+
+def test_pr_c_consent_decisions_migration_exists() -> None:
+    backend = Path(__file__).resolve().parents[3] / "backend"
+    matches = list(backend.glob("database/migrations/*_create_consent_decisions_table.php"))
+    assert matches, "Laravel migration for app.consent_decisions not found"
+
+
+def test_pr_c_fixtures_present() -> None:
+    fixtures = MANIFEST.parent / "fixtures" / "sample"
+    for f in ("DiagnosticReport.ndjson", "Consent.ndjson"):
+        assert (fixtures / f).exists(), f"missing PR-C fixture: {f}"
+
+
+def test_pr_c_consent_fixtures_marked_synthetic() -> None:
+    consent_path = MANIFEST.parent / "fixtures" / "sample" / "Consent.ndjson"
+    for line in consent_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        obj = json.loads(line)
+        tags = obj.get("meta", {}).get("tag", [])
+        assert any(t.get("code") == "SYNTHETIC" for t in tags), "missing SYNTHETIC tag"
+
+
+def test_pr_c_post_conditions_added() -> None:
+    pc = yaml.safe_load(
+        (MANIFEST.parent / "validation" / "expected" / "post_conditions.yaml").read_text("utf-8")
+    )
+    descriptions = " ".join(p.get("description", "") for p in pc["post_conditions"])
+    assert "PR-C" in descriptions
+    assert any(p.get("table") == "app.consent_decisions" for p in pc["post_conditions"])
+
+
+def test_pr_c_dqd_check_added() -> None:
+    dqd = yaml.safe_load((MANIFEST.parent / "validation" / "dqd_checks.yaml").read_text("utf-8"))
+    check_ids = {c["check_id"] for c in dqd["checks"]}
+    assert "pr_c_consent_decision_links_back_to_observation" in check_ids
+
+
+def test_pr_c_validation_parameters_include_consent_concept_ids() -> None:
+    params = json.loads(
+        (MANIFEST.parent / "validation" / "inputs" / "parameters.json").read_text("utf-8")
+    )
+    assert params["consent_permit_concept_id"] == 4055893
+    assert params["consent_deny_concept_id"] == 4054745

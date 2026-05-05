@@ -289,3 +289,128 @@ FROM app.template_runs tr
 LEFT JOIN app.ingestion_jobs ij ON ij.template_run_id = tr.id
 WHERE tr.id = <run_id>;
 ```
+
+---
+
+# Phase 1 surfaces
+
+Sections below extend the Phase 0 runbook with the new templates and
+sidecars introduced by Plans 1–7 of the
+parthenon-ingestion-templates milestone.
+
+## Anonymizer sidecar operations (Plan 4)
+
+```bash
+# Start
+docker compose up -d parthenon-anonymizer
+
+# Liveness
+curl -s http://parthenon-anonymizer:5000/health
+
+# Logs
+docker compose logs -f parthenon-anonymizer
+```
+
+When the sidecar is unreachable, the `MsAnonymizerBackend` raises
+`SidecarUnavailable` and the `fhir_anonymizer` template surfaces the
+run as `failed` with the exception in the error column. Recovery:
+restart the sidecar (`docker compose restart parthenon-anonymizer`)
+and resubmit the run.
+
+The sidecar streams stdout to Docker's logging driver. No persistent
+log volume is mounted; rotation is handled by Docker's defaults.
+
+## DICOM ETL operations (Plan 2 / Plan 1)
+
+- The `dicom_dir` parameter must point at a directory mounted into the
+  templates container (typically a Docker volume the customer owns).
+- DICOMweb auth uses the bearer token declared as `secret: true` in the
+  manifest. If the token expires mid-run, the run fails; rotate the
+  token and resubmit. The Materializer redacts the token from echoed
+  parameters and run logs.
+- After a DICOM ETL run, this query MUST return zero rows:
+
+  ```sql
+  SELECT column_name
+  FROM information_schema.columns
+  WHERE table_name = 'dicom_metadata' AND column_name ILIKE '%pixel%';
+  ```
+
+  A non-zero result indicates a HIGHSEC pixel-absence regression. Open
+  a security incident immediately.
+
+## PRO instrument operations (Plan 3)
+
+- The shipped EQ-5D-5L value set
+  (`runtime/instruments/value_sets/eq5d5l_placeholder.csv`) is a
+  PLACEHOLDER. Customers must supply the licensed EuroQol value set via
+  the `eq5d_value_set_path` parameter for any clinical use; placeholder
+  runs succeed but emit dimensional placeholder utility values.
+- The EQ-5D-3L template ships as a scaffold; both templates share
+  `runtime.instruments.pro_base.parse_questionnaire_response`.
+
+## fhir_to_omop operations (Plans 5 / 6 / 7)
+
+- **Concept resolution misses** route to
+  `app.unmapped_concepts_queue`. Query for a run's gaps:
+
+  ```sql
+  SELECT source_system, source_code, source_display, occurrence_count
+  FROM app.unmapped_concepts_queue
+  WHERE run_id = '<run_uuid>'
+  ORDER BY occurrence_count DESC;
+  ```
+
+  The Laravel `MappingReviewController` flow surfaces these to a human
+  reviewer. Phase 1 does NOT call any AI mapping pathway.
+
+- **Consent decisions** are recorded in `app.consent_decisions`.
+  Downstream cohort exports MUST filter:
+
+  ```sql
+  SELECT person_source_value
+  FROM app.consent_decisions
+  WHERE decision = 'deny';
+  ```
+
+  These person_source_values must be excluded from any clinical export.
+  A partial index keeps the lookup fast at scale.
+
+- **IG version pin** is `v0.1.0-parthenon` (file:
+  `templates/runtime/fhir_to_omop/ig/v0.1.0-parthenon.json`). Bumping
+  the pin is a deliberate ADR amendment (see ADR 0008), not a
+  hot-config change.
+
+## Performance characteristics
+
+- **Reference benchmark (Plan 7 Task 6 / 7):** 1M Observations in
+  `<TBD>` seconds on Darkstar (8 vCPU / 32 GB / NVMe). The actual
+  number locks at the first nightly perf run. The harness lives at
+  `templates/tests/performance/test_fhir_to_omop_throughput.py` and
+  runs under `-m slow`.
+- **Memory budget:** <200 MB RSS on a 1 GB FHIR Bulk Data bundle is a
+  `FhirResourceNode` invariant verified by
+  `tests/integration/test_fhir_resource_memory.py`.
+- **When a run takes longer than 2x the benchmark**, suspect:
+  1. Cold vocabulary cache (first run after deploy).
+  2. IG snapshot drift (pinned version stale relative to source IG).
+  3. Source FHIR server pagination defaults too small.
+
+## Phase 1 runbook checklist
+
+Before declaring the templates service ready for a Phase 1 workload:
+
+- [ ] `parthenon-templates` container healthy
+- [ ] `parthenon-anonymizer` sidecar healthy (when in use)
+- [ ] `parthenon-postgres` reachable from templates
+- [ ] `vocab.concept` populated with the vocabularies the run's
+      templates expect (SNOMED, LOINC, RxNorm, ICD-10, CPT, CVX,
+      Parthenon-Imaging)
+- [ ] For imaging templates: `Parthenon-Imaging` rows present
+      (`SELECT COUNT(*) FROM vocab.concept WHERE vocabulary_id = 'Parthenon-Imaging'`)
+- [ ] For PRO templates: customer-supplied EuroQol value set in place
+- [ ] For FHIR ETL: source FHIR server reachable; bearer token valid
+- [ ] `app.unmapped_concepts_queue` and `app.consent_decisions`
+      migrations applied (`php artisan migrate --path=database/migrations`
+      includes `2026_05_03_120000` and `2026_05_03_130000`)
+
