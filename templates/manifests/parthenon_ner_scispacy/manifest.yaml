@@ -1,0 +1,54 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: parthenon_ner_scispacy
+  name: Clinical NER over FHIR DocumentReference (SciSpaCy backend)
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["nlp", "ner", "fhir", "scispacy", "offline", "hipaa-strict", "phase-2"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source: {type: string, enum: ["ndjson", "search"], default: "ndjson"}
+      ndjson_dir: {type: string, default: ""}
+      fhir_endpoint: {type: string, default: ""}
+      bearer_token: {type: string, secret: true, default: ""}
+      profile:
+        type: string
+        enum: ["us-core", "mcode", "ips", "mii"]
+        default: "us-core"
+      strict_profile_match: {type: boolean, default: false}
+      prompt_version: {type: string, default: "v0.1.0"}
+      target_schema: {type: string, default: "omop"}
+      vocab_schema: {type: string, default: "vocab"}
+      app_schema: {type: string, default: "app"}
+    required: ["source"]
+  requires:
+    cdm_initialized: true
+    vocabularies: ["SNOMED", "RxNorm", "LOINC"]
+  nodes:
+    - node_id: ingest_fhir
+      type: fhir_resource
+      params:
+        source: "${parameters.source}"
+        ndjson_dir: "${parameters.ndjson_dir}"
+        fhir_base_url: "${parameters.fhir_endpoint}"
+        bearer_token: "${parameters.bearer_token}"
+        profile: "${parameters.profile}"
+        strict_profile_match: "${parameters.strict_profile_match}"
+        resource_types:
+          - DocumentReference
+    - node_id: nlp_inference
+      type: note_nlp
+      depends_on: [ingest_fhir]
+      params:
+        backend: scispacy
+        prompt_version: "${parameters.prompt_version}"
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: note_nlp_inference.json
+        min_rows: 0

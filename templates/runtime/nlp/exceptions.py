@@ -13,3 +13,7 @@ class LlmBudgetExceeded(LlmBackendError):
 
 class PromptVersionError(LlmBackendError):
     """Raised when the manifest pins a prompt version that doesn't exist in the registry."""
+
+
+class SciSpacyBackendError(LlmBackendError):
+    """Raised when the parthenon-scispacy sidecar HTTP call fails."""

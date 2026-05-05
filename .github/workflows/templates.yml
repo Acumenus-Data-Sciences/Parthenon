@@ -197,6 +197,33 @@ jobs:
         # MS .NET CLI via the parthenon-anonymizer sidecar HTTP shim.
         run: uv run pytest tests/e2e/test_fhir_anonymizer_ms.py -v -m integration
 
+      # SciSpaCy sidecar (Phase 2 Plan 2). The model preload adds ~30s to the
+      # start period; allow up to 5 minutes. Build locally so the registry-pull
+      # path is not the critical path on a fresh CI runner.
+      - name: Build parthenon-scispacy sidecar image
+        run: docker compose build parthenon-scispacy
+
+      - name: Start parthenon-scispacy sidecar
+        run: docker compose up -d parthenon-scispacy
+
+      - name: Wait for scispacy sidecar healthy
+        run: |
+          for i in $(seq 1 60); do
+            status=$(docker compose ps --format json parthenon-scispacy | jq -r '.[0].Health // .[].Health // empty')
+            if [ "$status" = "healthy" ]; then exit 0; fi
+            sleep 5
+          done
+          echo "scispacy sidecar did not become healthy"; exit 1
+
+      - name: parthenon_ner_scispacy live-sidecar canary
+        working-directory: templates
+        env:
+          PARTHENON_SCISPACY_URL: http://localhost:5101
+        # SKIPs by default unless the sidecar is reachable (which it is, by
+        # this point in the workflow). Asserts that real SciSpaCy extracts at
+        # least one condition + one drug from a 5-note canary.
+        run: uv run pytest tests/integration/test_scispacy_sidecar_e2e.py -v -m integration
+
       - name: fhir_to_omop PR-A E2E
         working-directory: templates
         # Phase 1 PR-A: Patient/Encounter/Condition/Observation -> OMOP CDM.
