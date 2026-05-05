@@ -188,3 +188,12 @@ jobs:
         # asserts 2/2/2/2/2 row counts for PERSON/VISIT/CONDITION/MEASUREMENT/
         # OBSERVATION.
         run: uv run pytest tests/e2e/test_fhir_to_omop_pra.py -v -m integration
+
+      - name: fhir_to_omop PR-B E2E
+        working-directory: templates
+        # Phase 1 PR-B: extends PR-A with Procedure/Medication/Immunization.
+        # Seeds 12 concepts (PR-A 9 + CPT 44950, RxNorm 6809, CVX 141), drops
+        # and recreates omop.drug_exposure (Phase 0 ships a barebones table
+        # without SERIAL), runs the 10-stage pipeline against 13 fixture FHIR
+        # resources, and asserts 2/2/2/2/2/1/2 row counts.
+        run: uv run pytest tests/e2e/test_fhir_to_omop_prb.py -v -m integration

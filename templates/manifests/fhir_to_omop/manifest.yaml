@@ -36,7 +36,16 @@ spec:
         bearer_token: "${parameters.bearer_token}"
         profile: "${parameters.profile}"
         strict_profile_match: "${parameters.strict_profile_match}"
-        resource_types: ["Patient", "Encounter", "Condition", "Observation"]
+        resource_types:
+          - Patient
+          - Encounter
+          - Condition
+          - Observation
+          - Procedure
+          - MedicationRequest
+          - MedicationStatement
+          - MedicationAdministration
+          - Immunization
 
     - node_id: map_patients
       type: python
@@ -157,9 +166,105 @@ spec:
         inputs:
           vocab_schema: "${parameters.vocab_schema}"
 
+    - node_id: map_procedures
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.procedure import map_procedure
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "procedure.parquet"
+              if not upstream.exists():
+                  return {"procedures_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  rows.append(map_procedure(dict(raw), resolver).model_dump())
+              (context.artifact_dir / "procedures.json").write_text(
+                  json.dumps(rows), encoding="utf-8"
+              )
+              return {"procedures_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_medications
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.medication import (
+              map_medication_administration, map_medication_request, map_medication_statement,
+          )
+
+          def main(context, params):
+              base = context.artifact_dir.parent / "ingest_fhir"
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for fname, mapper in [
+                  ("medicationrequest.parquet", map_medication_request),
+                  ("medicationstatement.parquet", map_medication_statement),
+                  ("medicationadministration.parquet", map_medication_administration),
+              ]:
+                  pq = base / fname
+                  if not pq.exists():
+                      continue
+                  for raw in pl.read_parquet(pq).iter_rows(named=True):
+                      rows.append(mapper(dict(raw), resolver).model_dump())
+              (context.artifact_dir / "drug_exposures_meds.json").write_text(
+                  json.dumps(rows), encoding="utf-8"
+              )
+              return {"drug_exposures_meds_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: map_immunizations
+      type: python
+      depends_on: [ingest_fhir]
+      params:
+        code: |
+          import json
+          from sqlalchemy import create_engine
+          import polars as pl
+          from runtime.fhir_to_omop.concept_resolver import ConceptResolver
+          from runtime.fhir_to_omop.immunization import map_immunization
+
+          def main(context, params):
+              upstream = context.artifact_dir.parent / "ingest_fhir" / "immunization.parquet"
+              if not upstream.exists():
+                  return {"drug_exposures_imm_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for raw in pl.read_parquet(upstream).iter_rows(named=True):
+                  rows.append(map_immunization(dict(raw), resolver).model_dump())
+              (context.artifact_dir / "drug_exposures_imm.json").write_text(
+                  json.dumps(rows), encoding="utf-8"
+              )
+              return {"drug_exposures_imm_mapped": len(rows)}
+        inputs:
+          vocab_schema: "${parameters.vocab_schema}"
+
     - node_id: load_to_cdm
       type: python
-      depends_on: [map_patients, map_encounters, map_conditions, map_observations]
+      depends_on:
+        - map_patients
+        - map_encounters
+        - map_conditions
+        - map_observations
+        - map_procedures
+        - map_medications
+        - map_immunizations
       params:
         code: |
           import json
@@ -185,7 +290,20 @@ spec:
                   (base / "map_observations" / "observations.json").read_text(encoding="utf-8")
               )
 
-              n_persons = n_visits = n_conds = n_meas = n_obs = 0
+              proc_path = base / "map_procedures" / "procedures.json"
+              procedures = (
+                  json.loads(proc_path.read_text(encoding="utf-8")) if proc_path.exists() else []
+              )
+              meds_path = base / "map_medications" / "drug_exposures_meds.json"
+              drug_meds = (
+                  json.loads(meds_path.read_text(encoding="utf-8")) if meds_path.exists() else []
+              )
+              imm_path = base / "map_immunizations" / "drug_exposures_imm.json"
+              drug_imm = (
+                  json.loads(imm_path.read_text(encoding="utf-8")) if imm_path.exists() else []
+              )
+
+              n_persons = n_visits = n_conds = n_meas = n_obs = n_proc = n_drug = 0
               with engine.begin() as conn:
                   pid_map = {}
                   for i, p in enumerate(persons, start=1):
@@ -288,9 +406,56 @@ spec:
                       })
                       n_obs += 1
 
+                  for p in procedures:
+                      pid = pid_map.get(p["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = vid_map.get(p["visit_source_value"]) if p["visit_source_value"] else None
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.procedure_occurrence "
+                          f"(person_id, procedure_concept_id, procedure_date, "
+                          f"procedure_datetime, procedure_type_concept_id, "
+                          f"procedure_source_value, procedure_source_concept_id, "
+                          f"visit_occurrence_id) "
+                          f"VALUES (:pid, :pc, :pd, :pdt, :ptc, :psv, :psc, :vid)"
+                      ), {
+                          "pid": pid, "pc": p["procedure_concept_id"],
+                          "pd": p["procedure_date"], "pdt": p["procedure_datetime"],
+                          "ptc": p["procedure_type_concept_id"],
+                          "psv": p["procedure_source_value"],
+                          "psc": p["procedure_source_concept_id"], "vid": vid,
+                      })
+                      n_proc += 1
+
+                  for d in drug_meds + drug_imm:
+                      pid = pid_map.get(d["person_source_value"])
+                      if pid is None:
+                          continue
+                      vid = vid_map.get(d["visit_source_value"]) if d["visit_source_value"] else None
+                      conn.execute(text(
+                          f"INSERT INTO {schema}.drug_exposure "
+                          f"(person_id, drug_concept_id, "
+                          f"drug_exposure_start_date, drug_exposure_start_datetime, "
+                          f"drug_exposure_end_date, drug_exposure_end_datetime, "
+                          f"drug_type_concept_id, drug_source_value, drug_source_concept_id, "
+                          f"visit_occurrence_id) "
+                          f"VALUES (:pid, :dc, :dsd, :dsdt, :ded, :dedt, :dtc, :dsv, :dsc, :vid)"
+                      ), {
+                          "pid": pid, "dc": d["drug_concept_id"],
+                          "dsd": d["drug_exposure_start_date"],
+                          "dsdt": d["drug_exposure_start_datetime"],
+                          "ded": d["drug_exposure_end_date"],
+                          "dedt": d["drug_exposure_end_datetime"],
+                          "dtc": d["drug_type_concept_id"],
+                          "dsv": d["drug_source_value"],
+                          "dsc": d["drug_source_concept_id"], "vid": vid,
+                      })
+                      n_drug += 1
+
               return {
                   "persons": n_persons, "visits": n_visits, "conditions": n_conds,
                   "measurements": n_meas, "observations": n_obs,
+                  "procedures": n_proc, "drug_exposures": n_drug,
               }
         inputs:
           target_schema: "${parameters.target_schema}"
@@ -306,7 +471,9 @@ spec:
             (SELECT COUNT(*) FROM ${parameters.target_schema}.visit_occurrence) AS visits,
             (SELECT COUNT(*) FROM ${parameters.target_schema}.condition_occurrence) AS conditions,
             (SELECT COUNT(*) FROM ${parameters.target_schema}.measurement) AS measurements,
-            (SELECT COUNT(*) FROM ${parameters.target_schema}.observation) AS observations
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.observation) AS observations,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.procedure_occurrence) AS procedures,
+            (SELECT COUNT(*) FROM ${parameters.target_schema}.drug_exposure) AS drug_exposures
         result_artifact: fhir_to_omop_summary
   post_conditions:
     - kind: artifact_present

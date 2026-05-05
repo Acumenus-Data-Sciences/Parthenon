@@ -13,6 +13,7 @@
     "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets": "HCPCS",
     "http://loinc.org": "LOINC",
     "http://www.nlm.nih.gov/research/umls/rxnorm": "RxNorm",
+    "http://hl7.org/fhir/sid/cvx": "CVX",
     "http://hl7.org/fhir/administrative-gender": "Gender",
     "urn:oid:2.16.840.1.113883.6.238": "Race",
     "http://terminology.hl7.org/CodeSystem/v3-Race": "Race",
