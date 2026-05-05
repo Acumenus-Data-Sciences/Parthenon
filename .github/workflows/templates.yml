@@ -100,7 +100,12 @@ jobs:
 
       - name: Pytest
         working-directory: templates
-        run: uv run pytest -q --maxfail=1
+        # Skip the slow lane — the throughput perf harness lives at
+        # tests/performance/ marked `slow + integration`; it has its own
+        # dedicated `perf` job gated to schedule + workflow_dispatch
+        # (see PR #262). The named E2E steps below cover the integration
+        # tests that should always gate.
+        run: uv run pytest -q --maxfail=1 -m "not slow"
 
       - name: hello_cdm E2E
         working-directory: templates
