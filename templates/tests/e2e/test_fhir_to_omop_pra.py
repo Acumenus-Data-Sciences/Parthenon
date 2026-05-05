@@ -213,8 +213,17 @@ def test_fhir_to_omop_pra_runs_to_completion(
 
     fixture_dir = tmp_path / "fhir_in"
     fixture_dir.mkdir()
+    # PR-A scope is Patient/Encounter/Condition/Observation. Exclude PR-B and
+    # PR-C resource types so the OBSERVATION count stays honest at 2.
+    pra_resource_types = {
+        "Patient.ndjson",
+        "Encounter.ndjson",
+        "Condition.ndjson",
+        "Observation.ndjson",
+    }
     for f in (MANIFEST_DIR / "fixtures" / "sample").glob("*.ndjson"):
-        shutil.copy(f, fixture_dir / f.name)
+        if f.name in pra_resource_types:
+            shutil.copy(f, fixture_dir / f.name)
 
     with PostgresContainer("postgres:16") as pg:
         db_url = _normalize_psycopg(pg.get_connection_url())
