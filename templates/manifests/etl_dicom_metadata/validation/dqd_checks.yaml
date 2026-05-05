@@ -1,0 +1,30 @@
+checks:
+  - check_id: dicom_etl_no_pixel_data_columns
+    description: "Defense in depth: image_occurrence table has no pixel-data columns."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM information_schema.columns
+      WHERE table_schema = 'omop' AND table_name = 'image_occurrence'
+        AND column_name ILIKE '%pixel%'
+    expected: 0
+
+  - check_id: dicom_etl_unique_series_per_occurrence
+    description: "Each image_occurrence references a unique series_uid."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM (
+        SELECT image_series_uid, COUNT(*) AS n
+        FROM omop.image_occurrence
+        GROUP BY image_series_uid
+        HAVING COUNT(*) > 1
+      ) t
+    expected: 0
+
+  - check_id: dicom_etl_modality_codes_known
+    description: "Modality concept IDs all resolve to a vocab entry (or are 0)."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.image_occurrence i
+      LEFT JOIN vocab.concept c ON c.concept_id = i.modality_concept_id
+      WHERE c.concept_id IS NULL AND i.modality_concept_id != 0
+    expected: 0

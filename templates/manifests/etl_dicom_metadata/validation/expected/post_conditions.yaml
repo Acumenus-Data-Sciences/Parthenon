@@ -1,0 +1,18 @@
+post_conditions:
+  - kind: row_count
+    table: omop.image_occurrence
+    min: 3
+    description: "Three fixture DICOMs produce at least 3 image_occurrence rows"
+  - kind: artifact_present
+    artifact_name: dicom_metadata.parquet
+    min_rows: 3
+  - kind: artifact_present
+    artifact_name: dicom_etl_summary.json
+    min_rows: 1
+  - kind: column_value_range
+    table: omop.image_occurrence
+    column: modality_concept_id
+    where: "image_occurrence_id IS NOT NULL"
+    min: 0
+    max: 2099999999
+    description: "Modality concept_id is either 0 (unmapped) or in Parthenon-Imaging range"
