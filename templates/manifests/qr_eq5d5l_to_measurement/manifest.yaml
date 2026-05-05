@@ -1,0 +1,265 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: qr_eq5d5l_to_measurement
+  name: EQ-5D-5L QuestionnaireResponse to OMOP Measurement
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["pro", "eq5d", "fhir", "questionnaire"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source:
+        type: string
+        enum: ["ndjson", "search"]
+      ndjson_dir:
+        type: string
+        description: "Directory of NDJSON files (when source=ndjson)."
+      fhir_base_url:
+        type: string
+        description: "FHIR server base URL (when source=search)."
+      bearer_token:
+        type: string
+        description: "FHIR server bearer token (when source=search)."
+        secret: true
+      profile:
+        type: string
+        enum: ["us-core", "mcode", "ips", "mii"]
+        default: "us-core"
+      target_schema:
+        type: string
+        description: "OMOP CDM target schema."
+      vocab_schema:
+        type: string
+        default: "vocab"
+      eq5d_value_set_path:
+        type: string
+        description: |
+          Filesystem path to the EuroQol-licensed EQ-5D-5L value-set CSV.
+          The default points to a placeholder shipped with Parthenon — DO NOT
+          use the placeholder for clinical analysis. Replace with your
+          country-specific value set obtained from EuroQol.
+        default: "/app/runtime/instruments/value_sets/eq5d5l_placeholder.csv"
+      questionnaire_url:
+        type: string
+        description: "FHIR Questionnaire.url to filter QR by (selects EQ-5D-5L instances only)."
+        default: "https://www.euroqol.org/instruments/eq-5d-5l"
+      mo_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for Mobility item."
+      sc_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for Self-care item."
+      ua_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for Usual Activities item."
+      pd_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for Pain/Discomfort item."
+      ad_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for Anxiety/Depression item."
+      vas_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for VAS score."
+      utility_concept_id:
+        type: integer
+        description: "OMOP measurement_concept_id for derived utility index."
+    required:
+      - source
+      - target_schema
+      - mo_concept_id
+      - sc_concept_id
+      - ua_concept_id
+      - pd_concept_id
+      - ad_concept_id
+      - vas_concept_id
+      - utility_concept_id
+  requires:
+    cdm_initialized: true
+    vocabularies: []
+  nodes:
+    - node_id: ingest_responses
+      type: fhir_resource
+      params:
+        source: "${parameters.source}"
+        ndjson_dir: "${parameters.ndjson_dir}"
+        fhir_base_url: "${parameters.fhir_base_url}"
+        bearer_token: "${parameters.bearer_token}"
+        profile: "${parameters.profile}"
+        resource_types: ["QuestionnaireResponse"]
+
+    - node_id: project_to_measurement
+      type: python
+      depends_on: [ingest_responses]
+      params:
+        code: |
+          from sqlalchemy import create_engine, text
+
+          import polars as pl
+
+          from runtime.instruments.pro_base import (
+              ItemMapping,
+              ProInstrumentDefinition,
+              parse_questionnaire_response,
+          )
+
+          def _build_definition(p):
+              return ProInstrumentDefinition(
+                  instrument_id="eq5d5l",
+                  items=[
+                      ItemMapping(item_code="MO", measurement_concept_id=int(p["mo_concept_id"])),
+                      ItemMapping(item_code="SC", measurement_concept_id=int(p["sc_concept_id"])),
+                      ItemMapping(item_code="UA", measurement_concept_id=int(p["ua_concept_id"])),
+                      ItemMapping(item_code="PD", measurement_concept_id=int(p["pd_concept_id"])),
+                      ItemMapping(item_code="AD", measurement_concept_id=int(p["ad_concept_id"])),
+                  ],
+                  vas_item_code="VAS",
+                  vas_measurement_concept_id=int(p["vas_concept_id"]),
+              )
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("project_to_measurement requires context.db_dsn")
+              upstream = (
+                  context.artifact_dir.parent / "ingest_responses" / "questionnaireresponse.parquet"
+              )
+              if not upstream.exists():
+                  return {"questionnaire_responses_processed": 0, "items_inserted": 0}
+
+              df = pl.read_parquet(upstream)
+              questionnaire_url = params["questionnaire_url"]
+              definition = _build_definition(params)
+              schema = params["target_schema"]
+
+              engine = create_engine(context.db_dsn, future=True)
+              qr_count = 0
+              row_count = 0
+              with engine.begin() as conn:
+                  for raw in df.iter_rows(named=True):
+                      qr = dict(raw) if not isinstance(raw, dict) else raw
+                      qid = qr.get("questionnaire") or qr.get("questionnaireCanonical") or ""
+                      if questionnaire_url and questionnaire_url not in str(qid):
+                          continue
+                      qr_count += 1
+                      for r in parse_questionnaire_response(qr, definition):
+                          conn.execute(
+                              text(
+                                  f"INSERT INTO {schema}.measurement "
+                                  f"(person_id, measurement_concept_id, measurement_date, "
+                                  f"measurement_type_concept_id, value_as_number, value_as_concept_id, "
+                                  f"unit_concept_id, measurement_source_value) "
+                                  f"VALUES (NULL, :mcid, CAST(:mdate AS DATE), "
+                                  f"32817, :vnum, :vcid, :ucid, :msv)"
+                              ),
+                              {
+                                  "mcid": r.measurement_concept_id,
+                                  "mdate": r.measurement_date,
+                                  "vnum": r.value_as_number,
+                                  "vcid": r.value_as_concept_id,
+                                  "ucid": r.unit_concept_id,
+                                  "msv": r.measurement_source_value,
+                              },
+                          )
+                          row_count += 1
+              return {"questionnaire_responses_processed": qr_count, "items_inserted": row_count}
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          questionnaire_url: "${parameters.questionnaire_url}"
+          mo_concept_id: "${parameters.mo_concept_id}"
+          sc_concept_id: "${parameters.sc_concept_id}"
+          ua_concept_id: "${parameters.ua_concept_id}"
+          pd_concept_id: "${parameters.pd_concept_id}"
+          ad_concept_id: "${parameters.ad_concept_id}"
+          vas_concept_id: "${parameters.vas_concept_id}"
+
+    - node_id: derive_utility_index
+      type: python
+      depends_on: [project_to_measurement]
+      params:
+        code: |
+          from pathlib import Path
+          from sqlalchemy import create_engine, text
+
+          from runtime.instruments.value_sets.eq5d import load_value_set, lookup_utility
+
+          ITEM_ORDER = ["MO", "SC", "UA", "PD", "AD"]
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("derive_utility_index requires context.db_dsn")
+              schema = params["target_schema"]
+              utility_concept_id = int(params["utility_concept_id"])
+              value_set_path = Path(params["eq5d_value_set_path"])
+              table = load_value_set(value_set_path)
+
+              engine = create_engine(context.db_dsn, future=True)
+              derived = 0
+              skipped = 0
+              with engine.begin() as conn:
+                  rows = conn.execute(
+                      text(
+                          f"SELECT measurement_source_value, measurement_date, value_as_number "
+                          f"FROM {schema}.measurement "
+                          f"WHERE measurement_source_value IN ('MO','SC','UA','PD','AD') "
+                          f"ORDER BY measurement_date, measurement_source_value"
+                      )
+                  ).fetchall()
+                  by_date = {}
+                  for source, mdate, val in rows:
+                      key = mdate
+                      by_date.setdefault(key, {})[source] = int(val) if val is not None else None
+                  for mdate, items in by_date.items():
+                      if not all(c in items for c in ITEM_ORDER):
+                          skipped += 1
+                          continue
+                      try:
+                          profile = "".join(str(items[c]) for c in ITEM_ORDER)
+                          util = lookup_utility(profile, table)
+                      except Exception:
+                          skipped += 1
+                          continue
+                      conn.execute(
+                          text(
+                              f"INSERT INTO {schema}.measurement "
+                              f"(person_id, measurement_concept_id, measurement_date, "
+                              f"measurement_type_concept_id, value_as_number, unit_concept_id, "
+                              f"measurement_source_value) "
+                              f"VALUES (NULL, :mcid, CAST(:mdate AS DATE), "
+                              f"32893, :vnum, 8512, 'EQ5D5L_UTILITY')"
+                          ),
+                          {"mcid": utility_concept_id, "mdate": str(mdate), "vnum": util},
+                      )
+                      derived += 1
+              return {"utility_indices_derived": derived, "utility_dates_skipped": skipped}
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          utility_concept_id: "${parameters.utility_concept_id}"
+          eq5d_value_set_path: "${parameters.eq5d_value_set_path}"
+
+    - node_id: emit_summary
+      type: sql
+      depends_on: [derive_utility_index]
+      params:
+        statements:
+          - "SELECT 1"
+        fetch_query: |
+          SELECT
+            COUNT(*) FILTER (WHERE measurement_source_value IN ('MO','SC','UA','PD','AD')) AS items,
+            COUNT(*) FILTER (WHERE measurement_source_value = 'VAS') AS vas_records,
+            COUNT(*) FILTER (WHERE measurement_source_value = 'EQ5D5L_UTILITY') AS utilities
+          FROM ${parameters.target_schema}.measurement
+        result_artifact: eq5d5l_summary
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.measurement"
+        where: "measurement_source_value IN ('MO','SC','UA','PD','AD')"
+        min: 1
+    - kind: artifact_present
+      params:
+        artifact: eq5d5l_summary.json
+        min_rows: 1

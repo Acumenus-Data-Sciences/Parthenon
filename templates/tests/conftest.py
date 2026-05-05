@@ -15,7 +15,9 @@ def repo_root() -> Path:
 
 
 @pytest.fixture(autouse=True)
-def _isolate_internal_token(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
+def _isolate_internal_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Generator[None, None, None]:
     monkeypatch.setenv("PARTHENON_INTERNAL_TOKEN", "test-internal-token")
     yield
     if "PARTHENON_INTERNAL_TOKEN" in os.environ:

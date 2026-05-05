@@ -1,0 +1,37 @@
+checks:
+  - check_id: eq5d5l_items_have_value
+    description: "Every EQ-5D item row has a value_as_number in [1, 5]."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.measurement
+      WHERE measurement_source_value IN ('MO','SC','UA','PD','AD')
+        AND (value_as_number IS NULL OR value_as_number < 1 OR value_as_number > 5)
+    expected: 0
+
+  - check_id: eq5d5l_vas_in_range
+    description: "VAS scores are in [0, 100]."
+    sql: |
+      SELECT COUNT(*) AS violations
+      FROM omop.measurement
+      WHERE measurement_source_value = 'VAS'
+        AND (value_as_number IS NULL OR value_as_number < 0 OR value_as_number > 100)
+    expected: 0
+
+  - check_id: eq5d5l_utility_per_completed_set
+    description: "A utility row exists for every date where all 5 items are present."
+    sql: |
+      WITH per_date AS (
+        SELECT measurement_date, COUNT(DISTINCT measurement_source_value) AS items
+        FROM omop.measurement
+        WHERE measurement_source_value IN ('MO','SC','UA','PD','AD')
+        GROUP BY measurement_date
+      ),
+      utilities AS (
+        SELECT measurement_date FROM omop.measurement
+        WHERE measurement_source_value = 'EQ5D5L_UTILITY'
+      )
+      SELECT COUNT(*) AS violations
+      FROM per_date pd
+      LEFT JOIN utilities u USING (measurement_date)
+      WHERE pd.items = 5 AND u.measurement_date IS NULL
+    expected: 0

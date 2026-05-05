@@ -1,0 +1,24 @@
+# PLACEHOLDER VALUE SET — REPLACE WITH YOUR EUROQOL-LICENSED EQ-5D-5L VALUE SET
+# This file ships with Parthenon as DIMENSIONAL PLACEHOLDER DATA only.
+# The utility-index values below are NOT clinically valid. They satisfy
+# the structural shape (5-character profile string -> utility index) so
+# the qr_eq5d5l_to_measurement template runs end-to-end against fixture
+# data. DO NOT use these values for real clinical analysis.
+#
+# To obtain a real EQ-5D-5L value set, register with EuroQol:
+#   https://euroqol.org/eq-5d-instruments/
+# Then drop your country-specific CSV (same shape as this file) at the
+# path you pass via the manifest parameter eq5d_value_set_path.
+profile,utility_index
+11111,1.000
+11112,0.900
+11211,0.890
+12111,0.880
+21111,0.870
+22222,0.500
+33333,0.300
+44444,0.100
+55555,-0.100
+54321,0.450
+12345,0.420
+13579,0.380

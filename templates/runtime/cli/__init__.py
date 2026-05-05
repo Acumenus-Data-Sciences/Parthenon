@@ -41,7 +41,9 @@ def _iter_manifests(root: Path) -> list[Path]:
 @app.command("validate-manifests")
 def validate_manifests(
     root: Path | None = typer.Option(
-        None, "--root", help="Manifests root directory (default: ./templates/manifests)."
+        None,
+        "--root",
+        help="Manifests root directory (default: ./templates/manifests).",
     ),
 ) -> None:
     """Validate every manifest.yaml under ``root`` against JSON Schema + Pydantic."""
@@ -63,7 +65,9 @@ def validate_manifests(
 @app.command("lint-secret-keys")
 def lint_secret_keys(
     root: Path | None = typer.Option(
-        None, "--root", help="Manifests root directory (default: ./templates/manifests)."
+        None,
+        "--root",
+        help="Manifests root directory (default: ./templates/manifests).",
     ),
 ) -> None:
     """Fail if any parameter has a secret-shaped name without ``secret: true``."""
