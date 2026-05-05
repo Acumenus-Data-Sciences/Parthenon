@@ -1,0 +1,230 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: fhir_anonymizer
+  name: FHIR Bundle Anonymizer
+  version: "0.1.0"
+  category: transform
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["fhir", "anonymizer", "phi", "preprocessing"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      input_kind:
+        type: string
+        enum: ["ndjson_dir", "bundle_file"]
+        description: |
+          ndjson_dir: a directory of NDJSON files (one file per resource type).
+          bundle_file: a single FHIR Bundle JSON file containing entry[].resource.
+      input_path:
+        type: string
+        description: "Filesystem path to the NDJSON directory or Bundle file."
+      backend:
+        type: string
+        enum: ["native", "ms"]
+        default: "ms"
+        description: |
+          ms: use the parthenon-anonymizer sidecar (recommended for production).
+          native: use the Parthenon pure-Python rule engine.
+      config_source:
+        type: string
+        enum: ["library", "inline", "file"]
+        default: "library"
+      config_name:
+        type: string
+        description: |
+          When config_source=library, selects from the shipped config library:
+          'hipaa_safe_harbor' or 'minimal_redaction' (see
+          runtime/instruments/anonymizer_configs/README.md).
+        default: "hipaa_safe_harbor"
+      config:
+        type: object
+        description: "When config_source=inline, the inline config dict."
+      config_path:
+        type: string
+        description: "When config_source=file, the filesystem path to a JSON config."
+      sidecar_url:
+        type: string
+        description: "Override sidecar URL (when backend=ms)."
+        default: "http://parthenon-anonymizer:8080"
+    required: ["input_kind", "input_path", "backend"]
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    - node_id: prepare_resources
+      type: python
+      params:
+        code: |
+          import json
+          from pathlib import Path
+
+          def main(context, params):
+              input_kind = params["input_kind"]
+              input_path = Path(params["input_path"])
+              prepared = context.artifact_dir / "prepared"
+              prepared.mkdir(parents=True, exist_ok=True)
+              n_written = 0
+              if input_kind == "ndjson_dir":
+                  if not input_path.is_dir():
+                      raise FileNotFoundError(f"input_path is not a directory: {input_path}")
+                  for ndjson in input_path.glob("*.ndjson"):
+                      with ndjson.open("r", encoding="utf-8") as f:
+                          for line in f:
+                              line = line.strip()
+                              if not line:
+                                  continue
+                              resource = json.loads(line)
+                              rt = resource.get("resourceType", "Unknown")
+                              rid = resource.get("id", f"anon_{n_written}")
+                              outfile = prepared / f"{rt}_{rid}.json"
+                              outfile.write_text(json.dumps(resource), encoding="utf-8")
+                              n_written += 1
+              elif input_kind == "bundle_file":
+                  if not input_path.is_file():
+                      raise FileNotFoundError(f"input_path is not a file: {input_path}")
+                  bundle = json.loads(input_path.read_text(encoding="utf-8"))
+                  if bundle.get("resourceType") != "Bundle":
+                      raise ValueError(
+                          f"bundle_file must contain a Bundle, got {bundle.get('resourceType')}"
+                      )
+                  for entry in bundle.get("entry", []) or []:
+                      resource = entry.get("resource") or {}
+                      rt = resource.get("resourceType", "Unknown")
+                      rid = resource.get("id", f"anon_{n_written}")
+                      outfile = prepared / f"{rt}_{rid}.json"
+                      outfile.write_text(json.dumps(resource), encoding="utf-8")
+                      n_written += 1
+              else:
+                  raise ValueError(f"unsupported input_kind: {input_kind!r}")
+              return {"resources_prepared": n_written, "prepared_dir": str(prepared)}
+        inputs:
+          input_kind: "${parameters.input_kind}"
+          input_path: "${parameters.input_path}"
+
+    - node_id: resolve_config
+      type: python
+      depends_on: [prepare_resources]
+      params:
+        code: |
+          import json
+          from pathlib import Path
+
+          LIBRARY_DIR = Path(__file__).resolve().parents[3] if False else None
+          # Resolve the library dir relative to the runtime package at runtime,
+          # not at parse time, to keep the manifest portable.
+          import runtime.instruments.anonymizer_configs as _cfg_pkg
+          _LIBRARY_DIR = Path(_cfg_pkg.__file__).resolve().parent
+
+          def main(context, params):
+              source = params["config_source"]
+              if source == "library":
+                  name = params.get("config_name", "hipaa_safe_harbor")
+                  cfg_path = _LIBRARY_DIR / f"{name}.json"
+                  if not cfg_path.exists():
+                      raise FileNotFoundError(f"config_name {name!r} not in library")
+                  cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+              elif source == "inline":
+                  cfg = params.get("config")
+                  if not isinstance(cfg, dict):
+                      raise ValueError("inline config_source requires 'config' (dict)")
+              elif source == "file":
+                  fp = Path(params.get("config_path", ""))
+                  if not fp.exists():
+                      raise FileNotFoundError(f"config_path not found: {fp}")
+                  cfg = json.loads(fp.read_text(encoding="utf-8"))
+              else:
+                  raise ValueError(f"unsupported config_source: {source!r}")
+              (context.artifact_dir / "resolved_config.json").write_text(
+                  json.dumps(cfg), encoding="utf-8"
+              )
+              return {"config_source": source, "rules_count": len(cfg.get("rules", []))}
+        inputs:
+          config_source: "${parameters.config_source}"
+          config_name: "${parameters.config_name}"
+          config: "${parameters.config}"
+          config_path: "${parameters.config_path}"
+
+    - node_id: anonymize
+      type: python
+      depends_on: [resolve_config]
+      params:
+        code: |
+          # Bridge: read resolved config + prepared dir, run AnonymizerNode in-process.
+          # The orchestrator's Materializer doesn't substitute path expressions across
+          # nodes, so we construct AnonymizerNode params here from sibling artifacts.
+          # Phase 2 cleanup: extend the Materializer to support ${node.<id>.artifact_dir}
+          # references so we can drop the wrapper.
+          import json
+
+          from runtime.nodes.anonymizer import AnonymizerNode
+          from runtime.nodes.base import NodeContext
+
+          def main(context, params):
+              prepared = context.artifact_dir.parent / "prepare_resources" / "prepared"
+              cfg_file = context.artifact_dir.parent / "resolve_config" / "resolved_config.json"
+              cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
+              node = AnonymizerNode()
+              result = node.run(
+                  NodeContext(
+                      run_id=context.run_id,
+                      node_id="anonymize_inner",
+                      logger=context.logger,
+                      secrets=context.secrets,
+                      artifact_dir=context.artifact_dir,
+                      db_dsn=context.db_dsn,
+                  ),
+                  {
+                      "backend": params["backend"],
+                      "input_dir": str(prepared),
+                      "config": cfg,
+                      "sidecar_url": params.get("sidecar_url", "http://parthenon-anonymizer:8080"),
+                  },
+              )
+              if result.status.value != "success":
+                  raise RuntimeError(f"anonymizer failed: {result.error_message}")
+              return result.outputs
+        inputs:
+          backend: "${parameters.backend}"
+          sidecar_url: "${parameters.sidecar_url}"
+
+    - node_id: summarize
+      type: python
+      depends_on: [anonymize]
+      params:
+        code: |
+          import json
+          from collections import Counter
+
+          def main(context, params):
+              prepared = context.artifact_dir.parent / "prepare_resources" / "prepared"
+              anonymized = context.artifact_dir.parent / "anonymize" / "anonymized"
+              before = Counter()
+              after = Counter()
+              for f in prepared.glob("*.json"):
+                  rt = f.name.split("_", 1)[0]
+                  before[rt] += 1
+              for f in anonymized.glob("*.json"):
+                  rt = f.name.split("_", 1)[0]
+                  after[rt] += 1
+              if dict(before) != dict(after):
+                  raise RuntimeError(
+                      f"resource count mismatch: before={dict(before)} after={dict(after)} "
+                      "— anonymization MUST preserve count"
+                  )
+              summary = {
+                  "by_resource_type": dict(after),
+                  "total_resources": sum(after.values()),
+              }
+              (context.artifact_dir / "anonymizer_summary.json").write_text(
+                  json.dumps(summary), encoding="utf-8"
+              )
+              return summary
+        inputs: {}
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: anonymizer_summary.json
+        min_rows: 1

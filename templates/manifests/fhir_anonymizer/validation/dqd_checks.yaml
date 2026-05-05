@@ -1,0 +1,20 @@
+# fhir_anonymizer is a file-to-file template — no DB writes.
+# DQD-equivalent checks operate on the anonymized output directory.
+checks:
+  - check_id: anonymizer_no_source_phi_leaked
+    description: "No source PHI string appears anywhere in the anonymized output."
+    grep_pattern_must_be_absent:
+      - "Jane Doe"
+      - "John Smith"
+      - "555-0100"
+      - "555-0101"
+      - "MRN-12345-67890"
+      - "MRN-77777-88888"
+      - "jane.doe@example.com"
+      - "123 Main St"
+    where: "anonymized/*.json"
+
+  - check_id: anonymizer_resource_count_preserved
+    description: "Anonymization preserves resource count per type."
+    summary_artifact: anonymizer_summary.json
+    expected_keys: ["Patient", "Encounter", "Observation"]
