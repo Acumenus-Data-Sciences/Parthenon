@@ -1,0 +1,12 @@
+# Post-conditions for parthenon_ner_scispacy.
+#
+# Phase 2 spec §6 acceptance: SciSpaCy must process the 100-note benchmark
+# offline (no network egress) in <5 minutes. Recall threshold is RELAXED
+# to ≥0.85 vs LLM's 0.90 because SciSpaCy is rule-bound and lacks the
+# few-shot adaptability of MedGemma. Documented in ADR 0012.
+#
+# Reuses the parthenon_ner_llm gold standard so the comparison is direct.
+
+recall_threshold: 0.85
+gold_standard_csv: ../../../parthenon_ner_llm/validation/expected/gold_standard.csv
+artifact_name: note_nlp_inference.json

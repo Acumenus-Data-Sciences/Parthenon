@@ -85,4 +85,8 @@ def _resolve_backend(params: dict[str, Any]) -> NlpBackend:
 
         provider = params.get("llm_provider", "ollama")
         return LlmBackend(provider=str(provider))
+    if which == "scispacy":
+        from runtime.nlp.backends.scispacy import SciSpacyBackend
+
+        return SciSpacyBackend()
     raise ValueError(f"unknown nlp backend: {which!r}")

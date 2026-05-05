@@ -1055,6 +1055,26 @@ services:
       - parthenon
     restart: unless-stopped
 
+  # SciSpaCy NER sidecar for HIPAA-strict deployments (Phase 2 decision Q3).
+  # Preloads en_core_sci_md at build time; runs offline thereafter.
+  parthenon-scispacy:
+    container_name: parthenon-scispacy
+    image: ghcr.io/sudoshi/parthenon-scispacy:v0.1.0
+    build:
+      context: ./docker/parthenon-scispacy
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - parthenon
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:5101/health\")'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
   parthenon-anonymizer:
     container_name: parthenon-anonymizer
     image: ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.1.1

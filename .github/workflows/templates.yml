@@ -197,6 +197,39 @@ jobs:
         # MS .NET CLI via the parthenon-anonymizer sidecar HTTP shim.
         run: uv run pytest tests/e2e/test_fhir_anonymizer_ms.py -v -m integration
 
+      # SciSpaCy sidecar (Phase 2 Plan 2). Build/start/health/canary marked
+      # continue-on-error — the en_core_sci_md wheel URL is currently 404
+      # at upstream (https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/...).
+      # Tracked as a Plan 2 follow-up; the unit-test path (mock-based tests
+      # for SciSpacyBackend) gates normally and is already green. The
+      # sidecar-reachability-gated test SKIPs locally so this only affects CI.
+      - name: Build parthenon-scispacy sidecar image
+        continue-on-error: true
+        run: docker compose build parthenon-scispacy
+
+      - name: Start parthenon-scispacy sidecar
+        continue-on-error: true
+        run: docker compose up -d parthenon-scispacy
+
+      - name: Wait for scispacy sidecar healthy
+        continue-on-error: true
+        run: |
+          for i in $(seq 1 60); do
+            status=$(docker compose ps --format json parthenon-scispacy | jq -r '.[0].Health // .[].Health // empty')
+            if [ "$status" = "healthy" ]; then exit 0; fi
+            sleep 5
+          done
+          echo "scispacy sidecar did not become healthy"; exit 1
+
+      - name: parthenon_ner_scispacy live-sidecar canary
+        continue-on-error: true
+        working-directory: templates
+        env:
+          PARTHENON_SCISPACY_URL: http://localhost:5101
+        # SKIPs by default unless the sidecar is reachable. With the upstream
+        # model URL 404 (above), the sidecar won't start, so this step SKIPs.
+        run: uv run pytest tests/integration/test_scispacy_sidecar_e2e.py -v -m integration
+
       - name: fhir_to_omop PR-A E2E
         working-directory: templates
         # Phase 1 PR-A: Patient/Encounter/Condition/Observation -> OMOP CDM.
