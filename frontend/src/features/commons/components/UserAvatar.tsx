@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { avatarColor } from "../utils/avatarColor";
 
 interface UserAvatarProps {
@@ -22,25 +22,44 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export function UserAvatar({ user, size = "md", className = "" }: UserAvatarProps) {
-  const [imgError, setImgError] = useState(false);
-  const avatarUrl = user.avatar && !imgError ? `/storage/${user.avatar}` : null;
+// ⚡ Bolt Optimization: Memoize UserAvatar with a custom deep comparison function.
+// This prevents unnecessary re-renders when parent list components (like MemberList or OnlineUsers)
+// create inline user objects (e.g., user={{ id: member.user_id, name: member.user.name }})
+// and pass them as props, causing reference equality checks to fail.
+export const UserAvatar = memo(
+  function UserAvatar({ user, size = "md", className = "" }: UserAvatarProps) {
+    const [imgError, setImgError] = useState(false);
+    const avatarUrl =
+      user.avatar && !imgError ? `/storage/${user.avatar}` : null;
 
-  return (
-    <div
-      className={`${SIZES[size]} shrink-0 rounded-2xl flex items-center justify-center font-semibold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] overflow-hidden ${className}`}
-      style={avatarUrl ? undefined : { backgroundColor: avatarColor(user.id) }}
-    >
-      {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt={user.name}
-          className="h-full w-full object-cover"
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        getInitials(user.name)
-      )}
-    </div>
-  );
-}
+    return (
+      <div
+        className={`${SIZES[size]} shrink-0 rounded-2xl flex items-center justify-center font-semibold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] overflow-hidden ${className}`}
+        style={
+          avatarUrl ? undefined : { backgroundColor: avatarColor(user.id) }
+        }
+      >
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={user.name}
+            className="h-full w-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          getInitials(user.name)
+        )}
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Deep compare the relevant fields of the user object to avoid unnecessary re-renders
+    return (
+      prevProps.user.id === nextProps.user.id &&
+      prevProps.user.name === nextProps.user.name &&
+      prevProps.user.avatar === nextProps.user.avatar &&
+      prevProps.size === nextProps.size &&
+      prevProps.className === nextProps.className
+    );
+  },
+);
