@@ -12,6 +12,18 @@ on:
       - "templates/**"
       - "docker/templates/**"
       - ".github/workflows/templates.yml"
+  schedule:
+    # 05:00 UTC nightly — slow lane for the throughput perf harness
+    # (test_fhir_to_omop_throughput, marked -m slow). Sits 30 min after
+    # finngen-tests (04:30 UTC) to avoid resource contention on the
+    # shared self-hosted box if/when one is wired up.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      run_perf:
+        description: "Run the throughput perf harness (1M Observations)"
+        required: false
+        default: "true"
 
 permissions:
   contents: read
@@ -225,3 +237,75 @@ jobs:
         # and asserts 2/2/2/2/5/1/2 row counts plus 3 type-32856 OBSERVATION
         # rows + 2 consent_decisions with co2 recording 'deny'.
         run: uv run pytest tests/e2e/test_fhir_to_omop_prc.py -v -m integration
+
+  # Slow lane — nightly + manual dispatch only. Runs the throughput perf
+  # harness (test_fhir_to_omop_throughput, marked -m slow) against a fresh
+  # Postgres. Reference hardware is 8 vCPU / 32 GB / NVMe per spec Q5; the
+  # ubuntu-latest GitHub runner is smaller (4 vCPU / 16 GB) so the wall-time
+  # number from CI will be slower than the reference benchmark — this job
+  # exists to detect regression, not to set the reference number. To run on
+  # the reference box, swap runs-on for a self-hosted runner labeled with
+  # the appropriate hardware tag.
+  perf:
+    name: Throughput perf (parthenon-templates, slow lane)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: lint-and-test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: parthenon
+          POSTGRES_PASSWORD: parthenon
+          POSTGRES_DB: parthenon
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U parthenon"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://parthenon:parthenon@localhost:5432/parthenon
+      PARTHENON_INTERNAL_TOKEN: ci-internal-token
+      PARTHENON_STORAGE_ROOT: ${{ github.workspace }}/_storage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.11"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        working-directory: templates
+        run: uv sync --all-extras
+
+      - name: Throughput E2E (1M Observations, -m slow)
+        working-directory: templates
+        # Acceptance criterion: 1M Observation resources processed in
+        # <10 minutes on the reference box (8 vCPU / 32 GB / NVMe). On the
+        # smaller ubuntu-latest runner expect 1.5-2x that wall time. The
+        # harness gates on wall time (hard) and peak RSS (soft warning).
+        # Tee output to a log so the perf summary is captured as a build
+        # artifact even on success (where stdout is collapsed in the UI).
+        run: |
+          mkdir -p _perf
+          uv run pytest tests/performance/ -v -m slow --maxfail=1 \
+            2>&1 | tee _perf/throughput.log
+
+      - name: Upload perf log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: throughput-perf-${{ github.run_id }}
+          path: templates/_perf/throughput.log
+          if-no-files-found: warn
+          retention-days: 90
