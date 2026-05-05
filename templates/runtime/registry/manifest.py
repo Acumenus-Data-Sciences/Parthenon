@@ -28,6 +28,7 @@ NODE_TYPES = (
     "fhir_resource",
     "dicom_metadata",
     "anonymizer",
+    "note_nlp",
 )
 
 

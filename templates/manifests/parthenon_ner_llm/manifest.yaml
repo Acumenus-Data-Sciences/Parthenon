@@ -1,91 +1,57 @@
-name: parthenon_ner_llm
-schema_version: "1.0"
-description: |
-  Clinical NER over FHIR DocumentReference resources. Extracts conditions,
-  drugs, procedures, and measurements; writes OMOP NOTE + NOTE_NLP rows
-  with a 30-day encrypted-input audit trail (decision Q5).
-
-  Default backend is MedGemma via Ollama through parthenon-ai-service
-  (decision Q1). Cloud OpenAI-compat is gated by OPENAI_LLM_ENABLED=true
-  for HIPAA-cleared deployments only. Per-job spend is capped via
-  OPENAI_BUDGET_USD (decision Q11).
-
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
 metadata:
+  id: parthenon_ner_llm
+  name: Clinical NER over FHIR DocumentReference (LLM backend)
+  version: "0.1.0"
+  category: ingestion
   cdm_versions: ["5.3", "5.4"]
-  prompt_version: v0.1.0
-  required_vocabularies:
-    - SNOMED
-    - RxNorm
-    - LOINC
-
-parameters:
-  fhir_endpoint:
-    type: string
-    description: FHIR R4 base URL serving DocumentReference (or empty for ndjson_dir).
-    default: ""
-  ndjson_dir:
-    type: string
-    description: Directory of FHIR Bulk Data NDJSON files (DocumentReference.ndjson).
-    default: ""
-  source:
-    type: string
-    enum: [ndjson, search]
-    default: ndjson
-  bearer_token:
-    type: string
-    secret: true
-    default: ""
-  profile:
-    type: string
-    enum: [us-core, mcode, ips, mii]
-    default: us-core
-  strict_profile_match:
-    type: boolean
-    default: false
-  backend:
-    type: string
-    enum: [llm]
-    default: llm
-  llm_provider:
-    type: string
-    enum: [ollama, openai]
-    default: ollama
-  prompt_version:
-    type: string
-    default: v0.1.0
-  target_schema:
-    type: string
-    default: omop
-  vocab_schema:
-    type: string
-    default: vocab
-  app_schema:
-    type: string
-    default: app
-
-nodes:
-  - id: ingest_fhir
-    type: fhir_resource
-    params:
-      source: ${parameters.source}
-      ndjson_dir: ${parameters.ndjson_dir}
-      fhir_base_url: ${parameters.fhir_endpoint}
-      bearer_token: ${parameters.bearer_token}
-      profile: ${parameters.profile}
-      strict_profile_match: ${parameters.strict_profile_match}
-      resource_types:
-        - DocumentReference
-
-  - id: nlp_inference
-    type: note_nlp
-    depends_on: [ingest_fhir]
-    params:
-      backend: ${parameters.backend}
-      llm_provider: ${parameters.llm_provider}
-      prompt_version: ${parameters.prompt_version}
-
-post_conditions:
-  - kind: artifact_present
-    params:
-      artifact: note_nlp_inference.json
-      min_rows: 0
+  tags: ["nlp", "ner", "fhir", "llm", "phase-2"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source: {type: string, enum: ["ndjson", "search"], default: "ndjson"}
+      ndjson_dir: {type: string, default: ""}
+      fhir_endpoint: {type: string, default: ""}
+      bearer_token: {type: string, secret: true, default: ""}
+      profile:
+        type: string
+        enum: ["us-core", "mcode", "ips", "mii"]
+        default: "us-core"
+      strict_profile_match: {type: boolean, default: false}
+      backend: {type: string, enum: ["llm"], default: "llm"}
+      llm_provider: {type: string, enum: ["ollama", "openai"], default: "ollama"}
+      prompt_version: {type: string, default: "v0.1.0"}
+      target_schema: {type: string, default: "omop"}
+      vocab_schema: {type: string, default: "vocab"}
+      app_schema: {type: string, default: "app"}
+    required: ["source"]
+  requires:
+    cdm_initialized: true
+    vocabularies: ["SNOMED", "RxNorm", "LOINC"]
+  nodes:
+    - node_id: ingest_fhir
+      type: fhir_resource
+      params:
+        source: "${parameters.source}"
+        ndjson_dir: "${parameters.ndjson_dir}"
+        fhir_base_url: "${parameters.fhir_endpoint}"
+        bearer_token: "${parameters.bearer_token}"
+        profile: "${parameters.profile}"
+        strict_profile_match: "${parameters.strict_profile_match}"
+        resource_types:
+          - DocumentReference
+    - node_id: nlp_inference
+      type: note_nlp
+      depends_on: [ingest_fhir]
+      params:
+        backend: "${parameters.backend}"
+        llm_provider: "${parameters.llm_provider}"
+        prompt_version: "${parameters.prompt_version}"
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: note_nlp_inference.json
+        min_rows: 0

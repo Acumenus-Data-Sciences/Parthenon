@@ -10,6 +10,7 @@ from runtime.nodes.db_writer import DbWriterNode
 from runtime.nodes.dicom_metadata import DicomMetadataNode
 from runtime.nodes.fhir_resource import FhirResourceNode
 from runtime.nodes.generic_file import GenericFileNode
+from runtime.nodes.note_nlp import NoteNlpNode
 from runtime.nodes.py2table import Py2TableNode
 from runtime.nodes.python_node import PythonNode
 from runtime.nodes.r_node import RNode
@@ -27,6 +28,7 @@ NODE_REGISTRY: dict[str, type[Node]] = {
     FhirResourceNode.type_name: FhirResourceNode,
     DicomMetadataNode.type_name: DicomMetadataNode,
     AnonymizerNode.type_name: AnonymizerNode,
+    NoteNlpNode.type_name: NoteNlpNode,
 }
 
 
