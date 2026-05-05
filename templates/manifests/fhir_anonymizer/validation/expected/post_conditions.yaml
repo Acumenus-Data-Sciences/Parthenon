@@ -1,0 +1,13 @@
+post_conditions:
+  - kind: artifact_present
+    artifact_name: anonymizer_summary.json
+    min_rows: 1
+  - kind: artifact_count_equals
+    pattern: "anonymized/Patient_*.json"
+    expected: 2
+  - kind: artifact_count_equals
+    pattern: "anonymized/Encounter_*.json"
+    expected: 2
+  - kind: artifact_count_equals
+    pattern: "anonymized/Observation_*.json"
+    expected: 1

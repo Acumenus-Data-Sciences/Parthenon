@@ -1,0 +1,52 @@
+{
+  "version": "1",
+  "default_action": "keep",
+  "rules": [
+    {"path": "Patient.id", "operation": "cryptoHash", "params": {"algorithm": "sha256"}},
+    {"path": "Patient.identifier", "operation": "redact"},
+    {"path": "Patient.name", "operation": "redact"},
+    {"path": "Patient.telecom", "operation": "redact"},
+    {"path": "Patient.address", "operation": "redact"},
+    {"path": "Patient.birthDate", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Patient.deceasedDateTime", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Patient.photo", "operation": "redact"},
+    {"path": "Patient.contact", "operation": "redact"},
+    {"path": "Patient.communication", "operation": "keep"},
+    {"path": "Patient.generalPractitioner", "operation": "redact"},
+    {"path": "Patient.managingOrganization", "operation": "redact"},
+
+    {"path": "Practitioner.id", "operation": "cryptoHash", "params": {"algorithm": "sha256"}},
+    {"path": "Practitioner.name", "operation": "redact"},
+    {"path": "Practitioner.telecom", "operation": "redact"},
+    {"path": "Practitioner.address", "operation": "redact"},
+    {"path": "Practitioner.identifier", "operation": "redact"},
+
+    {"path": "Encounter.subject", "operation": "redact"},
+    {"path": "Encounter.participant", "operation": "redact"},
+    {"path": "Encounter.location", "operation": "redact"},
+    {"path": "Encounter.serviceProvider", "operation": "redact"},
+    {"path": "Encounter.period", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Encounter.identifier", "operation": "redact"},
+
+    {"path": "Observation.subject", "operation": "redact"},
+    {"path": "Observation.performer", "operation": "redact"},
+    {"path": "Observation.encounter", "operation": "redact"},
+    {"path": "Observation.effectiveDateTime", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Observation.effectivePeriod", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Observation.note", "operation": "redact"},
+
+    {"path": "Condition.subject", "operation": "redact"},
+    {"path": "Condition.encounter", "operation": "redact"},
+    {"path": "Condition.recorder", "operation": "redact"},
+    {"path": "Condition.asserter", "operation": "redact"},
+    {"path": "Condition.recordedDate", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Condition.onsetDateTime", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Condition.note", "operation": "redact"},
+
+    {"path": "Procedure.subject", "operation": "redact"},
+    {"path": "Procedure.encounter", "operation": "redact"},
+    {"path": "Procedure.performer", "operation": "redact"},
+    {"path": "Procedure.performedDateTime", "operation": "dateShift", "params": {"max_days": 30}},
+    {"path": "Procedure.note", "operation": "redact"}
+  ]
+}

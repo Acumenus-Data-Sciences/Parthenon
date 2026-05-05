@@ -34,6 +34,7 @@ EXPECTED_ADRS = [
     pytest.param("0004-phase-1-node-design.md", "Phase 1 Node", id="0004"),
     pytest.param("0005-imaging-vocabulary-namespace.md", "Imaging Vocabulary", id="0005"),
     pytest.param("0006-pro-instrument-framework.md", "PRO Instrument", id="0006"),
+    pytest.param("0007-fhir-anonymizer-template.md", "FHIR Anonymizer", id="0007"),
 ]
 
 
@@ -286,3 +287,42 @@ def test_adr_0006_cross_instrument_test_exists() -> None:
     """ADR 0006 §6 promises a cross-instrument regression test."""
     test_path = Path(__file__).resolve().parents[1] / "tests" / "unit" / "test_pro_pattern_reuse.py"
     assert test_path.exists()
+
+
+# ADR 0007: fhir_anonymizer template — manifest exists, config library
+# under runtime/, PHI-leak HIGHSEC regression test exists.
+def test_adr_0007_fhir_anonymizer_manifest_exists() -> None:
+    text = _adr_text("0007-fhir-anonymizer-template.md")
+    assert "fhir_anonymizer" in text
+    manifest = REPO / "templates" / "manifests" / "fhir_anonymizer" / "manifest.yaml"
+    assert manifest.exists()
+
+
+def test_adr_0007_config_library_under_runtime() -> None:
+    """ADR 0007 §2 places the config library under runtime/, not under manifests/."""
+    text = _adr_text("0007-fhir-anonymizer-template.md")
+    assert "runtime/instruments/anonymizer_configs/" in text
+    library_dir = RUNTIME_DIR / "instruments" / "anonymizer_configs"
+    assert library_dir.exists()
+    assert (library_dir / "hipaa_safe_harbor.json").exists()
+    assert (library_dir / "minimal_redaction.json").exists()
+
+
+def test_adr_0007_phi_leak_test_exists() -> None:
+    """ADR 0007 §5 promises a HIGHSEC PHI-leak regression test."""
+    text = _adr_text("0007-fhir-anonymizer-template.md")
+    assert "test_anonymizer_phi_leak.py" in text
+    test_path = (
+        Path(__file__).resolve().parents[1] / "tests" / "unit" / "test_anonymizer_phi_leak.py"
+    )
+    assert test_path.exists()
+
+
+def test_adr_0007_native_backend_handles_period() -> None:
+    """ADR 0007 §7 promises Period-aware dateShift in the native backend."""
+    text = _adr_text("0007-fhir-anonymizer-template.md")
+    assert "_shift_value" in text
+    native = (RUNTIME_DIR / "nodes" / "anonymizer_backends" / "native.py").read_text(
+        encoding="utf-8"
+    )
+    assert "_shift_value" in native
