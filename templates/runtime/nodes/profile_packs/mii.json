@@ -1,0 +1,16 @@
+{
+  "profile": "mii",
+  "name": "German Medical Informatics Initiative Core Data Set",
+  "version": "2024.0.0",
+  "url": "https://www.medizininformatik-initiative.de/",
+  "pinned_at": "2026-05-03",
+  "resources": [
+    {"type": "Patient", "must_support": ["identifier", "name", "gender", "birthDate"]},
+    {"type": "Encounter", "must_support": ["status", "class", "type", "subject", "period", "diagnosis"]},
+    {"type": "Condition", "must_support": ["clinicalStatus", "code", "subject", "recordedDate"]},
+    {"type": "Observation", "must_support": ["status", "category", "code", "subject", "effective", "value"]},
+    {"type": "Procedure", "must_support": ["status", "code", "subject", "performed"]},
+    {"type": "MedicationStatement", "must_support": ["status", "medication", "subject", "dosage"]},
+    {"type": "MedicationAdministration", "must_support": ["status", "medication", "subject", "effective"]}
+  ]
+}

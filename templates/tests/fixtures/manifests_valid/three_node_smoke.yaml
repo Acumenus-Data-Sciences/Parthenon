@@ -1,0 +1,44 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: three_node_smoke
+  name: Three Node Smoke
+  version: 0.1.0
+  category: diagnostic
+  cdm_versions: []
+  author: parthenon
+spec:
+  parameters:
+    type: object
+    properties:
+      count:
+        type: integer
+        minimum: 1
+    required: [count]
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    - node_id: generate
+      type: py2table
+      params:
+        code: |
+          import polars as pl
+          def main(context, params):
+              return pl.DataFrame({"id": list(range(5))})
+        artifact_name: rows.parquet
+    - node_id: fetch
+      type: generic_file
+      params:
+        url: file:///etc/hostname
+        artifact_name: fetched.txt
+      depends_on: [generate]
+    - node_id: summarize
+      type: python
+      params:
+        code: |
+          def main(context, params):
+              return {"done": True}
+        inputs: {}
+      depends_on: [fetch]
+  post_conditions: []

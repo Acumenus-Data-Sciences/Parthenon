@@ -24,6 +24,8 @@ class IngestionJob extends Model
         'error_message',
         'created_by',
         'staging_table_name',
+        'template_run_id',
+        'kind',
     ];
 
     /**

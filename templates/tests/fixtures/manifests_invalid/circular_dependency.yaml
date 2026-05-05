@@ -1,0 +1,22 @@
+# expected_error: dag — node 'a' depends_on 'b' which depends_on 'a'
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: circular
+  name: Circular DAG
+  version: 0.1.0
+  category: diagnostic
+  cdm_versions: []
+spec:
+  parameters: {type: object, properties: {}, required: []}
+  requires: {cdm_initialized: false, vocabularies: []}
+  nodes:
+    - node_id: a
+      type: python
+      params: {code: "def main(c,p): return {}", inputs: {}}
+      depends_on: [b]
+    - node_id: b
+      type: python
+      params: {code: "def main(c,p): return {}", inputs: {}}
+      depends_on: [a]
+  post_conditions: []

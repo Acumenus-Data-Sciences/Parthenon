@@ -1,0 +1,6 @@
+{
+  "bundle_path": "/var/parthenon/staging/athena_bundle_2025_q4",
+  "target_vocab_schema": "vocab_validation",
+  "force": true,
+  "enable_cpt4": true
+}

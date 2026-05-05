@@ -1,0 +1,519 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: load_athena_vocabulary
+  name: "Load Athena Vocabulary Bundle"
+  version: 0.1.0
+  category: vocabulary
+  tags: [vocabulary, athena, snomed, rxnorm, loinc, cpt4, user-initiated]
+  cdm_versions: ["5.3", "5.4"]
+  author: "Parthenon Project"
+  singleton: true
+spec:
+  parameters:
+    type: object
+    required: [bundle_path, target_vocab_schema]
+    properties:
+      bundle_path:
+        type: string
+        description: "Absolute path to extracted Athena bundle directory containing CONCEPT.csv etc."
+      target_vocab_schema:
+        type: string
+        default: "vocab"
+        description: "Target schema for vocabulary tables. Created if absent."
+        pattern: "^[a-z][a-z0-9_]*$"
+      force:
+        type: boolean
+        default: false
+        description: "If true, overwrite an existing identical bundle. Required to re-load the same SHA256 reference."
+      enable_cpt4:
+        type: boolean
+        default: true
+        description: "Run cpt4.jar to load CPT4 codes. Skipped with a warning if UMLS_API_KEY env var is not set."
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    # Node 1 of 10 — bootstrap target schema and audit table.
+    - node_id: ensure_audit_table
+      type: sql
+      params:
+        statements:
+          - "CREATE SCHEMA IF NOT EXISTS ${parameters.target_vocab_schema}"
+          - |
+            CREATE TABLE IF NOT EXISTS ${parameters.target_vocab_schema}.vocabulary_load (
+              id BIGSERIAL PRIMARY KEY,
+              bundle_path TEXT NOT NULL,
+              bundle_reference TEXT NOT NULL,
+              loaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              row_counts JSONB
+            )
+
+    # Node 2 of 10 — idempotency check: hash CONCEPT.csv, abort no-op unless force=true.
+    - node_id: idempotency_check
+      type: python
+      depends_on: [ensure_audit_table]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          force: "${parameters.force}"
+        code: |
+          import hashlib
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError(
+                      "load_athena_vocabulary requires context.db_dsn"
+                  )
+              bundle = Path(params["bundle_path"])
+              concept_csv = bundle / "CONCEPT.csv"
+              if not concept_csv.exists():
+                  raise FileNotFoundError(
+                      f"Athena bundle missing CONCEPT.csv: {concept_csv}"
+                  )
+
+              hasher = hashlib.sha256()
+              with concept_csv.open("rb") as fh:
+                  for chunk in iter(lambda: fh.read(64 * 1024), b""):
+                      hasher.update(chunk)
+              digest = hasher.hexdigest()
+
+              schema = params["target_vocab_schema"]
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.connect() as conn:
+                  existing = conn.execute(
+                      text(
+                          f"SELECT id FROM {schema}.vocabulary_load "
+                          "WHERE bundle_reference = :digest LIMIT 1"
+                      ),
+                      {"digest": digest},
+                  ).first()
+
+              already_loaded = existing is not None
+              force = bool(params.get("force", False))
+              if already_loaded and not force:
+                  context.logger.info(
+                      "Bundle %s already loaded; pass force=true to reload.",
+                      digest,
+                  )
+              return {
+                  "digest": digest,
+                  "already_loaded": already_loaded,
+                  "skip": already_loaded and not force,
+              }
+
+    # Node 3 of 10 — CONCEPT.csv → vocab.concept (truncate-and-load).
+    - node_id: load_concept
+      type: python
+      depends_on: [idempotency_check]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "CONCEPT.csv"
+          target_table: "concept"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_concept requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 4 of 10 — CONCEPT_RELATIONSHIP.csv → vocab.concept_relationship.
+    - node_id: load_concept_relationship
+      type: python
+      depends_on: [load_concept]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "CONCEPT_RELATIONSHIP.csv"
+          target_table: "concept_relationship"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_concept_relationship requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 5 of 10 — CONCEPT_ANCESTOR.csv → vocab.concept_ancestor.
+    - node_id: load_concept_ancestor
+      type: python
+      depends_on: [load_concept_relationship]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "CONCEPT_ANCESTOR.csv"
+          target_table: "concept_ancestor"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_concept_ancestor requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 6 of 10 — VOCABULARY.csv → vocab.vocabulary.
+    - node_id: load_vocabulary
+      type: python
+      depends_on: [load_concept_ancestor]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "VOCABULARY.csv"
+          target_table: "vocabulary"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_vocabulary requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 7 of 10 — DOMAIN.csv → vocab.domain.
+    - node_id: load_domain
+      type: python
+      depends_on: [load_vocabulary]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "DOMAIN.csv"
+          target_table: "domain"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_domain requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 8 of 10 — CONCEPT_SYNONYM.csv → vocab.concept_synonym.
+    - node_id: load_concept_synonym
+      type: python
+      depends_on: [load_domain]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "CONCEPT_SYNONYM.csv"
+          target_table: "concept_synonym"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_concept_synonym requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 9 of 10 — DRUG_STRENGTH.csv → vocab.drug_strength.
+    - node_id: load_drug_strength
+      type: python
+      depends_on: [load_concept_synonym]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          file_name: "DRUG_STRENGTH.csv"
+          target_table: "drug_strength"
+        code: |
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_drug_strength requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              table = params["target_table"]
+              src = Path(params["bundle_path"]) / params["file_name"]
+              if not src.exists():
+                  raise FileNotFoundError(f"missing bundle file: {src}")
+
+              engine = create_engine(context.db_dsn, future=True)
+              with engine.begin() as conn:
+                  conn.execute(text(f"TRUNCATE TABLE {schema}.{table}"))
+                  raw = conn.connection.driver_connection
+                  with src.open("r", encoding="utf-8") as fh, raw.cursor() as cur:
+                      cur.copy_expert(
+                          f"COPY {schema}.{table} FROM STDIN WITH ("
+                          "FORMAT csv, DELIMITER E'\\t', HEADER true, "
+                          "QUOTE E'\\b', NULL ''"
+                          ")",
+                          fh,
+                      )
+                  rows = conn.execute(
+                      text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                  ).scalar_one()
+              return {"target": f"{schema}.{table}", "rows_loaded": int(rows)}
+
+    # Node 10 of 10 — optional CPT4 enrichment via OHDSI cpt4.jar; gated on
+    # parameters.enable_cpt4 AND UMLS_API_KEY env var. Records the audit row
+    # in vocabulary_load with the canonical bundle digest.
+    - node_id: load_cpt4_and_record
+      type: python
+      depends_on: [load_drug_strength]
+      params:
+        inputs:
+          bundle_path: "${parameters.bundle_path}"
+          target_vocab_schema: "${parameters.target_vocab_schema}"
+          enable_cpt4: "${parameters.enable_cpt4}"
+        code: |
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          from sqlalchemy import create_engine, text
+
+          CPT4_JAR = "/opt/parthenon/cpt4.jar"
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("load_cpt4_and_record requires context.db_dsn")
+              schema = params["target_vocab_schema"]
+              bundle_path = params["bundle_path"]
+              enable_cpt4 = bool(params.get("enable_cpt4", True))
+
+              # CPT4 step — gracefully skipped when UMLS_API_KEY is absent.
+              cpt4_status = "skipped"
+              api_key = os.environ.get("UMLS_API_KEY", "")
+              if not enable_cpt4:
+                  context.logger.info("CPT4 disabled by parameter; skipping")
+              elif not api_key:
+                  context.logger.warning(
+                      "UMLS_API_KEY not set; skipping CPT4 load"
+                  )
+              elif not Path(CPT4_JAR).exists():
+                  context.logger.warning(
+                      "cpt4.jar not present at %s; skipping CPT4 load",
+                      CPT4_JAR,
+                  )
+              else:
+                  # SECURITY: api_key is read from env, never logged. Pass via
+                  # stdin in a future revision; current OHDSI cpt4.jar requires
+                  # CLI arg parity. Caller must run inside an isolated container.
+                  subprocess.run(
+                      [
+                          "java",
+                          "-jar",
+                          CPT4_JAR,
+                          bundle_path,
+                          api_key,
+                          schema,
+                      ],
+                      check=True,
+                  )
+                  cpt4_status = "loaded"
+
+              # Compute the same SHA256 the idempotency_check used so the audit
+              # row is self-consistent without cross-node output coupling.
+              import hashlib
+
+              hasher = hashlib.sha256()
+              concept_csv = Path(bundle_path) / "CONCEPT.csv"
+              with concept_csv.open("rb") as fh:
+                  for chunk in iter(lambda: fh.read(64 * 1024), b""):
+                      hasher.update(chunk)
+              digest = hasher.hexdigest()
+
+              # Compute row counts and persist audit row.
+              tables = [
+                  "concept",
+                  "concept_relationship",
+                  "concept_ancestor",
+                  "vocabulary",
+                  "domain",
+                  "concept_synonym",
+                  "drug_strength",
+              ]
+              engine = create_engine(context.db_dsn, future=True)
+              row_counts: dict[str, int] = {}
+              with engine.connect() as conn:
+                  for table in tables:
+                      n = conn.execute(
+                          text(f"SELECT COUNT(*) FROM {schema}.{table}")
+                      ).scalar_one()
+                      row_counts[table] = int(n)
+              with engine.begin() as conn:
+                  conn.execute(
+                      text(
+                          f"INSERT INTO {schema}.vocabulary_load "
+                          "(bundle_path, bundle_reference, row_counts) "
+                          "VALUES (:bundle_path, :digest, CAST(:row_counts AS JSONB))"
+                      ),
+                      {
+                          "bundle_path": bundle_path,
+                          "digest": digest,
+                          "row_counts": json.dumps(row_counts),
+                      },
+                  )
+              return {
+                  "cpt4_status": cpt4_status,
+                  "digest": digest,
+                  "row_counts": row_counts,
+              }
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.target_vocab_schema}.concept"
+        min: 1000000
+    - kind: row_count
+      params:
+        table: "${parameters.target_vocab_schema}.vocabulary"
+        min: 30
+    - kind: row_count
+      params:
+        table: "${parameters.target_vocab_schema}.concept_ancestor"
+        min: 5000000
+    - kind: assertion
+      params:
+        description: "vocabulary_load audit row exists for this bundle"
+        sql: "SELECT COUNT(*) FROM ${parameters.target_vocab_schema}.vocabulary_load"
+        min: 1

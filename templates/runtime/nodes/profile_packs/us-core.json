@@ -1,0 +1,19 @@
+{
+  "profile": "us-core",
+  "name": "US Core Implementation Guide",
+  "version": "6.1.0",
+  "url": "https://hl7.org/fhir/us/core/STU6.1/",
+  "pinned_at": "2026-05-03",
+  "resources": [
+    {"type": "Patient", "must_support": ["identifier", "name", "gender", "birthDate"]},
+    {"type": "Encounter", "must_support": ["status", "class", "type", "subject", "period"]},
+    {"type": "Condition", "must_support": ["clinicalStatus", "verificationStatus", "code", "subject"]},
+    {"type": "Observation", "must_support": ["status", "category", "code", "subject", "effective", "value"]},
+    {"type": "Procedure", "must_support": ["status", "code", "subject", "performed"]},
+    {"type": "MedicationRequest", "must_support": ["status", "intent", "medication", "subject", "authoredOn"]},
+    {"type": "Immunization", "must_support": ["status", "vaccineCode", "patient", "occurrence"]},
+    {"type": "DiagnosticReport", "must_support": ["status", "category", "code", "subject", "effective"]},
+    {"type": "AllergyIntolerance", "must_support": ["clinicalStatus", "verificationStatus", "code", "patient"]},
+    {"type": "DocumentReference", "must_support": ["status", "type", "subject", "content"]}
+  ]
+}

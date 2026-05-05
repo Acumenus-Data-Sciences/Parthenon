@@ -1,0 +1,16 @@
+{
+  "profile": "mcode",
+  "name": "Minimal Common Oncology Data Elements",
+  "version": "3.0.0",
+  "url": "https://hl7.org/fhir/us/mcode/STU3/",
+  "pinned_at": "2026-05-03",
+  "resources": [
+    {"type": "Patient", "must_support": ["identifier", "name", "gender", "birthDate"]},
+    {"type": "Condition", "must_support": ["clinicalStatus", "verificationStatus", "code", "subject", "bodySite", "stage"]},
+    {"type": "Observation", "must_support": ["status", "category", "code", "subject", "value", "specimen"]},
+    {"type": "Procedure", "must_support": ["status", "code", "subject", "performed", "bodySite", "reasonReference"]},
+    {"type": "MedicationStatement", "must_support": ["status", "medication", "subject", "effective", "reasonCode"]},
+    {"type": "MedicationAdministration", "must_support": ["status", "medication", "subject", "effective", "dosage"]},
+    {"type": "Specimen", "must_support": ["status", "type", "subject", "collection"]}
+  ]
+}

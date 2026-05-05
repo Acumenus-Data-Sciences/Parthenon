@@ -1,0 +1,71 @@
+[project]
+name = "parthenon-templates"
+version = "0.1.0"
+description = "Parthenon ingestion templates runtime: node SDK, orchestration adapter, manifest registry."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Acumenus Data Sciences" }]
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.32.1",
+    "pydantic==2.10.3",
+    "pydantic-settings==2.6.1",
+    "prefect==3.1.5",
+    "sqlalchemy==2.0.36",
+    "psycopg[binary]==3.2.3",
+    "polars==1.17.1",
+    "pyarrow==18.1.0",
+    "pandera==0.21.0",
+    "pyomop==4.3.0",
+    "pyyaml==6.0.2",
+    "jsonschema==4.23.0",
+    "structlog==24.4.0",
+    "httpx==0.28.1",
+    # NOTE: plan pinned typer==0.15.1, but prefect==3.1.5 constrains typer<0.14.0.
+    # Using latest 0.13.x compatible with prefect 3.1.5; revisit when upgrading prefect.
+    "typer==0.13.1",
+    "python-multipart==0.0.20",
+    "honcho==2.0.0",
+    "multimethod<2.0",
+    "fhir.resources==8.2.0",
+    "pydicom==3.0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.0",
+    "pytest-cov==6.0.0",
+    "ruff==0.8.4",
+    "black==24.10.0",
+    "mypy==1.13.0",
+    "testcontainers[postgres]==4.9.0",
+    "respx==0.21.1",
+]
+
+
+[project.scripts]
+parthenon-nodes = "runtime.runner:app"
+parthenon-templates = "runtime.cli:app"
+parthenon-vocab = "runtime.cli.vocab_diff:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["runtime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests that take >30s to run (skip in CI fast-path)",
+    "integration: tests that require real services (Postgres, sidecar containers)",
+]
+
+[tool.coverage.run]
+source = ["runtime"]
+branch = true

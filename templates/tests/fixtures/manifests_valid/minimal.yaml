@@ -1,0 +1,24 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: minimal_template
+  name: Minimal Template
+  version: 0.1.0
+  category: diagnostic
+  cdm_versions: []
+  author: parthenon
+spec:
+  parameters:
+    type: object
+    properties: {}
+    required: []
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    - node_id: only
+      type: python
+      params:
+        code: "def main(c, p):\n    return {}\n"
+        inputs: {}
+  post_conditions: []

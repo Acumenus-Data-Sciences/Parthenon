@@ -150,4 +150,13 @@ return [
         'allowed_groups' => ['Parthenon Admins'],
     ],
 
+    // Parthenon Templates service (Phase 0 ingestion templates). Plan 1 owns
+    // the parthenon-templates compose entry; Laravel calls it via
+    // TemplateRegistryClient using the internal shared token header.
+    'templates' => [
+        'url' => env('TEMPLATES_SERVICE_URL', 'http://parthenon-templates:8000'),
+        'internal_token' => env('TEMPLATES_INTERNAL_TOKEN'),
+        'timeout' => (int) env('TEMPLATES_SERVICE_TIMEOUT', 5),
+    ],
+
 ];
