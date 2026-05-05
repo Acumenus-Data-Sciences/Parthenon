@@ -1,0 +1,24 @@
+post_conditions:
+  - kind: row_count
+    table: omop.person
+    expected: 2
+    description: "2 fixture patients land in PERSON"
+  - kind: row_count
+    table: omop.visit_occurrence
+    expected: 2
+    description: "2 fixture encounters land in VISIT_OCCURRENCE"
+  - kind: row_count
+    table: omop.condition_occurrence
+    expected: 2
+    description: "2 fixture conditions land in CONDITION_OCCURRENCE"
+  - kind: row_count
+    table: omop.measurement
+    expected: 2
+    description: "Vital-signs observations route to MEASUREMENT (2 of 4)"
+  - kind: row_count
+    table: omop.observation
+    expected: 2
+    description: "Social-history observations route to OBSERVATION (2 of 4)"
+  - kind: artifact_present
+    artifact_name: fhir_to_omop_summary.json
+    min_rows: 1

@@ -1,0 +1,10 @@
+{
+  "source": "ndjson",
+  "ndjson_dir": "/var/parthenon/manifests/fhir_to_omop/fixtures/sample",
+  "profile": "us-core",
+  "strict_profile_match": false,
+  "target_schema": "omop",
+  "vocab_schema": "vocab",
+  "app_schema": "app",
+  "strict_concept_resolution": false
+}

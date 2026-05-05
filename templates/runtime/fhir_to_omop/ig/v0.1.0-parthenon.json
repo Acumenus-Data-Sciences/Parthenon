@@ -1,0 +1,35 @@
+{
+  "version": "v0.1.0-parthenon",
+  "pinned_at": "2026-05-03",
+  "source_ig": "HL7 FHIR-OMOP Implementation Guide",
+  "source_url": "https://github.com/HL7/fhir-omop-ig",
+  "source_commit": "<pinned-commit-hash>",
+  "system_to_vocabulary": {
+    "http://snomed.info/sct": "SNOMED",
+    "http://hl7.org/fhir/sid/icd-10-cm": "ICD10CM",
+    "http://hl7.org/fhir/sid/icd-10": "ICD10",
+    "http://hl7.org/fhir/sid/icd-9-cm": "ICD9CM",
+    "http://www.ama-assn.org/go/cpt": "CPT4",
+    "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets": "HCPCS",
+    "http://loinc.org": "LOINC",
+    "http://www.nlm.nih.gov/research/umls/rxnorm": "RxNorm",
+    "http://hl7.org/fhir/administrative-gender": "Gender",
+    "urn:oid:2.16.840.1.113883.6.238": "Race",
+    "http://terminology.hl7.org/CodeSystem/v3-Race": "Race",
+    "http://terminology.hl7.org/CodeSystem/v3-Ethnicity": "Ethnicity"
+  },
+  "encounter_class_to_visit_concept": {
+    "AMB": 9202,
+    "EMER": 9203,
+    "IMP": 9201,
+    "OBSENC": 581478,
+    "VR": 581399,
+    "HH": 38004519
+  },
+  "observation_split_to_measurement_when_categories": [
+    "vital-signs",
+    "laboratory",
+    "imaging",
+    "exam"
+  ]
+}
