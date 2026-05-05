@@ -32,6 +32,7 @@ EXPECTED_ADRS = [
     pytest.param("0002-orchestration-backend.md", "Orchestration", id="0002"),
     pytest.param("0003-template-manifest-format.md", "Manifest", id="0003"),
     pytest.param("0004-phase-1-node-design.md", "Phase 1 Node", id="0004"),
+    pytest.param("0005-imaging-vocabulary-namespace.md", "Imaging Vocabulary", id="0005"),
 ]
 
 
@@ -201,3 +202,44 @@ def test_adr_0004_phase_1_nodes_in_schema_enum() -> None:
     ]
     for type_name in ADR_0004_EXPECTED_NODE_FILES:
         assert type_name in enum, f"ADR 0004 promises {type_name!r} in the manifest enum"
+
+
+# ADR 0005: Phase 1 DICOM stack — both manifests exist, the imaging
+# vocabulary uses the Parthenon-namespaced concept_id range, and the
+# etl_dicom_metadata template requires the Parthenon-Imaging vocabulary.
+ADR_0005_EXPECTED_MANIFESTS = (
+    "load_imaging_vocabulary",
+    "etl_dicom_metadata",
+)
+
+
+@pytest.mark.parametrize("template_id", ADR_0005_EXPECTED_MANIFESTS)
+def test_adr_0005_manifest_exists(template_id: str) -> None:
+    """Both DICOM-stack manifests promised by ADR 0005 must ship."""
+    text = _adr_text("0005-imaging-vocabulary-namespace.md")
+    assert template_id in text, f"ADR 0005 does not mention {template_id}"
+    manifest = REPO / "templates" / "manifests" / template_id / "manifest.yaml"
+    assert manifest.exists(), f"ADR 0005 promises {template_id}, manifest is missing"
+
+
+def test_adr_0005_concept_id_range_documented_and_used() -> None:
+    """ADR 0005 §1 promises [2_000_000_000, 2_099_999_999]; manifest must use it."""
+    text = _adr_text("0005-imaging-vocabulary-namespace.md")
+    assert "2_000_000_000" in text or "2000000000" in text
+    assert "2_099_999_999" in text or "2099999999" in text
+    manifest = (
+        REPO / "templates" / "manifests" / "load_imaging_vocabulary" / "manifest.yaml"
+    ).read_text(encoding="utf-8")
+    assert "2000000000" in manifest, "load_imaging_vocabulary manifest doesn't use the namespace"
+
+
+def test_adr_0005_etl_requires_parthenon_imaging_vocabulary() -> None:
+    """ADR 0005 §5 says etl resolves Modality via Parthenon-Imaging — manifest must require it."""
+    import yaml
+
+    manifest_text = (
+        REPO / "templates" / "manifests" / "etl_dicom_metadata" / "manifest.yaml"
+    ).read_text(encoding="utf-8")
+    payload = yaml.safe_load(manifest_text)
+    requires = payload["spec"]["requires"]
+    assert "Parthenon-Imaging" in requires["vocabularies"]

@@ -1,0 +1,19 @@
+post_conditions:
+  - kind: row_count
+    table: vocab.concept
+    where: "vocabulary_id = 'Parthenon-Imaging'"
+    min: 1
+    description: "At least one Parthenon-Imaging concept loaded"
+  - kind: row_count
+    table: vocab.vocabulary
+    where: "vocabulary_id = 'Parthenon-Imaging'"
+    expected: 1
+    description: "Exactly one vocabulary header row"
+  - kind: column_value
+    table: vocab.vocabulary
+    column: vocabulary_name
+    where: "vocabulary_id = 'Parthenon-Imaging'"
+    expected: "Parthenon DICOM Imaging Vocabulary"
+  - kind: artifact_present
+    artifact_name: imaging_vocab_summary.json
+    min_rows: 1

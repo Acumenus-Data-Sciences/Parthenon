@@ -1,0 +1,136 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: etl_dicom_metadata
+  name: ETL DICOM Metadata to OMOP
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.4"]
+  tags: ["imaging", "dicom", "etl", "metadata-only"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source:
+        type: string
+        enum: ["filesystem", "dicomweb"]
+        description: "DICOM source backend."
+      dicom_dir:
+        type: string
+        description: "Directory of *.dcm files (when source=filesystem)."
+      dicomweb_base_url:
+        type: string
+        description: "DICOMweb base URL (when source=dicomweb)."
+      dicomweb_token:
+        type: string
+        description: "Bearer token for DICOMweb (secret)."
+        secret: true
+      target_schema:
+        type: string
+        description: "OMOP CDM target schema."
+      vocab_schema:
+        type: string
+        default: "vocab"
+        description: "OMOP vocabulary schema (must contain Parthenon-Imaging)."
+    required: ["source", "target_schema"]
+  requires:
+    cdm_initialized: true
+    vocabularies: ["Parthenon-Imaging"]
+  nodes:
+    - node_id: ingest_metadata
+      type: dicom_metadata
+      params:
+        source: "${parameters.source}"
+        dicom_dir: "${parameters.dicom_dir}"
+        dicomweb_base_url: "${parameters.dicomweb_base_url}"
+        bearer_token: "${parameters.dicomweb_token}"
+
+    - node_id: project_to_imaging_extension
+      type: python
+      depends_on: [ingest_metadata]
+      params:
+        code: |
+          import polars as pl
+          from sqlalchemy import create_engine, text
+
+          def main(context, params):
+              if not context.db_dsn:
+                  raise RuntimeError("project_to_imaging_extension requires context.db_dsn")
+              upstream = context.artifact_dir.parent / "ingest_metadata" / "dicom_metadata.parquet"
+              if not upstream.exists():
+                  raise FileNotFoundError(f"upstream metadata Parquet missing: {upstream}")
+              df = pl.read_parquet(upstream)
+              if df.height == 0:
+                  return {"image_occurrences_inserted": 0}
+
+              schema = params["target_schema"]
+              vocab = params["vocab_schema"]
+              engine = create_engine(context.db_dsn, future=True)
+              inserted = 0
+              with engine.begin() as conn:
+                  for row in df.iter_rows(named=True):
+                      cid_row = conn.execute(
+                          text(
+                              f"SELECT concept_id FROM {vocab}.concept "
+                              f"WHERE vocabulary_id = 'Parthenon-Imaging' "
+                              f"  AND concept_class_id = 'DICOM Attribute' "
+                              f"  AND concept_code = :modality_code "
+                              f"LIMIT 1"
+                          ),
+                          {"modality_code": "(0008|0060)"},
+                      ).fetchone()
+                      modality_concept_id = cid_row[0] if cid_row else 0
+
+                      raw_date = row.get("StudyDate") or ""
+                      if raw_date and len(raw_date) == 8 and raw_date.isdigit():
+                          # DICOM dates are YYYYMMDD; convert to ISO for Postgres.
+                          study_date = f"{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+                      else:
+                          study_date = None
+
+                      conn.execute(
+                          text(
+                              f"INSERT INTO {schema}.image_occurrence "
+                              f"(person_id, image_study_uid, image_series_uid, "
+                              f"image_occurrence_date, modality_concept_id, "
+                              f"anatomic_site_concept_id, image_occurrence_concept_id) "
+                              f"VALUES (NULL, :study_uid, :series_uid, "
+                              f":study_date, :modality_concept_id, 0, 0)"
+                          ),
+                          {
+                              "study_uid": row.get("StudyInstanceUID"),
+                              "series_uid": row.get("SeriesInstanceUID"),
+                              "study_date": study_date,
+                              "modality_concept_id": modality_concept_id,
+                          },
+                      )
+                      inserted += 1
+              return {"image_occurrences_inserted": inserted}
+        inputs:
+          target_schema: "${parameters.target_schema}"
+          vocab_schema: "${parameters.vocab_schema}"
+
+    - node_id: emit_summary
+      type: sql
+      depends_on: [project_to_imaging_extension]
+      params:
+        statements:
+          - "SELECT 1"
+        fetch_query: |
+          SELECT COUNT(*) AS image_occurrence_count
+          FROM ${parameters.target_schema}.image_occurrence
+        result_artifact: dicom_etl_summary
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.target_schema}.image_occurrence"
+        min: 1
+    - kind: artifact_present
+      params:
+        artifact: dicom_metadata.parquet
+        min_rows: 1
+    - kind: artifact_present
+      params:
+        artifact: dicom_etl_summary.json
+        min_rows: 1
