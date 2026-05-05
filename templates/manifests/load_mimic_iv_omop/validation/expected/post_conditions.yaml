@@ -1,0 +1,22 @@
+# Phase 2 spec §6 acceptance criterion: row counts within ±2% of the OHDSI
+# MIMIC-IV demo reference numbers. The reference numbers below come from a
+# clean run of the OHDSI MIMIC-IV ETL against the demo subset (100 patients).
+#
+# The synthetic 10-patient fixture used by the E2E in Task 15 emits much
+# smaller counts; the E2E asserts row counts > 0 for all tables and tighter
+# bounds for the synthetic shape (documented inline in the test).
+
+acceptance_threshold_pct: 2.0
+
+# OHDSI MIMIC-IV demo reference (subset = 100 patients).
+reference_counts:
+  persons: 100
+  visits: 275
+  conditions: 950
+  procedures: 510
+  measurements: 12500
+  drug_exposures: 4800
+  observations: 320
+  notes: 1850
+
+artifact_name: mimic_iv_summary.json

@@ -12,12 +12,7 @@ from pathlib import Path
 
 import pytest
 
-SQL_DIR = (
-    Path(__file__).resolve().parents[2]
-    / "manifests"
-    / "load_mimic_iv_omop"
-    / "sql"
-)
+SQL_DIR = Path(__file__).resolve().parents[2] / "manifests" / "load_mimic_iv_omop" / "sql"
 
 
 # Task 5 -----------------------------------------------------------------

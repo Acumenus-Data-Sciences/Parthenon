@@ -12,12 +12,7 @@ from pathlib import Path
 
 import pytest
 
-SQL_DIR = (
-    Path(__file__).resolve().parents[2]
-    / "manifests"
-    / "load_mimic_iv_omop"
-    / "sql"
-)
+SQL_DIR = Path(__file__).resolve().parents[2] / "manifests" / "load_mimic_iv_omop" / "sql"
 
 
 # Task 1 ----------------------------------------------------------------
@@ -97,9 +92,7 @@ def test_loader_parameterizes_csv_root() -> None:
 )
 def test_lookup_table_created(lookup: str) -> None:
     body = (SQL_DIR / "02_vocab_lookup_tables.sql").read_text(encoding="utf-8")
-    assert re.search(
-        rf"CREATE TABLE\s+(IF NOT EXISTS\s+)?mimic_iv_source\.{lookup}\b", body, re.I
-    )
+    assert re.search(rf"CREATE TABLE\s+(IF NOT EXISTS\s+)?mimic_iv_source\.{lookup}\b", body, re.I)
 
 
 def test_lookups_use_concept_relationship_maps_to() -> None:

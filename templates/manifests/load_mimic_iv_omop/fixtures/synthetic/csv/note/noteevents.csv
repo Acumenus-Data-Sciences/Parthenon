@@ -1,0 +1,54 @@
+subject_id,hadm_id,chartdate,charttime,storetime,category,description,cgid,iserror,text
+10000000,20000000,2026-04-25,2026-04-25 00:00:00,2026-04-25 00:00:00,Physician,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000000,20000000,2026-04-25,2026-04-25 00:00:00,2026-04-25 00:00:00,Nursing,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000000,20000001,2026-12-27,2026-12-27 00:00:00,2026-12-27 00:00:00,Radiology,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000000,20000001,2026-12-27,2026-12-27 00:00:00,2026-12-27 00:00:00,Radiology,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000000,20000002,2026-07-05,2026-07-05 00:00:00,2026-07-05 00:00:00,Radiology,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000000,20000002,2026-07-05,2026-07-05 00:00:00,2026-07-05 00:00:00,Nursing,Progress note,0,0,Patient 10000000 reports chest pain. Started lisinopril 10mg.
+10000001,20000010,2026-08-13,2026-08-13 00:00:00,2026-08-13 00:00:00,Radiology,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000001,20000011,2026-09-06,2026-09-06 00:00:00,2026-09-06 00:00:00,Physician,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000001,20000011,2026-09-06,2026-09-06 00:00:00,2026-09-06 00:00:00,Nursing,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000001,20000012,2026-12-09,2026-12-09 00:00:00,2026-12-09 00:00:00,Radiology,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000001,20000013,2026-10-10,2026-10-10 00:00:00,2026-10-10 00:00:00,Physician,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000001,20000013,2026-10-10,2026-10-10 00:00:00,2026-10-10 00:00:00,Discharge summary,Progress note,0,0,Patient 10000001 reports chest pain. Started lisinopril 10mg.
+10000002,20000020,2026-10-25,2026-10-25 00:00:00,2026-10-25 00:00:00,Physician,Progress note,0,0,Patient 10000002 reports chest pain. Started lisinopril 10mg.
+10000002,20000021,2026-07-27,2026-07-27 00:00:00,2026-07-27 00:00:00,Nursing,Progress note,0,0,Patient 10000002 reports chest pain. Started lisinopril 10mg.
+10000002,20000021,2026-07-27,2026-07-27 00:00:00,2026-07-27 00:00:00,Nursing,Progress note,0,0,Patient 10000002 reports chest pain. Started lisinopril 10mg.
+10000002,20000022,2026-12-23,2026-12-23 00:00:00,2026-12-23 00:00:00,Nursing,Progress note,0,0,Patient 10000002 reports chest pain. Started lisinopril 10mg.
+10000002,20000022,2026-12-23,2026-12-23 00:00:00,2026-12-23 00:00:00,Radiology,Progress note,0,0,Patient 10000002 reports chest pain. Started lisinopril 10mg.
+10000003,20000030,2026-07-19,2026-07-19 00:00:00,2026-07-19 00:00:00,Nursing,Progress note,0,0,Patient 10000003 reports chest pain. Started lisinopril 10mg.
+10000003,20000030,2026-07-19,2026-07-19 00:00:00,2026-07-19 00:00:00,Discharge summary,Progress note,0,0,Patient 10000003 reports chest pain. Started lisinopril 10mg.
+10000003,20000031,2026-10-31,2026-10-31 00:00:00,2026-10-31 00:00:00,Physician,Progress note,0,0,Patient 10000003 reports chest pain. Started lisinopril 10mg.
+10000003,20000031,2026-10-31,2026-10-31 00:00:00,2026-10-31 00:00:00,Physician,Progress note,0,0,Patient 10000003 reports chest pain. Started lisinopril 10mg.
+10000004,20000040,2026-10-12,2026-10-12 00:00:00,2026-10-12 00:00:00,Radiology,Progress note,0,0,Patient 10000004 reports chest pain. Started lisinopril 10mg.
+10000004,20000040,2026-10-12,2026-10-12 00:00:00,2026-10-12 00:00:00,Radiology,Progress note,0,0,Patient 10000004 reports chest pain. Started lisinopril 10mg.
+10000004,20000041,2026-06-24,2026-06-24 00:00:00,2026-06-24 00:00:00,Nursing,Progress note,0,0,Patient 10000004 reports chest pain. Started lisinopril 10mg.
+10000004,20000042,2026-05-03,2026-05-03 00:00:00,2026-05-03 00:00:00,Discharge summary,Progress note,0,0,Patient 10000004 reports chest pain. Started lisinopril 10mg.
+10000004,20000043,2026-04-28,2026-04-28 00:00:00,2026-04-28 00:00:00,Nursing,Progress note,0,0,Patient 10000004 reports chest pain. Started lisinopril 10mg.
+10000005,20000050,2026-04-26,2026-04-26 00:00:00,2026-04-26 00:00:00,Radiology,Progress note,0,0,Patient 10000005 reports chest pain. Started lisinopril 10mg.
+10000005,20000051,2026-02-21,2026-02-21 00:00:00,2026-02-21 00:00:00,Radiology,Progress note,0,0,Patient 10000005 reports chest pain. Started lisinopril 10mg.
+10000006,20000060,2026-08-24,2026-08-24 00:00:00,2026-08-24 00:00:00,Discharge summary,Progress note,0,0,Patient 10000006 reports chest pain. Started lisinopril 10mg.
+10000006,20000061,2026-11-18,2026-11-18 00:00:00,2026-11-18 00:00:00,Radiology,Progress note,0,0,Patient 10000006 reports chest pain. Started lisinopril 10mg.
+10000006,20000061,2026-11-18,2026-11-18 00:00:00,2026-11-18 00:00:00,Physician,Progress note,0,0,Patient 10000006 reports chest pain. Started lisinopril 10mg.
+10000006,20000062,2026-02-25,2026-02-25 00:00:00,2026-02-25 00:00:00,Physician,Progress note,0,0,Patient 10000006 reports chest pain. Started lisinopril 10mg.
+10000006,20000063,2026-05-05,2026-05-05 00:00:00,2026-05-05 00:00:00,Radiology,Progress note,0,0,Patient 10000006 reports chest pain. Started lisinopril 10mg.
+10000007,20000070,2026-11-08,2026-11-08 00:00:00,2026-11-08 00:00:00,Physician,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000007,20000071,2026-10-12,2026-10-12 00:00:00,2026-10-12 00:00:00,Discharge summary,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000007,20000072,2026-06-26,2026-06-26 00:00:00,2026-06-26 00:00:00,Discharge summary,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000007,20000072,2026-06-26,2026-06-26 00:00:00,2026-06-26 00:00:00,Radiology,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000007,20000073,2026-02-24,2026-02-24 00:00:00,2026-02-24 00:00:00,Physician,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000007,20000073,2026-02-24,2026-02-24 00:00:00,2026-02-24 00:00:00,Nursing,Progress note,0,0,Patient 10000007 reports chest pain. Started lisinopril 10mg.
+10000008,20000080,2026-05-21,2026-05-21 00:00:00,2026-05-21 00:00:00,Discharge summary,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000080,2026-05-21,2026-05-21 00:00:00,2026-05-21 00:00:00,Physician,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000081,2026-02-03,2026-02-03 00:00:00,2026-02-03 00:00:00,Physician,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000082,2026-12-14,2026-12-14 00:00:00,2026-12-14 00:00:00,Nursing,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000082,2026-12-14,2026-12-14 00:00:00,2026-12-14 00:00:00,Radiology,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000083,2026-08-18,2026-08-18 00:00:00,2026-08-18 00:00:00,Physician,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000008,20000083,2026-08-18,2026-08-18 00:00:00,2026-08-18 00:00:00,Physician,Progress note,0,0,Patient 10000008 reports chest pain. Started lisinopril 10mg.
+10000009,20000090,2026-05-04,2026-05-04 00:00:00,2026-05-04 00:00:00,Physician,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000090,2026-05-04,2026-05-04 00:00:00,2026-05-04 00:00:00,Discharge summary,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000091,2026-02-10,2026-02-10 00:00:00,2026-02-10 00:00:00,Discharge summary,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000091,2026-02-10,2026-02-10 00:00:00,2026-02-10 00:00:00,Nursing,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000092,2026-12-14,2026-12-14 00:00:00,2026-12-14 00:00:00,Discharge summary,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000093,2026-02-03,2026-02-03 00:00:00,2026-02-03 00:00:00,Nursing,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
+10000009,20000093,2026-02-03,2026-02-03 00:00:00,2026-02-03 00:00:00,Radiology,Progress note,0,0,Patient 10000009 reports chest pain. Started lisinopril 10mg.
