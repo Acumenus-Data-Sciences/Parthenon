@@ -1,4 +1,4 @@
-# `fhir_to_omop` — Phase 1 template (PR-A scope)
+# `fhir_to_omop` — Phase 1 template (PR-A + PR-B scope)
 
 Ingests FHIR R4 resources and projects them into OMOP CDM clinical tables.
 Phase 1 ships in three slices:
@@ -97,11 +97,32 @@ Composing with `fhir_anonymizer` (Plan 4):
 2. Run `fhir_to_omop` with
    `ndjson_dir = <fhir_anonymizer_run_storage>/anonymize/anonymized`.
 
+## Supported FHIR resources (Phase 1)
+
+| FHIR Resource | OMOP Target Table | drug_type_concept_id | Notes |
+|---|---|---|---|
+| Patient | PERSON | n/a | US Core race/ethnicity extensions resolved if present |
+| Encounter | VISIT_OCCURRENCE | n/a | class.code → visit_concept_id via IG snapshot |
+| Condition | CONDITION_OCCURRENCE | n/a | First resolvable coding wins |
+| Observation | MEASUREMENT or OBSERVATION | n/a | Split by FHIR category |
+| Procedure | PROCEDURE_OCCURRENCE | n/a | Performed via dateTime or Period |
+| MedicationRequest | DRUG_EXPOSURE | 32839 (EHR prescription) | authoredOn → start |
+| MedicationStatement | DRUG_EXPOSURE | 38000179 (Patient self-reported) | effectivePeriod → start/end |
+| MedicationAdministration | DRUG_EXPOSURE | 38000180 (Inpatient administration) | effectiveDateTime → start |
+| Immunization | DRUG_EXPOSURE | 581452 (Immunization) | vaccineCode (CVX) → drug_concept_id |
+| DiagnosticReport | (PR-C, Plan 7) | — | — |
+| Consent | (PR-C, Plan 7) | — | — |
+
 ## Limitations
 
-- **PR-A scope only.** Procedure / MedicationRequest / MedicationStatement /
-  MedicationAdministration / Immunization are NOT yet mapped — they land in
-  PR-B (Plan 6). DiagnosticReport / Consent land in PR-C (Plan 7).
+- **PR-C scope still pending.** DiagnosticReport / Consent land in PR-C
+  (Plan 7). Performance benchmarking (1M Observations < 10 minutes) is
+  also deferred to Plan 7.
+- **`medicationReference` is not supported in Phase 1.** When a
+  MedicationRequest/Statement/Administration uses `medicationReference`
+  (pointing at a separate Medication resource) instead of inline
+  `medicationCodeableConcept`, the mapper returns `drug_concept_id = 0`.
+  PR-C may add the reference resolution.
 - `person_id` and `visit_occurrence_id` are resolved via in-memory staging
   maps; on very large fixtures (>10M Patients) this approach is memory-bound.
   Plan 7 will benchmark and decide whether to swap in a temp-table join.

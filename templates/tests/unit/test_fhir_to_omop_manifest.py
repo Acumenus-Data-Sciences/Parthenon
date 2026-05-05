@@ -118,3 +118,72 @@ def test_readme_documents_pr_a_scope_and_pr_b_pr_c_deferral() -> None:
     assert "PR-A" in text
     assert "PR-B" in text or "Plan 6" in text
     assert "PR-C" in text or "Plan 7" in text
+
+
+# --- PR-B (Plan 6) extension tests ---
+
+
+def test_manifest_pr_b_imports() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    for module in (
+        "runtime.fhir_to_omop.procedure",
+        "runtime.fhir_to_omop.medication",
+        "runtime.fhir_to_omop.immunization",
+    ):
+        assert module in text
+
+
+def test_manifest_pr_b_resource_types_in_ingestion() -> None:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    ingest = next(n for n in payload["spec"]["nodes"] if n["node_id"] == "ingest_fhir")
+    rt = ingest["params"]["resource_types"]
+    for resource in (
+        "Patient",
+        "Encounter",
+        "Condition",
+        "Observation",
+        "Procedure",
+        "MedicationRequest",
+        "MedicationStatement",
+        "MedicationAdministration",
+        "Immunization",
+    ):
+        assert resource in rt, f"manifest missing PR-B resource type: {resource}"
+
+
+def test_manifest_pr_b_load_targets_drug_exposure_and_procedure() -> None:
+    text = MANIFEST.read_text(encoding="utf-8")
+    assert "procedure_occurrence" in text
+    assert "drug_exposure" in text
+
+
+def test_pr_b_fixtures_present() -> None:
+    fixtures = MANIFEST.parent / "fixtures" / "sample"
+    for f in ("Procedure.ndjson", "MedicationRequest.ndjson", "Immunization.ndjson"):
+        assert (fixtures / f).exists(), f"missing PR-B fixture: {f}"
+
+
+def test_pr_b_post_conditions_added() -> None:
+    pc = yaml.safe_load(
+        (MANIFEST.parent / "validation" / "expected" / "post_conditions.yaml").read_text("utf-8")
+    )
+    tables = {p.get("table") for p in pc["post_conditions"]}
+    assert any("procedure_occurrence" in str(t) for t in tables)
+    assert any("drug_exposure" in str(t) for t in tables)
+
+
+def test_readme_documents_pr_b_resources() -> None:
+    text = (MANIFEST.parent / "README.md").read_text(encoding="utf-8")
+    for resource in ("Procedure", "MedicationRequest", "Immunization"):
+        assert resource in text
+    for cid in ("32839", "38000179", "38000180", "581452"):
+        assert cid in text
+
+
+def test_adr_0008_has_pr_b_amendment() -> None:
+    adr = Path(__file__).resolve().parents[3] / "docs" / "adr" / "0008-fhir-to-omop-architecture.md"
+    text = adr.read_text(encoding="utf-8")
+    assert "PR-B" in text
+    assert "drug_type_concept_id" in text
+    assert "medicationReference" in text
+    assert "CVX" in text

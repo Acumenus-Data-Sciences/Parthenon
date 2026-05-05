@@ -163,6 +163,45 @@ def _seed_vocab_and_omop_tables(engine):
                 """
             )
         )
+        # PR-B/PR-C tables: PR-A doesn't write rows here, but the manifest's
+        # summarize node SELECTs from all 7 tables, so they must exist.
+        conn.execute(text("DROP TABLE IF EXISTS omop.drug_exposure"))
+        conn.execute(
+            text(
+                """
+                CREATE TABLE IF NOT EXISTS omop.procedure_occurrence (
+                    procedure_occurrence_id BIGSERIAL PRIMARY KEY,
+                    person_id BIGINT NOT NULL,
+                    procedure_concept_id INTEGER NOT NULL,
+                    procedure_date DATE NOT NULL,
+                    procedure_datetime TIMESTAMP,
+                    procedure_type_concept_id INTEGER,
+                    procedure_source_value VARCHAR(50),
+                    procedure_source_concept_id INTEGER,
+                    visit_occurrence_id BIGINT
+                )
+                """
+            )
+        )
+        conn.execute(
+            text(
+                """
+                CREATE TABLE IF NOT EXISTS omop.drug_exposure (
+                    drug_exposure_id BIGSERIAL PRIMARY KEY,
+                    person_id BIGINT NOT NULL,
+                    drug_concept_id INTEGER NOT NULL,
+                    drug_exposure_start_date DATE NOT NULL,
+                    drug_exposure_start_datetime TIMESTAMP,
+                    drug_exposure_end_date DATE,
+                    drug_exposure_end_datetime TIMESTAMP,
+                    drug_type_concept_id INTEGER,
+                    drug_source_value VARCHAR(50),
+                    drug_source_concept_id INTEGER,
+                    visit_occurrence_id BIGINT
+                )
+                """
+            )
+        )
 
 
 @pytest.mark.integration

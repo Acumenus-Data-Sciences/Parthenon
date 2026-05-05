@@ -171,3 +171,56 @@ what they're getting in PR-A.
 - HL7 FHIR-OMOP Implementation Guide:
   <https://github.com/HL7/fhir-omop-ig>
 - Devplan T-015: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md`
+
+## Amendment — 2026-05-03 (PR-B: Procedure + Medication + Immunization)
+
+### New decisions
+
+- **Distinct `drug_type_concept_id` per FHIR Medication source**. The four
+  FHIR resources (MedicationRequest, MedicationStatement,
+  MedicationAdministration, Immunization) all map to OMOP DRUG_EXPOSURE,
+  but they describe different pharmacological events. We preserve that
+  distinction with distinct OMOP standard `drug_type_concept_id` values:
+  - 32839 — EHR prescription (Request)
+  - 38000179 — Patient self-reported medication (Statement)
+  - 38000180 — Inpatient administration (Administration)
+  - 581452 — Immunization (Immunization)
+
+  Rationale: collapsing these would lose the request-vs-administration
+  distinction that downstream cohort definitions need.
+
+- **`medicationReference` is NOT supported in Phase 1**. FHIR allows a
+  Medication-* resource to reference a separate `Medication` resource via
+  `medicationReference`. PR-B only handles `medicationCodeableConcept`
+  (inline coding). When a resource uses `medicationReference`, the mapper
+  returns `drug_concept_id = 0`. PR-C may add `medicationReference`
+  resolution if customers need it.
+
+- **CVX added to the IG snapshot.** The pinned `v0.1.0-parthenon` IG
+  snapshot was extended with the CVX system → vocabulary mapping during
+  Plan 6 Task 5. This is a content-only addition (no schema change) and
+  not considered an IG version bump.
+
+- **IG pin unchanged across PR-A and PR-B**. Per spec decision Q9, the
+  `v0.1.0-parthenon` pin holds for the entire Phase 1 fhir_to_omop work.
+  No bump in PR-B.
+
+### Implementation notes
+
+- All four medication mappers share `_resolve_medication_concept` and
+  `_build_row` helpers in `runtime.fhir_to_omop.medication`. The
+  Immunization mapper imports `DrugExposureRow` from this module to
+  avoid a parallel type.
+- The manifest's `map_medications` node concatenates output from all
+  three Medication-* upstreams into a single `drug_exposures_meds.json`
+  artifact. The `load_to_cdm` node treats meds and immunizations
+  uniformly when INSERTing into DRUG_EXPOSURE.
+
+### Testing
+
+- Per-resource unit tests cover the mapping semantics in isolation
+  against in-memory SQLite.
+- The PR-B E2E test (`tests/e2e/test_fhir_to_omop_prb.py`) covers the
+  manifest end-to-end against a Postgres testcontainer with seeded
+  vocab.concept rows. Asserts row counts: PERSON=2, VISIT=2, COND=2,
+  MEAS=2, OBS=2, PROCEDURE=1, DRUG_EXPOSURE=2.
