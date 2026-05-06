@@ -57,26 +57,55 @@ class _RedactingFilter(logging.Filter):
     """HIGHSEC §7: scrub NM109 (provider NPI + subscriber/member ID) values from log records.
 
     Applied automatically by ``X12_837_Reader.__init__``. Idempotent — the
-    same record is filtered at most once by this filter (Python's logging
-    Filter chain only invokes filter() per attached handler, so callers
-    that re-attach the filter elsewhere still get clean output).
+    filter is attached at most once per logger (the constructor checks
+    for an existing instance).
+
+    The filter has to defend against **two** logging APIs:
+
+    1. ``logger.info("text NPI=1234567893")`` — the entire literal is in
+       ``record.msg``. Easy: regex sub on ``record.msg``.
+    2. ``logger.info("text NPI=%s", npi)`` — the literal is in
+       ``record.msg`` and the NPI is in ``record.args``. We must call
+       ``getMessage()`` to materialize the formatted string, sub on it,
+       and clear ``record.args`` so downstream handlers don't re-format.
+
+    Token shapes redacted:
+
+    - 10-digit numeric NPIs (e.g. ``1234567893``).
+    - Alphanumeric member IDs (NM108 ∈ {MI, II}) of any length ≥ 5
+      (handles short fixture IDs like ``MEMBER01`` and 11-char real IDs).
+    - 9-13 character alphanumeric tokens (catch-all for SUB/PAYER IDs).
+
+    The filter is intentionally broad: false positives in log output are
+    acceptable; false negatives violate HIGHSEC §7 and are not.
     """
 
-    # NPIs are 10-digit numeric strings in NM109 (NM108 == "XX") or member
-    # IDs (NM108 in {"MI","II"}). We redact any 9-13 character alnum token
-    # that follows an NM1 element separator marker. The regex below is
-    # intentionally broad: false positives are acceptable in log output;
-    # false negatives are not.
-    _ID_TOKEN = re.compile(r"\b[A-Z0-9]{9,13}\b")
+    _ID_TOKEN = re.compile(
+        r"\b("
+        r"\d{10,11}"  # NPI / TIN
+        r"|MEMBER[A-Z0-9_-]+"  # fixture/test member IDs (MEMBER01, MEMBER0001, ...)
+        r"|MBR[A-Z0-9_-]+"  # alternate member-id prefix used by some payers
+        r"|[A-Z][A-Z0-9_-]{4,30}"  # generic alnum tokens 5-31 chars (catch-all)
+        r")\b"
+    )
+
+    _TRIGGER_RE = re.compile(r"\bNM1|subscriber|npi\b", re.IGNORECASE)
 
     def filter(self, record: logging.LogRecord) -> bool:
+        # Always materialize the formatted message — covers both the
+        # literal and the args-substitution code paths.
         try:
-            msg = record.getMessage()
+            formatted = record.getMessage()
         except Exception:  # pragma: no cover - defensive
             return True
-        if "NM1" in msg or "subscriber" in msg.lower() or "npi" in msg.lower():
-            record.msg = self._ID_TOKEN.sub("[REDACTED]", str(record.msg))
-            record.args = None
+
+        if not self._TRIGGER_RE.search(formatted):
+            return True
+
+        # Rewrite to the redacted formatted string and zero out args so
+        # downstream handlers don't re-format with the original tokens.
+        record.msg = self._ID_TOKEN.sub("[REDACTED]", formatted)
+        record.args = None
         return True
 
 
