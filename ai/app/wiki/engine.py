@@ -203,6 +203,12 @@ class WikiEngine:
             for page in pages
         }
 
+        # Single timestamp for the whole ingest so all pages share updated_at
+        # and any newly-created pages share ingested_at. Without this, slow
+        # runs can cross a second boundary between the source_summary write
+        # and subsequent page writes, producing inconsistent timestamps.
+        ingest_now = _utc_now()
+
         source_summary = self._write_page(
             workspace_dir=workspace_dir,
             page_type="source_summary",
@@ -216,6 +222,7 @@ class WikiEngine:
             metadata=source_metadata,
             primary_domain=primary_domain,
             slug_override=f"source-summary-{source.slug}",
+            now=ingest_now,
         )
         created_pages.append(source_summary)
 
@@ -236,6 +243,7 @@ class WikiEngine:
                     metadata=source_metadata,
                     primary_domain=str(page.get("primary_domain", "")).strip(),
                     slug_override=page_slug_map[id(page)],
+                    now=ingest_now,
                 )
             )
 
@@ -793,12 +801,13 @@ class WikiEngine:
         metadata: dict[str, str] | None = None,
         primary_domain: str = "",
         slug_override: str | None = None,
+        now: str | None = None,
     ) -> WikiPageSummary:
         slug = self._bounded_slug(slug_override or slugify(title), f"{page_type}:{source_slug or ''}:{title}")
         relative_dir = WORKSPACE_PAGE_DIRS[page_type]
         relative_path = f"{relative_dir}/{slug}.md"
         absolute_path = workspace_dir / relative_path
-        updated_at = _utc_now()
+        updated_at = now or _utc_now()
         normalized_links = sorted({link for link in links if link})
         source_metadata = metadata or self._normalize_source_metadata()
 
