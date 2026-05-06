@@ -23,6 +23,7 @@ class StudyActivityController extends Controller
             $activities = $study->activityLog()
                 ->with('user:id,name,email')
                 ->orderByDesc('occurred_at')
+                ->orderByDesc('id')
                 ->paginate($request->integer('per_page', 25));
 
             return response()->json($activities);
