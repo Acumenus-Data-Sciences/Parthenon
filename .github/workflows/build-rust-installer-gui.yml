@@ -84,7 +84,7 @@ jobs:
       contents: write
     steps:
       - name: Download source-backed installer bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: parthenon-community-bootstrap-bundle
           path: dist/installer-bundle
