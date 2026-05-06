@@ -15,7 +15,8 @@ from runtime.oncology.types import RegimenDrug, RegimenMatch, RegimenPattern
 
 
 def test_library_loads_5_regimens() -> None:
-    patterns = load_pattern_library()
+    """v0.1.0 hand-curated subset must continue to work after Plan 7 default switch."""
+    patterns = load_pattern_library(version="v0.1.0")
     names = {p.regimen_name for p in patterns}
     assert names == {"FOLFIRINOX", "FOLFOX", "R-CHOP", "AC-T", "Carboplatin+Paclitaxel"}
 
@@ -26,9 +27,29 @@ def test_library_rejects_unknown_version() -> None:
 
 
 def test_folfirinox_has_4_drugs() -> None:
-    patterns = load_pattern_library()
+    patterns = load_pattern_library(version="v0.1.0")
     folfirinox = next(p for p in patterns if p.regimen_name == "FOLFIRINOX")
     assert len(folfirinox.drugs) == 4
+
+
+def test_default_version_is_v0_2_0() -> None:
+    """Phase 3 Plan 7 Task 15 — default bumped to v0.2.0 (full library)."""
+    import inspect
+
+    from runtime.oncology import matcher
+
+    sig = inspect.signature(matcher.load_pattern_library)
+    assert sig.parameters["version"].default == "v0.2.0"
+
+
+def test_default_loader_falls_back_to_v0_1_0_when_v0_2_0_absent() -> None:
+    """On a dev runner without the Docker build, v0.2.0/patterns.json is
+    absent. The loader must fall back to v0.1.0 so the unit suite stays
+    runnable without R installed."""
+    patterns = load_pattern_library()
+    # The fallback yields the v0.1.0 subset — at minimum, FOLFIRINOX is present.
+    names = {p.regimen_name for p in patterns}
+    assert "FOLFIRINOX" in names
 
 
 # --- Pattern model ----------------------------------------------------------

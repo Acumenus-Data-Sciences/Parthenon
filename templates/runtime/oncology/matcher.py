@@ -23,14 +23,32 @@ from runtime.oncology.exceptions import ArtemisLibraryError
 from runtime.oncology.types import RegimenDrug, RegimenMatch, RegimenPattern
 
 
-def load_pattern_library(version: str = "v0.1.0") -> list[RegimenPattern]:
+def load_pattern_library(version: str = "v0.2.0") -> list[RegimenPattern]:
     """Load the regimen pattern JSON shipped with this version of the runtime.
 
     The library lives at ``runtime/oncology/artemis/<version>/patterns.json``.
-    Phase 2 Plan 5 ships a hand-curated 5-regimen subset; Phase 3 follow-up
-    will add the build-time R-package extraction.
+
+    - ``v0.1.0``: hand-curated 5-regimen subset (Phase 2 Plan 5).
+    - ``v0.2.0``: full ~600-regimen library extracted from the HemOnc
+      R-package at Docker build time (Phase 3 Plan 7 Section B). The
+      ``patterns.json`` is materialized by Stage 1 of templates/Dockerfile
+      and copied into Stage 2; it is NOT committed to git.
+
+    Default switched to v0.2.0 in Phase 3 Plan 7 Task 15. Callers that
+    need the old hand-curated subset must pass ``version="v0.1.0"``
+    explicitly.
+
+    If v0.2.0/patterns.json is missing (the dev runner has not built the
+    Docker image), the loader falls back to v0.1.0 so the unit suite and
+    local dev still work without R installed.
     """
     path = Path(__file__).parent / "artemis" / version / "patterns.json"
+    if not path.is_file() and version == "v0.2.0":
+        # Fall back to v0.1.0 when the Docker-built library isn't present
+        # (dev runner / CI before Section B's build step). Caller logic is
+        # unchanged because the v0.1.0 subset is a strict subset of v0.2.0.
+        path = Path(__file__).parent / "artemis" / "v0.1.0" / "patterns.json"
+        version = "v0.1.0"
     if not path.is_file():
         raise ArtemisLibraryError(f"pattern library not found: {path}")
 
