@@ -71,16 +71,25 @@ class _CursorProtocol(Protocol):
 
     def executemany(self, query: str, params_list: list[tuple[Any, ...]]) -> Any: ...
 
+    def fetchall(self) -> list[tuple[Any, ...]]: ...
+
     def __iter__(self) -> Iterator[tuple[Any, ...]]: ...
 
 
 def _select_unmapped_concepts(
     cursor: _CursorProtocol, vocabularies: tuple[str, ...], model_name: str, batch_size: int
 ) -> Iterable[_ConceptRow]:
-    """Stream (concept_id, concept_name) for standard concepts not yet embedded.
+    """Eagerly load (concept_id, concept_name) for standard concepts not yet embedded.
 
     The NOT EXISTS predicate makes the run idempotent — resume picks up
     where it left off after a crash.
+
+    NOTE: we ``fetchall`` upfront rather than iterating the cursor
+    lazily because the same cursor is reused later for ``executemany``
+    upsert batches; mixing iteration with ``executemany`` on the
+    default psycopg cursor invalidates the SELECT's result set after
+    the first INSERT, truncating the run after one batch. Memory cost
+    of materializing ~1M (id, name) tuples is bounded (<200MB).
     """
     sql = """
         SELECT c.concept_id, c.concept_name
@@ -97,7 +106,8 @@ def _select_unmapped_concepts(
         ORDER BY c.concept_id
     """
     cursor.execute(sql, (list(vocabularies), model_name))
-    for row in cursor:
+    rows = cursor.fetchall()  # type: ignore[attr-defined]
+    for row in rows:
         cid, name = row[0], row[1]
         yield _ConceptRow(concept_id=int(cid), concept_name=str(name))
 
@@ -113,7 +123,7 @@ def _upsert_embeddings(cursor: _CursorProtocol, rows: list[tuple[int, str, str]]
     cursor.executemany(
         """
         INSERT INTO vocab.concept_embedding_bge (concept_id, embedding, model_name)
-        VALUES (%s, %s::vector, %s)
+        VALUES (%s, %s::public.vector, %s)
         ON CONFLICT (concept_id) DO UPDATE
         SET embedding   = EXCLUDED.embedding,
             model_name  = EXCLUDED.model_name,

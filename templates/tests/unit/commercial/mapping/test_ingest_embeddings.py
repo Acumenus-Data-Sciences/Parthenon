@@ -30,6 +30,9 @@ class _FakeCursor:
     def executemany(self, query: str, params_list: list[tuple[Any, ...]]) -> None:
         self.executemany_calls.append((query, params_list))
 
+    def fetchall(self) -> list[tuple[Any, ...]]:
+        return list(self._rows)
+
     def __iter__(self):  # type: ignore[no-untyped-def]
         return iter(self._rows)
 

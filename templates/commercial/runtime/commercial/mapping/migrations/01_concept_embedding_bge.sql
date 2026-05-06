@@ -15,11 +15,17 @@
 
 CREATE EXTENSION IF NOT EXISTS vector;
 
+-- pgvector installs the ``vector`` type into the schema where the
+-- extension lives (``public`` by default). Sessions whose search_path
+-- doesn't include that schema can't see the type, so qualify
+-- explicitly. Using ``public.vector`` here is portable across both
+-- ``CREATE EXTENSION ... WITH SCHEMA public`` (the default) and the
+-- variant where pgvector is moved into a dedicated schema.
 CREATE TABLE IF NOT EXISTS vocab.concept_embedding_bge (
-    concept_id  BIGINT      PRIMARY KEY REFERENCES vocab.concept (concept_id),
-    embedding   vector(768) NOT NULL,
-    model_name  TEXT        NOT NULL DEFAULT 'BAAI/bge-base-en-v1.5',
-    embedded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    concept_id  BIGINT             PRIMARY KEY REFERENCES vocab.concept (concept_id),
+    embedding   public.vector(768) NOT NULL,
+    model_name  TEXT               NOT NULL DEFAULT 'BAAI/bge-base-en-v1.5',
+    embedded_at TIMESTAMPTZ        NOT NULL DEFAULT NOW()
 );
 
 -- ivfflat index for fast approximate cosine-similarity search.

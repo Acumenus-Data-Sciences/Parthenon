@@ -35,12 +35,18 @@ def test_creates_concept_embedding_bge_in_vocab_schema() -> None:
 
 def test_concept_id_pk_with_fk_to_vocab_concept() -> None:
     sql = _read()
-    assert "concept_id  BIGINT      PRIMARY KEY REFERENCES vocab.concept (concept_id)" in sql
+    assert "concept_id  BIGINT" in sql
+    assert "PRIMARY KEY REFERENCES vocab.concept (concept_id)" in sql
 
 
 def test_embedding_column_uses_768_dim_vector() -> None:
-    """Must match BgeEmbedder.EMBEDDING_DIM constant."""
-    assert "embedding   vector(768) NOT NULL" in _read()
+    """Must match BgeEmbedder.EMBEDDING_DIM constant.
+
+    Schema-qualifies the type as ``public.vector`` because pgvector
+    installs into ``public`` by default and the migration runs under a
+    session whose search_path may not include public.
+    """
+    assert "embedding   public.vector(768) NOT NULL" in _read()
 
 
 def test_model_name_default_is_bge_base() -> None:
