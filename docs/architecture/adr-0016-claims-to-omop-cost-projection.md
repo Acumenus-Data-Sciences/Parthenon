@@ -163,11 +163,9 @@ Phase 3 timeframe. See *Open follow-ups*.
    member-eligibility data (X12 271, 834, or proprietary feeds) — not
    in 837 itself. The current mapper leaves `cost.payer_plan_period_id`
    NULL.
-3. **Reversal / voided-claim handling.** Plan 2's 835 reconciliation
-   will surface CAS-segment claim adjustments (denials, takebacks,
-   voided claims). The COST projection convention needs to handle
-   reversal by emitting offsetting rows or by updating the existing
-   row's `cost_concept_id`. Decision deferred to Plan 2 ADR.
+3. **Reversal / voided-claim handling.** ~~Decision deferred to Plan 2
+   ADR.~~ **Resolved by Plan 2 (T-021B) — see §"Remit reconciliation"
+   below.**
 4. **OMOP CDM v6.0 migration.** The `cost` table shape changed in v6.0
    draft (composite types, per-event currency). Re-evaluate when v6.0
    stabilizes.
@@ -183,3 +181,123 @@ Phase 3 timeframe. See *Open follow-ups*.
 - HIGHSEC §7 — `/.claude/rules/HIGHSEC.spec.md`.
 - Phase 3 Plan 1 — `docs/superpowers/plans/2026-05-06-parthenon-ingestion-templates-phase-3-plan-1-x12-837.md`.
 - ADR 0015 (`sql_file://` reader) — `docs/architecture/adr-0015-sql-file-reader.md`.
+- Phase 3 Plan 2 — `docs/superpowers/plans/2026-05-06-parthenon-ingestion-templates-phase-3-plan-2-x12-835.md`.
+
+---
+
+## Amendment 2026-05-06 — Remit reconciliation (Plan 2 / T-021B)
+
+### Context
+
+Plan 1 (T-021A) shipped the `claims_to_omop` template with COST rows
+populated for the **charged** dimension only. Allowed and paid amounts
+arrive on the X12 835 electronic remittance advice (ERA) — a separate
+transaction that the payer sends after adjudication. Plan 2 wires the
+835 reader, in-process reconciler, and the SQL stage that joins the
+remit data onto Plan 1's COST rows.
+
+A subset of 835 transactions are *reversals* (CLP02 = "22") — the
+payer "takes back" a previously-paid claim, typically because of an
+audit finding or duplicate detection. Reversals must NOT mutate the
+original COST row (loss of audit trail) and must NOT be silently
+dropped (loss of true paid total).
+
+### Decision
+
+**Match key:** `(payer_id, claim_id, line_number)`. The 835 reader
+extracts `payer_id` from N1*PR (N104, ID-qualified XV); `claim_id`
+from CLP01; `line_number` from the position of the SVC inside its
+parent CLP. The SQL reconciliation stage (`02f_reconcile_remit.sql`)
+joins `fmt_835_remit` against `fmt_837_claim` (on payer_id+claim_id)
+and `fmt_837_line` (on claim_id+line_number).
+
+**Four-pass SQL stage:**
+
+1. **Orphan log** — remits with no matching claim insert into
+   `${app_schema}.remit_orphans` for operator inspection.
+   Carries `run_id` so late-arriving claims can replay.
+2. **Source backfill** — non-reversal remits UPDATE
+   `fmt_837_line.allowed_amount` and `paid_amount`. The source-of-
+   truth update means COST emission is symmetric with Plan 1's
+   `02d_project_cost.sql`.
+3. **COST inserts** — emit allowed (concept 31976) and paid
+   (concept 31973) rows for the newly-reconciled lines.
+   `NOT EXISTS` guards make the inserts idempotent on re-runs.
+4. **Reversal compensation** — for matched reversal remits, INSERT
+   a NEW COST row with the negated paid amount and
+   `cost_source_value = 'remit_reversal'`. The original row stays
+   untouched. `SUM(cost) GROUP BY cost_event_id, cost_concept_id`
+   automatically nets to the post-reversal paid total.
+
+**Compensation pattern over UPDATE-in-place:**
+
+| Property | UPDATE-in-place | Compensation row (chosen) |
+|---|---|---|
+| Audit trail | Lost on each reversal | Full history preserved |
+| Idempotency | Hard — needs a "this remit was already applied" marker | Trivial via `NOT EXISTS (... AND cost = r.paid_amount AND cost_source_value = 'remit_reversal')` |
+| HEOR query shape | `SELECT MAX(version) ...` (extra column) | `SELECT SUM(cost) ...` (natural OMOP idiom) |
+| Concurrency | Lock rows during reconciliation | Pure INSERTs; no row-level locks |
+
+The compensation pattern is the OMOP-idiomatic shape (analogous to
+how DRUG_EXPOSURE handles refills and how MEASUREMENT handles
+amendments) and matches the `cost.cost_source_value` field's
+intended use as a free-text discriminator.
+
+**In-process algorithm:**
+
+`RemitReconciler.reconcile(items, existing_keys) -> ReconciliationPlan`
+returns three lists:
+
+- `updates: list[CostUpdate]` — matched non-reversal remits.
+- `compensations: list[CompensationRow]` — matched reversal remits.
+- `orphans: list[OrphanRemit]` — unmatched remits (any kind).
+
+The reconciler is pure-Python and is unit-tested without a database
+(`tests/unit/commercial/test_remit_reconciler.py`). The SQL stage
+implements the same shape declaratively for production use.
+
+### Consequences
+
+- **Production replay-safe.** Re-running `02f_reconcile_remit.sql`
+  on the same `fmt_835_remit` snapshot is a no-op (idempotent
+  inserts + UPDATE that converges to the same value).
+- **HEOR queries see the post-reversal paid total naturally.**
+  `SUM(cost.cost) WHERE cost_concept_id = 31973` aggregates the
+  original payment + the negative compensation row.
+- **Operator visibility on drift.** `app.remit_orphans` accumulates
+  every payer/claim/line tuple that arrived without a matching
+  837 — late claims, payer-id mismatches, and bad-data flags all
+  surface there for triage.
+- **Source-side mutation is bounded.** `02f` only UPDATEs
+  `fmt_837_line.allowed_amount` and `paid_amount` — both columns
+  start NULL on a fresh 837 load, so the UPDATE is a one-shot
+  initialization, not a continuous mutation. Re-runs against the
+  same `fmt_835_remit` set converge to the same value.
+
+### Acceptance gates (verified by `tests/e2e/commercial/test_claims_to_omop_835.py`)
+
+1. ≥95% match rate (orphan rate <5%) on the seed=42 / n_claims=100
+   corpus. Achieved: exactly 5/100 ghosts in the deterministic mix.
+2. 100% of matched non-reversal remits produce a non-NULL paid_amount
+   in the update plan.
+3. Reversal compensation parity: every CLP02=22 item in the corpus
+   produces exactly one `CompensationRow` with the signed
+   `paid_amount` preserved.
+4. Reconciliation completes in <30s in CI (regression signal; the
+   T-021 perf budget is <30 min on reference hardware).
+
+Plus an idempotency invariant: running the reconciler twice on the
+same input produces equal `ReconciliationPlan` objects (Pydantic
+frozen-model equality).
+
+### Alternatives considered (Plan 2)
+
+- **UPDATE-in-place on COST.** Rejected — see comparison table
+  above. Loses audit trail and complicates idempotency.
+- **Single `cost.cost_concept_id` covering both paid and reversal
+  via a new "Net paid" concept.** Rejected — invents a concept
+  outside the OMOP standardized vocabulary; downstream tooling
+  (Atlas, OHDSI HEOR queries) wouldn't recognize it.
+- **Drop reversal remits silently with a warning log.** Rejected —
+  loses true paid totals; HEOR cost-effectiveness analyses would
+  systematically over-state payer spend.
