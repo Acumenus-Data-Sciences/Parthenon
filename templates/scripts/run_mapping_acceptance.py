@@ -43,6 +43,110 @@ BLIND_TOP1_MIN = 0.50
 BLIND_TOP5_MIN = 0.75
 
 DEFAULT_RERANK_MODEL = "claude-haiku-4-5-20251001"
+DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_OLLAMA_MODEL = "puyangwang/medgemma-27b-it:q4_0"
+DEFAULT_OLLAMA_URL = "http://localhost:11434"
+
+
+def _strip_json_fences(text: str) -> str:
+    """Tolerate ```json ... ``` fences around the rerank response."""
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`")
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned[4:].lstrip()
+        if cleaned.endswith("```"):
+            cleaned = cleaned[:-3]
+    return cleaned
+
+
+def _build_openai_caller(api_key: str, model: str) -> Callable[[str, str], dict[str, Any] | None]:
+    """Return an LlmCallable backed by openai.OpenAI.chat.completions."""
+    from openai import OpenAI
+
+    client = OpenAI(api_key=api_key)
+
+    def call(user_prompt: str, prompt_version: str) -> dict[str, Any] | None:
+        try:
+            resp = client.chat.completions.create(
+                model=model,
+                max_tokens=1024,
+                response_format={"type": "json_object"},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a clinical-informatics reranker. Output ONLY a "
+                            "single JSON object matching the response schema described "
+                            "in the user message. NEVER fabricate a concept_id that "
+                            "is not in the input candidates list."
+                        ),
+                    },
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+        except Exception:
+            _LOGGER.exception("openai call failed")
+            return None
+        text = resp.choices[0].message.content or ""
+        try:
+            parsed = json.loads(_strip_json_fences(text))
+        except json.JSONDecodeError:
+            _LOGGER.warning("rerank not JSON; first 200: %r", text[:200])
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+    return call
+
+
+def _build_ollama_caller(
+    base_url: str, model: str
+) -> Callable[[str, str], dict[str, Any] | None]:
+    """Return an LlmCallable backed by Ollama's /api/chat endpoint.
+
+    Local-only path; no API key required. Slower than cloud (~15-30 s
+    per call on a CPU MedGemma 27B q4_0 inference) — pair with
+    ``--max-rows`` for a tractable smoke run.
+    """
+    import httpx
+
+    def call(user_prompt: str, prompt_version: str) -> dict[str, Any] | None:
+        try:
+            resp = httpx.post(
+                f"{base_url.rstrip('/')}/api/chat",
+                json={
+                    "model": model,
+                    "stream": False,
+                    "format": "json",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are a clinical-informatics reranker. Output ONLY a "
+                                "single JSON object matching the response schema. NEVER "
+                                "fabricate a concept_id that is not in the input candidates list."
+                            ),
+                        },
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "options": {"temperature": 0.0, "num_predict": 1024},
+                },
+                timeout=180.0,
+            )
+            resp.raise_for_status()
+        except Exception:
+            _LOGGER.exception("ollama call failed")
+            return None
+        body = resp.json()
+        text = body.get("message", {}).get("content", "")
+        try:
+            parsed = json.loads(_strip_json_fences(text))
+        except json.JSONDecodeError:
+            _LOGGER.warning("rerank not JSON; first 200: %r", text[:200])
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+    return call
 
 
 def _build_anthropic_caller(
@@ -78,19 +182,11 @@ def _build_anthropic_caller(
         text = "".join(
             block.text for block in resp.content if getattr(block, "type", None) == "text"
         )
-        # Tolerate ```json ... ``` fences.
-        cleaned = text.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.strip("`")
-            if cleaned.lower().startswith("json"):
-                cleaned = cleaned[4:].lstrip()
-            if cleaned.endswith("```"):
-                cleaned = cleaned[:-3]
         try:
-            parsed = json.loads(cleaned)
+            parsed = json.loads(_strip_json_fences(text))
         except json.JSONDecodeError:
             _LOGGER.warning(
-                "rerank response not parseable as JSON; first 200 chars: %r", cleaned[:200]
+                "rerank response not parseable as JSON; first 200 chars: %r", text[:200]
             )
             return None
         if not isinstance(parsed, dict):
@@ -189,19 +285,33 @@ def main(argv: list[str] | None = None) -> int:
         help="psycopg DSN; default $PARTHENON_DB_URL.",
     )
     parser.add_argument(
+        "--provider",
+        choices=("anthropic", "openai", "ollama"),
+        default="anthropic",
+        help="LLM provider for the rerank step (default: anthropic).",
+    )
+    parser.add_argument(
         "--api-key",
-        default=os.environ.get("ANTHROPIC_API_KEY"),
-        help="Anthropic API key; default $ANTHROPIC_API_KEY.",
+        default=None,
+        help="API key (or $ANTHROPIC_API_KEY / $OPENAI_API_KEY); ignored for ollama.",
     )
     parser.add_argument(
         "--api-key-file",
         type=Path,
-        help="Path to a file containing the Anthropic API key (alternative to --api-key).",
+        help="Path to a file containing the API key (alternative to --api-key).",
     )
     parser.add_argument(
         "--rerank-model",
-        default=DEFAULT_RERANK_MODEL,
-        help=f"Anthropic model id (default: {DEFAULT_RERANK_MODEL}).",
+        default=None,
+        help=(
+            f"Model id. Provider defaults: anthropic={DEFAULT_RERANK_MODEL}, "
+            f"openai={DEFAULT_OPENAI_MODEL}, ollama={DEFAULT_OLLAMA_MODEL}."
+        ),
+    )
+    parser.add_argument(
+        "--ollama-url",
+        default=DEFAULT_OLLAMA_URL,
+        help=f"Ollama base URL (default: {DEFAULT_OLLAMA_URL}).",
     )
     parser.add_argument(
         "--max-rows",
@@ -215,11 +325,22 @@ def main(argv: list[str] | None = None) -> int:
     if not args.db_url:
         parser.error("--db-url (or $PARTHENON_DB_URL) is required")
 
-    api_key = args.api_key
-    if api_key is None and args.api_key_file is not None:
-        api_key = args.api_key_file.read_text(encoding="utf-8").strip()
-    if not api_key:
-        parser.error("--api-key, --api-key-file, or $ANTHROPIC_API_KEY is required")
+    provider_default_models = {
+        "anthropic": DEFAULT_RERANK_MODEL,
+        "openai": DEFAULT_OPENAI_MODEL,
+        "ollama": DEFAULT_OLLAMA_MODEL,
+    }
+    rerank_model = args.rerank_model or provider_default_models[args.provider]
+
+    api_key: str | None = None
+    if args.provider != "ollama":
+        api_key = args.api_key or os.environ.get(
+            "ANTHROPIC_API_KEY" if args.provider == "anthropic" else "OPENAI_API_KEY"
+        )
+        if api_key is None and args.api_key_file is not None:
+            api_key = args.api_key_file.read_text(encoding="utf-8").strip()
+        if not api_key:
+            parser.error(f"--api-key or --api-key-file is required for provider={args.provider}")
 
     seen_csv = args.benchmark_dir / "seen.csv"
     blind_csv = args.benchmark_dir / "blind.csv"
@@ -231,10 +352,18 @@ def main(argv: list[str] | None = None) -> int:
             "run scripts/curate_mapping_benchmark first"
         )
 
-    caller = _build_anthropic_caller(api_key, args.rerank_model)
+    if args.provider == "anthropic":
+        assert api_key is not None
+        caller = _build_anthropic_caller(api_key, rerank_model)
+    elif args.provider == "openai":
+        assert api_key is not None
+        caller = _build_openai_caller(api_key, rerank_model)
+    else:  # ollama
+        caller = _build_ollama_caller(args.ollama_url, rerank_model)
 
     results: dict[str, Any] = {
-        "rerank_model": args.rerank_model,
+        "provider": args.provider,
+        "rerank_model": rerank_model,
         "max_rows": args.max_rows,
     }
 
@@ -244,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
             seen_rows,
             db_url=args.db_url,
             api_caller=caller,
-            rerank_model=args.rerank_model,
+            rerank_model=rerank_model,
             max_rows=args.max_rows,
         )
     if blind_rows:
@@ -253,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
             blind_rows,
             db_url=args.db_url,
             api_caller=caller,
-            rerank_model=args.rerank_model,
+            rerank_model=rerank_model,
             max_rows=args.max_rows,
         )
 
