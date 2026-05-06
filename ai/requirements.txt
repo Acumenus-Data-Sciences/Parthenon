@@ -35,7 +35,7 @@ scikit-learn>=1.5.0
 libpysal>=4.9
 esda>=2.5
 spreg>=1.4
-redis>=5.0.0
+redis>=7.4.0
 
 # Genomics — C-backed VCF parser (~100K variants/sec)
 cyvcf2>=0.31.0
