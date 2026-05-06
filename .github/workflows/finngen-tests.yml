@@ -252,6 +252,10 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      # docker compose interpolates every service even when building only
+      # darkstar; provide the templates service token expected by compose.
+      PARTHENON_INTERNAL_TOKEN: test-internal-token
     steps:
       - uses: actions/checkout@v6
 
