@@ -69,7 +69,7 @@ jobs:
         run: python -m pytest installer/tests tests/installer
 
       - name: Upload source-backed installer bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: parthenon-community-bootstrap-bundle
           if-no-files-found: error
@@ -606,7 +606,7 @@ jobs:
             installer/rust-gui/target/release/bundle/appimage/*.AppImage
 
       - name: Upload installer packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           if-no-files-found: error
