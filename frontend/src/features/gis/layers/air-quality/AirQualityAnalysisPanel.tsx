@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { fetchAqRespiratoryOutcomes } from "./api";
 import type { LayerAnalysisProps } from "../types";
 
-export function AirQualityAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
+export function AirQualityAnalysisPanel({ conceptId }: LayerAnalysisProps) {
   const { t } = useTranslation("app");
   const { data, isLoading } = useQuery({
-    queryKey: ["gis", "aq", "respiratory", conceptId, metric],
+    queryKey: ["gis", "aq", "respiratory", conceptId, "pm25"],
     queryFn: () => fetchAqRespiratoryOutcomes(conceptId, "pm25"),
     staleTime: 60_000,
   });

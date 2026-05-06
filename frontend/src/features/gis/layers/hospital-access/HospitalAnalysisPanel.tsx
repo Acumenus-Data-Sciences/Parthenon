@@ -3,12 +3,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useTranslation } from "react-i18next";
 import { fetchAccessAnalysis } from "./api";
 import type { LayerAnalysisProps } from "../types";
+import { normalizeOutcomeMetric } from "../utils";
 
 export function HospitalAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   const { t } = useTranslation("app");
+  const outcomeMetric = normalizeOutcomeMetric(metric);
   const { data, isLoading } = useQuery({
-    queryKey: ["gis", "hospitals", "access", conceptId, metric],
-    queryFn: () => fetchAccessAnalysis(conceptId, metric),
+    queryKey: ["gis", "hospitals", "access", conceptId, outcomeMetric],
+    queryFn: () => fetchAccessAnalysis(conceptId, outcomeMetric),
     staleTime: 60_000,
   });
   if (isLoading) return <p className="text-xs text-text-ghost">{t("gis.layers.hospitalAccess.analysis.loading")}</p>;

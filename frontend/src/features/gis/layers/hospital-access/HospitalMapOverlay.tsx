@@ -16,13 +16,15 @@ interface HospitalMapOverlayProps extends LayerMapProps {
   hospitals?: HospitalPoint[];
 }
 
-export function HospitalMapOverlay({ hospitals, visible }: HospitalMapOverlayProps) {
+export function HospitalMapOverlay({ hospitals, mapData, visible }: HospitalMapOverlayProps) {
+  const points = hospitals ?? (Array.isArray(mapData) ? (mapData as HospitalPoint[]) : undefined);
+
   const layer = useMemo(() => {
-    if (!hospitals?.length || !visible) return null;
+    if (!points?.length || !visible) return null;
 
     return new ScatterplotLayer({
       id: "hospital-points",
-      data: hospitals,
+      data: points,
       getPosition: (d: HospitalPoint) => [d.longitude, d.latitude],
       getRadius: (d: HospitalPoint) => Math.max(Math.sqrt(d.bed_count) * 50, 500),
       getFillColor: (d: HospitalPoint) => d.has_emergency ? [59, 130, 246, 200] : [59, 130, 246, 100],
@@ -33,7 +35,7 @@ export function HospitalMapOverlay({ hospitals, visible }: HospitalMapOverlayPro
       radiusMinPixels: 3,
       radiusMaxPixels: 20,
     });
-  }, [hospitals, visible]);
+  }, [points, visible]);
 
   return layer;
 }

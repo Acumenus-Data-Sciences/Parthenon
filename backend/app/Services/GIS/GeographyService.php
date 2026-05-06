@@ -55,6 +55,13 @@ class GeographyService
     {
         return [
             [
+                'id' => 'cohort-geography',
+                'name' => 'Cohort Geography',
+                'description' => 'Generated cohort membership and prevalence by Pennsylvania geography',
+                'color' => '#06B6D4',
+                'available' => $this->hasCohortGeographyData(),
+            ],
+            [
                 'id' => 'svi',
                 'name' => 'Social Vulnerability Index',
                 'description' => 'CDC/ATSDR SVI by census tract — 4 themes + overall',
@@ -107,6 +114,24 @@ class GeographyService
         $row = DB::connection('gis')->selectOne(
             'SELECT EXISTS(SELECT 1 FROM gis.gis_hospital LIMIT 1) AS has_data'
         );
+
+        return $row->has_data ?? false;
+    }
+
+    private function hasCohortGeographyData(): bool
+    {
+        $row = DB::connection('gis')->selectOne(<<<'SQL'
+            SELECT EXISTS(
+                SELECT 1
+                FROM gis.patient_geography pg
+                JOIN gis.geographic_location gl
+                  ON gl.geographic_location_id = pg.county_location_id
+                WHERE gl.location_type = 'county'
+                  AND gl.state_fips = '42'
+                  AND gl.geometry IS NOT NULL
+                LIMIT 1
+            ) AS has_data
+        SQL);
 
         return $row->has_data ?? false;
     }

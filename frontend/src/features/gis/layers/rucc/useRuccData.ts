@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { LayerDataParams, LayerDataResult } from "../types";
 import { fetchRuccChoropleth, fetchRuccOutcomeComparison, fetchRuccCountyDetail } from "./api";
+import { normalizeOutcomeMetric } from "../utils";
 
 export function useRuccData(params: LayerDataParams): LayerDataResult {
-  const { conceptId, selectedFips, enabled = true } = params;
+  const { conceptId, selectedFips, metric, enabled = true } = params;
+  const outcomeMetric = normalizeOutcomeMetric(metric);
 
   const choropleth = useQuery({
     queryKey: ["gis", "rucc", "choropleth"],
@@ -13,8 +15,8 @@ export function useRuccData(params: LayerDataParams): LayerDataResult {
   });
 
   const outcomes = useQuery({
-    queryKey: ["gis", "rucc", "outcomes", conceptId],
-    queryFn: () => fetchRuccOutcomeComparison(conceptId!, "cases"),
+    queryKey: ["gis", "rucc", "outcomes", conceptId, outcomeMetric],
+    queryFn: () => fetchRuccOutcomeComparison(conceptId!, outcomeMetric),
     enabled: enabled && conceptId !== null,
     staleTime: 60_000,
   });

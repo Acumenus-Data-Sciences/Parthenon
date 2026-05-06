@@ -83,11 +83,7 @@ export function CovariateSettingsPanel({
     onChange({ ...settings, [key]: !settings[key] });
   };
 
-  const updateWindow = (
-    idx: number,
-    field: "start" | "end",
-    value: number,
-  ) => {
+  const updateWindow = (idx: number, field: "start" | "end", value: number) => {
     const newWindows = [...timeWindows];
     newWindows[idx] = { ...newWindows[idx], [field]: value };
     onChange({ ...settings, timeWindows: newWindows });
@@ -167,9 +163,7 @@ export function CovariateSettingsPanel({
       <h3 className="text-sm font-semibold text-text-primary">
         {t("covariates.title")}
       </h3>
-      <p className="text-xs text-text-muted">
-        {t("covariates.description")}
-      </p>
+      <p className="text-xs text-text-muted">{t("covariates.description")}</p>
 
       {renderGroup(t("covariates.groups.core"), coreOptions)}
       {renderGroup(t("covariates.groups.extended"), extendedOptions)}
@@ -216,6 +210,8 @@ export function CovariateSettingsPanel({
                   type="button"
                   onClick={() => removeWindow(idx)}
                   className="text-text-muted hover:text-critical transition-colors"
+                  aria-label="Remove time window"
+                  title="Remove time window"
                 >
                   <X size={14} />
                 </button>

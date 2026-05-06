@@ -4,13 +4,15 @@ import { useTranslation } from "react-i18next";
 import { getLayers } from "../layers/registry";
 import { useLayerStore } from "../stores/layerStore";
 import { getAnalysisLayerCountLabel } from "../lib/i18n";
+import type { CohortGeographySelection } from "../types";
 
 interface ContextPanelProps {
   conceptId: number;
   diseaseName: string;
+  cohortGeography?: CohortGeographySelection | null;
 }
 
-export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
+export function ContextPanel({ conceptId, diseaseName, cohortGeography }: ContextPanelProps) {
   const { t } = useTranslation("app");
   const navigate = useNavigate();
   const { activeLayers, selectedFips, selectedName, setSelectedRegion } =
@@ -57,7 +59,11 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
                 >
                   {layer.name}
                 </h4>
-                <DetailPanel fips={selectedFips} conceptId={conceptId} />
+                <DetailPanel
+                  fips={selectedFips}
+                  conceptId={conceptId}
+                  cohortGeography={cohortGeography}
+                />
               </div>
             );
           })}

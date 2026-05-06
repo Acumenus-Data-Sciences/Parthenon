@@ -73,6 +73,7 @@ use App\Http\Controllers\Api\V1\GencodeController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\GisAirQualityController;
+use App\Http\Controllers\Api\V1\GisCohortGeographyController;
 use App\Http\Controllers\Api\V1\GisComorbidityController;
 use App\Http\Controllers\Api\V1\GisController;
 use App\Http\Controllers\Api\V1\GisEtlController;
@@ -1680,6 +1681,14 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
         Route::get('/layers', [GisGeographyController::class, 'layers']);
         Route::get('/geography/counties', [GisGeographyController::class, 'counties']);
         Route::get('/geography/tracts', [GisGeographyController::class, 'tracts']);
+
+        // Cohort geography (Acumenus PA demo)
+        Route::prefix('cohort-geography')->group(function () {
+            Route::get('/cohorts', [GisCohortGeographyController::class, 'cohorts']);
+            Route::get('/conditions', [GisCohortGeographyController::class, 'conditions']);
+            Route::get('/coverage', [GisCohortGeographyController::class, 'coverage']);
+            Route::post('/aggregate', [GisCohortGeographyController::class, 'aggregate']);
+        });
 
         // SVI (Use Case 1)
         Route::prefix('svi')->group(function () {

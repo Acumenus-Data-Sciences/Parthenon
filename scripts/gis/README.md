@@ -46,10 +46,13 @@ credentials, password resolved via `~/.pgpass`.
 # 1. Counties → gis.geographic_location (3,234 nationwide rows)
 python scripts/gis/load_geography.py
 
-# 2. ZIP→tract→county crosswalk + patient_geography matview rebuild
+# 2. Optional but recommended for the PA GIS demo: PA tract geometries
+python scripts/gis/load_pa_tracts.py
+
+# 3. ZIP→tract→county crosswalk + patient_geography matview rebuild
 python scripts/gis/load_crosswalk.py
 
-# 3. UA exposures → gis.external_exposure (5 metrics × N matched persons)
+# 4. UA exposures → gis.external_exposure (5 metrics × N matched persons)
 python scripts/gis/load_ua_county.py
 ```
 
@@ -102,6 +105,8 @@ Every loader is designed to be safe to re-run:
 
 * `load_geography.py` — `INSERT ... ON CONFLICT (geographic_code,
   location_type) DO UPDATE`. Re-running emits the same county count.
+* `load_pa_tracts.py` — `INSERT ... ON CONFLICT (geographic_code,
+  location_type) DO UPDATE` for Pennsylvania tract geometries.
 * `load_crosswalk.py` — per-source `DELETE` then `INSERT` for
   `gis.location_geography`; matview is rebuilt via DROP+CREATE.
 * `load_ua_county.py` — `INSERT ... ON CONFLICT (source_id, person_id,
@@ -115,6 +120,7 @@ Every loader is designed to be safe to re-run:
 | `2020_UA_COUNTY.xlsx` | `<repo>/2020_UA_COUNTY.xlsx` | `PHASE_19_UA_XLSX_PATH` |
 | `TRACT_ZIP_032020.xlsx` | `<repo>/GIS/data/crosswalk/TRACT_ZIP_032020.xlsx` | `PHASE_19_HUD_CROSSWALK` |
 | `tl_2020_us_county.shp` (optional) | _unset_ | `PHASE_19_TIGER_COUNTY_SHP` |
+| `tl_2020_42_tract.shp` | `<repo>/GIS/data/tiger/tl_2020_42_tract.shp` | `PHASE_19_TIGER_PA_TRACT_SHP` |
 
 ### Decisions enforced by these loaders
 

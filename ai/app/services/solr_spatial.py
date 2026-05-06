@@ -152,7 +152,7 @@ async def get_choropleth_from_solr(
         q="*:*",
         fq=fq,
         fl=f"gadm_gid,county_name_exact,{metric_field},population,cfr",
-        rows=500,
+        rows=5000,
         sort=f"{metric_field} desc",
     )
 

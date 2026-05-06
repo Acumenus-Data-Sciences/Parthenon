@@ -210,6 +210,14 @@ def rebuild_patient_geography(conn, sources: list[SourceDescriptor]) -> int:
             "CREATE INDEX idx_pg_county_fips "
             "ON gis.patient_geography(source_id, county_fips)"
         )
+        cur.execute(
+            "CREATE INDEX idx_pg_county_location "
+            "ON gis.patient_geography(source_id, county_location_id)"
+        )
+        cur.execute(
+            "CREATE INDEX idx_pg_tract_location "
+            "ON gis.patient_geography(source_id, tract_location_id)"
+        )
         cur.execute("SELECT COUNT(*) FROM gis.patient_geography")
         count = int(cur.fetchone()[0])
     conn.commit()

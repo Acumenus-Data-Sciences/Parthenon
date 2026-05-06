@@ -2,6 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchBoundaries,
   fetchBoundaryDetail,
+  fetchCohortGeographyAggregate,
+  fetchCohortGeographyCohorts,
+  fetchCohortGeographyConditions,
+  fetchCohortGeographyCoverage,
+  fetchGisLayerMetadata,
   fetchGisStats,
   fetchChoropleth,
   fetchCountries,
@@ -14,12 +19,75 @@ import {
   fetchDiseaseSummary,
   fetchCountyDetail,
 } from "../api";
-import type { AdminLevel, CdmChoroplethParams, ChoroplethParams } from "../types";
+import type {
+  AdminLevel,
+  CdmChoroplethParams,
+  CohortGeographySelection,
+  ChoroplethParams,
+} from "../types";
 
 export function useGisStats() {
   return useQuery({
     queryKey: ["gis", "stats"],
     queryFn: fetchGisStats,
+    staleTime: 60_000,
+  });
+}
+
+export function useGisLayerMetadata() {
+  return useQuery({
+    queryKey: ["gis", "layers", "metadata"],
+    queryFn: fetchGisLayerMetadata,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useCohortGeographyCohorts(params?: {
+  source_id?: number;
+  search?: string;
+  limit?: number;
+}) {
+  return useQuery({
+    queryKey: ["gis", "cohort-geography", "cohorts", params],
+    queryFn: () => fetchCohortGeographyCohorts(params),
+    staleTime: 60_000,
+  });
+}
+
+export function useCohortGeographyConditions(params?: {
+  source_id?: number;
+  search?: string;
+  limit?: number;
+}) {
+  return useQuery({
+    queryKey: ["gis", "cohort-geography", "conditions", params],
+    queryFn: () => fetchCohortGeographyConditions(params),
+    staleTime: 60_000,
+  });
+}
+
+export function useCohortGeographyCoverage(sourceId: number, stateFips = "42") {
+  return useQuery({
+    queryKey: ["gis", "cohort-geography", "coverage", sourceId, stateFips],
+    queryFn: () => fetchCohortGeographyCoverage({ source_id: sourceId, state_fips: stateFips }),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useCohortGeographyAggregate(selection: CohortGeographySelection | null) {
+  return useQuery({
+    queryKey: ["gis", "cohort-geography", "aggregate", selection],
+    queryFn: () => fetchCohortGeographyAggregate({
+      source_id: selection!.source_id,
+      mode: selection!.mode,
+      cohort_definition_id: selection!.cohort_definition_id,
+      concept_id: selection!.concept_id,
+      level: selection!.level,
+      metric: selection!.metric,
+      min_cell_count: 5,
+      state_fips: "42",
+    }),
+    enabled: selection !== null,
     staleTime: 60_000,
   });
 }

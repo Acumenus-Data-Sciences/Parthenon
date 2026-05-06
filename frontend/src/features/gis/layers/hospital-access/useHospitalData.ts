@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { LayerDataParams, LayerDataResult } from "../types";
 import { fetchHospitalMapData, fetchAccessAnalysis, fetchDeserts } from "./api";
+import { normalizeOutcomeMetric } from "../utils";
 
 export function useHospitalData(params: LayerDataParams): LayerDataResult {
-  const { conceptId, enabled = true } = params;
+  const { conceptId, metric, enabled = true } = params;
+  const outcomeMetric = normalizeOutcomeMetric(metric);
 
   const hospitals = useQuery({
     queryKey: ["gis", "hospitals", "map"],
@@ -13,8 +15,8 @@ export function useHospitalData(params: LayerDataParams): LayerDataResult {
   });
 
   const access = useQuery({
-    queryKey: ["gis", "hospitals", "access", conceptId],
-    queryFn: () => fetchAccessAnalysis(conceptId!, "cases"),
+    queryKey: ["gis", "hospitals", "access", conceptId, outcomeMetric],
+    queryFn: () => fetchAccessAnalysis(conceptId!, outcomeMetric),
     enabled: enabled && conceptId !== null,
     staleTime: 60_000,
   });
@@ -30,6 +32,7 @@ export function useHospitalData(params: LayerDataParams): LayerDataResult {
     choroplethData: undefined, // hospitals use ScatterplotLayer, not choropleth
     analysisData: { hospitals: hospitals.data, access: access.data, deserts: deserts.data },
     detailData: null,
+    mapData: hospitals.data,
     isLoading: hospitals.isLoading,
   };
 }

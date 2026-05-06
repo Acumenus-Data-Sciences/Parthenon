@@ -11,6 +11,7 @@ interface LayerState {
 interface LayerActions {
   toggleLayer: (id: string) => void;
   setSelectedRegion: (fips: string | null, name: string | null) => void;
+  setLayerActive: (id: string, active: boolean) => void;
   setDrawerOpen: (open: boolean) => void;
   setSuppressionThreshold: (threshold: number) => void;
   isLayerActive: (id: string) => boolean;
@@ -36,6 +37,17 @@ export const useLayerStore = create<LayerState & LayerActions>((set, get) => ({
 
   setSelectedRegion: (fips, name) =>
     set({ selectedFips: fips, selectedName: name }),
+
+  setLayerActive: (id, active) =>
+    set((state) => {
+      const next = new Set(state.activeLayers);
+      if (active) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return { activeLayers: next };
+    }),
 
   setDrawerOpen: (open) => set({ drawerOpen: open }),
 
