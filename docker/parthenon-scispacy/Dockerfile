@@ -10,9 +10,12 @@ RUN addgroup --system scisvc && adduser --system --ingroup scisvc scisvc
 WORKDIR /app
 
 COPY requirements.txt .
+# scispacy 0.5.5 ships without v0.5.5 model wheels — the upstream
+# README points at v0.5.4 model artifacts (which are compatible).
+# Per https://github.com/allenai/scispacy/blob/v0.5.5/README.md.
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir \
-      https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.5/en_core_sci_md-0.5.5.tar.gz
+      https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_md-0.5.4.tar.gz
 
 # Smoke-load the model so the build fails if the wheel is incompatible
 # with the spacy version, not a customer pulling the image.
