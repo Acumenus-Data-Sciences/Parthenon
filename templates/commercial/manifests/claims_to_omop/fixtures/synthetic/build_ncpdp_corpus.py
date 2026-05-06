@@ -64,39 +64,38 @@ _BIN_POOL: Final[Sequence[str]] = ("610001", "003585", "020107")
 
 @dataclass(frozen=True)
 class _ClaimSpec:
+    """Precomputed payload params. B2 reversals copy a B1's spec and
+    flip transaction_code/is_reversal so cardholder + NDC + dates
+    pair exactly with their original."""
+
     rx_id: str
     transaction_code: str  # B1 / B2 / B3
     is_reversal: bool
-    use_mapped_ndc: bool
-    seed_idx: int
+    bin_number: str
+    npi: str
+    ndc: str
+    days_supply: int
+    quantity: float
+    ingredient_cost: float
+    dispensing_fee: float
+    patient_pay: float
+    cardholder_id: str
+    dob: str  # CCYYMMDD
 
 
-def _build_payload(spec: _ClaimSpec, rng: random.Random) -> str:
-    bin_number = rng.choice(_BIN_POOL)
-    npi = rng.choice(_NPI_POOL)
-    ndc = rng.choice(_MAPPED_NDCS if spec.use_mapped_ndc else _UNMAPPED_NDCS)
-    days_supply = rng.choice((30, 60, 90))
-    quantity = (
-        days_supply  # naive 1 unit/day for the fixture
-    )
-    ingredient_cost = round(rng.uniform(5.0, 250.0), 2)
-    dispensing_fee = round(rng.uniform(0.5, 3.5), 2)
-    patient_pay = round(rng.uniform(0.0, 25.0), 2)
-    cardholder_id = f"MEMBER{spec.seed_idx:05d}"
-    dob = f"{1940 + (spec.seed_idx % 70):04d}0101"  # spread DOBs across decades
-
+def _build_payload(spec: _ClaimSpec) -> str:
     am01 = (
-        f"AM01{FS}A1{bin_number}{FS}A3PCN001{FS}A4{spec.transaction_code}{FS}N2{npi}"
+        f"AM01{FS}A1{spec.bin_number}{FS}A3PCN001{FS}A4{spec.transaction_code}{FS}N2{spec.npi}"
     )
-    am03 = f"AM03{FS}C4{dob}{FS}CYJANE{FS}CXDOE"
-    am04 = f"AM04{FS}C2{cardholder_id}{FS}CMPLAN0001"
+    am03 = f"AM03{FS}C4{spec.dob}{FS}CYJANE{FS}CXDOE"
+    am04 = f"AM04{FS}C2{spec.cardholder_id}{FS}CMPLAN0001"
     am07 = (
-        f"AM07{FS}D2{spec.rx_id}{FS}D7{ndc}{FS}D3{days_supply}"
-        f"{FS}D5{quantity:.1f}{FS}DJ1"
+        f"AM07{FS}D2{spec.rx_id}{FS}D7{spec.ndc}{FS}D3{spec.days_supply}"
+        f"{FS}D5{spec.quantity:.1f}{FS}DJ1"
     )
     am11 = (
-        f"AM11{FS}D9{ingredient_cost:.2f}{FS}DC{dispensing_fee:.2f}"
-        f"{FS}F4{patient_pay:.2f}"
+        f"AM11{FS}D9{spec.ingredient_cost:.2f}{FS}DC{spec.dispensing_fee:.2f}"
+        f"{FS}F4{spec.patient_pay:.2f}"
     )
     return RS.join([am01, am03, am04, am07, am11]) + RS
 
@@ -136,31 +135,53 @@ def build_corpus(
     specs: list[_ClaimSpec] = []
 
     for i in range(1, n_billings + 1):
+        use_mapped = rng.random() >= unmapped_rate
+        ndc = rng.choice(_MAPPED_NDCS if use_mapped else _UNMAPPED_NDCS)
+        days_supply = rng.choice((30, 60, 90))
         specs.append(
             _ClaimSpec(
                 rx_id=f"SYNTH-RX-{i:05d}",
                 transaction_code="B1",
                 is_reversal=False,
-                use_mapped_ndc=rng.random() >= unmapped_rate,
-                seed_idx=i,
+                bin_number=rng.choice(_BIN_POOL),
+                npi=rng.choice(_NPI_POOL),
+                ndc=ndc,
+                days_supply=days_supply,
+                quantity=float(days_supply),  # naive 1 unit/day
+                ingredient_cost=round(rng.uniform(5.0, 250.0), 2),
+                dispensing_fee=round(rng.uniform(0.5, 3.5), 2),
+                patient_pay=round(rng.uniform(0.0, 25.0), 2),
+                cardholder_id=f"MEMBER{i:05d}",
+                dob=f"{1940 + (i % 70):04d}0101",
             )
         )
 
     for j in range(1, reversal_count + 1):
-        # Reverse the first reversal_count billings — gives the SQL
-        # stage easy match pairs for the compensation logic.
+        # Reverse the first reversal_count billings. Clone every payload
+        # field so the reversal pairs EXACTLY against its B1 (same
+        # cardholder, same NDC, same dates) — only transaction_code and
+        # is_reversal flip. This lets the SQL stage's compensation logic
+        # net them to zero.
         target = specs[j - 1]
         specs.append(
             _ClaimSpec(
                 rx_id=target.rx_id,
                 transaction_code="B2",
                 is_reversal=True,
-                use_mapped_ndc=target.use_mapped_ndc,
-                seed_idx=n_billings + j,
+                bin_number=target.bin_number,
+                npi=target.npi,
+                ndc=target.ndc,
+                days_supply=target.days_supply,
+                quantity=target.quantity,
+                ingredient_cost=target.ingredient_cost,
+                dispensing_fee=target.dispensing_fee,
+                patient_pay=target.patient_pay,
+                cardholder_id=target.cardholder_id,
+                dob=target.dob,
             )
         )
 
-    return [_build_payload(spec, rng) for spec in specs]
+    return [_build_payload(spec) for spec in specs]
 
 
 __all__ = ["build_corpus"]
