@@ -127,6 +127,26 @@ spec:
         statements: ["SELECT 1"]
         sql_file: file://sql/02f_reconcile_remit.sql
 
+    # 7g. Plan 3 (T-021C) — bootstrap fmt_ncpdp_claim + unmapped_ndc tables.
+    - node_id: bootstrap_ncpdp
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/03_load_ncpdp.sql
+
+    # 7h. Plan 3 (T-021C) — NCPDP -> DRUG_EXPOSURE + COST + unmapped_ndc.
+    #     Four passes: B1/B3 -> drug_exposure (positive quantity), B2
+    #     reversals -> compensating drug_exposure (negated quantity),
+    #     COST projection (charged + dispensing fee), unmapped-NDC log.
+    #     See ADR 0016 §"Pharmacy claims (NCPDP D.0)".
+    - node_id: map_drug_exposure
+      type: sql
+      depends_on: [bootstrap_ncpdp, bootstrap_cdm]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/03a_map_drug_exposure.sql
+
     # 8. Summarize for the post-condition.
     - node_id: summarize
       type: sql
@@ -136,6 +156,7 @@ spec:
         - map_condition_occurrence
         - project_cost
         - reconcile_remit
+        - map_drug_exposure
       params:
         statements: ["SELECT 1"]
         fetch_query_file: file://sql/03_summarize.sql

@@ -20,6 +20,14 @@ dependencies = [
     # release (jumps from 2.3.3 -> 3.1.0 -> 4.0.0). Pinned to the latest
     # stable 4.0.0 (BSD-3, 2024). Revisit if upstream ships breaking changes.
     "pyx12==4.0.0",
+    # Phase 3 Plan 3 (T-021C): NCPDP D.0 pharmacy-claim parser. The plan
+    # noted pyparsing is "a transitive of pandas/structlog" but that's
+    # not true in the current locked environment — the modern pandas
+    # (>= 2.0) dropped pyparsing as a hard dep. Pinned explicitly here
+    # so the NCPDP grammar (see runtime/commercial/claims/readers/ncpdp.py)
+    # has a stable parser foundation. pyparsing is MIT — composes with
+    # both AGPLv3 community + proprietary commercial wheels.
+    "pyparsing==3.1.4",
 ]
 
 [project.optional-dependencies]

@@ -72,22 +72,19 @@ def test_manifest_declares_required_vocabularies() -> None:
         assert v in required
 
 
-def test_manifest_has_14_stages() -> None:
+def test_manifest_has_16_stages() -> None:
     cfg = _load()
     spec = cfg["spec"]
     assert isinstance(spec, dict)
     nodes = spec["nodes"]
     assert isinstance(nodes, list)
-    # Plan 1 (T-021A) shipped 12 stages: bootstrap source → load 837 →
-    # bootstrap CDM → 4 per-domain mappers + COST projection → summarize
-    # → 4 validators. Plan 2 (T-021B) adds two:
-    #   - bootstrap_835      (creates fmt_835_remit + remit_orphans tables)
-    #   - reconcile_remit    (orphan log + UPDATE source + cost-row inserts +
-    #                         reversal compensation)
-    # Total: 14.
+    # Plan 1 (T-021A) shipped 12 stages.
+    # Plan 2 (T-021B) added 2: bootstrap_835 + reconcile_remit.
+    # Plan 3 (T-021C) adds 2 more: bootstrap_ncpdp + map_drug_exposure.
+    # Total: 16.
     assert (
-        len(nodes) == 14
-    ), f"expected 14 stages, got {len(nodes)}: {[n['node_id'] for n in nodes]}"
+        len(nodes) == 16
+    ), f"expected 16 stages, got {len(nodes)}: {[n['node_id'] for n in nodes]}"
 
 
 def test_manifest_sql_stages_use_sql_file_url() -> None:
@@ -132,6 +129,9 @@ def test_manifest_post_condition_points_at_summary_artifact() -> None:
         # Plan 2 (T-021B) additions:
         "bootstrap_835",
         "reconcile_remit",
+        # Plan 3 (T-021C) additions:
+        "bootstrap_ncpdp",
+        "map_drug_exposure",
         "summarize",
         "validate",
     ],
@@ -209,3 +209,59 @@ def test_summarize_depends_on_reconcile_remit() -> None:
     summarize = nodes["summarize"]
     deps = set(summarize.get("depends_on", []))
     assert "reconcile_remit" in deps
+
+
+# ---------- Plan 3 (T-021C) — NCPDP pharmacy stages ----------------------
+
+
+def test_manifest_has_ncpdp_sql_files() -> None:
+    """Plan 3 ships two new SQL files; both must exist."""
+    assert (SQL_DIR / "03_load_ncpdp.sql").is_file()
+    assert (SQL_DIR / "03a_map_drug_exposure.sql").is_file()
+
+
+def test_bootstrap_ncpdp_creates_fmt_ncpdp_claim_and_unmapped_log() -> None:
+    sql = (SQL_DIR / "03_load_ncpdp.sql").read_text(encoding="utf-8")
+    # Source-side: fmt_ncpdp_claim
+    assert "${parameters.source_schema}.fmt_ncpdp_claim" in sql
+    # Transaction code constraint
+    assert "transaction_code IN ('B1', 'B2', 'B3')" in sql
+    # App-side: unmapped_ndc log
+    assert "${parameters.app_schema}.unmapped_ndc" in sql
+
+
+def test_map_drug_exposure_emits_to_drug_exposure_and_cost() -> None:
+    sql = (SQL_DIR / "03a_map_drug_exposure.sql").read_text(encoding="utf-8")
+    # B1/B3 -> drug_exposure (positive)
+    assert "INSERT INTO ${parameters.cdm_schema}.drug_exposure" in sql
+    # NDC -> RxNorm join via concept_relationship 'Maps to'
+    assert "vocabulary_id = 'NDC'" in sql
+    assert "relationship_id = 'Maps to'" in sql
+    # B2 reversals: negated quantity
+    assert "-c.quantity_dispensed" in sql
+    # COST projection
+    assert "INSERT INTO ${parameters.cdm_schema}.cost" in sql
+    # Unmapped-NDC log with ON CONFLICT for idempotency
+    assert "INSERT INTO ${parameters.app_schema}.unmapped_ndc" in sql
+    assert "ON CONFLICT" in sql
+
+
+def test_map_drug_exposure_depends_on_bootstrap_ncpdp_and_cdm() -> None:
+    cfg = _load()
+    spec = cfg["spec"]
+    assert isinstance(spec, dict)
+    nodes = {n["node_id"]: n for n in spec["nodes"]}
+    mapper = nodes["map_drug_exposure"]
+    deps = set(mapper.get("depends_on", []))
+    assert "bootstrap_ncpdp" in deps
+    assert "bootstrap_cdm" in deps
+
+
+def test_summarize_depends_on_map_drug_exposure() -> None:
+    cfg = _load()
+    spec = cfg["spec"]
+    assert isinstance(spec, dict)
+    nodes = {n["node_id"]: n for n in spec["nodes"]}
+    summarize = nodes["summarize"]
+    deps = set(summarize.get("depends_on", []))
+    assert "map_drug_exposure" in deps

@@ -100,4 +100,48 @@ class X12_835_RemitItem(BaseModel):
     paid_date: date | None = None
 
 
-__all__ = ["ClaimType", "X12_835_RemitItem", "X12_837_Claim", "X12_837_ClaimLine"]
+class NCPDPClaim(BaseModel):
+    """One NCPDP D.0 pharmacy-claim transaction.
+
+    Phase 3 Plan 3 Task 2 (T-021C). Materialized by NCPDPReader from
+    the grammar layer's ``NCPDPTransaction``. Fields cover the
+    canonical NCPDP D.0 §B.1 set we ingest: BIN/PCN routing,
+    cardholder demo, NDC product code, days supply / quantity,
+    and pricing breakdown.
+
+    Reversals: NCPDP D.0 transaction code B2 carries the SAME monetary
+    amounts as the original B1 — the spec doesn't sign-encode the
+    amounts on the reversal. ``is_reversal=True`` is the sole indicator;
+    the SQL layer emits compensating DRUG_EXPOSURE rows with negated
+    quantity and negated COST.
+
+    HIGHSEC §7: ``cardholder_id`` (NCPDP field C2) and
+    ``date_of_service`` are PHI-adjacent. The reader's logger filter
+    scrubs them; this model just carries them — callers must not echo
+    to logs.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    transaction_code: Literal["B1", "B2", "B3"]  # Billing / Reversal / Rebill
+    bin_number: str = Field(min_length=1)  # NCPDP A1 — payer routing BIN
+    processor_control_number: str = Field(min_length=1)  # NCPDP AAD0 (PCN)
+    pharmacy_npi: str = Field(min_length=10, max_length=10)  # 10-digit NPI
+    cardholder_id: str  # de-identified or hashed in production; HIGHSEC §7
+    date_of_service: date
+    ndc_code: str = Field(min_length=11, max_length=11)  # 11-digit NCPDP product ID
+    days_supply: int = Field(ge=0)
+    quantity_dispensed: Decimal = Field(ge=0)
+    ingredient_cost: Decimal = Field(ge=0)
+    dispensing_fee: Decimal = Field(ge=0)
+    patient_paid_amount: Decimal = Field(ge=0)
+    is_reversal: bool = False
+
+
+__all__ = [
+    "ClaimType",
+    "NCPDPClaim",
+    "X12_835_RemitItem",
+    "X12_837_Claim",
+    "X12_837_ClaimLine",
+]
