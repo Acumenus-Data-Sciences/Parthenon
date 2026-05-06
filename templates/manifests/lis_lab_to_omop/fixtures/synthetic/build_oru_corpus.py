@@ -193,4 +193,5 @@ __all__ = ["build_corpus"]
 
 
 if __name__ == "__main__":  # pragma: no cover
-    print(build_corpus(seed=42, n_messages=50))
+    corpus = build_corpus(seed=42, n_messages=50)
+    print(f"Generated {corpus.count('MSH|')} synthetic ORU messages.")
