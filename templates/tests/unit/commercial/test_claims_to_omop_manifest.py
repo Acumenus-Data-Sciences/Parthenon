@@ -72,21 +72,22 @@ def test_manifest_declares_required_vocabularies() -> None:
         assert v in required
 
 
-def test_manifest_has_12_stages() -> None:
+def test_manifest_has_14_stages() -> None:
     cfg = _load()
     spec = cfg["spec"]
     assert isinstance(spec, dict)
     nodes = spec["nodes"]
     assert isinstance(nodes, list)
-    # Bootstrap source + load 837 + bootstrap CDM + 4 mappers (visit /
-    # procedure / condition / cost) + summarize + validate = 9 minimum.
-    # The full plan calls 12 stages: bootstrap source → load 837 →
+    # Plan 1 (T-021A) shipped 12 stages: bootstrap source → load 837 →
     # bootstrap CDM → 4 per-domain mappers + COST projection → summarize
-    # → validate. Some pipelines collapse summarize+validate; we keep
-    # them split.
+    # → 4 validators. Plan 2 (T-021B) adds two:
+    #   - bootstrap_835      (creates fmt_835_remit + remit_orphans tables)
+    #   - reconcile_remit    (orphan log + UPDATE source + cost-row inserts +
+    #                         reversal compensation)
+    # Total: 14.
     assert (
-        len(nodes) == 12
-    ), f"expected 12 stages, got {len(nodes)}: {[n['node_id'] for n in nodes]}"
+        len(nodes) == 14
+    ), f"expected 14 stages, got {len(nodes)}: {[n['node_id'] for n in nodes]}"
 
 
 def test_manifest_sql_stages_use_sql_file_url() -> None:
@@ -128,6 +129,9 @@ def test_manifest_post_condition_points_at_summary_artifact() -> None:
         "map_procedure_occurrence",
         "map_condition_occurrence",
         "project_cost",
+        # Plan 2 (T-021B) additions:
+        "bootstrap_835",
+        "reconcile_remit",
         "summarize",
         "validate",
     ],
@@ -146,3 +150,62 @@ def test_manifest_readme_exists() -> None:
     text = readme.read_text(encoding="utf-8")
     assert "commercial" in text.lower()
     assert "837" in text
+
+
+# ---------- Plan 2 (T-021B) — 835 reconciliation stages ------------------
+
+
+def test_manifest_has_835_sql_files() -> None:
+    """Plan 2 ships two new SQL files; both must exist."""
+    assert (SQL_DIR / "02e_load_835.sql").is_file()
+    assert (SQL_DIR / "02f_reconcile_remit.sql").is_file()
+
+
+def test_bootstrap_835_creates_fmt_835_remit_and_orphans_table() -> None:
+    sql = (SQL_DIR / "02e_load_835.sql").read_text(encoding="utf-8")
+    # Source-side: fmt_835_remit
+    assert "${parameters.source_schema}.fmt_835_remit" in sql
+    # Match-key index — the join target is (payer_id, claim_id, line_number).
+    assert "ix_fmt_835_remit_match_key" in sql
+    # App-side: remit_orphans log
+    assert "${parameters.app_schema}.remit_orphans" in sql
+
+
+def test_reconcile_remit_writes_to_orphans_and_cost() -> None:
+    sql = (SQL_DIR / "02f_reconcile_remit.sql").read_text(encoding="utf-8")
+    # Pass 1: orphan insert
+    assert "INSERT INTO ${parameters.app_schema}.remit_orphans" in sql
+    # Pass 2: backfill source allowed/paid
+    assert "UPDATE ${parameters.source_schema}.fmt_837_line" in sql
+    # Pass 3+4: COST inserts
+    assert "INSERT INTO ${parameters.cdm_schema}.cost" in sql
+    # Idempotency: NOT EXISTS guards on the cost inserts
+    assert "NOT EXISTS" in sql
+    # Reversal compensation marker
+    assert "remit_reversal" in sql
+    # Reversal predicate
+    assert "is_reversal = TRUE" in sql
+
+
+def test_reconcile_remit_depends_on_bootstrap_835_and_project_cost() -> None:
+    cfg = _load()
+    spec = cfg["spec"]
+    assert isinstance(spec, dict)
+    nodes = {n["node_id"]: n for n in spec["nodes"]}
+    reconcile = nodes["reconcile_remit"]
+    deps = set(reconcile.get("depends_on", []))
+    assert "bootstrap_835" in deps
+    # Must run AFTER project_cost so the original COST rows exist before
+    # the reversal compensation INSERT can reference them.
+    assert "project_cost" in deps
+
+
+def test_summarize_depends_on_reconcile_remit() -> None:
+    """The summary stage must include reconciled cost rows."""
+    cfg = _load()
+    spec = cfg["spec"]
+    assert isinstance(spec, dict)
+    nodes = {n["node_id"]: n for n in spec["nodes"]}
+    summarize = nodes["summarize"]
+    deps = set(summarize.get("depends_on", []))
+    assert "reconcile_remit" in deps

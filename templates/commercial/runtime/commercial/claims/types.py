@@ -61,4 +61,43 @@ class X12_837_ClaimLine(BaseModel):
     diagnosis_pointers: list[int] = Field(default_factory=list)
 
 
-__all__ = ["ClaimType", "X12_837_Claim", "X12_837_ClaimLine"]
+class X12_835_RemitItem(BaseModel):
+    """One reconciled service-line / claim-payment row from an 835 remit.
+
+    Phase 3 Plan 2 Task 1 (T-021B). One ``X12_835_RemitItem`` per
+    ``CLP/SVC`` loop pair walked by ``X12_835_Reader``. The model is
+    deliberately narrow — it carries only the fields the reconciler needs
+    to UPDATE the cost rows Plan 1 inserted (joined via
+    ``(payer_id, claim_id, line_number)``).
+
+    Reversals (CLP02 = "22") flip the sign on monetary amounts and set
+    ``is_reversal=True``; the reconciler emits a compensating COST row
+    rather than mutating the original (see ADR 0016 §"Remit
+    reconciliation"). All amounts are signed Decimals — the model does
+    NOT enforce ``ge=0`` because reversals legitimately carry negative
+    paid / allowed amounts.
+
+    PHI handling (HIGHSEC §7): ``payer_id`` and ``claim_id`` are
+    PHI-adjacent identifiers. The 835 reader's logger MUST never emit
+    them — see ``X12_835_Reader`` for the redaction filter.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    payer_id: str
+    claim_id: str  # CLP01 — joins onto Plan 1's claim_id
+    line_number: int = Field(ge=1)
+    procedure_code: str
+    charged_amount: Decimal
+    paid_amount: Decimal
+    allowed_amount: Decimal
+    # CAS group / reason / amount triples (Group code, Reason code, Amount).
+    # See WPC https://x12.org/codes/claim-adjustment-reason-codes for the
+    # canonical Reason code list. The reconciler aggregates these into the
+    # COST row's ``cost_source_value`` for downstream HEOR analysis.
+    adjustment_codes: list[tuple[str, str, Decimal]] = Field(default_factory=list)
+    is_reversal: bool = False
+    paid_date: date | None = None
+
+
+__all__ = ["ClaimType", "X12_835_RemitItem", "X12_837_Claim", "X12_837_ClaimLine"]
