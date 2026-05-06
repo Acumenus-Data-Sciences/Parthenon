@@ -14,6 +14,7 @@ from runtime.nodes.note_nlp import NoteNlpNode
 from runtime.nodes.py2table import Py2TableNode
 from runtime.nodes.python_node import PythonNode
 from runtime.nodes.r_node import RNode
+from runtime.nodes.sdtm_domain import SdtmDomainNode
 from runtime.nodes.sql_node import SqlNode
 
 NODE_REGISTRY: dict[str, type[Node]] = {
@@ -29,6 +30,7 @@ NODE_REGISTRY: dict[str, type[Node]] = {
     DicomMetadataNode.type_name: DicomMetadataNode,
     AnonymizerNode.type_name: AnonymizerNode,
     NoteNlpNode.type_name: NoteNlpNode,
+    SdtmDomainNode.type_name: SdtmDomainNode,
 }
 
 

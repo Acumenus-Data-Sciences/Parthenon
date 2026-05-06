@@ -1,4 +1,24 @@
-.PHONY: up down build fresh logs shell-php shell-node shell-python shell-r test lint
+.PHONY: up down build fresh logs shell-php shell-node shell-python shell-r test lint fetch-fixtures
+
+# CDISC Pilot Project (LZZT) reference dataset for SDTM testing.
+# License: CDISC public-domain pilot data; not bundled in the repo (Phase 2 spec Q10).
+# Reference: https://www.cdisc.org/standards/foundational/sdtm
+LZZT_BASE_URL ?= https://github.com/cdisc-org/SDTMIG-Pilot-Datasets/raw/main/cdiscpilot01.zip
+LZZT_DEST := templates/tests/fixtures/lzzt
+
+fetch-fixtures: $(LZZT_DEST)/.fetched
+	@echo "LZZT fixtures present at $(LZZT_DEST)"
+
+$(LZZT_DEST)/.fetched:
+	@mkdir -p $(LZZT_DEST)
+	@echo "Fetching LZZT fixtures from $(LZZT_BASE_URL)..."
+	@curl -fsSL "$(LZZT_BASE_URL)" -o $(LZZT_DEST)/cdiscpilot01.zip || \
+		(echo "ERROR: CDISC LZZT fetch failed."; \
+		 echo "Set LZZT_BASE_URL or copy a local cdiscpilot01.zip into $(LZZT_DEST) and re-run."; \
+		 exit 1)
+	@cd $(LZZT_DEST) && unzip -o cdiscpilot01.zip '*.xpt' && rm -f cdiscpilot01.zip
+	@touch $(LZZT_DEST)/.fetched
+
 
 up:
 	docker compose --profile dev up -d

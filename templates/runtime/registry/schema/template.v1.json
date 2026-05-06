@@ -73,7 +73,8 @@
                   "fhir_resource",
                   "dicom_metadata",
                   "anonymizer",
-                  "note_nlp"
+                  "note_nlp",
+                  "sdtm_domain"
                 ]
               },
               "params": {"type": "object"},
