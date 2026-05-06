@@ -52,6 +52,7 @@ jobs:
       - name: Review with Claude
         if: steps.diff.outputs.changed_files != '0' && steps.diff.outputs.review_workflow_changed != 'true'
         id: review
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -70,7 +71,7 @@ jobs:
             Review this PR according to the guidelines and provide your assessment.
 
       - name: Post review comment
-        if: steps.diff.outputs.changed_files != '0' && steps.diff.outputs.review_workflow_changed != 'true'
+        if: steps.diff.outputs.changed_files != '0' && steps.diff.outputs.review_workflow_changed != 'true' && steps.review.outcome == 'success'
         uses: actions/github-script@v9
         with:
           script: |
@@ -105,3 +106,13 @@ jobs:
               // Label may not exist yet — that's fine
               console.log(`Could not add label "${label}": ${e.message}`);
             }
+
+      - name: Report advisory review failure
+        if: steps.diff.outputs.changed_files != '0' && steps.diff.outputs.review_workflow_changed != 'true' && steps.review.outcome == 'failure'
+        run: |
+          {
+            echo "## AI Code Review"
+            echo ""
+            echo "Claude review failed, but this workflow is advisory and does not block PR CI."
+            echo "Inspect the failed 'Review with Claude' step logs for the provider or credential error."
+          } >> "$GITHUB_STEP_SUMMARY"
