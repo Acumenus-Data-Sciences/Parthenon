@@ -301,3 +301,109 @@ frozen-model equality).
 - **Drop reversal remits silently with a warning log.** Rejected —
   loses true paid totals; HEOR cost-effectiveness analyses would
   systematically over-state payer spend.
+
+---
+
+## Amendment 2026-05-06 — Pharmacy claims (NCPDP D.0) — Plan 3 / T-021C
+
+### Context
+
+The X12 837/835 pair handles institutional / professional / dental
+claims, but pharmacy claims travel a different rail: the NCPDP
+Telecom Standard. Plan 3 closes T-021 by adding NCPDP D.0 ingestion
+under the same `claims_to_omop` template — different reader, same
+COST projection convention.
+
+NCPDP D.0 differs from X12 in two relevant ways:
+
+- **Format.** Field-id-prefix encoding (each value carries its 2-char
+  field ID inline) instead of X12's positional segments. Separators
+  are 0x1C (FS) and 0x1E (RS).
+- **Reversal encoding.** Transaction code B2 = reversal. Unlike X12
+  835, NCPDP does NOT sign-encode amounts on reversals — both the
+  original B1 and the reversal B2 carry the same positive amounts.
+  The reader sets `is_reversal=True`; the SQL stage flips signs
+  during projection.
+
+### Decision
+
+**NCPDP claims project to OMOP `DRUG_EXPOSURE` + `COST`**, joined
+on the standard NDC → RxNorm map via `concept_relationship 'Maps to'`.
+
+Pipeline:
+
+1. NCPDPReader materializes `NCPDPClaim` records into
+   `${source_schema}.fmt_ncpdp_claim`.
+2. SQL stage `03a_map_drug_exposure.sql` joins
+   `fmt_ncpdp_claim.ndc_code` against `vocab.concept`
+   (`vocabulary_id = 'NDC'`) and follows
+   `concept_relationship 'Maps to'` to find the standard RxNorm
+   concept.
+3. B1/B3 emit DRUG_EXPOSURE rows with **positive** quantity;
+   B2 reversals emit compensating rows with **negated** quantity.
+   `SUM(quantity) GROUP BY person_id, drug_concept_id` nets to the
+   post-reversal total.
+4. COST rows follow the same +/- convention, marked
+   `cost_source_value = 'ncpdp_charged'` or `'ncpdp_reversal'`.
+5. Unmapped NDCs (no `Maps to` edge) flow into
+   `${app_schema}.unmapped_ndc` for downstream T-024
+   `ai_assisted_mapping` review. The DRUG_EXPOSURE row is still
+   emitted with `drug_concept_id = 0` (OMOP convention for "no
+   standard map") so HEOR queries naturally exclude unmapped events.
+
+**Compensation-pattern parity with Plan 2.** Pharmacy reversals use
+the same compensation-row pattern as 835 remit reversals (see
+§"Remit reconciliation"). Audit trail preserved, idempotency via
+`ON CONFLICT DO UPDATE` on `unmapped_ndc`.
+
+**Person identity for v0.1.** `person_id = abs(hashtext(
+cardholder_id))` as a deterministic stub. Proper person-ID
+allocation through a Master Person Index is a Phase 4 follow-up.
+
+### Consequences
+
+- Pharmacy fills participate in cost-of-care analytics on equal
+  footing with institutional and professional claims.
+- The `unmapped_ndc` queue is the canonical handoff point for
+  T-024 (Plan 6) AI-assisted concept mapping. Each row carries up
+  to 5 example claim_ids and a pharmacy-count signal so reviewers
+  can prioritize systematic gaps over one-off bad data.
+- Drug type concept is hard-coded to `38000177` (Prescription
+  dispensed in pharmacy). Inpatient pharmacy fills (NCPDP from a
+  hospital system) would need a different concept; v0.1 targets
+  retail-pharmacy data only.
+
+### Acceptance gates (verified by `tests/e2e/commercial/test_claims_to_omop_ncpdp.py`)
+
+1. 100% of B1 transactions parse + materialize NCPDPClaim with
+   non-NULL `ndc_code`, non-negative quantity / days_supply.
+2. B2 reversals net to 0 quantity for the (cardholder, NDC,
+   date_of_service) tuple.
+3. <30s perf signal in CI (T-021 budget is <30 min on reference
+   hardware; n_claims=50 takes microseconds).
+4. NCPDPReader is idempotent: same input → equal output.
+
+### Plan deviations from the spec draft
+
+- **Pyparsing dependency.** The plan claimed `pyparsing` was a
+  transitive of pandas/structlog. Not true in the current locked
+  environment (modern pandas dropped pyparsing as a hard dep).
+  Pinned explicitly in `templates/commercial/pyproject.toml` as
+  `pyparsing==3.1.4` (MIT — composes with both AGPLv3 community
+  + proprietary commercial wheels).
+- **PCN field ID.** The plan draft referenced field id `AAD0` for
+  the Processor Control Number. NCPDP D.0 field IDs are exactly
+  2 characters per spec §A.4 — the correct PCN id is `A3`
+  (1Ø3-A3). Fixed across reader, grammar, test fixtures.
+
+### Alternatives considered (Plan 3)
+
+- **Hand-rolled positional parser.** Rejected — positional parsing
+  requires payer-specific IG knowledge for field offsets. Field-
+  id-prefix is more robust to payer-specific extensions.
+- **Project NCPDP to PROCEDURE_OCCURRENCE.** Rejected —
+  DRUG_EXPOSURE is the OMOP-canonical shape for pharmacy fills;
+  HEOR queries assume this convention.
+- **Do not log unmapped NDCs.** Rejected — that's how vocabulary
+  gaps go undetected for years. The queue makes drift visible
+  immediately and feeds T-024.
