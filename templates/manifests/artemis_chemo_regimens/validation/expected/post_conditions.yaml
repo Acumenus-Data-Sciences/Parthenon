@@ -1,0 +1,6 @@
+# Phase 2 spec §6 acceptance: ≥80% recall on the held-out chemo-cohort fixture.
+# 20 patients × 5 regimens = 20 gold-standard regimens; threshold = 16.
+
+recall_threshold: 0.80
+gold_standard_csv: ../../validation/expected/regimens.csv
+artifact_name: regimens.json

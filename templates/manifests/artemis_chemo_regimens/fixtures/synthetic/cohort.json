@@ -1,0 +1,412 @@
+{
+  "drug_exposures": [
+    {
+      "drug_exposure_id": 1,
+      "person_id": 1,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-11-24"
+    },
+    {
+      "drug_exposure_id": 2,
+      "person_id": 1,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-11-25"
+    },
+    {
+      "drug_exposure_id": 3,
+      "person_id": 1,
+      "drug_concept_id": 1736776,
+      "drug_exposure_start_date": "2026-11-26"
+    },
+    {
+      "drug_exposure_id": 4,
+      "person_id": 1,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-11-27"
+    },
+    {
+      "drug_exposure_id": 5,
+      "person_id": 2,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-02-27"
+    },
+    {
+      "drug_exposure_id": 6,
+      "person_id": 2,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-02-28"
+    },
+    {
+      "drug_exposure_id": 7,
+      "person_id": 2,
+      "drug_concept_id": 1736776,
+      "drug_exposure_start_date": "2026-03-01"
+    },
+    {
+      "drug_exposure_id": 8,
+      "person_id": 2,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-03-02"
+    },
+    {
+      "drug_exposure_id": 9,
+      "person_id": 3,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-01-13"
+    },
+    {
+      "drug_exposure_id": 10,
+      "person_id": 3,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-01-14"
+    },
+    {
+      "drug_exposure_id": 11,
+      "person_id": 3,
+      "drug_concept_id": 1736776,
+      "drug_exposure_start_date": "2026-01-15"
+    },
+    {
+      "drug_exposure_id": 12,
+      "person_id": 3,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-01-16"
+    },
+    {
+      "drug_exposure_id": 13,
+      "person_id": 4,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-05-21"
+    },
+    {
+      "drug_exposure_id": 14,
+      "person_id": 4,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-05-22"
+    },
+    {
+      "drug_exposure_id": 15,
+      "person_id": 4,
+      "drug_concept_id": 1736776,
+      "drug_exposure_start_date": "2026-05-23"
+    },
+    {
+      "drug_exposure_id": 16,
+      "person_id": 4,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-05-24"
+    },
+    {
+      "drug_exposure_id": 17,
+      "person_id": 5,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-05-06"
+    },
+    {
+      "drug_exposure_id": 18,
+      "person_id": 5,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-05-07"
+    },
+    {
+      "drug_exposure_id": 19,
+      "person_id": 5,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-05-08"
+    },
+    {
+      "drug_exposure_id": 20,
+      "person_id": 6,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-04-25"
+    },
+    {
+      "drug_exposure_id": 21,
+      "person_id": 6,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-04-26"
+    },
+    {
+      "drug_exposure_id": 22,
+      "person_id": 6,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-04-27"
+    },
+    {
+      "drug_exposure_id": 23,
+      "person_id": 7,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-03-13"
+    },
+    {
+      "drug_exposure_id": 24,
+      "person_id": 7,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-03-14"
+    },
+    {
+      "drug_exposure_id": 25,
+      "person_id": 7,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-03-15"
+    },
+    {
+      "drug_exposure_id": 26,
+      "person_id": 8,
+      "drug_concept_id": 1153888,
+      "drug_exposure_start_date": "2026-02-22"
+    },
+    {
+      "drug_exposure_id": 27,
+      "person_id": 8,
+      "drug_concept_id": 1190795,
+      "drug_exposure_start_date": "2026-02-23"
+    },
+    {
+      "drug_exposure_id": 28,
+      "person_id": 8,
+      "drug_concept_id": 1736816,
+      "drug_exposure_start_date": "2026-02-24"
+    },
+    {
+      "drug_exposure_id": 29,
+      "person_id": 9,
+      "drug_concept_id": 1314865,
+      "drug_exposure_start_date": "2026-12-13"
+    },
+    {
+      "drug_exposure_id": 30,
+      "person_id": 9,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-12-14"
+    },
+    {
+      "drug_exposure_id": 31,
+      "person_id": 9,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-12-15"
+    },
+    {
+      "drug_exposure_id": 32,
+      "person_id": 9,
+      "drug_concept_id": 1395557,
+      "drug_exposure_start_date": "2026-12-16"
+    },
+    {
+      "drug_exposure_id": 33,
+      "person_id": 9,
+      "drug_concept_id": 1551099,
+      "drug_exposure_start_date": "2026-12-13"
+    },
+    {
+      "drug_exposure_id": 34,
+      "person_id": 10,
+      "drug_concept_id": 1314865,
+      "drug_exposure_start_date": "2026-10-07"
+    },
+    {
+      "drug_exposure_id": 35,
+      "person_id": 10,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-10-08"
+    },
+    {
+      "drug_exposure_id": 36,
+      "person_id": 10,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-10-09"
+    },
+    {
+      "drug_exposure_id": 37,
+      "person_id": 10,
+      "drug_concept_id": 1395557,
+      "drug_exposure_start_date": "2026-10-10"
+    },
+    {
+      "drug_exposure_id": 38,
+      "person_id": 10,
+      "drug_concept_id": 1551099,
+      "drug_exposure_start_date": "2026-10-07"
+    },
+    {
+      "drug_exposure_id": 39,
+      "person_id": 11,
+      "drug_concept_id": 1314865,
+      "drug_exposure_start_date": "2026-02-14"
+    },
+    {
+      "drug_exposure_id": 40,
+      "person_id": 11,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-02-15"
+    },
+    {
+      "drug_exposure_id": 41,
+      "person_id": 11,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-02-16"
+    },
+    {
+      "drug_exposure_id": 42,
+      "person_id": 11,
+      "drug_concept_id": 1395557,
+      "drug_exposure_start_date": "2026-02-17"
+    },
+    {
+      "drug_exposure_id": 43,
+      "person_id": 11,
+      "drug_concept_id": 1551099,
+      "drug_exposure_start_date": "2026-02-14"
+    },
+    {
+      "drug_exposure_id": 44,
+      "person_id": 12,
+      "drug_concept_id": 1314865,
+      "drug_exposure_start_date": "2026-10-30"
+    },
+    {
+      "drug_exposure_id": 45,
+      "person_id": 12,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-10-31"
+    },
+    {
+      "drug_exposure_id": 46,
+      "person_id": 12,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-11-01"
+    },
+    {
+      "drug_exposure_id": 47,
+      "person_id": 12,
+      "drug_concept_id": 1395557,
+      "drug_exposure_start_date": "2026-11-02"
+    },
+    {
+      "drug_exposure_id": 48,
+      "person_id": 12,
+      "drug_concept_id": 1551099,
+      "drug_exposure_start_date": "2026-10-30"
+    },
+    {
+      "drug_exposure_id": 49,
+      "person_id": 13,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-08-05"
+    },
+    {
+      "drug_exposure_id": 50,
+      "person_id": 13,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-08-06"
+    },
+    {
+      "drug_exposure_id": 51,
+      "person_id": 13,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-08-07"
+    },
+    {
+      "drug_exposure_id": 52,
+      "person_id": 14,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-01-17"
+    },
+    {
+      "drug_exposure_id": 53,
+      "person_id": 14,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-01-18"
+    },
+    {
+      "drug_exposure_id": 54,
+      "person_id": 14,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-01-19"
+    },
+    {
+      "drug_exposure_id": 55,
+      "person_id": 15,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-01-16"
+    },
+    {
+      "drug_exposure_id": 56,
+      "person_id": 15,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-01-17"
+    },
+    {
+      "drug_exposure_id": 57,
+      "person_id": 15,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-01-18"
+    },
+    {
+      "drug_exposure_id": 58,
+      "person_id": 16,
+      "drug_concept_id": 1338512,
+      "drug_exposure_start_date": "2026-02-17"
+    },
+    {
+      "drug_exposure_id": 59,
+      "person_id": 16,
+      "drug_concept_id": 1310317,
+      "drug_exposure_start_date": "2026-02-18"
+    },
+    {
+      "drug_exposure_id": 60,
+      "person_id": 16,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-02-19"
+    },
+    {
+      "drug_exposure_id": 61,
+      "person_id": 17,
+      "drug_concept_id": 1344905,
+      "drug_exposure_start_date": "2026-04-22"
+    },
+    {
+      "drug_exposure_id": 62,
+      "person_id": 17,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-04-23"
+    },
+    {
+      "drug_exposure_id": 63,
+      "person_id": 18,
+      "drug_concept_id": 1344905,
+      "drug_exposure_start_date": "2026-04-30"
+    },
+    {
+      "drug_exposure_id": 64,
+      "person_id": 18,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-05-01"
+    },
+    {
+      "drug_exposure_id": 65,
+      "person_id": 19,
+      "drug_concept_id": 1344905,
+      "drug_exposure_start_date": "2026-09-16"
+    },
+    {
+      "drug_exposure_id": 66,
+      "person_id": 19,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-09-17"
+    },
+    {
+      "drug_exposure_id": 67,
+      "person_id": 20,
+      "drug_concept_id": 1344905,
+      "drug_exposure_start_date": "2026-11-05"
+    },
+    {
+      "drug_exposure_id": 68,
+      "person_id": 20,
+      "drug_concept_id": 1378382,
+      "drug_exposure_start_date": "2026-11-06"
+    }
+  ]
+}

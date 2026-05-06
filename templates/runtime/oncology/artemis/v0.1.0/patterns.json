@@ -1,0 +1,58 @@
+{
+  "version": "v0.1.0",
+  "source": "Hand-curated subset for Phase 2 Plan 5; full ARTEMIS R-package install deferred to Phase 3 (ADR 0014).",
+  "regimens": [
+    {
+      "regimen_name": "FOLFIRINOX",
+      "indication": "pancreatic cancer",
+      "phase": "induction",
+      "drugs": [
+        {"name": "fluorouracil", "rxnorm_concept_id": 1153888},
+        {"name": "leucovorin", "rxnorm_concept_id": 1190795},
+        {"name": "irinotecan", "rxnorm_concept_id": 1736776},
+        {"name": "oxaliplatin", "rxnorm_concept_id": 1736816}
+      ]
+    },
+    {
+      "regimen_name": "FOLFOX",
+      "indication": "colorectal cancer",
+      "phase": "induction",
+      "drugs": [
+        {"name": "fluorouracil", "rxnorm_concept_id": 1153888},
+        {"name": "leucovorin", "rxnorm_concept_id": 1190795},
+        {"name": "oxaliplatin", "rxnorm_concept_id": 1736816}
+      ]
+    },
+    {
+      "regimen_name": "R-CHOP",
+      "indication": "diffuse large B-cell lymphoma",
+      "phase": "induction",
+      "drugs": [
+        {"name": "rituximab", "rxnorm_concept_id": 1314865},
+        {"name": "cyclophosphamide", "rxnorm_concept_id": 1310317},
+        {"name": "doxorubicin", "rxnorm_concept_id": 1338512},
+        {"name": "vincristine", "rxnorm_concept_id": 1395557},
+        {"name": "prednisone", "rxnorm_concept_id": 1551099}
+      ]
+    },
+    {
+      "regimen_name": "AC-T",
+      "indication": "breast cancer",
+      "phase": "adjuvant",
+      "drugs": [
+        {"name": "doxorubicin", "rxnorm_concept_id": 1338512},
+        {"name": "cyclophosphamide", "rxnorm_concept_id": 1310317},
+        {"name": "paclitaxel", "rxnorm_concept_id": 1378382}
+      ]
+    },
+    {
+      "regimen_name": "Carboplatin+Paclitaxel",
+      "indication": "non-small-cell lung cancer",
+      "phase": "induction",
+      "drugs": [
+        {"name": "carboplatin", "rxnorm_concept_id": 1344905},
+        {"name": "paclitaxel", "rxnorm_concept_id": 1378382}
+      ]
+    }
+  ]
+}

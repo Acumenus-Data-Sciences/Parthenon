@@ -74,7 +74,8 @@
                   "dicom_metadata",
                   "anonymizer",
                   "note_nlp",
-                  "sdtm_domain"
+                  "sdtm_domain",
+                  "regimen_matcher"
                 ]
               },
               "params": {"type": "object"},

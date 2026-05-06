@@ -30,6 +30,7 @@ NODE_TYPES = (
     "anonymizer",
     "note_nlp",
     "sdtm_domain",
+    "regimen_matcher",
 )
 
 
