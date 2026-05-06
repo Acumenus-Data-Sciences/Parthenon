@@ -9,6 +9,7 @@ Two sanitization layers:
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -73,9 +74,18 @@ class Materializer:
     """Build a FlowSpec from a Manifest and user-supplied parameters."""
 
     def materialize(
-        self, manifest: Manifest, parameters: dict[str, Any]
+        self,
+        manifest: Manifest,
+        parameters: dict[str, Any],
+        *,
+        manifest_dir: Path | None = None,
     ) -> tuple[FlowSpec, dict[str, Any]]:
-        """Validate parameters, redact secrets, and return ``(flow_spec, sanitized_params)``."""
+        """Validate parameters, redact secrets, and return ``(flow_spec, sanitized_params)``.
+
+        ``manifest_dir`` is propagated to :class:`FlowSpec` so downstream
+        nodes (e.g. SqlNode) can resolve ``file://<rel-path>`` references
+        relative to the source manifest directory (Phase 3 Plan 0).
+        """
         param_schema = {
             "type": "object",
             "properties": manifest.spec.parameters.properties,
@@ -109,6 +119,7 @@ class Materializer:
             flow_id=manifest.metadata.id,
             nodes=nodes,
             parameters=sanitized,
+            manifest_dir=manifest_dir,
         )
         flow.validate()
         return flow, sanitized

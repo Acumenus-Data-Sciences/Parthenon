@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 
@@ -35,25 +36,34 @@ class FlowNode:
 
 @dataclass
 class FlowSpec:
-    """A directed acyclic graph of FlowNode plus run metadata."""
+    """A directed acyclic graph of FlowNode plus run metadata.
+
+    ``manifest_dir`` is the on-disk directory of the source manifest; nodes
+    that resolve ``file://<rel-path>`` references (Phase 3 Plan 0 ``sql_file``)
+    use it as the security root. ``None`` for hand-built FlowSpecs (tests).
+    """
 
     flow_id: str
     nodes: list[FlowNode] = field(default_factory=list)
     parameters: dict[str, Any] = field(default_factory=dict)
+    manifest_dir: Path | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "flow_id": self.flow_id,
             "nodes": [n.to_dict() for n in self.nodes],
             "parameters": dict(self.parameters),
+            "manifest_dir": str(self.manifest_dir) if self.manifest_dir is not None else None,
         }
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> FlowSpec:
+        manifest_dir_raw = payload.get("manifest_dir")
         return cls(
             flow_id=str(payload["flow_id"]),
             nodes=[FlowNode.from_dict(n) for n in payload.get("nodes", [])],
             parameters=dict(payload.get("parameters") or {}),
+            manifest_dir=Path(manifest_dir_raw) if manifest_dir_raw is not None else None,
         )
 
     def validate(self) -> None:

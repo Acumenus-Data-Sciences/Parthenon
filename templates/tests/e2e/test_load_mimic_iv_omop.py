@@ -50,18 +50,20 @@ def test_synthetic_fixture_has_expected_row_counts() -> None:
 
 @pytest.mark.integration
 @pytest.mark.skip(
-    reason="Full testcontainers E2E requires vocab seed + manifest run-orchestration; "
-    "structural SQL tests (test_mimic_iv_bootstrap.py + test_mimic_iv_mappers.py) and "
-    "fixture tests above provide the unit-level coverage. Full E2E lands in a "
-    "follow-up commit once the Phase 0 sql_node has the file:// reader required by "
-    "this template's manifest."
+    reason="Full testcontainers E2E still requires vocab seeding + manifest "
+    "run-orchestration scaffolding. Phase 3 Plan 0 landed the sql_node "
+    "sql_file:// reader (one of two original gating items); the remaining "
+    "blocker is a vocab-seed harness for testcontainers Postgres, tracked "
+    "as a Phase 4 follow-up. Structural SQL tests (test_mimic_iv_bootstrap "
+    "+ test_mimic_iv_mappers) and fixture tests above provide unit-level "
+    "coverage in the meantime."
 )
 def test_load_mimic_iv_omop_runs_to_completion() -> None:
     """Full E2E placeholder.
 
-    The manifest references file://sql/*.sql for per-stage SQL bodies via
-    ``sql_file`` parameter. The Phase 0 sql_node does not yet support the
-    ``sql_file`` parameter — currently it only accepts inline ``statements``.
-    Adding the file:// reader is a small follow-up; this test stays SKIPPED
-    until then so the structural assertions above can land green.
+    Phase 3 Plan 0 unblocked the ``sql_file://`` reader path. The remaining
+    work to lift this skip is a vocab-seed harness that loads minimal
+    SNOMED/ICD/RxNorm/LOINC concepts into a testcontainers Postgres + a
+    materializer driver that runs the full manifest end-to-end against
+    that DB. Tracked as a Phase 4 follow-up.
     """

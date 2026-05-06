@@ -43,3 +43,14 @@ class Registry:
         if not manifest_file.exists():
             raise TemplateNotFoundError(template_id)
         return load_manifest_from_path(manifest_file)
+
+    def get_manifest_dir(self, template_id: str) -> Path:
+        """Return the directory containing the manifest for ``template_id``.
+
+        Phase 3 Plan 0: nodes that resolve ``file://<rel-path>`` references
+        (e.g. SqlNode's ``sql_file``) need this as the security root.
+        """
+        manifest_file = self.root / template_id / "manifest.yaml"
+        if not manifest_file.exists():
+            raise TemplateNotFoundError(template_id)
+        return (self.root / template_id).resolve()

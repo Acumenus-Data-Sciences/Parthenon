@@ -74,6 +74,11 @@ def run_node(
     db_dsn: str | None = typer.Option(None, "--db-dsn", help="SQLAlchemy DSN, optional."),
     run_id: str = typer.Option("local", "--run-id"),
     node_id: str = typer.Option("local-node", "--node-id"),
+    manifest_dir: Path | None = typer.Option(
+        None,
+        "--manifest-dir",
+        help="Directory of the source manifest; required for sql_node sql_file.",
+    ),
 ) -> None:
     """Execute a single node and print the JSON result to stdout."""
     cls = _REGISTRY.get(node_class)
@@ -93,6 +98,7 @@ def run_node(
         secrets={},
         artifact_dir=resolved_artifact_dir,
         db_dsn=db_dsn,
+        manifest_dir=manifest_dir,
     )
     node = cls()
     result = node.run(context, payload)

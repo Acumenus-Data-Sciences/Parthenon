@@ -52,6 +52,11 @@ class NodeContext:
     Provides a logger, secret accessor, artifact writer rooted at the run's
     artifact directory, and an optional SQLAlchemy-style DSN. The orchestration
     backend constructs and supplies this object.
+
+    ``manifest_dir`` is the directory containing the source ``manifest.yaml``;
+    nodes that resolve ``file://<rel-path>`` references (e.g. ``SqlNode``'s
+    ``sql_file`` parameter — Phase 3 Plan 0) read it from here. ``None`` when
+    the node is invoked outside the registry-driven path (the dev runner).
     """
 
     run_id: str
@@ -60,6 +65,8 @@ class NodeContext:
     secrets: dict[str, str]
     artifact_dir: Path
     db_dsn: str | None
+    manifest_dir: Path | None = None
+    run_parameters: dict[str, Any] = field(default_factory=dict)
 
     def get_secret(self, key: str) -> str:
         if key not in self.secrets:
