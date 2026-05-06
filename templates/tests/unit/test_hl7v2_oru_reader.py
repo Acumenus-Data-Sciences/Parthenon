@@ -144,3 +144,75 @@ def test_error_message_does_not_leak_patient_id() -> None:
 def test_observation_returns_pydantic_typed() -> None:
     msgs = list(Hl7v2OruReader().read(_R01_BASIC))
     assert isinstance(msgs[0].observations[0], OruObservation)
+
+
+# ---------- Task 4: R30/R31 trigger-event variants ----------
+
+_R30_BASIC = (
+    "MSH|^~\\&|POC|HOSP1|EHR|HOSP1|20240601083000||ORU^R30|MSG3001|P|2.5\r"
+    "PID|||PAT00301\r"
+    "PV1||I|||||||||||||||||ENC00301\r"
+    "OBR|1|POC0001||GLU^Glucose POC^L|||20240601082000\r"
+    "OBX|1|NM|GLU^Glucose POC^L||92|mg/dL||N|||F|||20240601083000\r"
+)
+
+_R31_BASIC = (
+    "MSH|^~\\&|LIS|HOSP1|EHR|HOSP1|20240601083000||ORU^R31|MSG3101|P|2.5\r"
+    "PID|||PAT00310\r"
+    "PV1||O|||||||||||||||||ENC00310\r"
+    "ORC|RE|ORD3101\r"
+    "OBR|1|ORD3101||GLU-PANEL^Glucose Panel^L|||20240601082000\r"
+    "OBX|1|NM|GLU^Glucose^L||108|mg/dL|70-110|N|||F|||20240601083000\r"
+)
+
+
+def test_reads_r30_unsolicited_poc_message() -> None:
+    msgs = list(Hl7v2OruReader().read(_R30_BASIC))
+    assert len(msgs) == 1
+    assert msgs[0].encounter_id == "ENC00301"
+    assert msgs[0].observations[0].observation_value == "92"
+
+
+def test_reads_r31_encounter_tied_message() -> None:
+    msgs = list(Hl7v2OruReader().read(_R31_BASIC))
+    assert len(msgs) == 1
+    assert msgs[0].encounter_id == "ENC00310"
+    assert msgs[0].observations[0].set_id == 1
+
+
+def test_r30_without_pv1_raises() -> None:
+    """R30 (unsolicited POC) requires PV1; R01 does not."""
+    text = (
+        "MSH|^~\\&|POC|HOSP1|EHR|HOSP1|20240601083000||ORU^R30|MSG3002|P|2.5\r"
+        "PID|||PAT00302\r"
+        "OBR|1|POC0002||GLU^Glucose POC^L|||20240601082000\r"
+        "OBX|1|NM|GLU^Glucose POC^L||95|mg/dL||N|||F|||20240601083000\r"
+    )
+    with pytest.raises(Hl7v2ParseError):
+        list(Hl7v2OruReader().read(text))
+
+
+def test_r31_without_pv1_raises() -> None:
+    """R31 (encounter-tied) requires PV1."""
+    text = (
+        "MSH|^~\\&|LIS|HOSP1|EHR|HOSP1|20240601083000||ORU^R31|MSG3102|P|2.5\r"
+        "PID|||PAT00311\r"
+        "OBR|1|ORD3102||GLU^Glucose^L|||20240601082000\r"
+        "OBX|1|NM|GLU^Glucose^L||100|mg/dL||N|||F|||20240601083000\r"
+    )
+    with pytest.raises(Hl7v2ParseError):
+        list(Hl7v2OruReader().read(text))
+
+
+def test_unsupported_trigger_event_raises() -> None:
+    """ORU^R32 is not a supported trigger; reject explicitly."""
+    text = _R01_BASIC.replace("ORU^R01", "ORU^R32")
+    with pytest.raises(Hl7v2ParseError):
+        list(Hl7v2OruReader().read(text))
+
+
+def test_msh9_missing_trigger_event_raises() -> None:
+    """MSH-9 must include a trigger event component (after the message type)."""
+    text = _R01_BASIC.replace("ORU^R01", "ORU")
+    with pytest.raises(Hl7v2ParseError):
+        list(Hl7v2OruReader().read(text))

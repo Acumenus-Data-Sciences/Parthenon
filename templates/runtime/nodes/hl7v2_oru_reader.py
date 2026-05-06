@@ -110,8 +110,30 @@ def _first_ts(candidates: list[str]) -> datetime:
     raise Hl7v2ParseError("OBX has no timestamp and no OBR/MSH fallback timestamps were present")
 
 
+# Phase 3 Plan 5 Task 4: ORU trigger events the reader supports. R01 is the
+# standard solicited result; R30 is unsolicited point-of-care; R31 is
+# explicitly encounter-tied. R30/R31 mandate a PV1 segment (the encounter
+# is the point of the message); R01 makes PV1 optional.
+_SUPPORTED_TRIGGERS = frozenset({"R01", "R30", "R31"})
+_PV1_REQUIRED_TRIGGERS = frozenset({"R30", "R31"})
+
+
+def _trigger_event(msh: hl7.Segment) -> str:
+    """Extract the ORU trigger event from MSH-9 (e.g. ``ORU^R01`` -> ``R01``)."""
+    components = _components(_field(msh, 9))
+    if len(components) < 2 or not components[1]:
+        raise Hl7v2ParseError("MSH-9 missing trigger event component")
+    trigger = components[1]
+    if trigger not in _SUPPORTED_TRIGGERS:
+        raise Hl7v2ParseError(
+            f"unsupported HL7 ORU trigger event {trigger}; expected one of "
+            f"{sorted(_SUPPORTED_TRIGGERS)}"
+        )
+    return trigger
+
+
 class Hl7v2OruReader:
-    """Read HL7 v2.x ORU^R01 lab result messages."""
+    """Read HL7 v2.x ORU^R01/R30/R31 lab result messages."""
 
     type_name = "hl7v2_oru_reader"
 
@@ -155,9 +177,16 @@ class Hl7v2OruReader:
             raise Hl7v2ParseError("HL7 v2 parse failed") from exc
 
         msh = self._require_segment(msg, "MSH")
+        trigger = _trigger_event(msh)
         pid = self._require_segment(msg, "PID")
         obr = self._require_segment(msg, "OBR")
         pv1 = self._optional_segment(msg, "PV1")
+
+        if trigger in _PV1_REQUIRED_TRIGGERS and pv1 is None:
+            raise Hl7v2ParseError(
+                f"HL7 ORU^{trigger} message requires a PV1 segment "
+                f"(encounter scope is mandatory for {trigger})"
+            )
 
         encounter_id = _field(pv1, 19) if pv1 is not None else ""
 
