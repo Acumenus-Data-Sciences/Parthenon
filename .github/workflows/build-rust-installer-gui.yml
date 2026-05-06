@@ -596,7 +596,7 @@ jobs:
 
       - name: Attest build provenance (SLSA L3)
         if: ${{ github.event_name == 'release' }}
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             installer/rust-gui/target/release/bundle/dmg/*.dmg
