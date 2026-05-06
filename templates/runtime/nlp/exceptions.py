@@ -17,3 +17,7 @@ class PromptVersionError(LlmBackendError):
 
 class SciSpacyBackendError(LlmBackendError):
     """Raised when the parthenon-scispacy sidecar HTTP call fails."""
+
+
+class LlettuceBackendError(LlmBackendError):
+    """Raised when the Llettuce upstream package fails (eval-only; Q4)."""

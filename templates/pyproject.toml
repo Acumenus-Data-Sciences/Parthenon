@@ -35,7 +35,19 @@ dependencies = [
     "multimethod<2.0",
     "fhir.resources==8.2.0",
     "pydicom==3.0.2",
+    # Phase 2 Plan 3 — Llettuce eval harness report rendering (T-018b).
+    "jinja2==3.1.4",
 ]
+
+# Phase 2 Plan 3 (Q4): Llettuce upstream
+# (https://github.com/Health-Informatics-UoN/lettuce) is a uv workspace and
+# is NOT yet published on PyPI. The "lettuce" package is loaded lazily by
+# runtime/nlp/backends/llettuce.py — customers running the eval harness
+# install it manually:
+#   uv pip install "lettuce @ git+https://github.com/Health-Informatics-UoN/lettuce.git#subdirectory=lettuce"
+# Phase 3 will replace this comment with a real PyPI pin once UCL publishes.
+# Eval-only extras: kept here so `uv sync --extra eval` resolves jinja2 alone
+# without breaking install when the upstream wheel isn't reachable.
 
 [project.optional-dependencies]
 dev = [
@@ -73,6 +85,7 @@ addopts = "-ra --strict-markers"
 markers = [
     "slow: tests that take >30s to run (skip in CI fast-path)",
     "integration: tests that require real services (Postgres, sidecar containers)",
+    "ner_eval: NER backend evaluation harness (slow + costs LLM tokens; gated to schedule + workflow_dispatch)",
 ]
 
 [tool.coverage.run]

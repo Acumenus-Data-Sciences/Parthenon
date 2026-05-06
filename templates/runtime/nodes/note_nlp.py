@@ -89,4 +89,21 @@ def _resolve_backend(params: dict[str, Any]) -> NlpBackend:
         from runtime.nlp.backends.scispacy import SciSpacyBackend
 
         return SciSpacyBackend()
+    if which == "llettuce":
+        # Per Phase 2 Q4: Llettuce is eval-only in Phase 2. We register it
+        # here so the eval harness can construct the node uniformly, but
+        # warn loudly so anyone wiring it into a production manifest sees
+        # the signal. Phase 3 graduates (or rejects) on the eval report.
+        import warnings
+
+        from runtime.nlp.backends.llettuce import LlettuceBackend
+
+        warnings.warn(
+            "LlettuceBackend is eval-only in Phase 2. Production graduation "
+            "is gated to Phase 3 based on the NER eval report — see "
+            "docs/architecture/adr-0013-llettuce-eval-and-graduation.md.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return LlettuceBackend()
     raise ValueError(f"unknown nlp backend: {which!r}")

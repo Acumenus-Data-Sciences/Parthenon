@@ -383,3 +383,58 @@ jobs:
           path: templates/_ner_live/live.log
           if-no-files-found: warn
           retention-days: 90
+
+  # Phase 2 Plan 3 (T-018b / Q4): NER backend comparison harness.
+  # Drives LlmBackend / SciSpacyBackend / LlettuceBackend through the
+  # 100-note gold standard and produces a markdown report with the
+  # Phase 3 graduation verdict for Llettuce. Slow-lane only.
+  ner-eval:
+    name: NER backend comparison (parthenon-templates, slow lane)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: lint-and-test
+    env:
+      OPENAI_LLM_ENABLED: "true"
+      OPENAI_BUDGET_USD: "1.00"
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.11"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync dependencies
+        working-directory: templates
+        run: uv sync --all-extras
+
+      - name: NER backend comparison
+        working-directory: templates
+        env:
+          PARTHENON_SCISPACY_URL: http://localhost:5101
+        # SciSpaCy and Llettuce backends are expected to fail on this CI
+        # runner (no sidecar / no Llettuce package); the runner records
+        # those errors in the report rather than aborting. The eval lane
+        # exists to track LlmBackend metrics + the report shape so prompt
+        # drift surfaces as a regression in concept_match_rate.
+        run: |
+          mkdir -p _eval
+          uv run pytest tests/eval/ -v -m ner_eval 2>&1 | tee _eval/run.log
+
+      - name: Upload eval report + log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ner-eval-${{ github.run_id }}
+          path: |
+            templates/_eval/ner_backend_comparison.md
+            templates/_eval/run.log
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,0 +1,408 @@
+note_id,start,end,text,label,concept_id,vocabulary_id
+1,16,37,myocardial infarction,condition,4329847,SNOMED
+1,50,60,chest pain,condition,4030518,SNOMED
+1,99,122,systolic blood pressure,measurement,3004249,LOINC
+1,139,145,sepsis,condition,132797,SNOMED
+1,184,203,atrial fibrillation,condition,4329041,SNOMED
+2,16,28,atorvastatin,drug,1551860,RxNorm
+2,45,53,headache,condition,4344158,SNOMED
+2,88,98,chest pain,condition,4030518,SNOMED
+2,124,143,shortness of breath,condition,4145356,SNOMED
+2,160,169,pneumonia,condition,255848,SNOMED
+3,23,33,heart rate,measurement,3027018,LOINC
+3,51,63,appendectomy,procedure,4133138,SNOMED
+3,87,97,furosemide,drug,1326303,RxNorm
+4,11,17,sepsis,condition,132797,SNOMED
+4,55,65,hemoglobin,measurement,3000963,LOINC
+4,88,94,sodium,measurement,3019550,LOINC
+4,107,117,chest pain,condition,4030518,SNOMED
+4,146,165,blood urea nitrogen,measurement,3013682,LOINC
+5,24,43,blood urea nitrogen,measurement,3013682,LOINC
+5,68,78,lisinopril,drug,1308216,RxNorm
+5,104,125,myocardial infarction,condition,4329847,SNOMED
+6,16,22,sodium,measurement,3019550,LOINC
+6,46,55,metformin,drug,1503297,RxNorm
+6,93,113,coronary angiography,procedure,4279553,SNOMED
+6,152,158,sepsis,condition,132797,SNOMED
+7,20,39,shortness of breath,condition,4145356,SNOMED
+7,70,80,furosemide,drug,1326303,RxNorm
+7,102,133,gastroesophageal reflux disease,condition,192671,SNOMED
+7,159,169,creatinine,measurement,3013721,LOINC
+8,11,30,shortness of breath,condition,4145356,SNOMED
+8,72,80,headache,condition,4344158,SNOMED
+8,98,109,colonoscopy,procedure,4180938,SNOMED
+8,135,154,atrial fibrillation,condition,4329041,SNOMED
+8,179,198,blood urea nitrogen,measurement,3013682,LOINC
+9,11,21,metoprolol,drug,40213227,RxNorm
+9,57,69,appendectomy,procedure,4133138,SNOMED
+9,92,102,creatinine,measurement,3013721,LOINC
+9,120,129,metformin,drug,1503297,RxNorm
+10,20,26,sepsis,condition,132797,SNOMED
+10,47,57,heart rate,measurement,3027018,LOINC
+10,87,98,colonoscopy,procedure,4180938,SNOMED
+10,129,141,appendectomy,procedure,4133138,SNOMED
+10,154,173,shortness of breath,condition,4145356,SNOMED
+11,15,22,aspirin,drug,1112807,RxNorm
+11,53,59,sepsis,condition,132797,SNOMED
+11,82,94,appendectomy,procedure,4133138,SNOMED
+11,112,122,heart rate,measurement,3027018,LOINC
+12,21,31,creatinine,measurement,3013721,LOINC
+12,56,64,headache,condition,4344158,SNOMED
+12,77,87,hemoglobin,measurement,3000963,LOINC
+13,21,30,pneumonia,condition,255848,SNOMED
+13,48,62,echocardiogram,procedure,4337027,SNOMED
+13,86,96,heart rate,measurement,3027018,LOINC
+14,11,23,appendectomy,procedure,4133138,SNOMED
+14,54,64,metoprolol,drug,40213227,RxNorm
+14,81,105,type 2 diabetes mellitus,condition,201826,SNOMED
+14,135,141,sepsis,condition,132797,SNOMED
+15,21,44,systolic blood pressure,measurement,3004249,LOINC
+15,62,76,echocardiogram,procedure,4337027,SNOMED
+15,89,101,atorvastatin,drug,1551860,RxNorm
+15,131,138,aspirin,drug,1112807,RxNorm
+16,24,43,shortness of breath,condition,4145356,SNOMED
+16,56,75,blood urea nitrogen,measurement,3013682,LOINC
+16,101,109,headache,condition,4344158,SNOMED
+16,147,153,sodium,measurement,3019550,LOINC
+17,11,30,shortness of breath,condition,4145356,SNOMED
+17,63,70,aspirin,drug,1112807,RxNorm
+17,101,121,coronary angiography,procedure,4279553,SNOMED
+17,147,157,metoprolol,drug,40213227,RxNorm
+17,174,185,amoxicillin,drug,19078461,RxNorm
+18,11,30,blood urea nitrogen,measurement,3013682,LOINC
+18,71,83,appendectomy,procedure,4133138,SNOMED
+18,96,106,lisinopril,drug,1308216,RxNorm
+18,143,164,myocardial infarction,condition,4329847,SNOMED
+19,11,34,systolic blood pressure,measurement,3004249,LOINC
+19,64,70,sepsis,condition,132797,SNOMED
+19,109,120,amoxicillin,drug,19078461,RxNorm
+20,16,47,gastroesophageal reflux disease,condition,192671,SNOMED
+20,60,70,creatinine,measurement,3013721,LOINC
+20,106,118,appendectomy,procedure,4133138,SNOMED
+20,131,142,amoxicillin,drug,19078461,RxNorm
+20,172,192,coronary angiography,procedure,4279553,SNOMED
+21,21,31,chest pain,condition,4030518,SNOMED
+21,44,64,coronary angiography,procedure,4279553,SNOMED
+21,98,108,lisinopril,drug,1308216,RxNorm
+21,126,134,warfarin,drug,1734104,RxNorm
+21,152,173,myocardial infarction,condition,4329847,SNOMED
+22,15,34,shortness of breath,condition,4145356,SNOMED
+22,60,83,systolic blood pressure,measurement,3004249,LOINC
+22,109,117,warfarin,drug,1734104,RxNorm
+22,154,164,creatinine,measurement,3013721,LOINC
+22,202,221,blood urea nitrogen,measurement,3013682,LOINC
+23,20,26,sepsis,condition,132797,SNOMED
+23,59,70,amoxicillin,drug,19078461,RxNorm
+23,88,94,sodium,measurement,3019550,LOINC
+24,23,42,blood urea nitrogen,measurement,3013682,LOINC
+24,65,88,systolic blood pressure,measurement,3004249,LOINC
+24,112,122,heart rate,measurement,3027018,LOINC
+24,160,169,pneumonia,condition,255848,SNOMED
+24,206,237,gastroesophageal reflux disease,condition,192671,SNOMED
+25,16,35,atrial fibrillation,condition,4329041,SNOMED
+25,57,76,shortness of breath,condition,4145356,SNOMED
+25,101,111,lisinopril,drug,1308216,RxNorm
+26,24,38,echocardiogram,procedure,4337027,SNOMED
+26,56,75,atrial fibrillation,condition,4329041,SNOMED
+26,93,103,chest pain,condition,4030518,SNOMED
+27,24,32,headache,condition,4344158,SNOMED
+27,49,55,sodium,measurement,3019550,LOINC
+27,86,96,lisinopril,drug,1308216,RxNorm
+28,11,22,colonoscopy,procedure,4180938,SNOMED
+28,57,65,warfarin,drug,1734104,RxNorm
+28,95,104,pneumonia,condition,255848,SNOMED
+28,136,146,furosemide,drug,1326303,RxNorm
+29,16,26,hemoglobin,measurement,3000963,LOINC
+29,52,60,warfarin,drug,1734104,RxNorm
+29,86,98,atorvastatin,drug,1551860,RxNorm
+30,16,28,atorvastatin,drug,1551860,RxNorm
+30,54,63,metformin,drug,1503297,RxNorm
+30,81,91,metoprolol,drug,40213227,RxNorm
+30,116,122,sodium,measurement,3019550,LOINC
+30,145,168,systolic blood pressure,measurement,3004249,LOINC
+31,22,41,atrial fibrillation,condition,4329041,SNOMED
+31,75,84,pneumonia,condition,255848,SNOMED
+31,122,132,furosemide,drug,1326303,RxNorm
+32,24,30,sepsis,condition,132797,SNOMED
+32,54,64,metoprolol,drug,40213227,RxNorm
+32,102,121,atrial fibrillation,condition,4329041,SNOMED
+33,16,24,headache,condition,4344158,SNOMED
+33,50,62,appendectomy,procedure,4133138,SNOMED
+33,80,90,furosemide,drug,1326303,RxNorm
+34,23,35,atorvastatin,drug,1551860,RxNorm
+34,53,61,warfarin,drug,1734104,RxNorm
+34,74,83,pneumonia,condition,255848,SNOMED
+35,22,32,chest pain,condition,4030518,SNOMED
+35,66,73,aspirin,drug,1112807,RxNorm
+35,114,120,sepsis,condition,132797,SNOMED
+35,137,147,hemoglobin,measurement,3000963,LOINC
+36,16,26,heart rate,measurement,3027018,LOINC
+36,44,52,warfarin,drug,1734104,RxNorm
+36,74,98,type 2 diabetes mellitus,condition,201826,SNOMED
+36,123,132,pneumonia,condition,255848,SNOMED
+36,163,194,gastroesophageal reflux disease,condition,192671,SNOMED
+37,15,25,lisinopril,drug,1308216,RxNorm
+37,51,59,headache,condition,4344158,SNOMED
+37,90,104,echocardiogram,procedure,4337027,SNOMED
+37,121,129,warfarin,drug,1734104,RxNorm
+37,168,179,amoxicillin,drug,19078461,RxNorm
+38,16,35,shortness of breath,condition,4145356,SNOMED
+38,60,80,coronary angiography,procedure,4279553,SNOMED
+38,106,117,colonoscopy,procedure,4180938,SNOMED
+39,23,42,atrial fibrillation,condition,4329041,SNOMED
+39,64,78,echocardiogram,procedure,4337027,SNOMED
+39,108,128,coronary angiography,procedure,4279553,SNOMED
+39,153,161,headache,condition,4344158,SNOMED
+39,197,216,shortness of breath,condition,4145356,SNOMED
+40,16,25,pneumonia,condition,255848,SNOMED
+40,38,49,colonoscopy,procedure,4180938,SNOMED
+40,90,100,heart rate,measurement,3027018,LOINC
+40,113,123,lisinopril,drug,1308216,RxNorm
+41,24,36,appendectomy,procedure,4133138,SNOMED
+41,54,85,gastroesophageal reflux disease,condition,192671,SNOMED
+41,109,119,metoprolol,drug,40213227,RxNorm
+41,162,172,lisinopril,drug,1308216,RxNorm
+41,202,221,blood urea nitrogen,measurement,3013682,LOINC
+42,15,34,shortness of breath,condition,4145356,SNOMED
+42,60,70,furosemide,drug,1326303,RxNorm
+42,99,108,pneumonia,condition,255848,SNOMED
+43,11,30,shortness of breath,condition,4145356,SNOMED
+43,67,86,atrial fibrillation,condition,4329041,SNOMED
+43,124,133,metformin,drug,1503297,RxNorm
+43,159,190,gastroesophageal reflux disease,condition,192671,SNOMED
+44,15,25,hemoglobin,measurement,3000963,LOINC
+44,51,63,appendectomy,procedure,4133138,SNOMED
+44,105,116,amoxicillin,drug,19078461,RxNorm
+44,129,139,chest pain,condition,4030518,SNOMED
+44,165,176,colonoscopy,procedure,4180938,SNOMED
+45,11,32,myocardial infarction,condition,4329847,SNOMED
+45,58,81,systolic blood pressure,measurement,3004249,LOINC
+45,110,120,furosemide,drug,1326303,RxNorm
+46,11,20,pneumonia,condition,255848,SNOMED
+46,53,63,heart rate,measurement,3027018,LOINC
+46,100,110,lisinopril,drug,1308216,RxNorm
+46,144,155,colonoscopy,procedure,4180938,SNOMED
+46,189,201,appendectomy,procedure,4133138,SNOMED
+47,11,23,appendectomy,procedure,4133138,SNOMED
+47,57,69,atorvastatin,drug,1551860,RxNorm
+47,87,97,creatinine,measurement,3013721,LOINC
+48,11,30,blood urea nitrogen,measurement,3013682,LOINC
+48,67,91,type 2 diabetes mellitus,condition,201826,SNOMED
+48,129,141,appendectomy,procedure,4133138,SNOMED
+48,179,185,sepsis,condition,132797,SNOMED
+49,15,25,chest pain,condition,4030518,SNOMED
+49,56,77,myocardial infarction,condition,4329847,SNOMED
+49,100,119,shortness of breath,condition,4145356,SNOMED
+49,141,151,heart rate,measurement,3027018,LOINC
+49,176,200,type 2 diabetes mellitus,condition,201826,SNOMED
+50,11,23,atorvastatin,drug,1551860,RxNorm
+50,62,86,type 2 diabetes mellitus,condition,201826,SNOMED
+50,104,112,headache,condition,4344158,SNOMED
+51,21,30,pneumonia,condition,255848,SNOMED
+51,47,58,colonoscopy,procedure,4180938,SNOMED
+51,96,115,atrial fibrillation,condition,4329041,SNOMED
+51,137,158,myocardial infarction,condition,4329847,SNOMED
+52,11,35,type 2 diabetes mellitus,condition,201826,SNOMED
+52,73,92,atrial fibrillation,condition,4329041,SNOMED
+52,110,116,sodium,measurement,3019550,LOINC
+52,129,151,essential hypertension,condition,320128,SNOMED
+52,187,197,hemoglobin,measurement,3000963,LOINC
+53,16,26,hemoglobin,measurement,3000963,LOINC
+53,39,50,colonoscopy,procedure,4180938,SNOMED
+53,79,85,sodium,measurement,3019550,LOINC
+53,124,147,systolic blood pressure,measurement,3004249,LOINC
+54,16,22,sodium,measurement,3019550,LOINC
+54,46,54,headache,condition,4344158,SNOMED
+54,98,106,warfarin,drug,1734104,RxNorm
+54,119,138,atrial fibrillation,condition,4329041,SNOMED
+55,16,35,atrial fibrillation,condition,4329041,SNOMED
+55,60,70,chest pain,condition,4030518,SNOMED
+55,93,104,colonoscopy,procedure,4180938,SNOMED
+56,21,27,sodium,measurement,3019550,LOINC
+56,44,63,shortness of breath,condition,4145356,SNOMED
+56,101,120,blood urea nitrogen,measurement,3013682,LOINC
+56,137,143,sepsis,condition,132797,SNOMED
+57,20,30,chest pain,condition,4030518,SNOMED
+57,51,72,myocardial infarction,condition,4329847,SNOMED
+57,106,112,sepsis,condition,132797,SNOMED
+57,138,160,essential hypertension,condition,320128,SNOMED
+58,23,35,atorvastatin,drug,1551860,RxNorm
+58,57,66,metformin,drug,1503297,RxNorm
+58,91,114,systolic blood pressure,measurement,3004249,LOINC
+58,153,163,hemoglobin,measurement,3000963,LOINC
+58,188,198,lisinopril,drug,1308216,RxNorm
+59,16,25,pneumonia,condition,255848,SNOMED
+59,42,48,sepsis,condition,132797,SNOMED
+59,78,86,headache,condition,4344158,SNOMED
+59,117,127,heart rate,measurement,3027018,LOINC
+59,150,162,atorvastatin,drug,1551860,RxNorm
+60,21,40,shortness of breath,condition,4145356,SNOMED
+60,66,77,colonoscopy,procedure,4180938,SNOMED
+60,90,100,lisinopril,drug,1308216,RxNorm
+60,133,153,coronary angiography,procedure,4279553,SNOMED
+61,11,22,colonoscopy,procedure,4180938,SNOMED
+61,55,67,atorvastatin,drug,1551860,RxNorm
+61,93,103,lisinopril,drug,1308216,RxNorm
+61,134,141,aspirin,drug,1112807,RxNorm
+62,20,31,colonoscopy,procedure,4180938,SNOMED
+62,61,68,aspirin,drug,1112807,RxNorm
+62,89,112,systolic blood pressure,measurement,3004249,LOINC
+62,153,175,essential hypertension,condition,320128,SNOMED
+63,20,30,creatinine,measurement,3013721,LOINC
+63,60,70,chest pain,condition,4030518,SNOMED
+63,101,132,gastroesophageal reflux disease,condition,192671,SNOMED
+63,156,165,pneumonia,condition,255848,SNOMED
+63,210,222,atorvastatin,drug,1551860,RxNorm
+64,11,22,colonoscopy,procedure,4180938,SNOMED
+64,61,70,pneumonia,condition,255848,SNOMED
+64,83,94,amoxicillin,drug,19078461,RxNorm
+64,127,135,warfarin,drug,1734104,RxNorm
+65,16,28,appendectomy,procedure,4133138,SNOMED
+65,41,61,coronary angiography,procedure,4279553,SNOMED
+65,95,105,lisinopril,drug,1308216,RxNorm
+65,123,142,shortness of breath,condition,4145356,SNOMED
+65,155,165,creatinine,measurement,3013721,LOINC
+66,20,28,headache,condition,4344158,SNOMED
+66,62,81,atrial fibrillation,condition,4329041,SNOMED
+66,105,113,warfarin,drug,1734104,RxNorm
+67,23,35,appendectomy,procedure,4133138,SNOMED
+67,59,73,echocardiogram,procedure,4337027,SNOMED
+67,119,128,pneumonia,condition,255848,SNOMED
+67,146,156,heart rate,measurement,3027018,LOINC
+68,24,36,appendectomy,procedure,4133138,SNOMED
+68,61,71,heart rate,measurement,3027018,LOINC
+68,89,99,chest pain,condition,4030518,SNOMED
+69,22,32,hemoglobin,measurement,3000963,LOINC
+69,71,81,heart rate,measurement,3027018,LOINC
+69,98,109,amoxicillin,drug,19078461,RxNorm
+70,11,17,sodium,measurement,3019550,LOINC
+70,54,75,myocardial infarction,condition,4329847,SNOMED
+70,113,123,metoprolol,drug,40213227,RxNorm
+71,15,35,coronary angiography,procedure,4279553,SNOMED
+71,73,83,lisinopril,drug,1308216,RxNorm
+71,100,119,blood urea nitrogen,measurement,3013682,LOINC
+71,156,166,metoprolol,drug,40213227,RxNorm
+71,200,210,creatinine,measurement,3013721,LOINC
+72,16,22,sodium,measurement,3019550,LOINC
+72,35,43,warfarin,drug,1734104,RxNorm
+72,76,86,metoprolol,drug,40213227,RxNorm
+72,123,129,sepsis,condition,132797,SNOMED
+72,168,187,blood urea nitrogen,measurement,3013682,LOINC
+73,16,26,metoprolol,drug,40213227,RxNorm
+73,39,58,shortness of breath,condition,4145356,SNOMED
+73,97,107,heart rate,measurement,3027018,LOINC
+73,130,161,gastroesophageal reflux disease,condition,192671,SNOMED
+74,11,30,shortness of breath,condition,4145356,SNOMED
+74,61,85,type 2 diabetes mellitus,condition,201826,SNOMED
+74,111,130,atrial fibrillation,condition,4329041,SNOMED
+74,155,162,aspirin,drug,1112807,RxNorm
+74,187,197,heart rate,measurement,3027018,LOINC
+75,16,26,furosemide,drug,1326303,RxNorm
+75,51,61,metoprolol,drug,40213227,RxNorm
+75,86,98,atorvastatin,drug,1551860,RxNorm
+75,120,128,headache,condition,4344158,SNOMED
+76,22,32,chest pain,condition,4030518,SNOMED
+76,71,77,sodium,measurement,3019550,LOINC
+76,100,119,blood urea nitrogen,measurement,3013682,LOINC
+76,132,146,echocardiogram,procedure,4337027,SNOMED
+76,187,194,aspirin,drug,1112807,RxNorm
+77,16,26,furosemide,drug,1326303,RxNorm
+77,50,73,systolic blood pressure,measurement,3004249,LOINC
+77,112,122,hemoglobin,measurement,3000963,LOINC
+77,135,155,coronary angiography,procedure,4279553,SNOMED
+78,23,31,warfarin,drug,1734104,RxNorm
+78,44,54,chest pain,condition,4030518,SNOMED
+78,91,98,aspirin,drug,1112807,RxNorm
+78,132,142,lisinopril,drug,1308216,RxNorm
+79,16,26,furosemide,drug,1326303,RxNorm
+79,52,62,chest pain,condition,4030518,SNOMED
+79,87,94,aspirin,drug,1112807,RxNorm
+79,107,121,echocardiogram,procedure,4337027,SNOMED
+79,158,169,colonoscopy,procedure,4180938,SNOMED
+80,21,29,headache,condition,4344158,SNOMED
+80,47,53,sepsis,condition,132797,SNOMED
+80,77,84,aspirin,drug,1112807,RxNorm
+81,23,33,lisinopril,drug,1308216,RxNorm
+81,46,65,blood urea nitrogen,measurement,3013682,LOINC
+81,107,114,aspirin,drug,1112807,RxNorm
+81,138,144,sepsis,condition,132797,SNOMED
+82,21,44,systolic blood pressure,measurement,3004249,LOINC
+82,62,72,furosemide,drug,1326303,RxNorm
+82,98,106,headache,condition,4344158,SNOMED
+83,16,24,headache,condition,4344158,SNOMED
+83,46,65,blood urea nitrogen,measurement,3013682,LOINC
+83,86,96,chest pain,condition,4030518,SNOMED
+83,127,146,atrial fibrillation,condition,4329041,SNOMED
+83,159,168,pneumonia,condition,255848,SNOMED
+84,22,33,colonoscopy,procedure,4180938,SNOMED
+84,67,88,myocardial infarction,condition,4329847,SNOMED
+84,127,141,echocardiogram,procedure,4337027,SNOMED
+84,154,163,pneumonia,condition,255848,SNOMED
+85,11,31,coronary angiography,procedure,4279553,SNOMED
+85,57,80,systolic blood pressure,measurement,3004249,LOINC
+85,122,132,heart rate,measurement,3027018,LOINC
+85,154,175,myocardial infarction,condition,4329847,SNOMED
+85,201,220,blood urea nitrogen,measurement,3013682,LOINC
+86,16,30,echocardiogram,procedure,4337027,SNOMED
+86,56,67,colonoscopy,procedure,4180938,SNOMED
+86,89,96,aspirin,drug,1112807,RxNorm
+86,122,132,heart rate,measurement,3027018,LOINC
+87,20,30,heart rate,measurement,3027018,LOINC
+87,64,83,blood urea nitrogen,measurement,3013682,LOINC
+87,105,136,gastroesophageal reflux disease,condition,192671,SNOMED
+88,21,30,metformin,drug,1503297,RxNorm
+88,56,66,furosemide,drug,1326303,RxNorm
+88,83,95,atorvastatin,drug,1551860,RxNorm
+89,22,32,lisinopril,drug,1308216,RxNorm
+89,79,89,chest pain,condition,4030518,SNOMED
+89,114,120,sodium,measurement,3019550,LOINC
+89,143,155,atorvastatin,drug,1551860,RxNorm
+89,179,189,creatinine,measurement,3013721,LOINC
+90,11,35,type 2 diabetes mellitus,condition,201826,SNOMED
+90,73,85,atorvastatin,drug,1551860,RxNorm
+90,110,132,essential hypertension,condition,320128,SNOMED
+90,169,192,systolic blood pressure,measurement,3004249,LOINC
+90,237,248,amoxicillin,drug,19078461,RxNorm
+91,21,31,creatinine,measurement,3013721,LOINC
+91,49,72,systolic blood pressure,measurement,3004249,LOINC
+91,98,112,echocardiogram,procedure,4337027,SNOMED
+91,125,131,sepsis,condition,132797,SNOMED
+92,20,39,atrial fibrillation,condition,4329041,SNOMED
+92,72,91,blood urea nitrogen,measurement,3013682,LOINC
+92,114,124,metoprolol,drug,40213227,RxNorm
+92,142,156,echocardiogram,procedure,4337027,SNOMED
+93,16,22,sodium,measurement,3019550,LOINC
+93,45,55,lisinopril,drug,1308216,RxNorm
+93,68,90,essential hypertension,condition,320128,SNOMED
+93,129,137,warfarin,drug,1734104,RxNorm
+94,16,36,coronary angiography,procedure,4279553,SNOMED
+94,53,63,heart rate,measurement,3027018,LOINC
+94,94,100,sepsis,condition,132797,SNOMED
+94,126,136,furosemide,drug,1326303,RxNorm
+95,15,38,systolic blood pressure,measurement,3004249,LOINC
+95,69,81,atorvastatin,drug,1551860,RxNorm
+95,105,113,warfarin,drug,1734104,RxNorm
+96,24,34,heart rate,measurement,3027018,LOINC
+96,47,55,warfarin,drug,1734104,RxNorm
+96,89,99,metoprolol,drug,40213227,RxNorm
+96,124,134,hemoglobin,measurement,3000963,LOINC
+96,152,162,chest pain,condition,4030518,SNOMED
+97,15,26,colonoscopy,procedure,4180938,SNOMED
+97,56,70,echocardiogram,procedure,4337027,SNOMED
+97,106,115,metformin,drug,1503297,RxNorm
+97,140,148,warfarin,drug,1734104,RxNorm
+98,11,21,furosemide,drug,1326303,RxNorm
+98,50,60,lisinopril,drug,1308216,RxNorm
+98,89,98,metformin,drug,1503297,RxNorm
+98,132,142,heart rate,measurement,3027018,LOINC
+98,168,178,metoprolol,drug,40213227,RxNorm
+99,11,20,pneumonia,condition,255848,SNOMED
+99,51,61,lisinopril,drug,1308216,RxNorm
+99,79,100,myocardial infarction,condition,4329847,SNOMED
+99,124,147,systolic blood pressure,measurement,3004249,LOINC
+99,181,191,furosemide,drug,1326303,RxNorm
+100,24,38,echocardiogram,procedure,4337027,SNOMED
+100,56,75,blood urea nitrogen,measurement,3013682,LOINC
+100,88,99,amoxicillin,drug,19078461,RxNorm
+100,133,153,coronary angiography,procedure,4279553,SNOMED
+100,176,207,gastroesophageal reflux disease,condition,192671,SNOMED
