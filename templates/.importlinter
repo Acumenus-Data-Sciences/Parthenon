@@ -1,0 +1,29 @@
+; Phase 3 Plan 1 (T-021A): two-wheel split contract.
+;
+; Static enforcement that the AGPLv3 community wheel (parthenon-templates)
+; never imports the proprietary commercial wheel (parthenon-templates-commercial).
+; Pairs with the ``community-wheel-isolation`` CI job that builds the community
+; wheel into a fresh venv with NO templates/commercial/ on PYTHONPATH and
+; smoke-tests the registry/manifest loader.
+;
+; Run locally:
+;   uv run lint-imports --config .importlinter
+
+[importlinter]
+root_packages =
+    runtime
+
+[importlinter:contract:no-commercial-imports]
+name = Community runtime never imports commercial-tier subpackages
+type = forbidden
+source_modules =
+    runtime
+forbidden_modules =
+    runtime.commercial
+include_external_packages = False
+ignore_imports =
+    ; Permit the commercial wheel itself to import community modules — the
+    ; one-way arrow is fine (commercial -> community); only the reverse
+    ; direction is forbidden. This pragma is unused today (commercial source
+    ; lives at templates/commercial/, not under runtime/), but documenting
+    ; the intent here keeps Plans 2/3/4A/4B/4C/6 from re-litigating.
