@@ -18,3 +18,15 @@ export function normalizeChoropleth(
         : (row.geometry as GeoJSON.Geometry | null) ?? null,
   })) as LayerChoroplethItem[];
 }
+
+export function normalizeOutcomeMetric(metric: string): "cases" | "hospitalizations" | "deaths" {
+  if (metric === "hospitalization" || metric === "hospitalizations") {
+    return "hospitalizations";
+  }
+
+  if (metric === "deaths") {
+    return "deaths";
+  }
+
+  return "cases";
+}

@@ -85,6 +85,11 @@ function AnnouncementCard({
                 ? t("announcements.removeBookmark")
                 : t("announcements.bookmark")
             }
+            aria-label={
+              announcement.is_bookmarked
+                ? t("announcements.removeBookmark")
+                : t("announcements.bookmark")
+            }
             className="btn btn-ghost btn-icon btn-sm"
           >
             <Bookmark
@@ -101,6 +106,7 @@ function AnnouncementCard({
             <button
               onClick={() => onDelete(announcement.id)}
               title={t("announcements.delete")}
+              aria-label={t("announcements.delete")}
               className="btn btn-ghost btn-icon btn-sm"
             >
               <Trash2 size={13} />

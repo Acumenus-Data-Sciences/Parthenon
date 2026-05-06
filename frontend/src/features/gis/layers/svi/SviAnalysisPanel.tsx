@@ -11,12 +11,14 @@ import {
 import { fetchSviQuartileAnalysis } from "./api";
 import type { LayerAnalysisProps } from "../types";
 import { useTranslation } from "react-i18next";
+import { normalizeOutcomeMetric } from "../utils";
 
 export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   const { t } = useTranslation("app");
+  const outcomeMetric = normalizeOutcomeMetric(metric);
   const { data, isLoading } = useQuery({
-    queryKey: ["gis", "svi", "quartiles", conceptId, metric],
-    queryFn: () => fetchSviQuartileAnalysis(conceptId, metric),
+    queryKey: ["gis", "svi", "quartiles", conceptId, outcomeMetric],
+    queryFn: () => fetchSviQuartileAnalysis(conceptId, outcomeMetric),
     staleTime: 60_000,
   });
 

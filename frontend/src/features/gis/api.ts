@@ -2,6 +2,12 @@ import apiClient from "@/lib/api-client";
 import type {
   AdminLevel,
   BoundaryCollection,
+  CohortGeographyAggregate,
+  CohortGeographyCoverage,
+  CohortGeographyLevel,
+  CohortGeographyListItem,
+  CohortGeographyMetric,
+  CohortGeographyMode,
   CdmChoroplethParams,
   ChoroplethDataPoint,
   ChoroplethParams,
@@ -11,6 +17,7 @@ import type {
   CountyChoroplethItem,
   CountyDetailData,
   DiseaseSummary,
+  GisAnalysisLayerMetadata,
   GisDatasetJob,
   GisStats,
   RegionDetail,
@@ -34,6 +41,51 @@ export async function fetchBoundaryDetail(id: number): Promise<RegionDetail> {
 
 export async function fetchGisStats(): Promise<GisStats> {
   const { data } = await apiClient.get("/gis/stats");
+  return data.data;
+}
+
+export async function fetchGisLayerMetadata(): Promise<GisAnalysisLayerMetadata[]> {
+  const { data } = await apiClient.get("/gis/layers");
+  return data.data;
+}
+
+export async function fetchCohortGeographyCohorts(params?: {
+  source_id?: number;
+  search?: string;
+  limit?: number;
+}): Promise<CohortGeographyListItem[]> {
+  const { data } = await apiClient.get("/gis/cohort-geography/cohorts", { params });
+  return data.data;
+}
+
+export async function fetchCohortGeographyConditions(params?: {
+  source_id?: number;
+  search?: string;
+  limit?: number;
+}): Promise<CohortGeographyListItem[]> {
+  const { data } = await apiClient.get("/gis/cohort-geography/conditions", { params });
+  return data.data;
+}
+
+export async function fetchCohortGeographyCoverage(params?: {
+  source_id?: number;
+  state_fips?: string;
+}): Promise<CohortGeographyCoverage> {
+  const { data } = await apiClient.get("/gis/cohort-geography/coverage", { params });
+  return data.data;
+}
+
+export async function fetchCohortGeographyAggregate(params: {
+  source_id?: number;
+  mode: CohortGeographyMode;
+  cohort_definition_id?: number;
+  concept_id?: number;
+  level?: CohortGeographyLevel;
+  metric?: CohortGeographyMetric;
+  min_cell_count?: number;
+  state_fips?: string;
+}): Promise<CohortGeographyAggregate> {
+  const { data } = await apiClient.post("/gis/cohort-geography/aggregate", params);
   return data.data;
 }
 

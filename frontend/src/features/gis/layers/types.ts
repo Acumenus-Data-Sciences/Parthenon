@@ -1,10 +1,12 @@
 import type { LucideIcon } from "lucide-react";
+import type { CohortGeographySelection } from "../types";
 
 /** Data params passed to every layer's data hook. */
 export interface LayerDataParams {
   conceptId: number | null;
   selectedFips: string | null;
   metric: string;
+  cohortGeography?: CohortGeographySelection | null;
   enabled?: boolean;
 }
 
@@ -13,6 +15,7 @@ export interface LayerDataResult {
   choroplethData: LayerChoroplethItem[] | undefined;
   analysisData: unknown;
   detailData: unknown;
+  mapData?: unknown;
   isLoading: boolean;
 }
 
@@ -33,6 +36,7 @@ export interface LayerChoroplethItem {
 /** Props passed to a layer's map overlay component. */
 export interface LayerMapProps {
   data: LayerChoroplethItem[];
+  mapData?: unknown;
   selectedFips: string | null;
   onRegionClick: (fips: string, name: string) => void;
   onRegionHover: (fips: string | null, name: string | null) => void;
@@ -43,12 +47,14 @@ export interface LayerMapProps {
 export interface LayerAnalysisProps {
   conceptId: number;
   metric: string;
+  cohortGeography?: CohortGeographySelection | null;
 }
 
 /** Props passed to a layer's detail panel component. */
 export interface LayerDetailProps {
   fips: string;
   conceptId: number;
+  cohortGeography?: CohortGeographySelection | null;
 }
 
 /** Legend item for composite legend. */
@@ -76,6 +82,8 @@ export interface GisLayer {
   description: string;
   color: string;
   icon: LucideIcon;
+  requiresConcept?: boolean;
+  requiresCohortGeography?: boolean;
   mapOverlay: React.FC<LayerMapProps>;
   legendItems: LegendItem[];
   getTooltipData: (feature: LayerChoroplethItem) => TooltipEntry[];

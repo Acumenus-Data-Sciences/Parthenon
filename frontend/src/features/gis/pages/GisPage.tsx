@@ -20,7 +20,7 @@ import { useBoundaries, useBoundaryDetail, useCountries, useGisStats } from "../
 import { HelpButton } from "@/features/help";
 import { useTranslation } from "react-i18next";
 import { getAnalysisLayerCountLabel } from "../lib/i18n";
-import type { AdminLevel, BoundaryFeature } from "../types";
+import type { AdminLevel, BoundaryFeature, CdmMetricType, CohortGeographySelection } from "../types";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const ADMIN_LEVEL_ORDER: AdminLevel[] = ["ADM0", "ADM1", "ADM2", "ADM3"];
@@ -34,13 +34,29 @@ function getNextLevel(level: AdminLevel): AdminLevel | null {
 export default function GisPage() {
   const { t } = useTranslation("app");
   const { viewport, onViewportChange, resetViewport } = useMapViewport();
-  const { activeLayers, selectedFips, setSelectedRegion } = useLayerStore();
+  const { activeLayers, selectedFips, setSelectedRegion, setLayerActive } = useLayerStore();
   const layers = getLayers();
 
   // Disease selection
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
   const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
-  const [cdmMetric] = useState("cases");
+  const [cdmMetric, setCdmMetric] = useState<CdmMetricType>("cases");
+  const [cohortGeography, setCohortGeography] = useState<CohortGeographySelection>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cohortId = params.get("cohort");
+    const conceptId = params.get("concept");
+    const level = params.get("level") === "tract" ? "tract" : "county";
+    const metric = params.get("metric") === "prevalence_per_1000" ? "prevalence_per_1000" : "members";
+
+    return {
+      source_id: Number(params.get("source") ?? 47),
+      mode: conceptId ? "condition" : "generated",
+      cohort_definition_id: cohortId ? Number(cohortId) : undefined,
+      concept_id: conceptId ? Number(conceptId) : undefined,
+      level,
+      metric,
+    };
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const [mapMode, setMapMode] = useState<MapMode>("analysis");
   const [boundaryLevel, setBoundaryLevel] = useState<AdminLevel>("ADM0");
@@ -60,6 +76,12 @@ export default function GisPage() {
     };
     return () => { window.onerror = origError; };
   }, []);
+
+  useEffect(() => {
+    if (cohortGeography.cohort_definition_id || cohortGeography.concept_id) {
+      setLayerActive("cohort-geography", true);
+    }
+  }, [cohortGeography.cohort_definition_id, cohortGeography.concept_id, setLayerActive]);
 
   const handleDiseaseSelect = useCallback((conceptId: number, name: string) => {
     setSelectedConceptId(conceptId);
@@ -93,6 +115,8 @@ export default function GisPage() {
   const analysisDeckLayers = useActiveMapLayers({
     conceptId: selectedConceptId,
     selectedFips,
+    metric: cdmMetric,
+    cohortGeography,
     enabled: mapMode === "analysis",
     onRegionClick: handleRegionClick,
     onRegionHover: handleRegionHover,
@@ -275,7 +299,11 @@ export default function GisPage() {
         ) : (
           <LayerPanel
             selectedConceptId={selectedConceptId}
+            metric={cdmMetric}
+            cohortGeography={cohortGeography}
             onDiseaseSelect={handleDiseaseSelect}
+            onMetricChange={setCdmMetric}
+            onCohortGeographyChange={setCohortGeography}
           />
         )}
 
@@ -300,16 +328,21 @@ export default function GisPage() {
           </div>
 
           {/* Bottom: Analysis drawer */}
-          {mapMode === "analysis" && selectedConceptId && hasActiveLayers && (
-            <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
+          {mapMode === "analysis" && hasActiveLayers && (selectedConceptId || activeLayers.has("cohort-geography")) && (
+            <AnalysisDrawer
+              conceptId={selectedConceptId ?? 0}
+              metric={cdmMetric}
+              cohortGeography={cohortGeography}
+            />
           )}
         </div>
 
         {/* Right: Context panel */}
-        {mapMode === "analysis" && selectedConceptId && selectedDiseaseName && (
+        {mapMode === "analysis" && (selectedConceptId || activeLayers.has("cohort-geography")) && (
           <ContextPanel
-            conceptId={selectedConceptId}
-            diseaseName={selectedDiseaseName}
+            conceptId={selectedConceptId ?? 0}
+            diseaseName={selectedDiseaseName ?? cohortGeography.label ?? "Cohort geography"}
+            cohortGeography={cohortGeography}
           />
         )}
         {mapMode === "boundaries" && (

@@ -196,6 +196,7 @@ export function WikiChatPanel({
             onClick={onExpandChat}
             className="rounded-lg border border-border-default bg-surface-raised p-2 text-text-muted transition-colors hover:text-success"
             title={t("wiki.chat.expand")}
+            aria-label={t("wiki.chat.expand")}
           >
             <Maximize2 size={14} />
           </button>
@@ -205,6 +206,8 @@ export function WikiChatPanel({
           onClick={handleSubmit}
           disabled={loading || input.trim().length < 3}
           className="flex items-center justify-center rounded-lg bg-success px-3 py-2 text-surface-base transition-colors hover:bg-success disabled:opacity-50"
+          title={t("wiki.chat.ask")}
+          aria-label={t("wiki.chat.ask")}
         >
           <Send size={16} />
         </button>

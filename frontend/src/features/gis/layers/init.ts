@@ -6,6 +6,8 @@
  * registry.ts exports registerLayer → layer modules import it →
  * if registry.ts also imported layer modules, it would be circular.
  */
+import "./cohort-geography";
+import "./disease-burden";
 import "./svi";
 import "./rucc";
 import "./comorbidity";

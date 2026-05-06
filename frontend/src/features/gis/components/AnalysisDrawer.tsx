@@ -3,13 +3,15 @@ import { useTranslation } from "react-i18next";
 import { getLayers } from "../layers/registry";
 import { useLayerStore } from "../stores/layerStore";
 import { getAnalysisDrawerTitle } from "../lib/i18n";
+import type { CohortGeographySelection } from "../types";
 
 interface AnalysisDrawerProps {
   conceptId: number;
   metric: string;
+  cohortGeography?: CohortGeographySelection | null;
 }
 
-export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
+export function AnalysisDrawer({ conceptId, metric, cohortGeography }: AnalysisDrawerProps) {
   const { t } = useTranslation("app");
   const { activeLayers, drawerOpen, setDrawerOpen } = useLayerStore();
   const layers = getLayers();
@@ -58,7 +60,11 @@ export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
                 >
                   {layer.name}
                 </h4>
-                <Panel conceptId={conceptId} metric={metric} />
+                <Panel
+                  conceptId={conceptId}
+                  metric={metric}
+                  cohortGeography={cohortGeography}
+                />
               </div>
             );
           })}

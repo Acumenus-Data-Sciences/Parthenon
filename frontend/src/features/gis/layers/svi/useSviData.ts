@@ -5,9 +5,11 @@ import {
   fetchSviQuartileAnalysis,
   fetchSviTractDetail,
 } from "./api";
+import { normalizeOutcomeMetric } from "../utils";
 
 export function useSviData(params: LayerDataParams): LayerDataResult {
-  const { conceptId, selectedFips, enabled = true } = params;
+  const { conceptId, selectedFips, metric, enabled = true } = params;
+  const outcomeMetric = normalizeOutcomeMetric(metric);
 
   const choropleth = useQuery({
     queryKey: ["gis", "svi", "choropleth"],
@@ -17,8 +19,8 @@ export function useSviData(params: LayerDataParams): LayerDataResult {
   });
 
   const quartiles = useQuery({
-    queryKey: ["gis", "svi", "quartiles", conceptId],
-    queryFn: () => fetchSviQuartileAnalysis(conceptId!, "cases"),
+    queryKey: ["gis", "svi", "quartiles", conceptId, outcomeMetric],
+    queryFn: () => fetchSviQuartileAnalysis(conceptId!, outcomeMetric),
     enabled: enabled && conceptId !== null,
     staleTime: 60_000,
   });

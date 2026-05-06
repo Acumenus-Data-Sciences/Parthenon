@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { AlertTriangle, FileText, FileType } from "lucide-react";
 import type { WikiLintIssue, WikiPageSummary } from "../../types/wiki";
 
@@ -13,7 +14,10 @@ interface SourceEntry {
   hasIssues: boolean;
 }
 
-function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]): SourceEntry[] {
+function buildSourceList(
+  pages: WikiPageSummary[],
+  lintIssues: WikiLintIssue[],
+): SourceEntry[] {
   const issueSet = new Set(lintIssues.map((i) => i.page_slug));
 
   // Group by source_slug, or treat each page as its own source
@@ -26,12 +30,16 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
       existing.childPages.push(page);
       if (issueSet.has(page.slug)) existing.hasIssues = true;
       // Use the most recent updated_at
-      if (page.updated_at > existing.updatedAt) existing.updatedAt = page.updated_at;
+      if (page.updated_at > existing.updatedAt)
+        existing.updatedAt = page.updated_at;
       // Use the earliest ingested_at for the source group
       const pageIngested = page.ingested_at ?? page.updated_at;
-      if (pageIngested < existing.ingestedAt) existing.ingestedAt = pageIngested;
-      if (!existing.firstAuthor && page.first_author) existing.firstAuthor = page.first_author;
-      if (!existing.publicationYear && page.publication_year) existing.publicationYear = page.publication_year;
+      if (pageIngested < existing.ingestedAt)
+        existing.ingestedAt = pageIngested;
+      if (!existing.firstAuthor && page.first_author)
+        existing.firstAuthor = page.first_author;
+      if (!existing.publicationYear && page.publication_year)
+        existing.publicationYear = page.publication_year;
     } else {
       const displayTitle = page.title;
       sources.set(key, {
@@ -50,13 +58,15 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
 
   // Fix titles: prefer the source_summary title for grouped sources
   for (const entry of sources.values()) {
-    const summary = entry.childPages.find((p) => p.page_type === "source_summary");
+    const summary = entry.childPages.find(
+      (p) => p.page_type === "source_summary",
+    );
     if (summary) entry.title = summary.title;
   }
 
   // Sort by most recently ingested (newest first)
-  return Array.from(sources.values()).sort(
-    (a, b) => b.ingestedAt.localeCompare(a.ingestedAt),
+  return Array.from(sources.values()).sort((a, b) =>
+    b.ingestedAt.localeCompare(a.ingestedAt),
   );
 }
 
@@ -79,24 +89,32 @@ export function WikiPageTree({
   onSelect: (slug: string) => void;
   lintIssues: WikiLintIssue[];
 }) {
-  // Client-side keyword filtering for instant feedback
-  const filtered = pages.filter((p) => {
+  const sources = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      p.title.toLowerCase().includes(q) ||
-      p.keywords.some((kw) => kw.toLowerCase().includes(q))
-    );
-  });
 
-  const sources = buildSourceList(filtered, lintIssues);
+    // Client-side keyword filtering for instant feedback
+    const filtered = pages.filter((p) => {
+      if (!q) return true;
+      return (
+        p.title.toLowerCase().includes(q) ||
+        p.keywords.some((kw) => kw.toLowerCase().includes(q))
+      );
+    });
+
+    return buildSourceList(filtered, lintIssues);
+  }, [pages, searchQuery, lintIssues]);
 
   return (
     <div className="space-y-0.5 px-2 py-2">
       {sources.map((source) => {
-        const conceptPage = source.childPages.find((p) => p.page_type !== "source_summary");
-        const targetSlug = conceptPage?.slug ?? source.childPages[0]?.slug ?? source.slug;
-        const isSelected = source.childPages.some((p) => p.slug === selectedSlug);
+        const conceptPage = source.childPages.find(
+          (p) => p.page_type !== "source_summary",
+        );
+        const targetSlug =
+          conceptPage?.slug ?? source.childPages[0]?.slug ?? source.slug;
+        const isSelected = source.childPages.some(
+          (p) => p.slug === selectedSlug,
+        );
 
         return (
           <button
@@ -110,17 +128,25 @@ export function WikiPageTree({
             }`}
           >
             {/* File type icon */}
-            <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
-              source.sourceType === "pdf"
-                ? "bg-critical/10 text-critical"
-                : "bg-info/10 text-info"
-            }`}>
-              {source.sourceType === "pdf" ? <FileType size={14} /> : <FileText size={14} />}
+            <div
+              className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
+                source.sourceType === "pdf"
+                  ? "bg-critical/10 text-critical"
+                  : "bg-info/10 text-info"
+              }`}
+            >
+              {source.sourceType === "pdf" ? (
+                <FileType size={14} />
+              ) : (
+                <FileText size={14} />
+              )}
             </div>
 
             {/* Title + metadata */}
             <div className="min-w-0 flex-1">
-              <p className={`truncate text-sm font-medium ${isSelected ? "text-success" : "text-text-primary"}`}>
+              <p
+                className={`truncate text-sm font-medium ${isSelected ? "text-success" : "text-text-primary"}`}
+              >
                 {source.title}
               </p>
               <div className="mt-0.5 flex items-center gap-2">
@@ -157,7 +183,9 @@ export function WikiPageTree({
         <div className="px-3 py-12 text-center">
           <FileText size={24} className="mx-auto mb-2 text-surface-highlight" />
           <p className="text-xs text-text-ghost">
-            {searchQuery ? "No papers match this search." : "No papers ingested yet."}
+            {searchQuery
+              ? "No papers match this search."
+              : "No papers ingested yet."}
           </p>
         </div>
       )}

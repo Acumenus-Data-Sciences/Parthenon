@@ -117,6 +117,8 @@ export function WikiChatDrawer({
                 type="button"
                 onClick={onClose}
                 className="rounded-lg border border-border-default bg-surface-raised p-1.5 text-text-muted transition-colors hover:text-text-primary"
+                title={t("common:actions.close")}
+                aria-label={t("common:actions.close")}
               >
                 <X size={16} />
               </button>

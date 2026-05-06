@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { fetchRuccOutcomeComparison } from "./api";
 import type { LayerAnalysisProps } from "../types";
 import { getRuccCategoryLabel } from "../../lib/i18n";
+import { normalizeOutcomeMetric } from "../utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
   metro: "var(--info)",
@@ -13,9 +14,10 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function RuccAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   const { t } = useTranslation("app");
+  const outcomeMetric = normalizeOutcomeMetric(metric);
   const { data, isLoading } = useQuery({
-    queryKey: ["gis", "rucc", "outcomes", conceptId, metric],
-    queryFn: () => fetchRuccOutcomeComparison(conceptId, metric),
+    queryKey: ["gis", "rucc", "outcomes", conceptId, outcomeMetric],
+    queryFn: () => fetchRuccOutcomeComparison(conceptId, outcomeMetric),
     staleTime: 60_000,
   });
 
