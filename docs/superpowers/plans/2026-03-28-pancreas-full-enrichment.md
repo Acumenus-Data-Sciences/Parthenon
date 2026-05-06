@@ -57,7 +57,7 @@
 |-----------|-------|
 | URL | http://localhost:8042 |
 | Username | parthenon |
-| Password | GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih |
+| Password | <REDACTED_PASSWORD> |
 
 ### Data Paths
 | Dataset | Path |
@@ -231,7 +231,7 @@ import requests
 
 ORTHANC_URL = "http://localhost:8042"
 ORTHANC_USER = "parthenon"
-ORTHANC_PASS = "GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih"
+ORTHANC_PASS = "<REDACTED_PASSWORD>"
 SOURCE_ID = 58
 
 DB_HOST = "localhost"

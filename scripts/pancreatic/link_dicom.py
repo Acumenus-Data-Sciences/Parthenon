@@ -10,6 +10,7 @@ Source ID 58 (PANCREAS) is assumed. Idempotent: clears existing source-58 record
 
 from __future__ import annotations
 
+import os
 import sys
 from datetime import date, datetime
 from typing import Optional
@@ -23,13 +24,18 @@ from requests.auth import HTTPBasicAuth
 # Configuration
 # ---------------------------------------------------------------------------
 
-DB_HOST = "localhost"
-DB_NAME = "parthenon"
-DB_USER = "claude_dev"
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_NAME = os.environ.get("DB_NAME", "parthenon")
+DB_USER = os.environ.get("DB_USER", "claude_dev")
 
-ORTHANC_URL = "http://localhost:8042"
-ORTHANC_USER = "parthenon"
-ORTHANC_PASS = "GixsEIl0hpOAeOwKdmmlAMe04SQ0CKih"
+ORTHANC_URL = os.environ.get("ORTHANC_URL", "http://localhost:8042")
+ORTHANC_USER = os.environ.get("ORTHANC_USER", "parthenon")
+ORTHANC_PASS = os.environ.get("ORTHANC_PASSWORD")
+
+if not ORTHANC_PASS:
+    print("ERROR: ORTHANC_PASSWORD environment variable is not set.", file=sys.stderr)
+    sys.exit(1)
+
 ORTHANC_AUTH = HTTPBasicAuth(ORTHANC_USER, ORTHANC_PASS)
 
 SOURCE_ID = 58
