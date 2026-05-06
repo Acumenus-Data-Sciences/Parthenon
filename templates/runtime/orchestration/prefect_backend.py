@@ -142,6 +142,8 @@ class PrefectBackend(OrchestrationBackend):
                 secrets={},
                 artifact_dir=artifact_dir,
                 db_dsn=backend.db_dsn,
+                manifest_dir=flow_spec.manifest_dir,
+                run_parameters=dict(flow_spec.parameters),
             )
             cls = get_node_class(node.type_name)
             backend._append_log(backend_id, node.node_id, "INFO", f"start {node.type_name}")

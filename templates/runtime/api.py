@@ -158,7 +158,10 @@ def submit_run(
             ),
         )
     try:
-        flow, sanitized = Materializer().materialize(manifest, body.parameters)
+        manifest_dir = registry.get_manifest_dir(body.template_id)
+        flow, sanitized = Materializer().materialize(
+            manifest, body.parameters, manifest_dir=manifest_dir
+        )
     except ParameterValidationError as exc:
         raise HTTPException(status_code=422, detail=f"parameter validation failed: {exc}") from exc
     handle = backend.submit(flow)
