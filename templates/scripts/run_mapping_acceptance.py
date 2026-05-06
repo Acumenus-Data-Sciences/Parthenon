@@ -169,31 +169,61 @@ def _build_anthropic_caller(
 
     client = Anthropic(api_key=api_key)
 
+    # Tool-use schema. Anthropic enforces this server-side, eliminating the
+    # ~26% JSON parse-failure rate observed when relying on prose JSON.
+    rerank_tool = {
+        "name": "submit_rerank",
+        "description": (
+            "Submit the reranked top-5 candidates with an overall confidence. "
+            "Concept IDs MUST come from the input candidates list."
+        ),
+        "input_schema": {
+            "type": "object",
+            "required": ["ranked", "confidence"],
+            "additionalProperties": False,
+            "properties": {
+                "ranked": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "items": {
+                        "type": "object",
+                        "required": ["concept_id", "score"],
+                        "additionalProperties": False,
+                        "properties": {
+                            "concept_id": {"type": "integer"},
+                            "score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                            "rationale": {"type": "string"},
+                        },
+                    },
+                },
+                "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+            },
+        },
+    }
+
     def call(user_prompt: str, prompt_version: str) -> dict[str, Any] | None:
         try:
             resp = client.messages.create(
                 model=model,
                 max_tokens=8192,
                 system=_RERANK_SYSTEM_PROMPT,
+                tools=[rerank_tool],
+                tool_choice={"type": "tool", "name": "submit_rerank"},
                 messages=[{"role": "user", "content": user_prompt}],
             )
         except Exception:
             _LOGGER.exception("anthropic call failed")
             return None
 
-        text = "".join(
-            block.text for block in resp.content if getattr(block, "type", None) == "text"
-        )
-        try:
-            parsed = json.loads(_strip_json_fences(text))
-        except json.JSONDecodeError:
-            _LOGGER.warning(
-                "rerank response not parseable as JSON; first 200 chars: %r", text[:200]
-            )
-            return None
-        if not isinstance(parsed, dict):
-            return None
-        return parsed
+        # tool_choice forces a tool_use block; pluck out its input directly.
+        for block in resp.content:
+            if getattr(block, "type", None) == "tool_use" and block.name == "submit_rerank":
+                payload = block.input
+                if isinstance(payload, dict):
+                    return payload
+        _LOGGER.warning("anthropic response did not contain a submit_rerank tool_use block")
+        return None
 
     return call
 
