@@ -1,0 +1,22 @@
+ncdr_field,omop_table,omop_column,vocabulary_id,concept_lookup_rule,description
+PCIRecordID,fmt_ncdr_pci,record_id,,passthrough,Unique PCI procedure key
+PatientID,fmt_ncdr_pci,patient_id,,passthrough,De-identified patient identifier
+ProcedureDate,fmt_ncdr_pci,procedure_date,,passthrough,Date of cath/PCI (CCYYMMDD)
+PatientAge,fmt_ncdr_pci,patient_age,,passthrough,Age at procedure
+Gender,fmt_ncdr_pci,gender,,passthrough,M/F
+HospitalID,fmt_ncdr_pci,hospital_id,,passthrough,ACC NCDR-assigned site code
+OperatorNPI,fmt_ncdr_pci,operator_npi,,passthrough,Interventional cardiologist NPI
+PreOpDiagnosis,fmt_ncdr_pci,preop_diagnosis_icd10,ICD10CM,passthrough,Pre-procedure diagnosis (ACS / chronic CAD / etc.)
+HemodynamicEjectionFraction,fmt_ncdr_pci,ejection_fraction,LOINC,measurement_lookup,Pre-PCI EF (%)
+HemodynamicCardiacIndex,fmt_ncdr_pci,cardiac_index,LOINC,measurement_lookup,L/min/m2
+LesionCount,fmt_ncdr_pci,lesion_count,,passthrough,Number of lesions treated
+LesionSegments,fmt_ncdr_pci,lesion_segments,,delimited_list,SCAI lesion segment ids (semicolon-delimited)
+PrimaryProcedureCode,fmt_ncdr_pci,primary_procedure_code,CPT4,passthrough,CPT/HCPCS for the index PCI
+StentCount,fmt_ncdr_pci,stent_count,,passthrough,Total stents implanted
+StentUDIs,fmt_ncdr_pci,stent_udis,,delimited_list,FDA UDI codes (semicolon-delimited)
+StentTypes,fmt_ncdr_pci,stent_types,,delimited_list,DES/BMS per stent (semicolon-delimited)
+PostOpComplication_Bleeding,fmt_ncdr_pci,postop_bleeding,SNOMED,complication_lookup,Major bleeding (yes/no)
+PostOpComplication_AKI,fmt_ncdr_pci,postop_aki,SNOMED,complication_lookup,Contrast-induced AKI (yes/no)
+PostOpComplication_Stroke,fmt_ncdr_pci,postop_stroke,SNOMED,complication_lookup,Periprocedural stroke (yes/no)
+LengthOfStay,fmt_ncdr_pci,length_of_stay,,passthrough,Hospital LOS (days)
+Mortality_InHospital,fmt_ncdr_pci,mortality_in_hospital,,passthrough,In-hospital mortality (yes/no)
