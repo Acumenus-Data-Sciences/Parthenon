@@ -1,0 +1,52 @@
+[project]
+name = "parthenon-templates-commercial"
+version = "0.1.0"
+description = "Parthenon ingestion templates — commercial-tier nodes (X12 837/835, NCPDP, claims COST projection)."
+readme = "README.md"
+requires-python = ">=3.12"
+# License: proprietary. Distribution requires a Parthenon commercial license.
+# Do NOT change this to an OSI-approved identifier — the wheel intentionally
+# carries proprietary terms so customers cannot redistribute.
+license = { text = "Proprietary" }
+authors = [{ name = "Acumenus Data Sciences" }]
+
+dependencies = [
+    # The commercial wheel layers on top of the community wheel. Pin loosely
+    # so an installed parthenon-templates>=0.1.0 satisfies the dependency.
+    "parthenon-templates==0.1.0",
+    # Phase 3 Plan 1 (T-021A): X12 837/835 reader. pyx12 is BSD-3 — composes
+    # cleanly with both the AGPLv3 community wheel and this proprietary
+    # commercial wheel. Plan envisaged 2.4.5; PyPI no longer carries that
+    # release (jumps from 2.3.3 -> 3.1.0 -> 4.0.0). Pinned to the latest
+    # stable 4.0.0 (BSD-3, 2024). Revisit if upstream ships breaking changes.
+    "pyx12==4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.0",
+    "ruff==0.8.4",
+    "black==24.10.0",
+    "mypy==1.13.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# The commercial wheel ships ONLY ``runtime/commercial/``. The community
+# wheel at templates/pyproject.toml ships everything else under ``runtime/``.
+# We use ``only-include`` (instead of ``packages``) so hatchling preserves
+# the ``runtime/commercial/`` path inside the wheel rather than collapsing
+# it down to ``commercial/``. With ``packages = ["runtime/commercial"]``
+# hatchling treats the leaf as the package name and emits
+# ``commercial/__init__.py`` at the wheel root — wrong for a namespace
+# extension to ``runtime``.
+only-include = ["runtime/commercial"]
+sources = ["."]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]

@@ -1,0 +1,173 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: claims_to_omop
+  name: X12 837 (P/I/D) → OMOP CDM v5.4 + COST projection
+  version: "0.1.0"
+  category: ingestion
+  tier: commercial
+  cdm_versions: ["5.4"]
+  tags: ["claims", "x12", "837", "omop", "etl", "phase-3", "commercial"]
+  author: "Acumenus Data Sciences"
+  description: |
+    Reads X12 837 Professional / Institutional / Dental transactions, projects
+    them to OMOP CDM v5.4 visit_occurrence + procedure_occurrence +
+    condition_occurrence, and (the Parthenon commercial wedge — D2E does NOT
+    ship this) projects charged / allowed / paid amounts to OMOP cost.cost.
+    Plan 2 (X12 835) joins onto this output via claim_id for full
+    reconciliation. Currency is hard-coded to USD = 44818668 in v0.1; multi-
+    currency is a Phase 4 follow-up. See ADR 0016.
+spec:
+  parameters:
+    type: object
+    properties:
+      x12_root:
+        type: string
+        description: Directory of 837 transaction files to ingest.
+      source_schema:
+        type: string
+        default: claims_source
+        description: Schema holding the raw fmt_837_claim / fmt_837_line tables.
+      cdm_schema:
+        type: string
+        default: claims_cdm
+        description: Target OMOP CDM schema.
+      vocab_schema:
+        type: string
+        default: vocab
+        description: Shared OMOP Vocabulary schema (concept, concept_relationship, ...).
+      app_schema:
+        type: string
+        default: app
+        description: Parthenon application schema (run book-keeping, unmapped queue).
+      run_id:
+        type: string
+        default: "00000000-0000-0000-0000-000000000000"
+        description: UUID for this template run; threaded into unmapped_concepts_queue.
+    required: ["x12_root"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["ICD10CM", "CPT4", "HCPCS", "SNOMED", "RxNorm"]
+  nodes:
+    # 1. Bootstrap the source schema (claims_source.fmt_837_claim, fmt_837_line).
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_source_schema.sql
+
+    # 2. Load 837 transaction files into the source schema. The
+    #    x12_837_reader node wraps the X12_837_Reader runtime class and
+    #    upserts canonical rows into fmt_837_claim + fmt_837_line.
+    - node_id: load_837
+      type: x12_837_reader
+      depends_on: [bootstrap_source]
+      params:
+        x12_root: ${parameters.x12_root}
+        source_schema: ${parameters.source_schema}
+
+    # 3. Bootstrap the CDM target schema (visit / procedure / condition / cost
+    #    tables, plus payer_plan_period stub).
+    - node_id: bootstrap_cdm
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_bootstrap_cdm_schema.sql
+
+    # 4-7. Per-domain mappers + COST projection. Each joins fmt_837_*
+    #      against vocab.concept + concept_relationship 'Maps to' and
+    #      writes into ${parameters.cdm_schema}.<table>. The COST projector
+    #      runs LAST among the four because it depends on the
+    #      procedure_occurrence_id allocated by stage 5.
+    - node_id: map_visit_occurrence
+      type: sql
+      depends_on: [load_837, bootstrap_cdm]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02a_map_visit_occurrence.sql
+
+    - node_id: map_procedure_occurrence
+      type: sql
+      depends_on: [load_837, bootstrap_cdm, map_visit_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02b_map_procedure_occurrence.sql
+
+    - node_id: map_condition_occurrence
+      type: sql
+      depends_on: [load_837, bootstrap_cdm, map_visit_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02c_map_condition_occurrence.sql
+
+    - node_id: project_cost
+      type: sql
+      depends_on: [map_procedure_occurrence, map_visit_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02d_project_cost.sql
+
+    # 8. Summarize for the post-condition.
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_visit_occurrence
+        - map_procedure_occurrence
+        - map_condition_occurrence
+        - project_cost
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/03_summarize.sql
+        result_artifact: claims_to_omop_summary
+
+    # 9-12. Validation pack. Each validator queries the CDM, materializes
+    #       a result artifact, and the manifest's post_conditions check
+    #       row counts + sentinel values. Stages 9-11 are placeholders
+    #       for sentinel checks (cost_sentinels / orphan_check / dx_check)
+    #       that the engine fans out via the validate node.
+    - node_id: cost_sentinel_check
+      type: sql
+      depends_on: [project_cost]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/04a_cost_sentinel.sql
+        result_artifact: claims_to_omop_cost_sentinel
+
+    - node_id: orphan_procedure_check
+      type: sql
+      depends_on: [project_cost]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/04b_orphan_procedure_check.sql
+        result_artifact: claims_to_omop_orphan_procedure_check
+
+    - node_id: condition_recall_check
+      type: sql
+      depends_on: [map_condition_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/04c_condition_recall_check.sql
+        result_artifact: claims_to_omop_condition_recall_check
+
+    - node_id: validate
+      type: sql
+      depends_on:
+        - summarize
+        - cost_sentinel_check
+        - orphan_procedure_check
+        - condition_recall_check
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/05_validate.sql
+        result_artifact: claims_to_omop_validation
+
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: claims_to_omop_summary.json
+        min_rows: 1
+    - kind: artifact_present
+      params:
+        artifact: claims_to_omop_validation.json
+        min_rows: 1

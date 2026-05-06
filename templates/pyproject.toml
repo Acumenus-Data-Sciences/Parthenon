@@ -59,6 +59,11 @@ dev = [
     "mypy==1.13.0",
     "testcontainers[postgres]==4.9.0",
     "respx==0.21.1",
+    # Phase 3 Plan 1 (T-021A): two-wheel split contract enforcement.
+    # Forbids ``runtime.*`` from importing ``runtime.commercial.*`` at the
+    # static level so the community AGPLv3 wheel never grows a dependency on
+    # the proprietary commercial wheel by accident.
+    "import-linter==2.0",
 ]
 
 
@@ -73,6 +78,17 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["runtime"]
+# Phase 3 Plan 1 (T-021A): the proprietary commercial-tier subpackage lives
+# at templates/commercial/runtime/commercial/ and ships in the SEPARATE
+# parthenon-templates-commercial wheel. Even though no source for it lives
+# under templates/runtime/ today, defensively exclude any future stray
+# runtime/commercial path so the AGPLv3 community wheel CANNOT accidentally
+# embed proprietary code. The ``community-wheel-isolation`` CI job verifies
+# this stays true at install time.
+exclude = [
+    "runtime/commercial",
+    "runtime/commercial/**",
+]
 
 [tool.black]
 line-length = 100
@@ -86,6 +102,12 @@ markers = [
     "slow: tests that take >30s to run (skip in CI fast-path)",
     "integration: tests that require real services (Postgres, sidecar containers)",
     "ner_eval: NER backend evaluation harness (slow + costs LLM tokens; gated to schedule + workflow_dispatch)",
+    # Phase 3 Plan 1 (T-021A): canary tests for the community-wheel-isolation
+    # CI job. ``-m smoke`` runs against the freshly built community wheel in
+    # an isolated venv with NO templates/commercial/ on PYTHONPATH. The set
+    # MUST stay tight: registry/manifest loader plus a couple of pure-Python
+    # node imports — anything broader risks importing commercial-only deps.
+    "smoke: minimal canary set for the community-wheel-isolation CI job",
 ]
 
 [tool.coverage.run]

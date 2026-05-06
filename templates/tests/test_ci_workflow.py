@@ -32,7 +32,12 @@ def test_workflow_runs_lint_steps(workflow: dict[str, object]) -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     for needle in (
         "uv run ruff check",
-        "uv run mypy --strict runtime",
+        # Phase 3 Plan 1 (T-021A): the workflow now mypy-checks BOTH the
+        # community ``runtime`` package and the commercial-tier
+        # ``runtime.commercial`` namespace extension via
+        # ``-p runtime -p runtime.commercial``. The literal substring
+        # ``uv run mypy --strict`` covers both shapes.
+        "uv run mypy --strict",
         "uv run parthenon-templates validate-manifests",
         "uv run pytest",
     ):

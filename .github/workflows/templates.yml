@@ -78,17 +78,40 @@ jobs:
         working-directory: templates
         run: uv sync --all-extras
 
+      - name: Install commercial-tier wheel (editable)
+        working-directory: templates
+        # Phase 3 Plan 1 (T-021A): the commercial wheel lives at
+        # ``templates/commercial`` and is NOT a uv workspace member of the
+        # community wheel — installing it here keeps the dev/test path
+        # exercising both wheels together. The community-wheel-isolation
+        # job below verifies the AGPLv3 wheel still works without it.
+        run: uv pip install -e ./commercial
+
       - name: Ruff
         working-directory: templates
-        run: uv run ruff check .
+        run: uv run ruff check . commercial/runtime
 
       - name: Black --check
         working-directory: templates
-        run: uv run black --check --line-length 100 runtime tests
+        run: uv run black --check --line-length 100 runtime tests commercial/runtime
 
       - name: Mypy --strict
         working-directory: templates
-        run: uv run mypy --strict runtime
+        # Phase 3 Plan 1 (T-021A): the commercial wheel's source lives at
+        # ``commercial/runtime/commercial/`` and is wired into the
+        # ``runtime`` namespace via ``runtime/__init__.py`` extending its
+        # ``__path__``. mypy_path = ".:commercial" (mypy.ini) makes the
+        # type-checker find the commercial subpackage; we pass both packages
+        # explicitly so a stale source file outside an ``__init__.py``
+        # discovery still surfaces.
+        run: uv run mypy --strict -p runtime -p runtime.commercial
+
+      - name: import-linter contract
+        working-directory: templates
+        # Static enforcement that ``runtime.*`` never imports
+        # ``runtime.commercial.*``. Pairs with the
+        # ``community-wheel-isolation`` job below.
+        run: uv run lint-imports --config .importlinter
 
       - name: Validate manifests
         working-directory: templates
@@ -257,6 +280,103 @@ jobs:
         # and asserts 2/2/2/2/5/1/2 row counts plus 3 type-32856 OBSERVATION
         # rows + 2 consent_decisions with co2 recording 'deny'.
         run: uv run pytest tests/e2e/test_fhir_to_omop_prc.py -v -m integration
+
+  # Phase 3 Plan 1 (T-021A): community-wheel-isolation lane.
+  #
+  # Builds the AGPLv3 community wheel ONLY (no commercial source on PYTHONPATH),
+  # installs into a clean venv, and runs the smoke-marker subset to prove the
+  # community surface stays self-contained. This is the runtime canary that
+  # pairs with the static ``import-linter`` contract — together they prevent
+  # the community wheel from silently growing a dependency on the proprietary
+  # commercial wheel as Plans 2/3/4A/4B/4C/6 add more commercial-tier code.
+  community-wheel-isolation:
+    name: Community wheel isolation smoke (no commercial source)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.11"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build community wheel only (no commercial source)
+        working-directory: templates
+        # Build the parthenon-templates wheel from templates/pyproject.toml.
+        # The commercial wheel at templates/commercial/ is NOT built here; the
+        # ``exclude = ["runtime/commercial", ...]`` rule on the community wheel
+        # makes the wheel self-contained even if commercial source ever lands
+        # at templates/runtime/commercial/.
+        run: |
+          mkdir -p _isolation/dist
+          uv build --wheel --out-dir _isolation/dist .
+
+      - name: Create clean venv with NO commercial source on PYTHONPATH
+        working-directory: templates
+        run: |
+          python -m venv _isolation/venv
+          _isolation/venv/bin/pip install --quiet --upgrade pip
+          _isolation/venv/bin/pip install --quiet _isolation/dist/parthenon_templates-*.whl
+          _isolation/venv/bin/pip install --quiet pytest==8.3.4 pytest-asyncio==0.25.0
+
+      - name: Verify runtime.commercial NOT importable from community wheel
+        working-directory: templates
+        # Must fail fast if anyone leaks runtime/commercial/ into the community
+        # wheel build. The venv above has only the community wheel installed
+        # and the working-directory is templates/ but pytest discovery is run
+        # from a tmpdir below to avoid picking up ``commercial/`` on the path.
+        run: |
+          _isolation/venv/bin/python -c "
+          import importlib.util
+          assert importlib.util.find_spec('runtime') is not None, 'community wheel did not install runtime'
+          spec = importlib.util.find_spec('runtime.commercial')
+          assert spec is None, f'runtime.commercial leaked into community wheel: {spec}'
+          from runtime.registry.manifest import NODE_TYPES
+          assert 'sql' in NODE_TYPES
+          assert 'csv_reader' in NODE_TYPES
+          # Commercial-tier node types MUST NOT register in the community NODE_TYPES.
+          for forbidden in ('x12_837_reader', 'x12_835_reader', 'ncpdp_reader'):
+              assert forbidden not in NODE_TYPES, f'{forbidden} leaked into community NODE_TYPES'
+          print('community-wheel-isolation: smoke imports OK')
+          "
+
+      - name: Run smoke-marker tests against the isolated venv
+        working-directory: templates
+        # Copy the smoke tests into a tmpdir so pytest doesn't auto-pick up
+        # the source tree at templates/ (which contains commercial/). The
+        # smoke set MUST stay tight — it's the canary that catches commercial
+        # leakage at runtime.
+        run: |
+          mkdir -p _isolation/smoke_tests
+          cp tests/__init__.py _isolation/smoke_tests/__init__.py 2>/dev/null || true
+          cat > _isolation/smoke_tests/conftest.py <<'EOF'
+          # Empty conftest so the smoke harness ignores the parent tree's fixtures.
+          EOF
+          cat > _isolation/smoke_tests/test_smoke_isolation.py <<'EOF'
+          import pytest
+
+          @pytest.mark.smoke
+          def test_registry_loads_without_commercial():
+              from runtime.orchestration.node_registry import NODE_REGISTRY
+              from runtime.registry.manifest import NODE_TYPES
+              assert 'sql' in NODE_TYPES
+              assert 'csv_reader' in NODE_TYPES
+              assert 'x12_837_reader' not in NODE_TYPES
+              assert 'sql' in NODE_REGISTRY
+          EOF
+          cat > _isolation/smoke_tests/pytest.ini <<'EOF'
+          [pytest]
+          markers =
+              smoke: minimal canary for community-wheel-isolation
+          EOF
+          cd _isolation/smoke_tests && \
+            ../venv/bin/pytest -m smoke -v --rootdir=. .
 
   # Slow lane — nightly + manual dispatch only. Runs the throughput perf
   # harness (test_fhir_to_omop_throughput, marked -m slow) against a fresh
