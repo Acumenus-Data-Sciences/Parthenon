@@ -97,7 +97,14 @@ jobs:
 
       - name: Mypy --strict
         working-directory: templates
-        run: uv run mypy --strict runtime commercial/runtime
+        # Phase 3 Plan 1 (T-021A): the commercial wheel's source lives at
+        # ``commercial/runtime/commercial/`` and is wired into the
+        # ``runtime`` namespace via ``runtime/__init__.py`` extending its
+        # ``__path__``. mypy_path = ".:commercial" (mypy.ini) makes the
+        # type-checker find the commercial subpackage; we pass both packages
+        # explicitly so a stale source file outside an ``__init__.py``
+        # discovery still surfaces.
+        run: uv run mypy --strict -p runtime -p runtime.commercial
 
       - name: import-linter contract
         working-directory: templates
