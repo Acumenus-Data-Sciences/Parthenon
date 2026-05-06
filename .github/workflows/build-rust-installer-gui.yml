@@ -39,7 +39,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name || inputs.ref || github.ref }}
 
@@ -151,7 +151,7 @@ jobs:
       GPG_KEY_CONFIGURED: ${{ secrets.GPG_SIGNING_KEY != '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name || inputs.ref || github.ref }}
 
@@ -714,7 +714,7 @@ jobs:
     env:
       TAURI_UPDATER_PRIVATE_KEY_CONFIGURED: ${{ secrets.TAURI_UPDATER_PRIVATE_KEY != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -812,7 +812,7 @@ jobs:
       contents: read
       attestations: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download all release assets
         env:
