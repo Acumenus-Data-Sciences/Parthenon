@@ -31,6 +31,13 @@ NODE_TYPES = (
     "note_nlp",
     "sdtm_domain",
     "regimen_matcher",
+    # Phase 3 Plan 6 (T-024A) — commercial-tier concept-mapping nodes.
+    # Implementations live at runtime.commercial.mapping.* and ship in the
+    # parthenon-templates-commercial wheel; type names are accepted by the
+    # manifest schema so commercial manifests validate cleanly, but the
+    # Node classes themselves are NOT in the community NODE_REGISTRY.
+    "concept_mapping_suggester",
+    "mapping_review_queue",
 )
 
 
