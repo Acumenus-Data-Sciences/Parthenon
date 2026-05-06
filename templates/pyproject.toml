@@ -37,6 +37,10 @@ dependencies = [
     "pydicom==3.0.2",
     # Phase 2 Plan 3 — Llettuce eval harness report rendering (T-018b).
     "jinja2==3.1.4",
+    # Phase 3 Plan 5 — HL7 v2.x ORU^R01/R30/R31 lab result parsing (T-023).
+    # The GitHub project is "python-hl7" (johnpaulett/python-hl7) but the
+    # PyPI distribution is "hl7"; it is BSD-licensed.
+    "hl7==0.4.5",
 ]
 
 # Phase 2 Plan 3 (Q4): Llettuce upstream
