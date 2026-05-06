@@ -1,0 +1,115 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: registry_to_omop_ncdr
+  name: NCDR CathPCI v5.0 → OMOP CDM v5.4
+  version: "0.1.0"
+  category: ingestion
+  tier: commercial
+  cdm_versions: ["5.4"]
+  tags: ["registry", "ncdr", "cardiology", "pci", "omop", "etl", "phase-3", "commercial"]
+  author: "Acumenus Data Sciences"
+  description: |
+    Phase 3 Plan 4C (T-022C). Reads NCDR CathPCI v5.0 CSV exports and
+    projects to OMOP PROCEDURE_OCCURRENCE + MEASUREMENT + DEVICE_EXPOSURE
+    + CONDITION_OCCURRENCE + EPISODE. First commercial-tier template to
+    populate DEVICE_EXPOSURE (FDA UDI -> standard Device concept).
+
+    License: NCDR exports require an ACC NCDR Participant Agreement.
+    Parthenon does not redistribute.
+
+    Closes T-022 (registry_to_omop) — third sub-template after Plans 4A
+    (NAACCR) and 4B (STS).
+spec:
+  parameters:
+    type: object
+    properties:
+      ncdr_csv:
+        type: string
+        description: Path to the NCDR CathPCI CSV export.
+      source_schema:
+        type: string
+        default: ncdr_source
+      cdm_schema:
+        type: string
+        default: ncdr_cdm
+      vocab_schema:
+        type: string
+        default: vocab
+      app_schema:
+        type: string
+        default: app
+      run_id:
+        type: string
+        default: "00000000-0000-0000-0000-000000000000"
+    required: ["ncdr_csv"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["ICD10CM", "CPT4", "HCPCS", "SNOMED", "LOINC", "FDA_UDI"]
+  nodes:
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_ncdr_source.sql
+
+    - node_id: load_ncdr
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_load_ncdr_csv.sql
+
+    - node_id: map_procedure_occurrence
+      type: sql
+      depends_on: [load_ncdr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02a_map_procedure_occurrence.sql
+
+    - node_id: map_measurement
+      type: sql
+      depends_on: [load_ncdr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02b_map_measurement.sql
+
+    - node_id: map_device_exposure
+      type: sql
+      depends_on: [load_ncdr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02c_map_device_exposure.sql
+
+    - node_id: map_condition_occurrence
+      type: sql
+      depends_on: [load_ncdr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02d_map_condition_occurrence.sql
+
+    - node_id: map_episode
+      type: sql
+      depends_on: [load_ncdr, map_procedure_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02e_map_episode.sql
+
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_procedure_occurrence
+        - map_measurement
+        - map_device_exposure
+        - map_condition_occurrence
+        - map_episode
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/03_summarize.sql
+        result_artifact: registry_to_omop_ncdr_summary
+
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: registry_to_omop_ncdr_summary.json
+        min_rows: 1
