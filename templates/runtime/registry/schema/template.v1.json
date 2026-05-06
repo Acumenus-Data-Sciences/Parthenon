@@ -78,7 +78,10 @@
                   "regimen_matcher"
                 ]
               },
-              "params": {"type": "object"},
+              "params": {
+                "type": "object",
+                "description": "Node-specific parameters. SQL nodes accept either inline 'statements' (list[str]) or 'sql_file: file://<rel-path>' to load the body from disk; the SqlNode runtime enforces XOR. Same pattern applies to 'fetch_query' vs 'fetch_query_file'."
+              },
               "depends_on": {
                 "type": "array",
                 "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}

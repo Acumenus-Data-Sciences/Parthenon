@@ -1,0 +1,33 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: sql_file_demo
+  name: sql_file Demo
+  version: 0.1.0
+  category: ingestion
+  cdm_versions: ["5.4"]
+  author: parthenon
+spec:
+  parameters:
+    type: object
+    properties:
+      cdm_schema:
+        type: string
+        default: "omop"
+    required: []
+  requires:
+    cdm_initialized: false
+    vocabularies: []
+  nodes:
+    - node_id: bootstrap
+      type: sql
+      params:
+        sql_file: file://sql/00_bootstrap.sql
+    - node_id: report
+      type: sql
+      depends_on: [bootstrap]
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/01_report.sql
+        result_artifact: report
+  post_conditions: []

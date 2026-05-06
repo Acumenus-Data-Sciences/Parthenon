@@ -51,6 +51,19 @@ def test_minimal_valid_manifest_passes(schema: dict[str, object]) -> None:
     assert errors == [], errors
 
 
+def test_sql_node_accepts_sql_file_param(schema: dict[str, object]) -> None:
+    """sql nodes may carry ``sql_file: file://...`` as a body source.
+
+    Phase 3 Plan 0 (T-022): sql_node learns to read SQL bodies from disk.
+    The node-level enforcement (``sql_file`` XOR ``statements``) lives in
+    SqlNode itself; the schema must merely accept the parameter.
+    """
+    manifest = yaml.safe_load((VALID_DIR / "sql_file_node.yaml").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema)
+    errors = list(validator.iter_errors(manifest))
+    assert errors == [], errors
+
+
 @pytest.mark.parametrize(
     "fixture",
     ["missing_required.yaml", "unknown_node_type.yaml", "circular_dependency.yaml"],
