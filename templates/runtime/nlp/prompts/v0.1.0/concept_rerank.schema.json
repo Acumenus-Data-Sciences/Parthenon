@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "concept_rerank response v0.1.0",
+  "description": "Output of the AI-assisted concept-mapping reranker (Phase 3 Plan 6 / T-024A).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ranked", "confidence"],
+  "properties": {
+    "ranked": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["concept_id", "score"],
+        "properties": {
+          "concept_id": {
+            "type": "integer",
+            "description": "vocab.concept.concept_id; MUST come from the input candidates list."
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Per-candidate confidence after rerank, [0, 1]."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Optional one-line rationale ('exact match', 'domain mismatch demoted', etc.)."
+          }
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Overall confidence in the top-1 candidate, [0, 1]. Low confidence (<= 0.3) signals 'no good match — escalate to manual review'."
+    },
+    "rerank_model": {
+      "type": "string",
+      "description": "Identifier for the rerank model + prompt (e.g. 'gpt-4o-mini@concept_rerank-v0.1.0')."
+    }
+  }
+}
