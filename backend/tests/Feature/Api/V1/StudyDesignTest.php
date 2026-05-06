@@ -391,7 +391,7 @@ it('runs read-only Abby Study Design tools with bounded vocabulary and HADES out
     ]);
 
     Http::fake([
-        'http://darkstar:8787/hades/packages' => Http::response([
+        '*/hades/packages' => Http::response([
             'status' => 'ready',
             'packages' => [
                 ['package' => 'CohortMethod', 'installed' => true, 'version' => '6.0.0', 'priority' => 'required'],
