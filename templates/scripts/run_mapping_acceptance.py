@@ -99,9 +99,7 @@ def _build_openai_caller(api_key: str, model: str) -> Callable[[str, str], dict[
     return call
 
 
-def _build_ollama_caller(
-    base_url: str, model: str
-) -> Callable[[str, str], dict[str, Any] | None]:
+def _build_ollama_caller(base_url: str, model: str) -> Callable[[str, str], dict[str, Any] | None]:
     """Return an LlmCallable backed by Ollama's /api/chat endpoint.
 
     Local-only path; no API key required. Slower than cloud (~15-30 s

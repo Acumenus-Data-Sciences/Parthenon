@@ -77,14 +77,14 @@ class ConceptRetriever:
                 c.vocabulary_id,
                 c.domain_id,
                 COALESCE(c.standard_concept, '') AS standard_concept,
-                1 - (e.embedding <=> %s::public.vector) AS similarity
+                1 - (e.embedding OPERATOR(public.<=>) %s::public.vector) AS similarity
             FROM vocab.concept_embedding_bge e
             JOIN vocab.concept c USING (concept_id)
             WHERE c.standard_concept = 'S'
               AND c.invalid_reason IS NULL
               AND (%s::text IS NULL OR c.domain_id = %s)
               AND (%s::text[] IS NULL OR c.vocabulary_id = ANY(%s))
-            ORDER BY e.embedding <=> %s::public.vector
+            ORDER BY e.embedding OPERATOR(public.<=>) %s::public.vector
             LIMIT %s
         """
         vec = _vector_literal(query_embedding)

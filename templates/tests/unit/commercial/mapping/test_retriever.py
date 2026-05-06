@@ -102,8 +102,8 @@ def test_search_uses_cosine_distance_operator() -> None:
     retriever = ConceptRetriever()
     retriever.search(cursor, _query_vec())
     sql = cursor.executes[0][0]
-    assert "embedding <=> %s::public.vector" in sql
-    assert "1 - (e.embedding <=> %s::public.vector) AS similarity" in sql
+    assert "embedding OPERATOR(public.<=>) %s::public.vector" in sql
+    assert "1 - (e.embedding OPERATOR(public.<=>) %s::public.vector) AS similarity" in sql
 
 
 def test_search_filters_to_standard_concepts_only() -> None:
