@@ -106,6 +106,7 @@ markers = [
     "slow: tests that take >30s to run (skip in CI fast-path)",
     "integration: tests that require real services (Postgres, sidecar containers)",
     "ner_eval: NER backend evaluation harness (slow + costs LLM tokens; gated to schedule + workflow_dispatch)",
+    "mapping_eval: Plan 6 (T-024A) concept-mapping acceptance harness (slow + costs LLM tokens; needs benchmark CSVs; gated to schedule + workflow_dispatch)",
     # Phase 3 Plan 1 (T-021A): canary tests for the community-wheel-isolation
     # CI job. ``-m smoke`` runs against the freshly built community wheel in
     # an isolated venv with NO templates/commercial/ on PYTHONPATH. The set
