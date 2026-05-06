@@ -14,3 +14,12 @@ class X12ParseError(ValueError):
 
 class CostProjectionError(ValueError):
     """Raised when claim-line amounts cannot be projected to OMOP COST rows."""
+
+
+class NCPDPParseError(ValueError):
+    """Raised when an NCPDP D.0 pharmacy-claim transaction cannot be parsed.
+
+    Sanitized identically to ``X12ParseError`` (HIGHSEC §7) — the
+    cardholder ID (NCPDP field C2) and patient DOB (C4) are PHI-adjacent
+    and MUST never appear in error messages.
+    """
