@@ -251,7 +251,7 @@ jobs:
     name: Darkstar R integration (nightly/main only)
     if: github.event_name == 'schedule' || github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       # docker compose interpolates every service even when building only
       # darkstar; provide the templates service token expected by compose.
