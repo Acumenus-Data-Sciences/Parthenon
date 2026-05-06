@@ -72,6 +72,10 @@ backups/
 *.pdf
 *.txt
 !**/requirements.txt
+# Phase 3 Plan 4A — OHDSI upstream-pin file (commit SHA + repo URL).
+# Tracked despite the *.txt blanket exclude so the upstream-diff CI
+# workflow can read it. See ADR 0017.
+!templates/commercial/runtime/commercial/registry/**/ohdsi_pin.txt
 vcf/
 
 # Secrets
