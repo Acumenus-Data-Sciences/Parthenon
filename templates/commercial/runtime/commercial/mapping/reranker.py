@@ -165,8 +165,15 @@ class ConceptReranker:
         """
         cand_by_id = {c.concept_id: c for c in candidates}
         ranked_resp = response.get("ranked", [])
+        if not isinstance(ranked_resp, list):
+            ranked_resp = []
         out: list[ConceptCandidate] = []
         for entry in ranked_resp[: self._top_n]:
+            # Defensive: tool_use can occasionally emit a string in the
+            # ranked array even with a strict input_schema. Skip degenerate
+            # entries rather than crash the whole batch.
+            if not isinstance(entry, dict):
+                continue
             cid = entry.get("concept_id")
             if not isinstance(cid, int) or cid not in cand_by_id:
                 continue

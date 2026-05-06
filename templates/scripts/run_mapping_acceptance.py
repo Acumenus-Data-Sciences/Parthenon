@@ -260,26 +260,31 @@ def _evaluate_pipeline(
     top5_hits = 0
     started = time.time()
 
+    errors = 0
     with psycopg.connect(db_url) as conn, conn.cursor() as cursor:
         for idx, row in enumerate(sample, start=1):
-            target = int(row["target_concept_id"])
-            source_text = row["source_text"]
-            source_code = row["source_code"]
-            source_vocab = row["source_vocab"]
+            try:
+                target = int(row["target_concept_id"])
+                source_text = row["source_text"]
+                source_code = row["source_code"]
+                source_vocab = row["source_vocab"]
 
-            vec = embedder.embed([source_text])[0]
-            candidates = retriever.search(cursor, vec)
-            result = reranker.rerank(
-                source_text=source_text,
-                source_code=source_code,
-                source_vocab=source_vocab,
-                candidates=candidates,
-            )
-            ids = [c.concept_id for c in result.candidates]
-            if ids and ids[0] == target:
-                top1_hits += 1
-            if target in ids[:5]:
-                top5_hits += 1
+                vec = embedder.embed([source_text])[0]
+                candidates = retriever.search(cursor, vec)
+                result = reranker.rerank(
+                    source_text=source_text,
+                    source_code=source_code,
+                    source_vocab=source_vocab,
+                    candidates=candidates,
+                )
+                ids = [c.concept_id for c in result.candidates]
+                if ids and ids[0] == target:
+                    top1_hits += 1
+                if target in ids[:5]:
+                    top5_hits += 1
+            except Exception:
+                errors += 1
+                _LOGGER.exception("row %d failed; counts as miss", idx)
             if idx % 50 == 0 or idx == n:
                 elapsed = time.time() - started
                 rate = idx / elapsed if elapsed > 0 else 0.0
@@ -299,6 +304,7 @@ def _evaluate_pipeline(
         "top5": top5_hits / n if n else 0.0,
         "top1_hits": top1_hits,
         "top5_hits": top5_hits,
+        "errors": errors,
         "elapsed_sec": int(time.time() - started),
     }
 
