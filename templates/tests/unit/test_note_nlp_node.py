@@ -75,3 +75,14 @@ def test_resolve_backend_default_is_llm() -> None:
 def test_resolve_backend_rejects_unknown_name() -> None:
     with pytest.raises(ValueError):
         _resolve_backend({"backend": "not_a_real_backend"})
+
+
+def test_resolve_backend_warns_on_llettuce(recwarn: pytest.WarningsRecorder) -> None:
+    # Llettuce is registered for the eval harness but eval-only in Phase 2 (Q4).
+    # Constructing one must raise a RuntimeWarning so a production manifest
+    # author sees the signal.
+    backend = _resolve_backend({"backend": "llettuce"})
+    assert type(backend).__name__ == "LlettuceBackend"
+    msgs = [str(w.message) for w in recwarn.list]
+    assert any("eval-only" in m.lower() for m in msgs)
+    assert any("phase 3" in m.lower() for m in msgs)

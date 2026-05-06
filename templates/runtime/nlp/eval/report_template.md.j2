@@ -1,0 +1,47 @@
+## NER Backend Comparison
+
+**Corpus:** {{ n_notes }} synthetic clinical notes / {{ n_gold_spans }} gold-standard concept mappings.
+
+| Backend | Span F1 | Span Precision | Span Recall | Concept-match rate | Runtime (s) |
+|---|---:|---:|---:|---:|---:|
+{% for run in ordered_runs -%}
+| {{ run.name }} | {{ "%.3f"|format(run.metrics.span_f1) }} | {{ "%.3f"|format(run.metrics.span_precision) }} | {{ "%.3f"|format(run.metrics.span_recall) }} | {{ _pct(run.metrics.concept_match_rate) }} | {{ "%.1f"|format(run.runtime_seconds) }} |
+{% endfor %}
+
+### Per-vocabulary concept-match rate
+
+| Backend | SNOMED | RxNorm | LOINC |
+|---|---:|---:|---:|
+{% for run in ordered_runs -%}
+| {{ run.name }} | {{ _pct(run.metrics.concept_match_rate_by_vocab.get('SNOMED', 0.0)) }} | {{ _pct(run.metrics.concept_match_rate_by_vocab.get('RxNorm', 0.0)) }} | {{ _pct(run.metrics.concept_match_rate_by_vocab.get('LOINC', 0.0)) }} |
+{% endfor %}
+
+### Backend identity
+
+| Backend | Class | Notes |
+|---|---|---|
+{% for run in ordered_runs -%}
+| {{ run.name }} | {{ run.name | replace("llm", "LlmBackend") | replace("scispacy", "SciSpacyBackend") | replace("llettuce", "LlettuceBackend") }} | {% if run.error %}**ERROR:** {{ run.error }}{% else %}OK{% endif %} |
+{% endfor %}
+
+LlmBackend / SciSpacyBackend / LlettuceBackend results above.
+
+## Phase 3 graduation criterion
+
+**Llettuce graduates to a production backend if** SNOMED concept_match_rate
+exceeds SciSpaCy's by ≥ +{{ "%.0f"|format(graduation_threshold_pp) }} percentage points on this 100-note benchmark.
+
+{% set llm_snomed = runs.get('llm').metrics.concept_match_rate_by_vocab.get('SNOMED', 0.0) if 'llm' in runs else 0.0 -%}
+{% set sci_snomed = runs.get('scispacy').metrics.concept_match_rate_by_vocab.get('SNOMED', 0.0) if 'scispacy' in runs else 0.0 -%}
+{% set let_snomed = runs.get('llettuce').metrics.concept_match_rate_by_vocab.get('SNOMED', 0.0) if 'llettuce' in runs else 0.0 -%}
+Current run:
+- LlmBackend SNOMED concept_match_rate: {{ _pct(llm_snomed) }}
+- SciSpacyBackend SNOMED concept_match_rate: {{ _pct(sci_snomed) }}
+- LlettuceBackend SNOMED concept_match_rate: {{ _pct(let_snomed) }}
+
+**Verdict:** {% if (let_snomed - sci_snomed) * 100 >= graduation_threshold_pp %}GRADUATE — Llettuce beats SciSpaCy by ≥ {{ "%.0f"|format(graduation_threshold_pp) }} pp on SNOMED.{% else %}HOLD — Llettuce does not clear the +{{ "%.0f"|format(graduation_threshold_pp) }} pp SNOMED threshold this run.{% endif %}
+
+---
+
+_See `docs/architecture/adr-0013-llettuce-eval-and-graduation.md` for the
+full graduation contract and benchmark provenance._
