@@ -1,0 +1,22 @@
+sts_field,omop_table,omop_column,vocabulary_id,concept_lookup_rule,description
+RecordID,fmt_sts_surgery,record_id,,passthrough,Unique surgery record key
+PatientID,fmt_sts_surgery,patient_id,,passthrough,Patient identifier (de-identified)
+SurgeryDate,fmt_sts_surgery,surgery_date,,passthrough,Date of cardiac surgery (CCYYMMDD)
+PatientAge,fmt_sts_surgery,patient_age,,passthrough,Age at surgery (years)
+Gender,fmt_sts_surgery,gender,,passthrough,M/F
+HospitalID,fmt_sts_surgery,hospital_id,,passthrough,STS-assigned site code
+SurgeonID,fmt_sts_surgery,surgeon_id,,passthrough,STS-assigned surgeon code
+ProcedureID,fmt_sts_surgery,procedure_id,SNOMED,sts_procedure_to_snomed,STS procedure category (CABG/Valve/Aortic/Combined)
+PrimaryDiagnosis,fmt_sts_surgery,primary_diagnosis_icd10,ICD10CM,passthrough,Pre-operative primary diagnosis (ICD-10-CM)
+SecondaryDiagnoses,fmt_sts_surgery,secondary_diagnoses_icd10,ICD10CM,delimited_list,Comorbid diagnoses (semicolon-delimited)
+EjectionFraction,fmt_sts_surgery,ejection_fraction,,passthrough,Pre-op LVEF (percent)
+NyhaClass,fmt_sts_surgery,nyha_class,,passthrough,NYHA functional class (1-4)
+ProcedureCode_Primary,fmt_sts_surgery,primary_procedure_code,CPT4,passthrough,Primary CPT/HCPCS code
+ProcedureCode_Secondary,fmt_sts_surgery,secondary_procedure_codes,CPT4,delimited_list,Secondary CPT codes (semicolon-delimited)
+PostOpComplication_AKI,fmt_sts_surgery,postop_aki,SNOMED,sts_complication_to_snomed,Acute kidney injury (yes/no)
+PostOpComplication_Stroke,fmt_sts_surgery,postop_stroke,SNOMED,sts_complication_to_snomed,Stroke / CVA (yes/no)
+PostOpComplication_Reoperation,fmt_sts_surgery,postop_reoperation,SNOMED,sts_complication_to_snomed,Reoperation for bleeding (yes/no)
+PostOpComplication_Sepsis,fmt_sts_surgery,postop_sepsis,SNOMED,sts_complication_to_snomed,Postop sepsis (yes/no)
+LengthOfStay,fmt_sts_surgery,length_of_stay,,passthrough,Hospital LOS (days)
+DischargeDisposition,fmt_sts_surgery,discharge_disposition,,passthrough,Home/SNF/Hospice/Death code
+Mortality_30Day,fmt_sts_surgery,mortality_30day,,passthrough,30-day mortality (yes/no)
