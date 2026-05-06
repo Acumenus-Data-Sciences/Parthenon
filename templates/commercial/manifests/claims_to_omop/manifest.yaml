@@ -108,6 +108,25 @@ spec:
         statements: ["SELECT 1"]
         sql_file: file://sql/02d_project_cost.sql
 
+    # 7e. Plan 2 (T-021B) — bootstrap fmt_835_remit + remit_orphans tables.
+    - node_id: bootstrap_835
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02e_load_835.sql
+
+    # 7f. Plan 2 (T-021B) — reconcile loaded 835 remits onto Plan 1's
+    #     COST rows. Four passes: orphan log + source backfill + allowed/
+    #     paid COST inserts + reversal compensation. See ADR 0016
+    #     §"Remit reconciliation".
+    - node_id: reconcile_remit
+      type: sql
+      depends_on: [bootstrap_835, project_cost]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02f_reconcile_remit.sql
+
     # 8. Summarize for the post-condition.
     - node_id: summarize
       type: sql
@@ -116,6 +135,7 @@ spec:
         - map_procedure_occurrence
         - map_condition_occurrence
         - project_cost
+        - reconcile_remit
       params:
         statements: ["SELECT 1"]
         fetch_query_file: file://sql/03_summarize.sql
