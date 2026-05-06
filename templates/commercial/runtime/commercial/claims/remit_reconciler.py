@@ -130,17 +130,12 @@ class RemitReconciler:
                 line_number=item.line_number,
             )
             triple = (item.payer_id, item.claim_id, item.line_number)
-            if triple in existing_keys:
-                plan.updates.append(
-                    CostUpdate(
-                        match_key=key,
-                        new_paid_amount=item.paid_amount,
-                        new_allowed_amount=item.allowed_amount,
-                        paid_date=item.paid_date,
-                        adjustment_codes=list(item.adjustment_codes),
-                    )
-                )
-            else:
+            matched = triple in existing_keys
+
+            if not matched:
+                # Orphan path applies to BOTH normal and reversal remits —
+                # there's nothing to compensate against if the original
+                # claim was never loaded.
                 plan.orphans.append(
                     OrphanRemit(
                         payer_id=item.payer_id,
@@ -154,4 +149,28 @@ class RemitReconciler:
                 _LOGGER.warning(
                     "Orphan remit: no matching cost row for payer/claim/line",
                 )
+                continue
+
+            if item.is_reversal:
+                # CLP02=22 reversal — emit a compensating COST row instead
+                # of mutating the original. Task 6's SQL stage INSERTs the
+                # compensation row keyed to the same (payer/claim/line),
+                # preserving idempotency.
+                plan.compensations.append(
+                    CompensationRow(
+                        match_key=key,
+                        compensation_amount=item.paid_amount,
+                    )
+                )
+                continue
+
+            plan.updates.append(
+                CostUpdate(
+                    match_key=key,
+                    new_paid_amount=item.paid_amount,
+                    new_allowed_amount=item.allowed_amount,
+                    paid_date=item.paid_date,
+                    adjustment_codes=list(item.adjustment_codes),
+                )
+            )
         return plan

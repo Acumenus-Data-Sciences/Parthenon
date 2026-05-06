@@ -158,6 +158,71 @@ def test_reconciler_passes_orphan_count_to_warning_log(caplog: object) -> None:
 
 
 def test_reconciler_does_not_emit_compensations_for_non_reversal_items() -> None:
-    """Reversal handling is Task 4 — Task 3's reconciler ignores is_reversal."""
     plan = RemitReconciler().reconcile([_remit(is_reversal=False)], {("PAYER001", "PCN001", 1)})
     assert plan.compensations == []
+
+
+# ---------- Task 4: reversal handling -----------------------------------
+
+
+def test_reversal_emits_compensation_not_update() -> None:
+    """CLP02=22 reversals must NOT mutate the original COST row.
+
+    Instead, the reconciler emits a CompensationRow with the negated paid
+    amount. Task 6's SQL stage INSERTs the compensation as a new COST row
+    keyed to the same (payer/claim/line); the original stays untouched
+    (idempotency).
+    """
+    item = _remit(
+        is_reversal=True,
+        paid_amount="-150.00",
+    )
+    existing = {("PAYER001", "PCN001", 1)}
+
+    plan = RemitReconciler().reconcile([item], existing)
+
+    # Reversal must NOT produce a regular UPDATE — that would mutate
+    # the original COST row.
+    assert plan.updates == []
+    assert len(plan.compensations) == 1
+    comp = plan.compensations[0]
+    assert comp.match_key == CostMatchKey(payer_id="PAYER001", claim_id="PCN001", line_number=1)
+    # Compensation amount equals the reversal's paid_amount (already signed
+    # negative on the wire per X12 005010X221A1).
+    assert comp.compensation_amount == Decimal("-150.00")
+
+
+def test_orphan_reversal_still_records_orphan() -> None:
+    """A reversal for a claim that was never loaded is still an orphan.
+
+    The reconciler emits an OrphanRemit (so operators see the drift) and
+    does NOT emit a compensation — there's nothing to compensate against.
+    """
+    item = _remit(claim_id="GHOST", is_reversal=True, paid_amount="-150.00")
+    existing: set[tuple[str, str, int]] = set()
+
+    plan = RemitReconciler().reconcile([item], existing)
+
+    assert len(plan.orphans) == 1
+    assert plan.orphans[0].claim_id == "GHOST"
+    assert plan.compensations == []
+    assert plan.updates == []
+
+
+def test_mixed_batch_with_reversal_and_normal() -> None:
+    items = [
+        _remit(claim_id="NORMAL001", is_reversal=False),
+        _remit(claim_id="REVERSAL001", is_reversal=True, paid_amount="-200.00"),
+    ]
+    existing = {
+        ("PAYER001", "NORMAL001", 1),
+        ("PAYER001", "REVERSAL001", 1),
+    }
+
+    plan = RemitReconciler().reconcile(items, existing)
+
+    assert len(plan.updates) == 1
+    assert plan.updates[0].match_key.claim_id == "NORMAL001"
+    assert len(plan.compensations) == 1
+    assert plan.compensations[0].match_key.claim_id == "REVERSAL001"
+    assert plan.compensations[0].compensation_amount == Decimal("-200.00")
