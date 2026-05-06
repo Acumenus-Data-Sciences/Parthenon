@@ -1,0 +1,99 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: registry_to_omop_sts
+  name: STS Adult Cardiac Surgery → OMOP CDM v5.4
+  version: "0.1.0"
+  category: ingestion
+  tier: commercial
+  cdm_versions: ["5.4"]
+  tags: ["registry", "sts", "cardiac-surgery", "omop", "etl", "phase-3", "commercial"]
+  author: "Acumenus Data Sciences"
+  description: |
+    Phase 3 Plan 4B (T-022B). Reads STS National Database CSV exports
+    (one row per cardiac surgery) and projects to OMOP PROCEDURE_OCCURRENCE
+    + CONDITION_OCCURRENCE + EPISODE. Unlike Plan 4A (NAACCR), no upstream
+    OHDSI ETL exists for STS — we maintain the column-mapping table
+    (column_map.csv) ourselves against STS Adult Cardiac Surgery v4.20.2.
+
+    License caveats: STS exports require an STS Participant Agreement
+    between the customer and the Society of Thoracic Surgeons. Parthenon
+    does not redistribute STS data; we ingest exports the customer
+    provides. See README.md for operator guidance.
+spec:
+  parameters:
+    type: object
+    properties:
+      sts_csv:
+        type: string
+        description: Path to the STS CSV export.
+      source_schema:
+        type: string
+        default: sts_source
+      cdm_schema:
+        type: string
+        default: sts_cdm
+      vocab_schema:
+        type: string
+        default: vocab
+      app_schema:
+        type: string
+        default: app
+      run_id:
+        type: string
+        default: "00000000-0000-0000-0000-000000000000"
+    required: ["sts_csv"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["ICD10CM", "CPT4", "HCPCS", "SNOMED"]
+  nodes:
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_sts_source.sql
+
+    - node_id: load_sts
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_load_sts_csv.sql
+
+    - node_id: map_procedure_occurrence
+      type: sql
+      depends_on: [load_sts]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02a_map_procedure_occurrence.sql
+
+    - node_id: map_condition_occurrence
+      type: sql
+      depends_on: [load_sts]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02b_map_condition_occurrence.sql
+
+    - node_id: map_episode
+      type: sql
+      depends_on: [load_sts, map_procedure_occurrence]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02c_map_episode.sql
+
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_procedure_occurrence
+        - map_condition_occurrence
+        - map_episode
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/03_summarize.sql
+        result_artifact: registry_to_omop_sts_summary
+
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: registry_to_omop_sts_summary.json
+        min_rows: 1
