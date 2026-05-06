@@ -1,0 +1,43 @@
+# Phase 3 Plan 4A Task 5 (T-022A): shared parameter shapes for registry templates.
+#
+# Plans 4A/4B/4C all ingest registry exports against the same parameter
+# vocabulary. This partial file declares the shapes. Each registry's
+# manifest references them under its own `parameters.properties` block
+# (YAML doesn't have a native include directive — manifest authors copy
+# the property definitions; the runner doesn't process the partial
+# directly).
+#
+# Convention:
+#   - source_schema: holds fmt_<registry>_record (e.g. fmt_naaccr_record)
+#   - cdm_schema: target OMOP CDM v5.4 schema (default <registry>_cdm)
+#   - vocab_schema: shared OMOP Vocabulary schema, default 'vocab'
+#   - app_schema: Parthenon app schema for telemetry / unmapped logs
+#   - run_id: UUID threaded through orphan + unmapped tables
+#
+# Required parameters per registry:
+#   - <registry>_csv: path to the converted CSV ingested by the reader
+#   - source_schema (default to <registry>_source)
+#   - cdm_schema (default to <registry>_cdm)
+#
+# This file is intentionally documentation + reference — the actual
+# parameter declarations live inside each manifest.yaml so runtime
+# validation reaches them via the JSON Schema in template.v1.json.
+
+# Shared post_conditions structure (each registry adapts row counts):
+#
+#   post_conditions:
+#     - kind: artifact_present
+#       params:
+#         artifact: <registry>_summary.json
+#         min_rows: 1
+#     - kind: row_count
+#       params:
+#         table: ${parameters.cdm_schema}.condition_occurrence
+#         min: 1
+#
+# Required vocabularies (Q7 rationale): NAACCR, ICDO3, SNOMED for cancer;
+# STS+CPT4 for cardiac surgery; NCDR + UDI device codes for cardiology.
+
+shared_required_vocabularies:
+  - SNOMED  # all three registries project conditions to SNOMED
+  - ICD10CM

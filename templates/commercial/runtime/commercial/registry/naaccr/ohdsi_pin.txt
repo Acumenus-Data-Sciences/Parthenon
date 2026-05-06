@@ -1,0 +1,27 @@
+# OHDSI Oncology subgroup NAACCR ETL pin — Phase 3 Plan 4A (T-022A).
+#
+# We extend (Q7 = a) rather than fork. This file pins the upstream
+# repository + commit SHA we ported the SQL from. The upstream-diff
+# workflow at .github/workflows/ohdsi-naaccr-diff.yml runs weekly,
+# fetches HEAD, and opens an issue if the diff exceeds N lines —
+# mirroring the ARTEMIS upstream-diff pattern from Phase 2 ADR 0014.
+
+repository=https://github.com/OHDSI/CdmEtlNaaccr
+# Commit SHA frozen at the time of the v0.1 port. The repository's
+# layout has been stable since 2024; the per-item SQL we copied is in
+# inst/sql/sql_server/ for the NAACCR-to-CDM mapping.
+# Note: the actual SHA is captured at integration time — the pin file
+# is the contract; the diff workflow watches for upstream movement.
+commit=PLACEHOLDER_REPLACE_AT_INTEGRATION
+license=Apache-2.0
+ported_at=2026-05-06
+
+# What we ported:
+#  - inst/sql/sql_server/condition_occurrence.sql   -> sql/02a_map_condition_occurrence.sql
+#  - inst/sql/sql_server/episode.sql                -> sql/02b_map_episode.sql
+#  - inst/sql/sql_server/episode_event.sql          -> sql/02c_map_episode_event.sql
+#
+# What we deliberately did NOT port:
+#  - The CDMBuilder runtime (Java) — Parthenon's runner replaces it
+#  - SQL Server-specific syntax (TOP, FOR JSON, etc.) — we re-targeted
+#    to PostgreSQL; the joins and per-item logic are preserved.

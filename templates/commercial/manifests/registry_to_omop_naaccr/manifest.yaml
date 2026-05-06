@@ -1,0 +1,109 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: registry_to_omop_naaccr
+  name: NAACCR cancer registry → OMOP CDM v5.4 + Oncology Extension
+  version: "0.1.0"
+  category: ingestion
+  tier: commercial
+  cdm_versions: ["5.4"]
+  tags: ["registry", "naaccr", "oncology", "omop", "etl", "phase-3", "commercial"]
+  author: "Acumenus Data Sciences"
+  description: |
+    Phase 3 Plan 4A (T-022A). Reads NAACCR cancer-registry exports (one
+    row per patient-tumor) and projects to OMOP CONDITION_OCCURRENCE +
+    EPISODE + EPISODE_EVENT (Oncology Extension). Extends OHDSI/CdmEtlNaaccr
+    (Apache-2.0; see ohdsi_pin.txt) by porting the per-domain SQL into
+    Parthenon's sql_file:// stages and re-targeting for PostgreSQL.
+
+    The v0.1 ships a curated 80-column subset of NAACCR's 700+ data items;
+    Phase 4 extends to the full Layout. See ADR 0017.
+spec:
+  parameters:
+    type: object
+    properties:
+      naaccr_csv:
+        type: string
+        description: Path to the converted NAACCR CSV (NAACCRReader output).
+      source_schema:
+        type: string
+        default: naaccr_source
+        description: Schema holding fmt_naaccr_record.
+      cdm_schema:
+        type: string
+        default: naaccr_cdm
+        description: Target OMOP CDM v5.4 schema.
+      vocab_schema:
+        type: string
+        default: vocab
+        description: Shared OMOP Vocabulary schema (concept, concept_relationship, ICDO3).
+      app_schema:
+        type: string
+        default: app
+        description: Parthenon application schema for run book-keeping.
+      run_id:
+        type: string
+        default: "00000000-0000-0000-0000-000000000000"
+        description: UUID threaded through telemetry / orphan logs.
+    required: ["naaccr_csv"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["ICDO3", "SNOMED", "ICD10CM", "NAACCR"]
+  nodes:
+    # 1. Bootstrap source: fmt_naaccr_record + indexes.
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_naaccr_source.sql
+
+    # 2. Load NAACCR CSV (production); the validation E2E bypasses this
+    #    and populates fmt_naaccr_record via INSERT VALUES.
+    - node_id: load_naaccr
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_load_naaccr_csv.sql
+
+    # 3. NAACCR -> CONDITION_OCCURRENCE (ICD-O-3 -> SNOMED via concept_relationship).
+    - node_id: map_condition_occurrence
+      type: sql
+      depends_on: [load_naaccr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02a_map_condition_occurrence.sql
+
+    # 4. NAACCR -> EPISODE (Oncology Extension; one Disease First Occurrence per tumor).
+    - node_id: map_episode
+      type: sql
+      depends_on: [load_naaccr]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02b_map_episode.sql
+
+    # 5. Treatments -> EPISODE_EVENT (links surgery/chemo/radiation/hormone to episodes).
+    - node_id: map_episode_event
+      type: sql
+      depends_on: [map_episode]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02c_map_episode_event.sql
+
+    # 6. Summarize for the post-condition.
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_condition_occurrence
+        - map_episode
+        - map_episode_event
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/03_summarize.sql
+        result_artifact: registry_to_omop_naaccr_summary
+
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: registry_to_omop_naaccr_summary.json
+        min_rows: 1
