@@ -1,0 +1,72 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: lis_lab_to_omop
+  name: HL7 v2 ORU → OMOP MEASUREMENT (lab results)
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.4"]
+  tags: ["hl7-v2", "oru", "lab", "loinc", "measurement", "phase-3", "community"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      source_schema:
+        type: string
+        description: Schema for ORU staging tables (fmt_oru_message + fmt_oru_observation).
+        default: "lis_lab_source"
+      cdm_schema:
+        type: string
+        description: OMOP CDM v5.4 target schema.
+        default: "omop"
+      vocab_schema:
+        type: string
+        description: OMOP vocabulary schema (concept + concept_relationship).
+        default: "vocab"
+    required: []
+  requires:
+    cdm_initialized: true
+    vocabularies: ["LOINC"]
+  nodes:
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_source_schema.sql
+    - node_id: load_oru
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_load_oru.sql
+    - node_id: map_measurement
+      type: sql
+      depends_on: [load_oru]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02_map_measurement.sql
+    - node_id: queue_unmapped_local_codes
+      type: sql
+      depends_on: [map_measurement]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/03_queue_unmapped_local_codes.sql
+  post_conditions:
+    - kind: row_count
+      params:
+        table: "${parameters.source_schema}.fmt_oru_message"
+        min: 1
+    - kind: row_count
+      params:
+        table: "${parameters.source_schema}.fmt_oru_observation"
+        min: 1
+    - kind: row_count
+      params:
+        table: "${parameters.cdm_schema}.measurement"
+        min: 1
+    # Queue may be empty if every OBX resolved to LOINC; allow zero.
+    - kind: row_count
+      params:
+        table: "${parameters.source_schema}.unmapped_local_lab_code"
+        min: 0
