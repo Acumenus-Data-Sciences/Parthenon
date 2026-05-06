@@ -1,0 +1,124 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: load_mimic_iv_omop
+  name: MIMIC-IV → OMOP CDM v5.4 (Parthenon port of OHDSI MIMIC-IV ETL)
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.3", "5.4"]
+  tags: ["mimic-iv", "omop", "etl", "phase-2"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      csv_root:
+        type: string
+        description: Directory containing MIMIC-IV CSVs (hosp/ + icu/ + note/ subdirs).
+      target_schema: {type: string, default: "mimic_iv"}
+      vocab_schema: {type: string, default: "vocab"}
+      app_schema: {type: string, default: "app"}
+      run_id:
+        type: string
+        description: UUID for this template run; threaded into unmapped_concepts_queue.
+        default: "00000000-0000-0000-0000-000000000000"
+    required: ["csv_root"]
+  requires:
+    cdm_initialized: false
+    vocabularies: ["SNOMED", "LOINC", "RxNorm", "NDC", "ICD10CM", "ICD9CM", "ICD10PCS", "ICD9Proc", "CPT4", "HCPCS"]
+  nodes:
+    - node_id: bootstrap_source
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_source_schema.sql
+    - node_id: load_csv
+      type: sql
+      depends_on: [bootstrap_source]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/01_load_source_csv.sql
+    - node_id: vocab_lookup
+      type: sql
+      depends_on: [load_csv]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/02_vocab_lookup_tables.sql
+    - node_id: bootstrap_cdm
+      type: sql
+      depends_on: [vocab_lookup]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/03_bootstrap_cdm_schema.sql
+    - node_id: map_person_death
+      type: sql
+      depends_on: [bootstrap_cdm]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/04a_map_person_death.sql
+    - node_id: map_location_caresite_provider
+      type: sql
+      depends_on: [bootstrap_cdm]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/04b_map_location_caresite_provider.sql
+    - node_id: map_visit
+      type: sql
+      depends_on: [map_person_death, map_location_caresite_provider]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/05_map_visit.sql
+    - node_id: map_condition
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/06a_map_condition.sql
+    - node_id: map_procedure
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/06b_map_procedure.sql
+    - node_id: map_measurement
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/07a_map_measurement.sql
+    - node_id: map_drug
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/07b_map_drug_exposure.sql
+    - node_id: map_observation
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/07c_map_observation.sql
+    - node_id: map_note
+      type: sql
+      depends_on: [map_visit]
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/08_map_note.sql
+    - node_id: summarize
+      type: sql
+      depends_on:
+        - map_condition
+        - map_procedure
+        - map_measurement
+        - map_drug
+        - map_observation
+        - map_note
+      params:
+        statements: ["SELECT 1"]
+        fetch_query_file: file://sql/09_summarize.sql
+        result_artifact: mimic_iv_summary
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: mimic_iv_summary.json
+        min_rows: 1
