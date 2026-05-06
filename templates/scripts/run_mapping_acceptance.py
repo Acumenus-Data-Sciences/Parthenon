@@ -49,15 +49,39 @@ DEFAULT_OLLAMA_URL = "http://localhost:11434"
 
 
 def _strip_json_fences(text: str) -> str:
-    """Tolerate ```json ... ``` fences around the rerank response."""
+    """Tolerate ```json ... ``` fences around the rerank response.
+
+    Earlier version called ``.strip('`')`` which removes ALL backticks,
+    including the ones the trailing ``endswith('```')`` check was looking
+    for — meaning the trailing fence was never actually stripped. Replaced
+    with explicit prefix/suffix slicing.
+    """
     cleaned = text.strip()
     if cleaned.startswith("```"):
-        cleaned = cleaned.strip("`")
+        cleaned = cleaned[3:]
         if cleaned.lower().startswith("json"):
-            cleaned = cleaned[4:].lstrip()
+            cleaned = cleaned[4:]
+        cleaned = cleaned.lstrip()
         if cleaned.endswith("```"):
             cleaned = cleaned[:-3]
-    return cleaned
+    return cleaned.strip()
+
+
+_RERANK_SYSTEM_PROMPT = (
+    "You are an OMOP CDM concept-mapping reranker. The OMOP 'Maps to' relationship "
+    "goes from a non-standard source vocabulary (ICD10CM, NDC, Read, ICD9CM, etc.) "
+    "to a standard target vocabulary (SNOMED, RxNorm, LOINC). Source-text and "
+    "target-name often differ semantically because of vocabulary asymmetry — for "
+    "example, 'Type 2 diabetes mellitus without complications' (ICD10CM) maps to "
+    "'Type 2 diabetes mellitus' (SNOMED), with the complication modifier dropping. "
+    "Prefer candidates whose CLINICAL CONCEPT matches the source, not whose "
+    "concept_name shares the most words.\n\n"
+    "Output ONLY a single JSON object: "
+    '{"ranked": [{"concept_id": int, "score": 0..1, "rationale": str}], "confidence": 0..1}. '
+    "Include exactly 5 ranked entries. NEVER fabricate a concept_id not in the "
+    "input candidates list. If no candidate is a clear semantic match, set "
+    "confidence <= 0.3 and rank by least-bad first."
+)
 
 
 def _build_openai_caller(api_key: str, model: str) -> Callable[[str, str], dict[str, Any] | None]:
@@ -70,18 +94,10 @@ def _build_openai_caller(api_key: str, model: str) -> Callable[[str, str], dict[
         try:
             resp = client.chat.completions.create(
                 model=model,
-                max_tokens=1024,
+                max_tokens=8192,
                 response_format={"type": "json_object"},
                 messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are a clinical-informatics reranker. Output ONLY a "
-                            "single JSON object matching the response schema described "
-                            "in the user message. NEVER fabricate a concept_id that "
-                            "is not in the input candidates list."
-                        ),
-                    },
+                    {"role": "system", "content": _RERANK_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},
                 ],
             )
@@ -117,19 +133,12 @@ def _build_ollama_caller(base_url: str, model: str) -> Callable[[str, str], dict
                     "stream": False,
                     "format": "json",
                     "messages": [
-                        {
-                            "role": "system",
-                            "content": (
-                                "You are a clinical-informatics reranker. Output ONLY a "
-                                "single JSON object matching the response schema. NEVER "
-                                "fabricate a concept_id that is not in the input candidates list."
-                            ),
-                        },
+                        {"role": "system", "content": _RERANK_SYSTEM_PROMPT},
                         {"role": "user", "content": user_prompt},
                     ],
-                    "options": {"temperature": 0.0, "num_predict": 1024},
+                    "options": {"temperature": 0.0, "num_predict": 8192},
                 },
-                timeout=180.0,
+                timeout=300.0,
             )
             resp.raise_for_status()
         except Exception:
@@ -164,13 +173,8 @@ def _build_anthropic_caller(
         try:
             resp = client.messages.create(
                 model=model,
-                max_tokens=1024,
-                system=(
-                    "You are a clinical-informatics reranker. Output ONLY a "
-                    "single JSON object matching the response schema described "
-                    "in the user message. NEVER fabricate a concept_id that "
-                    "is not in the input candidates list."
-                ),
+                max_tokens=8192,
+                system=_RERANK_SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_prompt}],
             )
         except Exception:
