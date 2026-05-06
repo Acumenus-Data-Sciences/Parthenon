@@ -1,0 +1,44 @@
+apiVersion: parthenon.acumenus.net/v1
+kind: Template
+metadata:
+  id: artemis_chemo_regimens
+  name: ARTEMIS Chemo Regimen Extraction
+  version: "0.1.0"
+  category: ingestion
+  cdm_versions: ["5.4"]
+  tags: ["artemis", "oncology", "regimen", "omop", "phase-2"]
+  author: "Acumenus Data Sciences"
+spec:
+  parameters:
+    type: object
+    properties:
+      cdm_schema:
+        type: string
+        default: "mimic_iv"
+        description: Per-source CDM schema containing drug_exposure rows to mine for regimens.
+      library_version: {type: string, default: "v0.1.0"}
+      window_days: {type: integer, default: 7}
+      min_coverage: {type: number, default: 0.75}
+    required: []
+  requires:
+    cdm_initialized: true
+    vocabularies: ["RxNorm", "ATC"]
+  nodes:
+    - node_id: bootstrap_episode_tables
+      type: sql
+      params:
+        statements: ["SELECT 1"]
+        sql_file: file://sql/00_bootstrap_episode_tables.sql
+    - node_id: match_regimens
+      type: regimen_matcher
+      depends_on: [bootstrap_episode_tables]
+      params:
+        cdm_schema: "${parameters.cdm_schema}"
+        library_version: "${parameters.library_version}"
+        window_days: "${parameters.window_days}"
+        min_coverage: "${parameters.min_coverage}"
+  post_conditions:
+    - kind: artifact_present
+      params:
+        artifact: regimens.json
+        min_rows: 0
