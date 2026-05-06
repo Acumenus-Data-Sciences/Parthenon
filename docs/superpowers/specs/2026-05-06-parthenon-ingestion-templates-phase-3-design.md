@@ -1,7 +1,7 @@
 # Parthenon Ingestion Templates — Phase 3 Design
 
 **Date:** 2026-05-06
-**Status:** Draft — 12 review questions open (§3); awaiting user decisions before per-plan drafting
+**Status:** Approved 2026-05-06 — 12 review questions settled (§3); ready for per-plan drafting
 **Scope:** Phase 3 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` — devplan T-021 through T-024
 **Owners:** Platform engineer + 2 ETL engineers + 1 ML engineer (concept-mapping) + 1 frontend (T-024 review UI)
 **Predecessor:** `docs/superpowers/specs/2026-05-05-parthenon-ingestion-templates-phase-2-design.md` (merged 2026-05-06 as PRs #271–#276)
@@ -31,44 +31,46 @@ Concretely:
 
 Phase 3 is **purely additive** to Phases 0–2. No existing manifest, node, or DB column is changed. The Phase 0 Laravel-side cross-cutting migration (CSV/FHIR ingestion riding the node SDK) stays parked.
 
-## 2. Decision summary (preliminary, pending Q1–Q12)
+## 2. Decision summary
 
 Phase 3 ships:
 
-1. **6 new nodes** added to `templates/runtime/nodes/`. No node-SDK API changes.
+1. **6 new nodes** added to `templates/runtime/nodes/` (community-tier shells where applicable). No node-SDK API changes.
 2. **4 new templates**, all commercial-tier under the open-core split.
-3. **Open-core CI lint** (Workstream 4, §5.5) preventing community packages from `import`ing commercial-tier modules — enforced at PR time.
-4. **Concept-mapping moat:** T-024 brings Llettuce-style retrieval (embedding similarity over `concept_name + concept_synonym`) plus optional LLM re-ranking, with a reviewer UI for batch approval. This is the single largest commercial wedge.
-5. **Carry-over follow-ups** complete Phase 2's deferred items: the sql_node `file://` reader, the ARTEMIS full R install, and the Llettuce graduation decision.
-6. **PR-shape (preliminary): 7 plans.**
-   - **Plan 0 (carry-over):** sql_node `sql_file://` reader + Plan 4/5 testcontainers E2E activation.
+3. **Two-wheel monorepo** (Q1 = b′): `parthenon-templates` (AGPLv3) + `parthenon-templates-commercial` (proprietary), built from one source tree via two `pyproject.toml` files. CI builds the community wheel in isolation and asserts no commercial path is reachable.
+4. **Concept-mapping moat:** T-024 brings retrieval (BAAI/bge-base-en-v1.5 embeddings over `concept_name + concept_synonym`) plus optional LLM re-ranking, with a reviewer UI for batch approval. This is the single largest commercial wedge.
+5. **Carry-over follow-ups** complete Phase 2's deferred items: the `sql_node` `sql_file://` reader (Q10 = b, with `${parameters.*}` expansion), the ARTEMIS R install via multi-stage Dockerfile (Q11 = c, runtime stays Python-only), and the Llettuce graduation decision (Q9 = b, deferred to post-T-024 against the larger curated benchmark).
+6. **PR-shape: 10 plans** (T-022 splits into 3 sub-PRs per Q12 = b, devplan-mandated).
+   - **Plan 0 (carry-over):** `sql_node` `sql_file://` reader + Plan 4/5 testcontainers E2E activation.
    - **Plan 1 (T-021A):** X12 837 reader + COST projection.
    - **Plan 2 (T-021B):** X12 835 remit reconciliation.
    - **Plan 3 (T-021C):** NCPDP pharmacy claims.
-   - **Plan 4 (T-022):** `registry_to_omop` triple — NAACCR + STS + NCDR (one PR per sub-template via shared base).
-   - **Plan 5 (T-023):** `lis_lab_to_omop` + LOINC harmonizer.
-   - **Plan 6 (T-024A):** `ai_assisted_mapping` backend (suggester + queue node).
-   - **Plan 7 (T-024B):** review UI (frontend) + Phase 2 ARTEMIS-full R-install + Llettuce graduation decision.
-7. **Licensing posture:** Commercial-tier code lives at `templates/runtime/commercial/` and `templates/manifests/_commercial/` (gitignored or behind a separate license-gated submodule). Community-tier CI must not import these paths.
+   - **Plan 4A (T-022A):** `registry_to_omop` — NAACCR (extend OHDSI Oncology subgroup ETL per Q7 = a).
+   - **Plan 4B (T-022B):** `registry_to_omop` — STS National Database.
+   - **Plan 4C (T-022C):** `registry_to_omop` — NCDR.
+   - **Plan 5 (T-023):** `lis_lab_to_omop` + LOINC harmonizer (python-hl7 per Q6 = b).
+   - **Plan 6 (T-024A):** `ai_assisted_mapping` backend — `ConceptMappingSuggesterNode` + `MappingReviewQueueNode`. Curated benchmark (Q4 = c) drives the acceptance test.
+   - **Plan 7 (T-024B):** review UI in the React shell (Q8 = a) + ARTEMIS full R-install + Llettuce graduation decision.
+7. **Licensing posture:** Community wheel = AGPLv3 (Q3 = a). Commercial wheel = proprietary. Source layout: `templates/runtime/` and `templates/manifests/<id>/` are AGPL; `templates/runtime/commercial/` and `templates/manifests/_commercial/<id>/` are commercial. `import-linter` contract bans community→commercial imports; CI isolated-install job verifies the community wheel runs without the commercial path on `PYTHONPATH`.
 
-## 3. Decisions log (Q1–Q12, OPEN)
+## 3. Decisions log (Q1–Q12, settled 2026-05-06)
 
-| # | Question | Options | Default |
+| # | Question | Chosen | Declined |
 |---|---|---|---|
-| Q1 | **Open-core split — repo layout** | (a) Commercial code in a separate private repo pulled via git submodule; (b) Same repo, gated by file-path naming (`*/commercial/*`); (c) Same repo, gated by package metadata (`license = "Commercial"` in pyproject.toml extras) | (b) — simplest CI gate (path-based ruff/import-linter), no submodule churn |
-| Q2 | **Claims parser library** | (a) `pyx12` (BSD-3); (b) `bots` (GPLv3); (c) `pdq` (no obvious license — PyPI lookup); (d) Hand-roll a minimal X12 837/835 parser | (a) `pyx12` — BSD compatible with our commercial tier; bots is GPL which contaminates the commercial-tier compile path |
-| Q3 | **AGPLv3 confirmation for community tier** | (a) AGPLv3 (per Workstream 4 doc); (b) Apache 2.0 (relaxes downstream redistribution); (c) BSL (delayed-OSS gradient) | (a) AGPLv3 — the workstream 4 doc is authoritative; revisit if it changes |
-| Q4 | **AI-assisted mapping benchmark** | (a) SDO-2024 placeholder; (b) OHDSI USAGI test set; (c) curate our own from CONCEPT + CONCEPT_RELATIONSHIP "Maps to" pairs (3k seed pairs) | (c) — the Plan 3 100-note gold standard pattern worked; we can curate ~3k mapping pairs from `vocab.concept_relationship` deterministically |
-| Q5 | **Embedding model for T-024 retrieval** | (a) `BAAI/bge-base-en-v1.5` (open, 768-dim); (b) `all-MiniLM-L6-v2` (open, 384-dim, faster); (c) MedGemma-Embed via Ollama (matches Phase 2 Plan 1 LLM choice) | (a) bge-base — strong baseline on biomedical retrieval, no Ollama coupling; pgvector handles 768 fine |
-| Q6 | **HL7 v2 parser** | (a) `hl7apy` (LGPLv2+); (b) `python-hl7` (BSD); (c) `hl7-fhir-converter` (Apache 2.0) | (b) `python-hl7` — BSD aligns with commercial tier; LGPLv2+ is fine but more complex |
-| Q7 | **NAACCR ETL — extend or fork?** | (a) Extend the OHDSI Oncology subgroup's existing NAACCR ETL (per devplan); (b) Fork into a Parthenon-owned manifest from scratch | (a) Extend per devplan — pin OHDSI commit SHA, materialize via our template runtime |
-| Q8 | **Concept-mapping review UI surface** | (a) New tab in the existing Atlas-replacement UI under `/admin/mapping-review`; (b) Standalone Streamlit/Gradio sidecar for fast iteration; (c) CLI-only TUI | (a) — keep the React shell consistent; Spatie RBAC adds a `mapping-reviewer` role per HIGHSEC §1.1 |
-| Q9 | **Llettuce graduation timing** | (a) Read latest `ner-eval` artifact at Plan 7 start, decide before T-024 work begins; (b) Defer until after T-024 ships and re-run on the larger benchmark T-024 builds; (c) Skip — T-024 supersedes Llettuce regardless | (b) — T-024's curated benchmark (Q4) will be a much stronger basis for the +5 pp call than Phase 2's 100-note synthetic set |
-| Q10 | **`sql_file://` reader scope** | (a) Inline `sql_file://manifests/<id>/sql/<f>.sql` resolution only; (b) Plus templated parameter expansion (Jinja-style `${parameters.cdm_schema}`); (c) Plus on-disk SQL caching for re-runs | (b) — manifests already use `${parameters.*}` syntax; aligning the reader closes Plan 4 + 5's gating without expanding scope |
-| Q11 | **ARTEMIS R-package install — runtime weight** | (a) Hard dep in main `parthenon-templates` Dockerfile (~150 MB); (b) Sidecar image (`parthenon-artemis-extractor`) like SciSpaCy; (c) Build-time-only in a multi-stage Dockerfile so the runtime stays Python-only | (c) — multi-stage matches Phase 2 ADR 0014's "runtime stays pure Python" promise; the R install runs once at build, output JSON is copied into the runtime layer |
-| Q12 | **PR-shape — split T-022 (registry) into 3 PRs or ship as one?** | (a) One PR with all three registries (NAACCR + STS + NCDR share `registry_base.yaml`); (b) Three sequential PRs (PR-A NAACCR → PR-B STS → PR-C NCDR per devplan) | (b) — devplan says split; each registry has its own vocabulary load + acceptance gate |
+| Q1 | **Open-core split — repo layout** | **(b′) Monorepo, two wheels** — `parthenon-templates` (AGPL) + `parthenon-templates-commercial` (proprietary). Two `pyproject.toml` files, non-overlapping `packages = [...]`. CI uses `import-linter` contract + an isolated-install job that verifies the community wheel runs without the commercial path on `PYTHONPATH`. Pattern matches GitLab CE/EE, Sentry OSS/Cloud, Mattermost. | (a) Submodule (operational drag for a same-team monorepo); (b) Single wheel + path gate (would propagate AGPL to commercial code); (c) Extras (same propagation problem) |
+| Q2 | **Claims parser library** | **(a) `pyx12`** — BSD-3 composes cleanly with both AGPL community + proprietary commercial tier; mature library used in healthcare X12 production environments | (b) `bots` (GPLv3 contaminates commercial); (c) `pdq` (license unknown); (d) Hand-rolled (multi-week reinvention) |
+| Q3 | **Community-tier license** | **(a) AGPLv3** — Workstream 4 authoritative; revisiting belongs in a Workstream 4 ADR, not on Phase 3's path | (b) Apache 2.0; (c) BSL |
+| Q4 | **AI-assisted mapping benchmark** | **(c) Curate from `vocab.concept_relationship`** — ~3k "Maps to" pairs across SNOMED↔ICD10CM, RxNorm↔NDC, LOINC↔SNOMED. Deterministic seed pattern matches Phase 2 Plan 3 (100% recall on 100-note benchmark). Reports `top_1_concept_match` + `top_1_blind_match` (held-out vocabulary subset) so the model can't shortcut via memorization. | (a) SDO-2024 (existence/license risk); (b) USAGI (smaller, lexical-bias) |
+| Q5 | **Embedding model for T-024 retrieval** | **(a) `BAAI/bge-base-en-v1.5`** — 768-dim, MIT-licensed, strong biomedical retrieval; pgvector handles 768 fine | (b) MiniLM (weaker on long medical phrases); (c) MedGemma-Embed (couples T-024 to Ollama unnecessarily) |
+| Q6 | **HL7 v2 parser** | **(b) `python-hl7`** — BSD aligns with both tiers; mature ORU^R01 parser | (a) `hl7apy` (LGPLv2+ adds compatibility note); (c) `hl7-fhir-converter` (wrong abstraction) |
+| Q7 | **NAACCR ETL — extend or fork?** | **(a) Extend OHDSI Oncology subgroup ETL** — pin commit SHA; reuse the ARTEMIS-style upstream-diff workflow from Phase 2 ADR 0014 | (b) Fork from scratch (multi-month reinvention; NAACCR has 700+ items + annual code-set updates) |
+| Q8 | **Concept-mapping review UI surface** | **(a) React shell tab** at `/admin/mapping-review` — Spatie RBAC `mapping-reviewer` role per HIGHSEC §1.1; consistent with rest of Parthenon UX; meets the "200 mappings in <30 min" acceptance gate | (b) Streamlit/Gradio sidecar (second auth + deploy surface); (c) CLI/TUI (fails acceptance gate) |
+| Q9 | **Llettuce graduation timing** | **(b) Defer to post-T-024** — apply ADR 0013's +5 pp SNOMED threshold against Q4's curated 3k-pair benchmark, which is larger and more representative than Phase 2's 100-note synthetic set. Phase 2's `ner-eval` artifact stays parked as a prompt-drift regression detector. | (a) Decide at Plan 7 start (small benchmark); (c) Skip (forfeits the eval investment) |
+| Q10 | **`sql_file://` reader scope** | **(b) Inline + `${parameters.*}` expansion** — closes Plan 4 + 5 testcontainers E2E gating without scope expansion. Phase 4 problem: SQL caching for re-runs. | (a) Resolution only (manifests already use `${parameters.*}`); (c) On-disk caching (premature) |
+| Q11 | **ARTEMIS R-package install** | **(c) Multi-stage Dockerfile, build-time only** — R install runs once during the build, materialized JSON gets copied into the Python-only runtime layer. Honors Phase 2 ADR 0014's "runtime stays pure Python" promise. | (a) Hard runtime dep (~150 MB); (b) Sidecar image (over-engineered) |
+| Q12 | **PR-shape — split T-022?** | **(b) Three sequential PRs** — PR-A NAACCR → PR-B STS → PR-C NCDR. Each registry has its own vocabulary load + acceptance gate; devplan-mandated. | (a) Single PR (loses per-registry verification gate) |
 
-## 4. Architecture (sketch — pending Q answers)
+## 4. Architecture
 
 Phase 2's architecture diagram is unchanged. Phase 3 adds:
 
