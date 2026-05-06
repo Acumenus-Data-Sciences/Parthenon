@@ -57,6 +57,7 @@ on:
   schedule:
     # 04:30 UTC nightly — slow lane (Darkstar R integration + reserved E2E slot).
     - cron: '30 4 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -246,10 +247,10 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-  # Slow lane — nightly + main-branch push only. Not gated on PR.
+  # Slow lane — nightly/manual only. Not gated on PR or main pushes.
   darkstar-integration:
-    name: Darkstar R integration (nightly/main only)
-    if: github.event_name == 'schedule' || github.event_name == 'push'
+    name: Darkstar R integration (nightly/manual only)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
