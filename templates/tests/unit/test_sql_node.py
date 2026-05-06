@@ -120,9 +120,7 @@ def test_no_artifact_when_unnamed(context: NodeContext, tmp_path: Path) -> None:
 # ----- Phase 3 Plan 0 Task 3: sql_file:// reader -----
 
 
-def _ctx_with_manifest_dir(
-    *, tmp_path: Path, sqlite_url: str, manifest_dir: Path
-) -> NodeContext:
+def _ctx_with_manifest_dir(*, tmp_path: Path, sqlite_url: str, manifest_dir: Path) -> NodeContext:
     return NodeContext(
         run_id="run-sql-file",
         node_id="sql-file-1",
@@ -162,9 +160,7 @@ def test_sql_node_sql_file_expands_parameters(tmp_path: Path, sqlite_url: str) -
     ctx = _ctx_with_manifest_dir(
         tmp_path=tmp_path, sqlite_url=sqlite_url, manifest_dir=manifest_dir
     )
-    result = SqlNode().run(
-        ctx, {"sql_file": "file://sql/create.sql", "target_table": "widgets"}
-    )
+    result = SqlNode().run(ctx, {"sql_file": "file://sql/create.sql", "target_table": "widgets"})
     assert result.status == NodeStatus.SUCCESS, result.error_message
 
     engine = create_engine(sqlite_url)
@@ -175,9 +171,7 @@ def test_sql_node_sql_file_expands_parameters(tmp_path: Path, sqlite_url: str) -
     assert [tuple(r) for r in rows] == [(42,)]
 
 
-def test_sql_node_sql_file_splits_statements_on_semicolon(
-    tmp_path: Path, sqlite_url: str
-) -> None:
+def test_sql_node_sql_file_splits_statements_on_semicolon(tmp_path: Path, sqlite_url: str) -> None:
     """Multi-statement SQL files are executed in order in one transaction."""
     manifest_dir = tmp_path / "manifest"
     sql = manifest_dir / "sql" / "multi.sql"
@@ -200,23 +194,15 @@ def test_sql_node_sql_file_splits_statements_on_semicolon(
     assert [tuple(r) for r in rows] == [(1,), (2,), (3,)]
 
 
-def test_sql_node_rejects_both_statements_and_sql_file(
-    tmp_path: Path, sqlite_url: str
-) -> None:
+def test_sql_node_rejects_both_statements_and_sql_file(tmp_path: Path, sqlite_url: str) -> None:
     """Loud error when both inline statements and sql_file are set."""
-    ctx = _ctx_with_manifest_dir(
-        tmp_path=tmp_path, sqlite_url=sqlite_url, manifest_dir=tmp_path
-    )
-    result = SqlNode().run(
-        ctx, {"statements": ["SELECT 1"], "sql_file": "file://x.sql"}
-    )
+    ctx = _ctx_with_manifest_dir(tmp_path=tmp_path, sqlite_url=sqlite_url, manifest_dir=tmp_path)
+    result = SqlNode().run(ctx, {"statements": ["SELECT 1"], "sql_file": "file://x.sql"})
     assert result.status == NodeStatus.FAILED
     assert "exactly one of" in (result.error_message or "").lower()
 
 
-def test_sql_node_sql_file_requires_manifest_dir(
-    tmp_path: Path, sqlite_url: str
-) -> None:
+def test_sql_node_sql_file_requires_manifest_dir(tmp_path: Path, sqlite_url: str) -> None:
     """sql_file without context.manifest_dir is a configuration error."""
     ctx = NodeContext(
         run_id="r",
@@ -232,9 +218,7 @@ def test_sql_node_sql_file_requires_manifest_dir(
     assert "manifest_dir" in (result.error_message or "")
 
 
-def test_sql_node_fetch_query_file_loads_from_disk(
-    tmp_path: Path, sqlite_url: str
-) -> None:
+def test_sql_node_fetch_query_file_loads_from_disk(tmp_path: Path, sqlite_url: str) -> None:
     """fetch_query_file is a file-backed alternative to fetch_query."""
     manifest_dir = tmp_path / "manifest"
     fetch = manifest_dir / "sql" / "fetch.sql"
@@ -259,9 +243,7 @@ def test_sql_node_fetch_query_file_loads_from_disk(
 def test_sql_node_rejects_both_fetch_query_and_fetch_query_file(
     tmp_path: Path, sqlite_url: str
 ) -> None:
-    ctx = _ctx_with_manifest_dir(
-        tmp_path=tmp_path, sqlite_url=sqlite_url, manifest_dir=tmp_path
-    )
+    ctx = _ctx_with_manifest_dir(tmp_path=tmp_path, sqlite_url=sqlite_url, manifest_dir=tmp_path)
     params: dict[str, Any] = {
         "statements": ["CREATE TABLE z (id INTEGER)"],
         "fetch_query": "SELECT 1",
@@ -272,9 +254,7 @@ def test_sql_node_rejects_both_fetch_query_and_fetch_query_file(
     assert "exactly one of" in (result.error_message or "").lower()
 
 
-def test_sql_node_sql_file_traversal_rejected(
-    tmp_path: Path, sqlite_url: str
-) -> None:
+def test_sql_node_sql_file_traversal_rejected(tmp_path: Path, sqlite_url: str) -> None:
     """Path-traversal references fail with a SqlNode error citing the resolver."""
     manifest_dir = tmp_path / "manifest"
     manifest_dir.mkdir()

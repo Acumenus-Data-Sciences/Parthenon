@@ -1,9 +1,12 @@
 """Plan 5 Task 10: ARTEMIS E2E shape — recall ≥80% against gold standard.
 
 Drives the matcher in-process against the synthetic cohort fixture and
-asserts ≥0.80 recall vs the gold-standard regimens CSV. The full
-testcontainers Postgres run is gated until the Phase 0 sql_node gains
-the file:// reader (same gating as Plan 4's E2E).
+asserts ≥0.80 recall vs the gold-standard regimens CSV.
+
+Phase 3 Plan 0 unblocked the sql_file:// reader path; the remaining
+work to lift this to a full testcontainers Postgres run is a vocab-seed
+harness + manifest run-orchestration scaffolding (same shape as Plan 4's
+follow-up — Phase 4 work).
 """
 
 from __future__ import annotations

@@ -83,9 +83,7 @@ def manifest_with_sql_files(tmp_path: Path) -> Path:
             "post_conditions": [],
         },
     }
-    (manifest_dir / "manifest.yaml").write_text(
-        yaml.safe_dump(manifest_payload), encoding="utf-8"
-    )
+    (manifest_dir / "manifest.yaml").write_text(yaml.safe_dump(manifest_payload), encoding="utf-8")
     return manifest_dir
 
 
@@ -97,9 +95,7 @@ def test_materializer_propagates_manifest_dir(manifest_with_sql_files: Path) -> 
     assert flow.manifest_dir == manifest_with_sql_files
 
 
-def test_full_pipeline_against_sqlite(
-    manifest_with_sql_files: Path, tmp_path: Path
-) -> None:
+def test_full_pipeline_against_sqlite(manifest_with_sql_files: Path, tmp_path: Path) -> None:
     """End-to-end: each FlowNode runs SqlNode.run with the manifest_dir set.
 
     Mirrors what the Prefect backend does, minus the Prefect runtime.
@@ -123,9 +119,9 @@ def test_full_pipeline_against_sqlite(
             run_parameters=dict(flow.parameters),
         )
         result = SqlNode().run(ctx, dict(fnode.params))
-        assert result.status == NodeStatus.SUCCESS, (
-            f"node {fnode.node_id} failed: {result.error_message}"
-        )
+        assert (
+            result.status == NodeStatus.SUCCESS
+        ), f"node {fnode.node_id} failed: {result.error_message}"
         if "rows" in result.outputs:
             rows = list(result.outputs["rows"])
 
