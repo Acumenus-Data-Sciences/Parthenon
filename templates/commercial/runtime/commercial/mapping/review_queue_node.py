@@ -152,8 +152,7 @@ class MappingReviewQueueNode(Node):
             approval.reviewer_id, self.REVIEWER_ROLE
         ):
             raise MappingValidationError(
-                f"reviewer_id {approval.reviewer_id} does not have role "
-                f"{self.REVIEWER_ROLE!r}"
+                f"reviewer_id {approval.reviewer_id} does not have role " f"{self.REVIEWER_ROLE!r}"
             )
 
         existing = _existing_mapping(cursor, approval.source_code, approval.source_vocab)
