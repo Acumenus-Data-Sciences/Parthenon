@@ -18,6 +18,15 @@ use Illuminate\Support\Facades\DB;
  * that owns auth/RBAC/Spatie permissions. Templates SQL stages must NOT
  * write here; only the MappingReviewQueueNode (Task 11) does, and it
  * goes through the same DB connection the Laravel backend owns.
+ *
+ * `omop_concept_id` is intentionally NOT FK-constrained at the DB level
+ * even though it logically references `vocab.concept(concept_id)`. Project
+ * convention is that `vocab.*` is shared/read-only and refreshed via
+ * full-table rebuilds (TRUNCATE + COPY) — a hard FK from `app.*` would
+ * block those rebuilds and break tests that reseed vocabulary fixtures.
+ * Validation is enforced at the application layer (MappingReviewQueueNode +
+ * AriadneController.saveMappings) where the standard-concept check has
+ * the full RBAC + audit context.
  */
 return new class extends Migration
 {
@@ -29,7 +38,7 @@ return new class extends Migration
                 source_code              TEXT NOT NULL,
                 source_vocab             TEXT NOT NULL,
                 source_text              TEXT,
-                omop_concept_id          BIGINT NOT NULL REFERENCES vocab.concept(concept_id),
+                omop_concept_id          BIGINT NOT NULL,
                 confidence               NUMERIC(5, 4) NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
                 reviewer_id              BIGINT REFERENCES app.users(id),
                 reviewed_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),

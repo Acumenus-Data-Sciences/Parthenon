@@ -53,3 +53,13 @@ Applied `vendor/bin/pint` autofix on the migration file: anonymous class
 definition switched from `new class ()` to `new class` with the brace on a
 new line (Pint rules: `new_with_parentheses`, `class_definition`,
 `braces_position`). No schema change.
+
+## 2026-05-07 — drop FK to vocab.concept
+
+Dropped the `REFERENCES vocab.concept(concept_id)` clause on
+`omop_concept_id`. The hard FK was breaking 36 unrelated `StudyDesignTest`
+cases that `TRUNCATE vocab.concept` between runs (PG refuses to truncate
+a table with referencing FKs). Project convention treats `vocab.*` as
+shared/read-only with full-table reseeding, so app-level FKs to it are
+the wrong contract. Validation moved to the application layer
+(`MappingReviewQueueNode` + `AriadneController::saveMappings`).
