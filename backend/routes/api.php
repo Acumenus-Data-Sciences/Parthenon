@@ -84,6 +84,7 @@ use App\Http\Controllers\Api\V1\GisRuccController;
 use App\Http\Controllers\Api\V1\GisSviController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HadesCapabilityController;
+use App\Http\Controllers\Api\V1\HarmoniaReviewController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -255,6 +256,30 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:ingestion.run');
         Route::get('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/candidates', [MappingReviewController::class, 'candidates'])
             ->middleware('permission:ingestion.view');
+
+        // Phase 3 Plan 7 (T-024B) — Harmonia concept-mapping reviewer queue.
+        // Reads the corpus-wide app.parthenon_mapping_review_queue populated
+        // by Plan 6 (T-024A); approve writes to app.parthenon_concept_map.
+        // Distinct from the legacy ingestion-job-scoped MappingReviewController
+        // routes above.
+        Route::prefix('mapping-review')->group(function (): void {
+            Route::get('/queue', [HarmoniaReviewController::class, 'index'])
+                ->middleware('permission:mapping.review');
+            Route::get('/queue/stats', [HarmoniaReviewController::class, 'stats'])
+                ->middleware('permission:mapping.review');
+            Route::get('/queue/{queueId}', [HarmoniaReviewController::class, 'show'])
+                ->whereNumber('queueId')
+                ->middleware('permission:mapping.review');
+            Route::post('/queue/{queueId}/approve', [HarmoniaReviewController::class, 'approve'])
+                ->whereNumber('queueId')
+                ->middleware('permission:mapping.approve');
+            Route::post('/queue/{queueId}/reject', [HarmoniaReviewController::class, 'reject'])
+                ->whereNumber('queueId')
+                ->middleware('permission:mapping.approve');
+            Route::post('/queue/{queueId}/escalate', [HarmoniaReviewController::class, 'escalate'])
+                ->whereNumber('queueId')
+                ->middleware('permission:mapping.approve');
+        });
 
         // Schema Mapping
         Route::post('/ingestion/jobs/{ingestionJob}/schema-mapping/suggest', [IngestionController::class, 'suggestSchemaMapping'])
