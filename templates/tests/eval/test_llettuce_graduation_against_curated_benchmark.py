@@ -201,9 +201,7 @@ def _format_report(
         sci_rate = sci.by_vocab_rate(vocab)
         let_rate = let.by_vocab_rate(vocab)
         delta_pp = (let_rate - sci_rate) * 100
-        lines.append(
-            f"| {vocab} | {n} | {sci_rate:.3f} | {let_rate:.3f} | {delta_pp:+.2f} |"
-        )
+        lines.append(f"| {vocab} | {n} | {sci_rate:.3f} | {let_rate:.3f} | {delta_pp:+.2f} |")
 
     sci_snomed = sci.by_vocab_rate("SNOMED")
     let_snomed = let.by_vocab_rate("SNOMED")
@@ -352,7 +350,7 @@ def _format_verdict(verdict: _Verdict, sci_error: str | None, let_error: str | N
         "the +5 pp threshold set by ADR 0013. The plan's Branch A "
         "applies: ship `parthenon_ner_llettuce` as a production "
         "backend (mirror of `parthenon_ner_scispacy`), update ADR 0013 "
-        "status from \"Eval-only\" to \"Graduated to production\", and "
+        'status from "Eval-only" to "Graduated to production", and '
         "register Llettuce in NODE_TYPES.\n\n"
         "The win is concentrated on SNOMED — Llettuce's strength as an "
         "OMOP-native vector index over the standard concept namespace. "
