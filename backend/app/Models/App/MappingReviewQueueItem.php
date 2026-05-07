@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\App;
 
 use App\Models\User;
-use Database\Factories\MappingReviewQueueItemFactory;
+use Database\Factories\App\MappingReviewQueueItemFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
