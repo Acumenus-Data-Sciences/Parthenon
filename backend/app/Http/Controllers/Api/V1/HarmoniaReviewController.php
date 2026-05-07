@@ -9,7 +9,6 @@ use App\Http\Requests\Api\HarmoniaApproveMappingRequest;
 use App\Http\Requests\Api\HarmoniaEscalateMappingRequest;
 use App\Http\Requests\Api\HarmoniaRejectMappingRequest;
 use App\Models\App\MappingReviewQueueItem;
-use App\Models\Vocabulary\Concept;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -154,10 +153,20 @@ class HarmoniaReviewController extends Controller
 
         $byId = [];
         if ($conceptIds !== []) {
-            $byId = Concept::query()
-                ->whereIn('concept_id', $conceptIds)
-                ->get(['concept_id', 'concept_name', 'vocabulary_id', 'domain_id', 'concept_class_id', 'standard_concept'])
-                ->keyBy('concept_id');
+            // Fully-qualified vocab.concept query on the default connection
+            // (same connection as parthenon_concept_map writes). Avoids the
+            // separate `vocab` connection so the lookup shares the test
+            // transaction and works in both Pest and production.
+            $placeholders = implode(',', array_fill(0, count($conceptIds), '?'));
+            $rows = $this->db->select(
+                "SELECT concept_id, concept_name, vocabulary_id, domain_id, concept_class_id, standard_concept
+                 FROM vocab.concept
+                 WHERE concept_id IN ({$placeholders})",
+                $conceptIds,
+            );
+            foreach ($rows as $r) {
+                $byId[(int) $r->concept_id] = $r;
+            }
         }
 
         $hydrated = array_map(static function (array $c) use ($byId): array {

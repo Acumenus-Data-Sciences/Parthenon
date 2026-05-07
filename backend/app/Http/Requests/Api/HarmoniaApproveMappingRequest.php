@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api;
 
-use App\Models\Vocabulary\Concept;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Phase 3 Plan 7 Task 2 (T-024B): approve a Harmonia rerank suggestion.
@@ -44,11 +44,16 @@ class HarmoniaApproveMappingRequest extends FormRequest
                 return;
             }
             $conceptId = (int) $this->input('concept_id');
-            $concept = Concept::query()
-                ->where('concept_id', $conceptId)
-                ->whereNull('invalid_reason')
-                ->where('standard_concept', 'S')
-                ->first();
+            // Fully-qualified vocab.concept query on the default connection
+            // so the lookup shares the test transaction (Pest seeds via the
+            // same default connection). Production search_path includes vocab
+            // for unqualified table names but the schema-qualified form works
+            // on every connection regardless.
+            $concept = DB::selectOne(
+                'SELECT concept_id FROM vocab.concept
+                 WHERE concept_id = ? AND invalid_reason IS NULL AND standard_concept = ?',
+                [$conceptId, 'S'],
+            );
             if ($concept === null) {
                 $v->errors()->add(
                     'concept_id',

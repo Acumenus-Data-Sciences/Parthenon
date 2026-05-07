@@ -34,7 +34,7 @@ class RolePermissionSeeder extends Seeder
         'ingestion' => ['view', 'upload', 'run', 'delete'],
 
         // ── AI concept mapping review ─────────────────────────────────────
-        'mapping' => ['view', 'review', 'override'],
+        'mapping' => ['view', 'review', 'override', 'approve'],
 
         // ── Cohort definitions ────────────────────────────────────────────
         'cohorts' => ['view', 'create', 'edit', 'delete', 'generate'],
