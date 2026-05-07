@@ -36,7 +36,13 @@ ALTER SYSTEM SET max_wal_senders = '10';
 - `scripts/pg-host-archive-wal.sh`
   Called by PostgreSQL `archive_command`.
 - `scripts/pg-host-basebackup.sh`
-  Creates a compressed physical base backup using `pg_basebackup`.
+  Creates a compressed physical base backup using `pg_basebackup`. It refuses
+  to start when the backup filesystem has less than `300GB` free by default
+  (`PG_BASEBACKUP_MIN_FREE_GB`) and runs the prune script after a successful
+  backup so the host does not sit on three full base backups until the next
+  cron job. It also estimates the latest retained base backup size and refuses
+  to start if projected free space during the next backup would drop below
+  `100GB` (`PG_BASEBACKUP_MIN_POST_FREE_GB`).
 - `scripts/pg-host-logical-backup.sh`
   Dumps critical small schemas such as `app`.
 - `scripts/pg-host-prune-backups.sh`
