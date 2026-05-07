@@ -1,8 +1,10 @@
 # ADR 0013 — Llettuce Evaluation Harness + Phase 3 Graduation Criterion
 
-**Status:** Accepted (2026-05-05)
-**Deciders:** Phase 2 spec Q4 (Llettuce eval-only in Phase 2).
-**Implements:** Phase 2 Plan 3 (T-018b).
+**Status:** Amended 2026-05-07 — Llettuce HOLD; remains eval-only.
+**Original status:** Accepted (2026-05-05)
+**Deciders:** Phase 2 spec Q4 (Llettuce eval-only in Phase 2);
+Phase 3 Plan 7 Section C (Llettuce graduation decision).
+**Implements:** Phase 2 Plan 3 (T-018b); Phase 3 Plan 7 Tasks 16-18.
 
 ## Context
 
@@ -101,3 +103,98 @@ the rendered report as a build artifact for trend tracking.
 - **Add a `parthenon_ner_eval` template manifest** that wires the
   runner to a customer's NOTE table for benchmarking against their own
   corpus (not just synthetic). Phase 3+.
+
+---
+
+## 2026-05-07 Amendment — Phase 3 Plan 7 Section C: HOLD verdict
+
+**Verdict: HOLD.** Llettuce remains an eval-only artifact. Production
+NER manifests continue to use `parthenon_ner_llm` and
+`parthenon_ner_scispacy`; the canonical concept-mapping path moves to
+T-024 (Harmonia) per Phase 3 Plan 6.
+
+### Numbers
+
+The graduation eval (`tests/eval/
+test_llettuce_graduation_against_curated_benchmark.py`, gated to
+`pytest -m mapping_eval`) was wired up in Plan 7 Tasks 16-17 but could
+not produce a head-to-head SNOMED `concept_match_rate` delta because
+the prerequisites are not all simultaneously satisfiable in this
+environment:
+
+- The Plan 6 curated benchmark (`commercial/runtime/commercial/
+  mapping/benchmark/v0.1.0/seen.csv`) is gitignored; it is generated
+  per-customer against a real `vocab.concept_relationship`.
+- The SciSpaCy backend reaches the `parthenon-scispacy:5101` sidecar,
+  whose model wheel (`en_core_sci_md`) is currently 404 at upstream
+  (tracked as a Phase 2 Plan 2 follow-up).
+- The Llettuce upstream package (UCL `lettuce`) is not yet published
+  on PyPI; the runtime backend lazy-imports it and skips when absent.
+
+The graduation test SKIPs cleanly under all three conditions, so the
+eval ships ready-to-run but the empirical delta is **deferred to the
+nightly slow lane** once the SciSpaCy sidecar wheel + Llettuce PyPI
+package both become reachable.
+
+In the meantime, the qualitative case for HOLD is strong enough to
+move forward on it as the verdict.
+
+### Rationale
+
+**The concept-mapping niche Llettuce was supposed to fill is now
+covered by Harmonia (Plan 6, T-024A).** Plan 6 ships
+`runtime/commercial/mapping/` — BAAI/bge-base-en-v1.5 retrieval over
+`vocab.concept_embedding_bge` plus an LLM rerank stage —
+which is purpose-built for `(source_text, source_vocab) -> standard
+OMOP concept_id` and meets the seen.csv top-1/top-5 acceptance gates
+(60%/85%) and blind.csv gates (50%/75%). Llettuce's strength is
+precisely that vector-search-over-OMOP-embeddings shape. With Harmonia
+already in place and integrated into the Phase 3 mapping-review UI
+(Plan 7 Section A, T-024B), adding a second vector-mapping backend
+duplicates capability without a clear differentiator.
+
+**The Sonnet 4.6 vs Haiku 4.5 ablation on Plan 6 Gate 2 acceptance
+landed both models above gates** — both passed the 60%/85% top-1/top-5
+seen.csv gates. That signal says the rerank stage is doing real work
+and the bge-base retriever has enough recall that the LLM choice
+within reasonable bounds doesn't move the headline number much. By
+extension, swapping the entire retriever for Llettuce is unlikely to
+produce a SNOMED `concept_match_rate` delta of +5 pp without a
+matching domain-specific fine-tune of the encoder.
+
+**The right time to re-open this decision is after issue #295
+(per-vocabulary fine-tune of bge-base) lands.** That work targets the
+exact failure mode where Llettuce might still win — RxNorm and LOINC
+concept_match_rate, where the generic English encoder underperforms
+on standardized clinical naming conventions. Once #295 retrains the
+embedder against per-vocabulary contrastive pairs, re-running the
+graduation eval (which is now permanently wired) against an apples-
+to-apples updated `seen.csv` will produce the head-to-head delta this
+ADR was designed to gate on.
+
+### Consequences of HOLD
+
+- `parthenon_ner_llettuce` is **NOT** shipped. No new manifest, no
+  NODE_TYPES entry, no schema change.
+- Llettuce stays reachable via the `NoteNlpNode` dispatch (with the
+  `RuntimeWarning` from Phase 2 still firing) so the eval lane keeps
+  running. The harness exists primarily as a prompt-drift / encoder-
+  drift regression detector now: Plan 7's verdict markdown will
+  surface a delta change before any future graduation re-decision.
+- T-024 (Harmonia) is the canonical concept-mapping path. Customer-
+  facing language in the docs site should point Plan 6 first; Llettuce
+  is an internal R&D artifact, not a customer-installable backend.
+- The `mapping_eval` lane now uploads
+  `_eval/llettuce_graduation_{report,verdict}.md` alongside the
+  existing `ner_backend_comparison.md` (90-day retention) so future
+  re-evaluations have a stable artifact lineage.
+
+### Phase 4 reconsideration trigger
+
+Re-open this ADR when **any** of the following land:
+
+1. Issue #295 (per-vocabulary bge-base fine-tune).
+2. UCL publishes Llettuce to PyPI with stable APIs.
+3. A customer-furnished benchmark shows >= +5 pp SNOMED edge for
+   Llettuce against Harmonia on their corpus (the eval lane is
+   designed to accept arbitrary `seen.csv`).
