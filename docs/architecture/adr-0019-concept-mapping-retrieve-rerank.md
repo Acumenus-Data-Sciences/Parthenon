@@ -1,8 +1,36 @@
-# ADR 0019 — Concept-mapping retrieve-then-rerank architecture
+# ADR 0019 — Harmonia: concept-mapping retrieve-then-rerank architecture
 
 **Status:** Accepted (2026-05-06)
+**Service name:** Harmonia (Greek goddess of agreement and accord).
 **Deciders:** Phase 3 spec Q4 (curated benchmark) + Q5 (bge-base) + Q1 (commercial wedge).
-**Implements:** Phase 3 Plan 6 (T-024A). Consumed by Plan 7 (T-024B).
+**Implements:** Phase 3 Plan 6 (T-024A). Consumed by Plan 7 (T-024B reviewer UI).
+
+## Naming
+
+The service is named **Harmonia** — Greek goddess of agreement, accord,
+and *fitting together*. Daughter of Aphrodite and Ares, born of love
+and conflict. Concept mapping is fundamentally the act of bringing
+disparate source vocabularies (ICD10CM, NDC, Read, local hospital
+codes) into harmony with the standard target vocabularies
+(SNOMED, RxNorm, LOINC) that OMOP analytics actually run on. Every
+approved mapping is a small act of harmony.
+
+The mapping triad is now:
+
+> **Hecate** searches the crossroads. **Harmonia** harmonizes.
+> **Ariadne** records the thread.
+
+We considered "Theseus" (Ariadne's mythological partner, who used her
+thread to navigate the labyrinth) but found it's already taken in the
+OHDSI namespace by THESEUS (Text-guided Health-study Estimation and
+Specification Engine Using Strategus, Kim et al., medRxiv 2026).
+Greek-pantheon naming consistency with Hecate / Ariadne / Phoebe /
+Morpheus made Harmonia the natural alternative.
+
+Module / package / table names stay descriptive (``runtime.commercial.mapping``,
+``app.parthenon_concept_map``) — service-level naming lives in marketing
+copy, the reviewer UI, this ADR, and the user manual. Module names
+keep their domain term so imports stay legible.
 
 ## Context
 
@@ -91,8 +119,8 @@ imports.
 
 ### Tier-decision rationale: prompts are not the wedge
 
-Plan 6 Task 7 deliberately puts ``concept_rerank.md`` and its
-schema in the **community-tier runtime path** because:
+Harmonia deliberately puts ``concept_rerank.md`` and its schema
+in the **community-tier runtime path** because:
 
 - The wedge is the embedder choice + benchmark + tuning loop, NOT
   the prompt text. Prompts are easy to recreate from first
@@ -110,8 +138,8 @@ schema in the **community-tier runtime path** because:
 
 ## Acceptance criteria
 
-Plan 6 Task 13 ships a gated E2E (``pytest -m mapping_eval``) that
-runs the full pipeline against the Task 12 curated benchmark:
+Harmonia ships a gated E2E (``pytest -m mapping_eval``) that runs
+the full pipeline against the curated benchmark:
 
 | Set | top-1 minimum | top-5 minimum |
 |---|---|---|
@@ -128,7 +156,7 @@ the bge-base weights.
 
 ## Consequences
 
-**What ships in the commercial wheel after Plan 6:**
+**What ships in the commercial wheel as Harmonia v0.1:**
 
 - A working AI-assisted concept-mapping backend that consumes any
   Plan 5 / Plan 3 / Plan 1 unmapped queue and produces ranked
@@ -139,11 +167,11 @@ the bge-base weights.
 - A reviewer audit trail (model_version + candidate_ranking_json)
   so every approved mapping has its provenance.
 
-**What is NOT in Plan 6 and waits for Plan 7:**
+**What is NOT in Harmonia v0.1 and waits for the reviewer UI (T-024B):**
 
-- The reviewer UI itself (Plan 7 Section A).
+- The reviewer UI itself (T-024B Section A — Plan 7).
 - Auto-approval of high-confidence suggestions (Phase 4
-  candidate; Plan 6 v0.1 ships manual-review only).
+  candidate; Harmonia v0.1 ships manual-review only).
 - Cross-encoder reranker (Phase 4 candidate if top-5 plateaus
   below 90% in production).
 - Per-vocabulary embedding fine-tuning (Phase 4 candidate).
@@ -169,11 +197,11 @@ the bge-base weights.
 | **Hand-curated gold standard** | Multi-month effort; ``vocab.concept_relationship 'Maps to'`` already encodes ground truth at scale. |
 | **bge-large or other 1024-dim model** | 2x storage + 2x latency for marginal accuracy gain at our top-50 cutoff. |
 | **Putting prompts in the commercial wheel** | See "Tier-decision rationale" above. Recreate work factor is infra, not text. |
-| **Auto-approve high-confidence suggestions in Plan 6** | Confidence calibration needs field data; auto-approve risks silent corruption. Phase 4. |
+| **Auto-approve high-confidence suggestions in Harmonia v0.1** | Confidence calibration needs field data; auto-approve risks silent corruption. Phase 4. |
 
 ## Open follow-ups
 
-- Plan 7 (T-024B) — reviewer UI sits on top of this backend.
+- Plan 7 (T-024B) — reviewer UI sits on top of Harmonia.
 - Cross-encoder rerank if top-5 accuracy plateaus below 90% in
   production logs (Phase 4).
 - Per-vocabulary embedding fine-tuning if blind-set transfer
