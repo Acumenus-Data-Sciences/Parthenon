@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\DB;
  * write here; only the MappingReviewQueueNode (Task 11) does, and it
  * goes through the same DB connection the Laravel backend owns.
  */
-return new class () extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         DB::statement(<<<'SQL'

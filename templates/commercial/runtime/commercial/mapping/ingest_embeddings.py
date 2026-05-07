@@ -106,7 +106,7 @@ def _select_unmapped_concepts(
         ORDER BY c.concept_id
     """
     cursor.execute(sql, (list(vocabularies), model_name))
-    rows = cursor.fetchall()  # type: ignore[attr-defined]
+    rows = cursor.fetchall()
     for row in rows:
         cid, name = row[0], row[1]
         yield _ConceptRow(concept_id=int(cid), concept_name=str(name))

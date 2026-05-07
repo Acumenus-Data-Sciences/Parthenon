@@ -46,3 +46,10 @@ final form, which is application-tier data.
   read + write path.
 - Future template iterations of Plan 5 / 3 / etc. — read-only join
   to short-circuit unmapped queues for already-approved codes.
+
+## 2026-05-07 — Pint cosmetic fix
+
+Applied `vendor/bin/pint` autofix on the migration file: anonymous class
+definition switched from `new class ()` to `new class` with the brace on a
+new line (Pint rules: `new_with_parentheses`, `class_definition`,
+`braces_position`). No schema change.
