@@ -51,11 +51,10 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));
         } catch (\Throwable $e) {
-            // Non-fatal: log the temp password so admins can retrieve it if email fails
+            // Non-fatal: log the error. Admins or users can reset password later if email fails
             logger()->warning('Failed to send temp password email', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'temp_password' => $tempPassword,
                 'error' => $e->getMessage(),
             ]);
         }
@@ -167,7 +166,6 @@ class AuthController extends Controller
                 logger()->warning('Failed to send password reset email', [
                     'user_id' => $user->id,
                     'email' => $user->email,
-                    'temp_password' => $tempPassword,
                     'error' => $e->getMessage(),
                 ]);
             }
