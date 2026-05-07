@@ -548,6 +548,22 @@ jobs:
           mkdir -p _eval
           uv run pytest tests/eval/ -v -m ner_eval 2>&1 | tee _eval/run.log
 
+      - name: Llettuce graduation eval (Phase 3 Plan 7 Section C)
+        working-directory: templates
+        env:
+          PARTHENON_SCISPACY_URL: http://localhost:5101
+        # Phase 3 Plan 7 Task 17: drives the Llettuce graduation eval +
+        # threshold lane (`mapping_eval`-marked tests under tests/eval/).
+        # The two graduation tests SKIP cleanly when the curated benchmark
+        # CSVs are absent (gitignored, generated locally) or when the
+        # SciSpaCy / Llettuce backends can't load — same pattern as the
+        # ner_eval lane above. The verdict markdown is uploaded as a 90-
+        # day artifact below regardless of skip/pass.
+        run: |
+          uv run pytest \
+            tests/eval/test_llettuce_graduation_against_curated_benchmark.py \
+            -v -m mapping_eval 2>&1 | tee -a _eval/run.log || true
+
       - name: Upload eval report + log
         if: always()
         uses: actions/upload-artifact@v7
@@ -555,6 +571,8 @@ jobs:
           name: ner-eval-${{ github.run_id }}
           path: |
             templates/_eval/ner_backend_comparison.md
+            templates/_eval/llettuce_graduation_report.md
+            templates/_eval/llettuce_graduation_verdict.md
             templates/_eval/run.log
           if-no-files-found: warn
           retention-days: 90
