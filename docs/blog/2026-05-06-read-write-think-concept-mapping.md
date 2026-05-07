@@ -1,12 +1,14 @@
 ---
 slug: dev-diary-2026-05-06-read-write-think-concept-mapping
-title: "Read, Write, Think: How Plan 6 Completes the Concept-Mapping Stack"
+title: "Introducing Harmonia: Read, Write, Think for OMOP Concept Mapping"
 authors: [mudoshi, claude]
-tags: [development, ai, concept-mapping, omop, hecate, ariadne, pgvector, llm, anthropic, plan-6, t-024]
+tags: [development, ai, concept-mapping, omop, harmonia, hecate, ariadne, pgvector, llm, anthropic, t-024]
 date: 2026-05-06
 ---
 
-Concept mapping is the single largest line item in any OMOP CDM ingestion budget. Published estimates put it at **40–60% of total ETL effort** per source system — measured in clinician-weeks, not engineer-hours. Today we landed the architectural piece that's been missing from Parthenon's vocabulary stack since the beginning: an automated **decision** layer that sits between Hecate (read) and Ariadne (write) and does the cognitive work that's been falling on humans.
+Concept mapping is the single largest line item in any OMOP CDM ingestion budget. Published estimates put it at **40–60% of total ETL effort** per source system — measured in clinician-weeks, not engineer-hours. Today we landed the architectural piece that's been missing from Parthenon's vocabulary stack since the beginning: **Harmonia**, an automated **decision** layer that sits between Hecate (read) and Ariadne (write) and does the cognitive work that's been falling on humans.
+
+The name is deliberate. In Greek mythology, **Harmonia** is the goddess of agreement, accord, and *fitting together* — daughter of Aphrodite and Ares, born of love and conflict. That's what concept mapping is: bringing disparate source vocabularies (an ICD-10 code from one EHR, an NDC string from another, a hospital's local lab nomenclature) into harmony with a single canonical OMOP standard. Every approved mapping is a small act of harmony. Until today, Parthenon could *show* candidates and *record* decisions but couldn't *reach* harmony on its own.
 
 This post walks through what we built, why it's an improvement over the existing Hecate + Ariadne pair, and the four real bugs we hit getting a benchmark to actually run.
 
@@ -41,27 +43,27 @@ Look at the workflow that pattern produces:
 
 Step 4 is the bottleneck. Cosine similarity is necessary but insufficient — *"Felt lack of respect before illness"* and *"Felt inferior to others before illness"* score nearly identically against `embeddinggemma`, but only one of them is the right LOINC code for a given source. **Picking the right one requires clinical reasoning, and clinical reasoning has been falling on humans for every single mapping.**
 
-That's the work **Plan 6 (T-024A)** automates.
+That's the work **Harmonia** automates.
 
 ---
 
-## What we built — the *think* layer
+## What we built — Harmonia
 
-Plan 6 ships a commercial-tier backend that does retrieval, reranking, and persistence in a single pipeline. The architecture is deliberately modular so each stage can be replaced independently.
+Harmonia is a commercial-tier backend that does retrieval, reranking, and persistence in a single pipeline. The architecture is deliberately modular so each stage can be replaced independently.
 
 ### Stage 1 — Retrieve (`BgeEmbedder` + `ConceptRetriever`)
 
 Different model, different scope from Hecate by design:
 
 - **`BAAI/bge-base-en-v1.5`** instead of `embeddinggemma:300m`. bge-base scores higher than general-purpose Gemma embeddings on retrieval-specific benchmarks (BEIR, MTEB), and at 110M params it's small enough to share VRAM with MedGemma 27B without eviction pressure.
-- **Standard concepts only** — `vocab.concept WHERE standard_concept = 'S' AND invalid_reason IS NULL` filtered to SNOMED + RxNorm + LOINC + ATC + HCPCS. That's ~632k concepts, half Hecate's index size, but every row is a valid mapping target. Hecate's broader index is right for live UI search; Plan 6's narrower index is right for a pipeline that has to commit to one answer.
+- **Standard concepts only** — `vocab.concept WHERE standard_concept = 'S' AND invalid_reason IS NULL` filtered to SNOMED + RxNorm + LOINC + ATC + HCPCS. That's ~632k concepts, half Hecate's index size, but every row is a valid mapping target. Hecate's broader index is right for live UI search; Harmonia's narrower index is right for a pipeline that has to commit to one answer.
 - **`vocab.concept_embedding_bge`** is a new pgvector table living in the shared `vocab` schema with an `ivfflat (vector_cosine_ops) WITH (lists = 200)` index. Co-locating embeddings with the source vocabulary means joins to `concept` happen at no network cost — important when the retriever needs to surface `concept_name`, `vocabulary_id`, `domain_id`, and `standard_concept` for every candidate.
 
 `ConceptRetriever.search(cursor, query_vec, top_k=50)` returns 50 candidates per query in ~3-5ms after the index is warm. Compare to Hecate's HTTP round-trip from Laravel into Qdrant for ~100ms — same algorithm, but **in-process and same-database** is the right deployment for pipeline use.
 
 ### Stage 2 — Rerank (`ConceptReranker` + Anthropic tool_use)
 
-Cosine similarity gets you the right answer in the top-50; the rerank stage gets the right answer to the top-1. Plan 6 wires this through the Phase 2 NLP backend pattern with a strict JSON contract:
+Cosine similarity gets you the right answer in the top-50; the rerank stage gets the right answer to the top-1. Harmonia wires this through the Phase 2 NLP backend pattern with a strict JSON contract:
 
 - **System prompt** explicitly instructs on OMOP "Maps to" asymmetry: *"the OMOP 'Maps to' relationship goes from a non-standard source vocabulary (ICD10CM, NDC, Read, ICD9CM, etc.) to a standard target vocabulary (SNOMED, RxNorm, LOINC). Source-text and target-name often differ semantically because of vocabulary asymmetry."* Without this, the LLM defaults to lexical matching — wrong direction.
 - **Anthropic `tool_use`** with a strict `input_schema` (`ranked: [{concept_id, score, rationale}]` + `confidence`). Server-side schema validation eliminates the 26% JSON parse failure rate we saw with prose-based JSON output. (More on that war story below.)
@@ -69,7 +71,7 @@ Cosine similarity gets you the right answer in the top-50; the rerank stage gets
 
 ### Stage 3 — Persist (`MappingReviewQueueNode` + `app.parthenon_concept_map`)
 
-This is where Plan 6 hands off to Ariadne instead of replacing it. The new `app.parthenon_concept_map` table holds **auto-approved** mappings (high LLM confidence, no human review) plus the audit trail every approved mapping needs:
+This is where Harmonia hands off to Ariadne instead of replacing it. The new `app.parthenon_concept_map` table holds **auto-approved** mappings (high LLM confidence, no human review) plus the audit trail every approved mapping needs:
 
 ```sql
 CREATE TABLE app.parthenon_concept_map (
@@ -93,7 +95,7 @@ Low-confidence rows (confidence ≤ 0.3 per the prompt's "no clear match" rule) 
 
 ### How the three layers compose
 
-| Capability | Hecate | Ariadne | Plan 6 |
+| Capability | Hecate | Ariadne | Harmonia |
 |---|---|---|---|
 | Returns plausible candidates | ✓ | — | ✓ |
 | Picks the right one with reasoning | ✗ | ✗ (user does) | ✓ |
@@ -103,18 +105,18 @@ Low-confidence rows (confidence ≤ 0.3 per the prompt's "no clear match" rule) 
 | Live UI search at 1.97M concept scale | ✓ | — | ✗ (smaller, narrower index) |
 | Audit trail with reviewer_id | — | ✓ | ✓ (mirrors Ariadne shape) |
 
-**Hecate searches. Ariadne records. Plan 6 decides.** That's the shape of a complete read-write-think system. The before-state had read and write but no think.
+**Hecate searches. Harmonia harmonizes. Ariadne records.** That's the shape of a complete read-write-think system. The before-state had read and write but no think — the act of bringing a local code into accord with a standard concept was happening one clinician-week at a time.
 
 ---
 
 ## The acceptance benchmark — why it exists
 
-Phase 3 spec §2 mandates a "Gate 2" check before Plan 6 can merge. The fear isn't that the architecture is wrong; it's that the rerank step is hand-wavey and needs ground truth before we ship it as a commercial wedge to customers.
+Phase 3 spec §2 mandates a "Gate 2" check before Harmonia can merge. The fear isn't that the architecture is wrong; it's that the rerank step is hand-wavey and needs ground truth before we ship it as a commercial wedge to customers.
 
 The benchmark is curated from `vocab.concept_relationship` where `relationship_id = 'Maps to'` — the ground-truth directed edges OMOP itself publishes between non-standard source codes and standard targets. We pull 3000 such edges, sample-balanced per source vocabulary, and split into:
 
 - **`seen.csv`** (1557 rows) — source vocabularies the embedder has seen plenty of: SNOMED, RxNorm, LOINC, HCPCS. Pass thresholds: top-1 ≥ 0.60, top-5 ≥ 0.85. **Non-negotiable.**
-- **`blind.csv`** (521 rows) — source vocabularies held out: ICD10CM, ICD9CM, NDC, Read. Pass thresholds: top-1 ≥ 0.50, top-5 ≥ 0.75. **Aspirational** — ADR 0019 lets us ship Plan 6 with the blind set deferred to Phase 4 if the gates miss, because cross-vocabulary mapping is genuinely the hard case.
+- **`blind.csv`** (521 rows) — source vocabularies held out: ICD10CM, ICD9CM, NDC, Read. Pass thresholds: top-1 ≥ 0.50, top-5 ≥ 0.75. **Aspirational** — ADR 0019 lets us ship Harmonia with the blind set deferred to Phase 4 if the gates miss, because cross-vocabulary mapping is genuinely the hard case.
 
 The test for each row is binary: take the source code's text, run the full retrieve→rerank pipeline, see whether the ground-truth target concept_id appears in the LLM's top-1 (strict) and top-5 (lenient) outputs.
 
@@ -126,7 +128,7 @@ The acceptance harness was supposed to be a one-day delivery. It took two days b
 
 ### Bug 1 — pgvector type unresolvable from default sessions
 
-The Plan 6 Task 4 migration declared `embedding vector(768)`, but pgvector installs the `vector` type into whatever schema the extension lives in (`public` by default). The customer's session search_path was `app, php` — the migration's `CREATE TABLE` failed with `type "vector" does not exist`.
+Harmonia's pgvector migration declared `embedding vector(768)`, but pgvector installs the `vector` type into whatever schema the extension lives in (`public` by default). The customer's session search_path was `app, php` — the migration's `CREATE TABLE` failed with `type "vector" does not exist`.
 
 Fix: schema-qualify every cast. Migration column type is now `embedding public.vector(768) NOT NULL`. The retriever and ingest job got the same treatment for `%s::public.vector` parameter casts.
 
@@ -224,13 +226,13 @@ The trajectory suggests landing the seen set around **0.78 top-1 / 0.85 top-5** 
 
 The blind set is going to be hard. The 50-row probe earlier showed top-1 = 0.28 / top-5 = 0.30 — well below the 0.50 / 0.75 thresholds. ICD10CM → SNOMED is genuinely the hard case because the source-text strings often diverge from the target's `concept_name` (for example, ICD10CM "Type 2 diabetes mellitus without complications" maps to SNOMED "Type 2 diabetes mellitus" — the modifier drops, and bge-base's similarity dilutes accordingly). Per ADR 0019 the blind-set thresholds are negotiable; the seen-set thresholds are not.
 
-If the seen set lands at the gate and the blind set misses, **Plan 6 ships with the blind work explicitly deferred to Phase 4**, where the natural next move is per-vocabulary fine-tuning on the bge-base encoder. A 12-hour LoRA on the curated benchmark itself should close most of the cross-vocab gap, but that's a separate piece of work.
+If the seen set lands at the gate and the blind set misses, **Harmonia ships with the blind work explicitly deferred to Phase 4**, where the natural next move is per-vocabulary fine-tuning on the bge-base encoder. A 12-hour LoRA on the curated benchmark itself should close most of the cross-vocab gap, but that's a separate piece of work.
 
 ---
 
 ## What this changes for customers
 
-The headline metric for Plan 6's commercial deliverable is the line in ADR 0019: *"published estimates put concept mapping at 40-60% of total ETL effort. Cutting that in half (or better) is the Parthenon-native moat."*
+The headline metric for Harmonia is the line in ADR 0019: *"published estimates put concept mapping at 40-60% of total ETL effort. Cutting that in half (or better) is the Parthenon-native moat."*
 
 Cutting in half isn't a model quality target — it's a workflow target. Even at the conservative end of our seen-set numbers (75% top-1), three out of four unmapped local codes will arrive at Ariadne with the right concept already at the top of the suggested list. The reviewer's job becomes:
 
@@ -244,9 +246,9 @@ If a reviewer averaged 90 seconds per Hecate-search-and-pick before, the new flo
 
 ## What's still owed
 
-Plan 6 (T-024A) is the backend. **Plan 7 (T-024B) is the reviewer UI** — a React surface at `/admin/mapping-review` where the queue of suggested mappings actually appears in front of human eyes. That's the next plan in flight; once it ships, the Ariadne workflow will inherit the LLM-suggested top-5 as a default view rather than the current empty search box.
+Harmonia (T-024A) is the backend. **The reviewer UI (T-024B) is next** — a React surface at `/admin/mapping-review` where the queue of suggested mappings actually appears in front of human eyes. Once it ships, the Ariadne workflow will inherit Harmonia's top-5 suggestions as a default view rather than the current empty search box.
 
-We also owe a follow-up commit that wires Plan 6 into the existing Phase 2 LlmBackend (currently OpenAI/Ollama). The acceptance harness uses Anthropic directly via tool_use; production should be able to flip providers without script-level branching. That's a single afternoon of work behind a Phase 4 ticket.
+We also owe a follow-up commit that wires Harmonia into the existing Phase 2 LlmBackend (currently OpenAI/Ollama). The acceptance harness uses Anthropic directly via tool_use; production should be able to flip providers without script-level branching. That's a single afternoon of work behind a Phase 4 ticket.
 
 And the blind-set gap — assuming today's run lands as expected — is the obvious Phase 4 candidate. ADR 0019 already names per-vocabulary embedding fine-tuning as the path forward there.
 
@@ -263,7 +265,7 @@ If you're cloning this work for your own ROCm-equipped lab:
 3. **Build the venv on Python 3.12 if you're on AMD.** ROCm torch wheels lag NVIDIA CUDA wheels by one Python minor version. cp313 wheels may exist by the time you're reading this; cp312 was the safest bet on May 6, 2026.
 4. **Use `tool_use` for every LLM call that needs structured output.** Prose-based JSON parsing is a 5-25% silent failure tax. The Anthropic SDK's tool_use API is one extra parameter and eliminates the entire category of errors.
 
-The Plan 6 worktree at `/tmp/p3-plan6-impl` (which becomes `feature/phase-3-plan-6-ai-mapping` upstream) is on PR #292 with all four fixes committed. The acceptance harness lives at `templates/scripts/run_mapping_acceptance.py`. If you want to reproduce locally:
+The Harmonia worktree at `/tmp/p3-plan6-impl` (which becomes `feature/phase-3-plan-6-ai-mapping` upstream) is on PR #292 with all four fixes committed. The acceptance harness lives at `templates/scripts/run_mapping_acceptance.py`. If you want to reproduce locally:
 
 ```bash
 # (one-time) Apply the migration
@@ -298,8 +300,8 @@ Phase 3 is "the commercial wedge" phase — four big new template families (T-02
 - **T-024A (mapping backend):** in flight — PR #292, acceptance run currently executing.
 - **T-024B (reviewer UI):** next.
 
-Plan 6 is the conceptual centerpiece of T-024 — the deliverable customers actually pay for. Plan 7 is the surface they touch. Together they close the read-write-think gap that Hecate and Ariadne couldn't close alone.
+Harmonia is the conceptual centerpiece of T-024 — the deliverable customers actually pay for. The reviewer UI (T-024B) is the surface they touch. Together they close the read-write-think gap that Hecate and Ariadne couldn't close alone.
 
-The acceptance run will tell us whether Plan 6 ships green or with documented blind-set follow-up. Either way, **the architecture lands**, the four bugs are fixed in committed code, the script + benchmark + ROCm setup are reproducible, and the next time a clinician opens Ariadne they'll see fewer rows in their queue.
+The acceptance run will tell us whether Harmonia ships green or with documented blind-set follow-up. Either way, **the architecture lands**, the four bugs are fixed in committed code, the script + benchmark + ROCm setup are reproducible, and the next time a clinician opens Ariadne they'll see fewer rows in their queue — because Harmonia got there first.
 
 That last sentence is the one that matters.
