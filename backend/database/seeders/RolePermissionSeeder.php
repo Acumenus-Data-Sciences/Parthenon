@@ -159,7 +159,7 @@ class RolePermissionSeeder extends Seeder
         'data-steward' => [
             'sources.view', 'sources.create', 'sources.edit', 'sources.delete',
             'ingestion.view', 'ingestion.upload', 'ingestion.run', 'ingestion.delete',
-            'mapping.view', 'mapping.review', 'mapping.override',
+            'mapping.view', 'mapping.review', 'mapping.override', 'mapping.approve',
             'vocabulary.view', 'vocabulary.manage',
             'data-quality.view', 'data-quality.run', 'data-quality.delete',
             'jobs.view', 'jobs.cancel',
@@ -177,9 +177,11 @@ class RolePermissionSeeder extends Seeder
         ],
 
         // Reviews and approves AI concept mapping suggestions.
+        // Phase 3 Plan 6 (T-024A) added 'mapping.approve' so the
+        // MappingReviewQueueNode write path passes the RBAC gate.
         'mapping-reviewer' => [
             'vocabulary.view',
-            'mapping.view', 'mapping.review',
+            'mapping.view', 'mapping.review', 'mapping.approve',
             'ingestion.view',
             'sources.view',
             'jobs.view',

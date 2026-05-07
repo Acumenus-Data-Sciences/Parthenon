@@ -75,7 +75,9 @@
                   "anonymizer",
                   "note_nlp",
                   "sdtm_domain",
-                  "regimen_matcher"
+                  "regimen_matcher",
+                  "concept_mapping_suggester",
+                  "mapping_review_queue"
                 ]
               },
               "params": {
