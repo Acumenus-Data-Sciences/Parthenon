@@ -891,6 +891,20 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            path: "mapping-review",
+            lazy: () =>
+              import(
+                "@/features/mapping-review/pages/MappingReviewQueuePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "mapping-review/:queueId",
+            lazy: () =>
+              import(
+                "@/features/mapping-review/pages/MappingReviewDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "notifications",
             lazy: () =>
               import(
