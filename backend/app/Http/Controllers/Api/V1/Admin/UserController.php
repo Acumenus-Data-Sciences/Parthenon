@@ -88,7 +88,6 @@ class UserController extends Controller
             } catch (\Throwable $e) {
                 logger()->warning('Failed to send temp password email', [
                     'user_id' => $user->id,
-                    'temp_password' => $plainPassword,
                     'error' => $e->getMessage(),
                 ]);
             }

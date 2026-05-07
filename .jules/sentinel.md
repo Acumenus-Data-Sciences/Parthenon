@@ -12,3 +12,8 @@
 **Vulnerability:** A query validation function (`checkSqlSafety`) intended to block destructive queries (like `DROP`, `INSERT`) could be completely bypassed if the attacker added a comment containing a whitelisted schema name (e.g., `DROP TABLE users; -- temp_abby`).
 **Learning:** Checking for substrings or using simple regexes on raw, un-parsed SQL strings is extremely brittle because SQL comments and string literals can hide tokens or introduce false flags.
 **Prevention:** Always strip SQL comments and string literals (replacing them with spaces to preserve token boundaries) before attempting to identify keywords via regex.
+
+## 2026-05-07 - [Secrets] Passwords Leak in Error Logs
+**Vulnerability:** The temporary password created for the user when an email send failed was being logged to the backend logger in plaintext, leaking secrets into application logs.
+**Learning:** Even well-intentioned error handling and logging (e.g., providing a fallback so an admin can give a user their password if an email fails) can introduce critical security risks by leaving plaintext secrets in persistent logs.
+**Prevention:** Never log plaintext passwords or sensitive credentials. Fallback mechanisms should rely on standard password reset flows rather than exposing temporary credentials in logs.
