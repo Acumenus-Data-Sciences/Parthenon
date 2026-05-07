@@ -661,8 +661,10 @@ if $DO_DOCS; then
   fi
   echo ""
   echo "── Docs: clearing build cache ──"
-  # Preserve docs/site/build/ directory inode so nginx bind mount stays valid
-  find docs/site/build -mindepth 1 -delete 2>/dev/null || true
+  # Keep the currently served build in place until docs-build has produced a
+  # replacement. The docs-build container writes to a temp dir first, then
+  # refreshes /dist only after a successful Docusaurus build.
+  mkdir -p docs/site/build
   rm -rf docs/site/.docusaurus docs/site/node_modules/.cache
   ok "Docs build cache cleared"
 

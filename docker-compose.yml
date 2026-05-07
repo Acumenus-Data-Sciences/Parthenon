@@ -687,7 +687,7 @@ services:
       sh -c "
         mkdir -p /tmp/npm-cache /dist /tmp/docs-build &&
         chown -R node:node /docs/node_modules /tmp/npm-cache /dist /tmp/docs-build &&
-        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
+        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline --ignore-scripts && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
         rm -rf /dist/* &&
         cp -a /tmp/docs-build/. /dist/
       "
