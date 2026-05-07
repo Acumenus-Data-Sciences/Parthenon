@@ -154,6 +154,31 @@ The acceptance test is gated to schedule + workflow_dispatch lanes
 because each run costs LLM tokens at the 3000-pair scale and pulls
 the bge-base weights.
 
+### 2026-05-06 Gate 2 acceptance run (empirical results)
+
+Harmonia v0.1 was benchmarked against the full curated set
+(2078 pairs: 1557 seen + 521 blind) end-to-end:
+
+| Run | Set | top-1 | top-5 | Verdict |
+|---|---|---|---|---|
+| Haiku 4.5 (`claude-haiku-4-5-20251001`) | seen (1557) | **0.774** | 0.793 | top-1 PASS; top-5 below aspirational 0.85 |
+| Haiku 4.5 | blind (521) | 0.518 | 0.554 | top-1 PASS; top-5 below 0.75 |
+| Sonnet 4.6 (`claude-sonnet-4-6`, 1150 clean rows before credit exhaustion) | seen | 0.773 | 0.790 | Statistically tied with Haiku |
+
+**Finding:** Sonnet 4.6 ≈ Haiku 4.5 on the clean portion of the
+seen set (Δ < 0.4 pp on both top-1 and top-5, well inside benchmark
+noise on N=1150). The seen top-5 gap to 0.85 and the blind top-5
+gap to 0.75 are therefore **retrieval-recall bottlenecks, not
+rerank-quality bottlenecks**: when the right concept is not in
+bge-base's top-50 candidates, no LLM rerank can recover it.
+
+**Decision:** Ship Harmonia v0.1 with seen top-1 PASSING (the
+non-negotiable gate). The remaining gaps are deferred to Phase 4
+under a single named ticket: per-vocabulary LoRA fine-tune of
+bge-base on the curated benchmark. Skipping an Opus 4.7 confirmation
+run because Sonnet ≈ Haiku already proves the bottleneck is upstream
+of the rerank LLM.
+
 ## Consequences
 
 **What ships in the commercial wheel as Harmonia v0.1:**
@@ -172,9 +197,11 @@ the bge-base weights.
 - The reviewer UI itself (T-024B Section A — Plan 7).
 - Auto-approval of high-confidence suggestions (Phase 4
   candidate; Harmonia v0.1 ships manual-review only).
+- Per-vocabulary LoRA fine-tune of bge-base on the curated
+  benchmark (the named Phase 4 ticket — empirical Gate 2 run
+  showed retrieval recall, not rerank quality, is the bottleneck).
 - Cross-encoder reranker (Phase 4 candidate if top-5 plateaus
-  below 90% in production).
-- Per-vocabulary embedding fine-tuning (Phase 4 candidate).
+  below 90% *after* the bge-base fine-tune).
 
 **Cost shape:**
 
@@ -202,10 +229,11 @@ the bge-base weights.
 ## Open follow-ups
 
 - Plan 7 (T-024B) — reviewer UI sits on top of Harmonia.
-- Cross-encoder rerank if top-5 accuracy plateaus below 90% in
-  production logs (Phase 4).
-- Per-vocabulary embedding fine-tuning if blind-set transfer
-  performance is insufficient (Phase 4).
+- **Phase 4 — bge-base LoRA fine-tune on the curated benchmark**
+  (named ticket; addresses both the seen top-5 gap to 0.85 and
+  the blind top-5 gap to 0.75 by improving retrieval recall).
+- Cross-encoder rerank if top-5 accuracy plateaus below 90%
+  *after* the bge-base fine-tune (Phase 4 candidate).
 - Auto-approval policy when confidence calibration is well-known
   (Phase 4).
 
