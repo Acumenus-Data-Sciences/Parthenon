@@ -19,6 +19,7 @@ import { useGencodeGenes } from "../../hooks/useGencodeGenes";
 import type { RegionVariant } from "../../api/gwas-results";
 import { GeneTrack } from "./GeneTrack";
 import { LegendBand } from "./LegendBand";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export interface RegionalViewProps {
   runId: string;
@@ -31,6 +32,7 @@ export interface RegionalViewProps {
 const WINDOW_HALF_BP = 500_000;
 const MAX_WINDOW_BP = 2_000_000;
 const CANVAS_HEIGHT = 160;
+const EMPTY_VARIANTS: RegionVariant[] = [];
 
 export function RegionalView({
   runId,
@@ -53,7 +55,7 @@ export function RegionalView({
   const genesQuery = useGencodeGenes({ chrom, start, end });
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const variants: RegionVariant[] = regionQuery.data?.variants ?? [];
+  const variants = regionQuery.data?.variants ?? EMPTY_VARIANTS;
   const genes = genesQuery.data?.genes ?? [];
 
   // Shared x-scale — passed to GeneTrack below so gene rects align with the
@@ -116,12 +118,12 @@ export function RegionalView({
   return (
     <section
       className="rounded-lg border border-border bg-surface p-4"
-      aria-label="Regional view"
+      aria-label={tAuto("regionalView_3569da8a")}
       data-testid="regional-view"
     >
       <header className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold">Regional view</h2>
+          <h2 className="text-sm font-semibold">{tAuto("regionalView_3569da8a")}</h2>
           <p
             className="font-mono text-xs text-text-muted"
             data-testid="regional-axis-label"
@@ -133,9 +135,9 @@ export function RegionalView({
           type="button"
           onClick={onClose}
           className="rounded border border-border px-2 py-1 text-xs text-text-muted hover:text-text-primary"
-          aria-label="Close regional view"
+          aria-label={tAuto("closeRegionalView_adee1452")}
         >
-          Close
+          {tAuto("close_bbfa773e")}
         </button>
       </header>
 
@@ -144,7 +146,7 @@ export function RegionalView({
           className="py-6 text-center text-sm text-text-muted"
           data-testid="regional-loading"
         >
-          Loading region…
+          {tAuto("loadingRegion_fad43a1b")}
         </p>
       ) : (
         <div className="space-y-2">

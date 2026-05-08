@@ -4,6 +4,7 @@ import { Shell } from "@/components/workbench/primitives";
 import { HelpButton } from "@/features/help";
 import { useVsacMeasure } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundleVsacMeasureDetailPage() {
   const { cms_id: cmsIdParam } = useParams<{ cms_id: string }>();
@@ -19,7 +20,7 @@ export default function CareBundleVsacMeasureDetailPage() {
         to="/workbench/care-bundles/measures"
         className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-primary"
       >
-        <ArrowLeft className="h-3 w-3" /> CMS Measures
+        <ArrowLeft className="h-3 w-3" /> {tAuto("cmsMeasures_a37c082e")}
       </Link>
 
       <header className="flex items-start justify-between gap-4">
@@ -38,24 +39,24 @@ export default function CareBundleVsacMeasureDetailPage() {
       </header>
 
       <Shell
-        title="Value sets"
+        title={tAuto("valueSets_0992621f")}
         subtitle={data ? `${data.value_sets.length} linked value sets` : "—"}
       >
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loading_33ce4174")}
             </div>
           ) : !data || data.value_sets.length === 0 ? (
-            <p className="p-6 text-sm text-text-ghost">No value sets indexed.</p>
+            <p className="p-6 text-sm text-text-ghost">{tAuto("noValueSetsIndexed_4d2a0081")}</p>
           ) : (
             <table className="min-w-full text-sm">
               <thead className="border-b border-border-default">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Name</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Category</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">Codes</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">OMOP concepts</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("name_709a2322")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("category_a3c686e7")}</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("codes_199993be")}</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("omopConcepts_01eb6476")}</th>
                 </tr>
               </thead>
               <tbody>

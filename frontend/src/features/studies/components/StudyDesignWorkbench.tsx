@@ -21,6 +21,7 @@ import {
 } from "./workbench/studyDesignWorkbenchHelpers";
 import type { Study } from "../types/study";
 import { useStudyDesignWorkbench } from "../hooks/useStudyDesignWorkbench";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface StudyDesignWorkbenchProps {
   study: Study;
@@ -158,7 +159,7 @@ export function StudyDesignWorkbench({ study, headingRef }: StudyDesignWorkbench
           <input
             ref={protocolInputRef}
             type="file"
-            aria-label="Upload protocol file"
+            aria-label={tAuto("uploadProtocolFile_bfb9c791")}
             accept=".doc,.docx,.pdf,.md,.markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/markdown"
             className="sr-only"
             onChange={handleProtocolUpload}

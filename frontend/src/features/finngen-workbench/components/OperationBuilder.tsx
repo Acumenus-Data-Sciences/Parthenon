@@ -47,6 +47,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface OperationBuilderProps {
   tree: OperationNode | null;
@@ -237,7 +238,7 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
                 if (id !== null) addCohortToParent(node.id, id);
                 setPickingForId(null);
               }}
-              placeholder="add cohort by name or id…"
+              placeholder={tAuto("addCohortByNameOrId_16bd9cb4")}
             />
           </div>
         )}
@@ -248,7 +249,7 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
   return (
     <div className="space-y-3">
       <Shell
-        title="Operation tree"
+        title={tAuto("operationTree_8f27dd1e")}
         subtitle="Compose cohorts with UNION (∪), INTERSECT (∩), and MINUS (∖). Reorder siblings by dragging; click an op chip to cycle its kind."
       >
         <div className="space-y-3 p-4">
@@ -278,7 +279,7 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
               view + the validation-error count badge. */}
           {tree !== null && (
             <div className="flex items-baseline gap-2 border-t border-border-default pt-2 text-[10px] text-text-ghost">
-              <span className="uppercase tracking-wide">Expression:</span>
+              <span className="uppercase tracking-wide">{tAuto("expression_ae38ac4b")}</span>
               <span
                 className={[
                   "truncate font-mono",
@@ -334,7 +335,7 @@ function SortableNode({ id, children }: { id: string; children: React.ReactNode 
         {...attributes}
         {...listeners}
         className="cursor-grab touch-none text-text-ghost hover:text-text-secondary active:cursor-grabbing"
-        aria-label="Drag to reorder"
+        aria-label={tAuto("dragToReorder_e7541faf")}
       >
         <GripVertical size={14} />
       </button>
@@ -355,25 +356,25 @@ function NodeToolbar({
       <ToolbarButton
         onClick={onAddCohort}
         label="+ cohort"
-        title="Add a cohort reference here"
+        title={tAuto("addACohortReferenceHere_4317e6d3")}
       />
       <ToolbarButton
         onClick={() => onAddOp("UNION")}
         label="+ ∪"
         tone="success"
-        title="Add a nested UNION (subjects in any child)"
+        title={tAuto("addANestedUnionSubjectsInAnyChild_2268a2c5")}
       />
       <ToolbarButton
         onClick={() => onAddOp("INTERSECT")}
         label="+ ∩"
         tone="info"
-        title="Add a nested INTERSECT (subjects in all children)"
+        title={tAuto("addANestedIntersectSubjectsInAllChildren_29714fb9")}
       />
       <ToolbarButton
         onClick={() => onAddOp("MINUS")}
         label="+ ∖"
         tone="warning"
-        title="Add a nested MINUS (first child minus the rest)"
+        title={tAuto("addANestedMinusFirstChildMinusThe_db455421")}
       />
     </div>
   );
@@ -428,7 +429,7 @@ function EmptyState({
 }) {
   return (
     <div className="rounded-lg border border-dashed border-border-default p-6 text-center space-y-3">
-      <p className="text-xs text-text-ghost">Empty operation tree. Start by adding a cohort or an operation.</p>
+      <p className="text-xs text-text-ghost">{tAuto("emptyOperationTreeStartByAddingACohort_2731f62d")}</p>
       {isPicking ? (
         <div className="mx-auto flex max-w-sm items-center gap-2">
           <div className="flex-1">
@@ -438,7 +439,7 @@ function EmptyState({
                 if (id !== null) onAddCohort(id);
                 else cancelPicking();
               }}
-              placeholder="search cohorts to add…"
+              placeholder={tAuto("searchCohortsToAdd_0871cfa3")}
             />
           </div>
           <button
@@ -446,7 +447,7 @@ function EmptyState({
             onClick={cancelPicking}
             className="rounded border border-border-default bg-surface-overlay px-2 py-1 text-[10px] text-text-ghost hover:text-text-secondary"
           >
-            Cancel
+            {tAuto("cancel_77dfd213")}
           </button>
         </div>
       ) : (
@@ -494,9 +495,9 @@ function ExpressionDisclosure({
         className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-surface-overlay transition-colors"
       >
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        <span>Show as expression</span>
+        <span>{tAuto("showAsExpression_931e58f5")}</span>
         {errorCount > 0 && (
-          <span className="ml-auto text-[10px] text-error">{errorCount} validation error{errorCount === 1 ? "" : "s"}</span>
+          <span className="ml-auto text-[10px] text-error">{errorCount} {tAuto("validationError_b2e440b8")}{errorCount === 1 ? "" : "s"}</span>
         )}
       </button>
       {open && (
@@ -537,11 +538,11 @@ function PreviewPanel({
           ].join(" ")}
         >
           {loading ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />}
-          Preview row count
+          {tAuto("previewRowCount_e2970ebe")}
         </button>
         {result !== undefined && !loading && (
           <span className="text-[10px] text-text-ghost">
-            (last preview: {result.total.toLocaleString()} subjects)
+            {tAuto("lastPreview_44781a9e")} {result.total.toLocaleString()} {tAuto("subjects_25c66893")}
           </span>
         )}
       </div>
@@ -556,7 +557,7 @@ function PreviewPanel({
             </div>
             <div className="text-[10px] text-text-ghost">
               <span className="font-mono text-text-secondary">{result.operation_string}</span>
-              <span className="ml-2">— references {result.cohort_ids.length} cohort{result.cohort_ids.length === 1 ? "" : "s"}</span>
+              <span className="ml-2">{tAuto("references_a7d314e3")} {result.cohort_ids.length} cohort{result.cohort_ids.length === 1 ? "" : "s"}</span>
             </div>
           </>
         )}
@@ -576,7 +577,7 @@ function PreviewPanel({
         )}
         {result === undefined && error === null && !loading && (
           <p className="text-[10px] text-text-ghost">
-            Click Preview to compute the row count for this tree.
+            {tAuto("clickPreviewToComputeTheRowCountFor_6d4bc450")}
           </p>
         )}
       </div>

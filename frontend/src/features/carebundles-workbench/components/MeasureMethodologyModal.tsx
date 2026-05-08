@@ -3,6 +3,7 @@ import { AlertOctagon, AlertTriangle, Info, Loader2, X } from "lucide-react";
 import { useMeasureMethodology } from "../hooks";
 import type { DataQualityFlag } from "../types";
 import { MeasureTrendChart } from "./MeasureTrendChart";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   bundleId: number | null;
@@ -49,7 +50,7 @@ export function MeasureMethodologyModal({
         <header className="sticky top-0 flex items-center justify-between border-b border-border-default bg-surface-raised px-6 py-3">
           <div>
             <h2 id="methodology-modal-title" className="text-base font-bold text-text-primary">
-              Methodology · {data?.measure.measure_code ?? "…"}
+              {tAuto("methodology_524100ef")} {data?.measure.measure_code ?? "…"}
             </h2>
             <p className="mt-0.5 text-xs text-text-ghost">
               {data?.measure.measure_name ?? ""}
@@ -58,7 +59,7 @@ export function MeasureMethodologyModal({
           <button
             onClick={onClose}
             className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
-            aria-label="Close"
+            aria-label={tAuto("close_bbfa773e")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -67,13 +68,13 @@ export function MeasureMethodologyModal({
         <div className="space-y-5 px-6 py-5 text-sm">
           {isLoading && (
             <div className="flex items-center gap-2 text-text-ghost">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading methodology…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loadingMethodology_9e44ae41")}
             </div>
           )}
 
           {error && (
             <div className="rounded-lg border border-red-900/60 bg-red-950/30 p-3 text-red-200">
-              Failed to load methodology.
+              {tAuto("failedToLoadMethodology_2961c167")}
             </div>
           )}
 
@@ -81,7 +82,7 @@ export function MeasureMethodologyModal({
             <>
               <DqSection flags={data.data_quality_flags} />
 
-              <Section title="Trend">
+              <Section title={tAuto("trend_dae07c6e")}>
                 <MeasureTrendChart
                   bundleId={bundleId}
                   measureId={measureId}
@@ -89,7 +90,7 @@ export function MeasureMethodologyModal({
                 />
               </Section>
 
-              <Section title="Bundle qualification">
+              <Section title={tAuto("bundleQualification_ecd821e6")}>
                 <Field label="Bundle">
                   {data.bundle.condition_name}{" "}
                   <span className="text-xs text-text-ghost">
@@ -105,10 +106,10 @@ export function MeasureMethodologyModal({
                 <ConceptList concepts={data.bundle.qualification.concepts} />
               </Section>
 
-              <Section title="Numerator criteria">
+              <Section title={tAuto("numeratorCriteria_5c35405e")}>
                 <Field label="Domain">{data.measure.domain}</Field>
                 <Field label="Lookback window">
-                  {data.measure.numerator.lookback_days} days from CDM max date
+                  {data.measure.numerator.lookback_days} {tAuto("daysFromCdmMaxDate_f963edb7")}
                 </Field>
                 <Field label="Total descendants">
                   {data.measure.numerator.total_descendants.toLocaleString()}
@@ -117,7 +118,7 @@ export function MeasureMethodologyModal({
               </Section>
 
               {data.measure.exclusions.length > 0 && (
-                <Section title="Denominator exclusions">
+                <Section title={tAuto("denominatorExclusions_8d8add70")}>
                   {data.measure.exclusions.map((ex, i) => (
                     <div
                       key={i}
@@ -128,11 +129,11 @@ export function MeasureMethodologyModal({
                           {ex.label}
                         </div>
                         <div className="text-xs text-text-ghost">
-                          {ex.domain} · lookback {ex.lookback_days}d
+                          {ex.domain} {tAuto("lookback_faccba88")} {ex.lookback_days}d
                         </div>
                       </div>
                       <div className="mt-1 text-xs text-text-ghost">
-                        {ex.total_descendants.toLocaleString()} descendant concepts
+                        {ex.total_descendants.toLocaleString()} {tAuto("descendantConcepts_100b35d1")}
                         {ex.vsac_oid && (
                           <>
                             {" · VSAC OID "}
@@ -146,7 +147,7 @@ export function MeasureMethodologyModal({
                 </Section>
               )}
 
-              <Section title="Source provenance">
+              <Section title={tAuto("sourceProvenance_aee8827d")}>
                 <Field label="Source">{data.source.source_name}</Field>
                 <Field label="CDM schema">
                   <code className="font-mono text-xs">{data.source.cdm_schema}</code>
@@ -159,7 +160,7 @@ export function MeasureMethodologyModal({
               </Section>
 
               {data.run && (
-                <Section title="Run pointer (current)">
+                <Section title={tAuto("runPointerCurrent_b88d2235")}>
                   <Field label="Run id">#{data.run.id}</Field>
                   <Field label="Status">{data.run.status}</Field>
                   <Field label="Triggered">{data.run.trigger_kind}</Field>
@@ -228,7 +229,7 @@ function ConceptList({
   compact?: boolean;
 }) {
   if (concepts.length === 0) {
-    return <p className="text-xs text-text-ghost">No concepts.</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("noConcepts_e081a56f")}</p>;
   }
   return (
     <ul
@@ -256,7 +257,7 @@ function DqSection({ flags }: { flags: DataQualityFlag[] }) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-teal-900/60 bg-teal-950/30 p-3 text-xs text-teal-200">
         <Info className="h-4 w-4 shrink-0" />
-        No data-quality flags raised for this measure on this source.
+        {tAuto("noDataQualityFlagsRaisedForThisMeasure_0a2eb0ca")}
       </div>
     );
   }

@@ -8,6 +8,7 @@ import { useBundleComparison } from "../hooks";
 import { formatRateWithCI } from "../lib/formatting";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
 import type { CompareCell, CompareSource } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundleComparePage() {
   const { bundleId: bundleIdParam } = useParams<{ bundleId: string }>();
@@ -39,7 +40,7 @@ export default function CareBundleComparePage() {
         to={`/workbench/care-bundles/${bundleId ?? ""}`}
         className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-primary"
       >
-        <ArrowLeft className="h-3 w-3" /> Back to bundle
+        <ArrowLeft className="h-3 w-3" /> {tAuto("backToBundle_8d6d56cf")}
       </Link>
 
       <header className="flex items-center justify-between gap-3">
@@ -49,10 +50,10 @@ export default function CareBundleComparePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              Source comparison · {bundle?.condition_name ?? "…"}
+              {tAuto("sourceComparison_0778f1ab")} {bundle?.condition_name ?? "…"}
             </h1>
             <p className="text-sm text-text-ghost">
-              Same measures, every qualifying source. Deltas relative to{" "}
+              {tAuto("sameMeasuresEveryQualifyingSourceDeltasRelativeTo_b99d7382")}{" "}
               <span className="font-medium text-text-muted">
                 {baselineSource?.source_name ?? "baseline"}
               </span>
@@ -65,20 +66,19 @@ export default function CareBundleComparePage() {
 
       {compareQuery.isLoading && (
         <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading comparison…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loadingComparison_c7b80704")}
         </div>
       )}
 
       {compare && compare.sources.length === 0 && (
         <p className="rounded-lg border border-border-default bg-surface-raised p-6 text-sm text-text-ghost">
-          No qualifying sources have a current run for this bundle. Materialize
-          on at least one source with N ≥ 100K to see comparisons.
+          {tAuto("noQualifyingSourcesHaveACurrentRunFor_d3d6e7a0")}
         </p>
       )}
 
       {compare && compare.sources.length > 0 && (
         <Shell
-          title="Per-measure rates by source"
+          title={tAuto("perMeasureRatesBySource_719324bd")}
           subtitle={`${compare.measures.length} measures × ${compare.sources.length} sources`}
         >
           <div className="overflow-x-auto">
@@ -86,7 +86,7 @@ export default function CareBundleComparePage() {
               <thead className="border-b border-border-default">
                 <tr>
                   <th className="sticky left-0 z-10 bg-surface-raised px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                    Measure
+                    {tAuto("measure_d4fd0a23")}
                   </th>
                   {compare.sources.map((s) => (
                     <SourceHeaderCell
@@ -148,7 +148,7 @@ function SourceHeaderCell({
       <div className="flex flex-col items-end">
         <span className="text-text-primary">{source.source_name}</span>
         <span className="font-mono text-[10px] text-text-ghost">
-          N={source.qualified_person_count?.toLocaleString() ?? "—"}
+          {tAuto("n_64ab9ae6")}{source.qualified_person_count?.toLocaleString() ?? "—"}
           {isBaseline && " · baseline"}
         </span>
       </div>
@@ -196,9 +196,9 @@ function RateCell({
         {formatRateWithCI(cell.rate, cell.ci_lower, cell.ci_upper)}
       </div>
       <div className="text-[10px] text-text-ghost">
-        N={cell.denominator_count.toLocaleString()}
+        {tAuto("n_64ab9ae6")}{cell.denominator_count.toLocaleString()}
         {cell.exclusion_count > 0 && (
-          <> · excl {cell.exclusion_count.toLocaleString()}</>
+          <> {tAuto("excl_084e68e6")} {cell.exclusion_count.toLocaleString()}</>
         )}
       </div>
       {delta != null && (

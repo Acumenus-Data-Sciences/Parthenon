@@ -12,6 +12,7 @@
 // heatmap cells for visual consistency across the Profile tab. NOT teal-500
 // (would clash with the D-07 scale).
 import { AlertTriangle } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type ComputeProfileCtaState = "cold" | "computing" | "ineligible" | "error";
 
@@ -39,7 +40,7 @@ export function ComputeProfileCta({
           aria-hidden="true"
           className="h-3 w-3 animate-spin rounded-full border-2 border-teal-300 border-t-transparent"
         />
-        <span>Computing profile… ~15s</span>
+        <span>{tAuto("computingProfile15s_43d667d9")}</span>
       </div>
     );
   }
@@ -52,11 +53,10 @@ export function ComputeProfileCta({
           disabled
           className="rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-500 disabled:cursor-not-allowed"
         >
-          Compute profile
+          {tAuto("computeProfile_b9b8c003")}
         </button>
         <p className="text-xs text-slate-500">
-          This source has no death or observation-period data. Endpoint
-          profile cannot be computed.
+          {tAuto("thisSourceHasNoDeathOrObservationPeriod_e60a939c")}
         </p>
       </div>
     );
@@ -80,7 +80,7 @@ export function ComputeProfileCta({
           onClick={onRetry}
           className="rounded-md bg-teal-400/80 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
         >
-          Try again
+          {tAuto("tryAgain_042c862e")}
         </button>
       </div>
     );
@@ -93,7 +93,7 @@ export function ComputeProfileCta({
       onClick={onCompute}
       className="rounded-md bg-teal-400/80 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
     >
-      Compute profile
+      {tAuto("computeProfile_b9b8c003")}
     </button>
   );
 }

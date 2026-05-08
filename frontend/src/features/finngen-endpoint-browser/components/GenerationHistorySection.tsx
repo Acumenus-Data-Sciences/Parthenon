@@ -14,6 +14,7 @@ import { formatDistanceToNow } from "date-fns";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RunStatusBadge } from "@/features/_finngen-foundation/components/RunStatusBadge";
 import type { EndpointGenerationRun } from "../api";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type GenerationHistorySectionProps = {
   endpointName: string;
@@ -51,11 +52,11 @@ export function GenerationHistorySection({
           id="gen-history-heading"
           className="text-xs font-semibold uppercase tracking-wider text-slate-500"
         >
-          Generation history
+          {tAuto("generationHistory_21e715fc")}
         </p>
         <div className="mt-2">
           <EmptyState
-            title="This endpoint hasn't been generated yet."
+            title={tAuto("thisEndpointHasnTBeenGeneratedYet_ffe18bfe")}
             message='Pick a source under "Run GWAS" below to generate first.'
           />
         </div>
@@ -78,7 +79,7 @@ export function GenerationHistorySection({
         id="gen-history-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        Generation history
+        {tAuto("generationHistory_21e715fc")}
       </p>
       <div className="mt-2 space-y-1.5">
         {Array.from(groupedBySource.entries()).map(([sourceKey, sourceRuns]) => {
@@ -153,7 +154,7 @@ export function GenerationHistorySection({
           href={`/workbench/finngen-analyses?endpoint=${encodeURIComponent(endpointName)}`}
           className="block py-2 text-center text-[11px] text-slate-500 hover:text-teal-300"
         >
-          Show older runs (showing {runs.length} of {totalCount}) →
+          {tAuto("showOlderRunsShowing_d5b87d28")} {runs.length} of {totalCount}) →
         </a>
       )}
     </section>

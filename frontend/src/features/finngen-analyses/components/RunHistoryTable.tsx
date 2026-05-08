@@ -3,6 +3,7 @@ import { useState } from "react";
 import { RunStatusBadge, type FinnGenRun } from "@/features/_finngen-foundation";
 import { useAllFinnGenRuns } from "../hooks/useModuleRuns";
 import { Pin } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface RunHistoryTableProps {
   sourceKey?: string;
@@ -37,7 +38,7 @@ export function RunHistoryTable({ sourceKey, onSelectRun }: RunHistoryTableProps
           onChange={(e) => setModuleFilter(e.target.value)}
           className="rounded border border-border-default bg-surface-base px-2 py-1.5 text-xs text-text-secondary"
         >
-          <option value="">All modules</option>
+          <option value="">{tAuto("allModules_d52b5af0")}</option>
           {moduleOptions.map((m) => (
             <option key={m} value={m}>{m.replace("co2.", "")}</option>
           ))}
@@ -51,21 +52,21 @@ export function RunHistoryTable({ sourceKey, onSelectRun }: RunHistoryTableProps
           }}
           className="rounded border border-border-default bg-surface-base px-2 py-1.5 text-xs text-text-secondary"
         >
-          <option value="">All statuses</option>
-          <option value="succeeded">Succeeded</option>
-          <option value="failed">Failed</option>
-          <option value="running">Running</option>
-          <option value="queued">Queued</option>
+          <option value="">{tAuto("allStatuses_6405179d")}</option>
+          <option value="succeeded">{tAuto("succeeded_c8fbda90")}</option>
+          <option value="failed">{tAuto("failed_09fef5d8")}</option>
+          <option value="running">{tAuto("running_73989d9c")}</option>
+          <option value="queued">{tAuto("queued_6a599877")}</option>
         </select>
       </div>
 
       {/* Table */}
       {isLoading && (
-        <div className="py-8 text-center text-xs text-text-ghost">Loading runs...</div>
+        <div className="py-8 text-center text-xs text-text-ghost">{tAuto("loadingRuns_53f636b3")}</div>
       )}
 
       {!isLoading && runs.length === 0 && (
-        <div className="py-8 text-center text-xs text-text-ghost">No runs found.</div>
+        <div className="py-8 text-center text-xs text-text-ghost">{tAuto("noRunsFound_90d9e281")}</div>
       )}
 
       {runs.length > 0 && (
@@ -73,12 +74,12 @@ export function RunHistoryTable({ sourceKey, onSelectRun }: RunHistoryTableProps
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border-default bg-surface-raised text-text-ghost">
-                <th className="px-3 py-2 text-left font-medium">Module</th>
-                <th className="px-3 py-2 text-left font-medium">Source</th>
-                <th className="px-3 py-2 text-left font-medium">Status</th>
-                <th className="px-3 py-2 text-left font-medium">Created</th>
-                <th className="px-3 py-2 text-left font-medium">Duration</th>
-                <th className="px-3 py-2 text-left font-medium">Pin</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("module_b8ff0289")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("source_6da13add")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("status_bae7d5be")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("created_accf40c8")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("duration_1370004d")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("pin_9c918414")}</th>
               </tr>
             </thead>
             <tbody>
@@ -119,10 +120,10 @@ export function RunHistoryTable({ sourceKey, onSelectRun }: RunHistoryTableProps
             onClick={() => setPage(page - 1)}
             className="rounded border border-border-default px-3 py-1 text-xs text-text-muted disabled:opacity-30"
           >
-            Prev
+            {tAuto("prev_e96fea52")}
           </button>
           <span className="text-xs text-text-ghost py-1">
-            Page {page} of {Math.ceil(response.meta.total / response.meta.per_page)}
+            {tAuto("page_fb06270f")} {page} of {Math.ceil(response.meta.total / response.meta.per_page)}
           </span>
           <button
             type="button"
@@ -130,7 +131,7 @@ export function RunHistoryTable({ sourceKey, onSelectRun }: RunHistoryTableProps
             onClick={() => setPage(page + 1)}
             className="rounded border border-border-default px-3 py-1 text-xs text-text-muted disabled:opacity-30"
           >
-            Next
+            {tAuto("next_bc981983")}
           </button>
         </div>
       )}

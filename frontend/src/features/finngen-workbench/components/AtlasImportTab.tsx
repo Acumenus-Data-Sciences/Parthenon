@@ -17,6 +17,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { finngenWorkbenchApi } from "../api";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface AtlasImportTabProps {
   onImportedCohorts: (parthenonCohortIds: number[]) => void;
@@ -86,7 +87,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
   if (atlas.isPending) {
     return (
       <div className="flex items-center gap-2 rounded border border-border-default bg-surface-overlay/30 px-3 py-6 text-xs text-text-ghost">
-        <Loader2 size={12} className="animate-spin" /> Connecting to active WebAPI registry…
+        <Loader2 size={12} className="animate-spin" /> {tAuto("connectingToActiveWebapiRegistry_a54baa6f")}
       </div>
     );
   }
@@ -96,7 +97,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
       <div className="rounded border border-border-default bg-surface-overlay/30 p-4 space-y-2 text-xs">
         <div className="flex items-center gap-2 text-warning">
           <AlertCircle size={14} />
-          <span className="font-medium">No active WebAPI registry configured</span>
+          <span className="font-medium">{tAuto("noActiveWebapiRegistryConfigured_be29ab6a")}</span>
         </div>
         <p className="text-text-ghost">
           {axiosErr?.response?.data?.message ??
@@ -110,7 +111,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
     return (
       <div className="rounded border border-error/40 bg-error/5 p-3 text-xs text-error">
         <AlertCircle size={12} className="inline mr-1" />
-        Failed to load Atlas cohorts.
+        {tAuto("failedToLoadAtlasCohorts_6da2643d")}
       </div>
     );
   }
@@ -119,7 +120,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
     <div className="space-y-3">
       {atlas.data?.registry !== undefined && (
         <div className="flex items-center gap-2 text-[10px] text-text-ghost">
-          <span className="uppercase tracking-wide">Registry:</span>
+          <span className="uppercase tracking-wide">{tAuto("registry_6e189e8e")}</span>
           <span className="font-mono text-text-secondary">{atlas.data.registry.name}</span>
           <a
             href={atlas.data.registry.base_url}
@@ -173,7 +174,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2">
-                      <span className="font-mono text-[10px] text-text-ghost">Atlas #{c.atlas_id}</span>
+                      <span className="font-mono text-[10px] text-text-ghost">{tAuto("atlas_2e1d0911")}{c.atlas_id}</span>
                       <span className="truncate text-text-primary">{c.name}</span>
                     </span>
                     {c.description !== null && c.description !== undefined && c.description !== "" && (
@@ -189,7 +190,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
         )}
         {filtered.length > 100 && (
           <p className="border-t border-border-default px-3 py-2 text-[10px] text-text-ghost">
-            Showing 100 of {filtered.length} matching atlas cohorts — narrow the search to find more.
+            {tAuto("showing100Of_6f844f39")} {filtered.length} {tAuto("matchingAtlasCohortsNarrowTheSearchToFind_cfc45c80")}
           </p>
         )}
       </div>
@@ -218,7 +219,7 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
             ) : (
               <Download size={12} />
             )}
-            Import to Parthenon
+            {tAuto("importToParthenon_f1d854c2")}
           </button>
         </div>
       </div>
@@ -228,14 +229,14 @@ export function AtlasImportTab({ onImportedCohorts }: AtlasImportTabProps) {
           <CheckCircle2 size={12} />
           <span>{lastImportSummary}</span>
           <span className="ml-auto text-[10px] text-text-ghost">
-            Switch to the Parthenon tab to add them to the tree.
+            {tAuto("switchToTheParthenonTabToAddThem_e9997740")}
           </span>
         </div>
       )}
       {importMutation.isError && (
         <div className="rounded border border-error/40 bg-error/5 px-3 py-2 text-xs text-error">
           <AlertCircle size={12} className="inline mr-1" />
-          Import failed: {(importMutation.error as Error).message}
+          {tAuto("importFailed_3d4acf61")} {(importMutation.error as Error).message}
         </div>
       )}
     </div>

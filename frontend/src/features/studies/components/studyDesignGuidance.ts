@@ -12,6 +12,7 @@ import type {
   StudyDesignLockReadiness,
   StudyDesignVersion,
 } from "../types/study";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type {
   StudyCompilerGuidance,
@@ -68,14 +69,14 @@ export function buildStudyDesignGuidance({
   const intentStage: StudyCompilerStage = version == null
     ? {
       id: "intent",
-      label: "Intent",
+      label: tAuto("intent_9c6e80ee"),
       status: "active",
       detail: "Create a design session by uploading a protocol or generating intent from a research question.",
       actionLabel: "Upload protocol or generate intent",
     }
     : {
       id: "intent",
-      label: "Intent",
+      label: tAuto("intent_9c6e80ee"),
       status: intentAccepted ? "complete" : "active",
       detail: intentAccepted
         ? "The study intent has been accepted and can drive downstream compilation."
@@ -87,7 +88,7 @@ export function buildStudyDesignGuidance({
 
   const currentAssetsStage: StudyCompilerStage = {
     id: "current_assets",
-    label: "Current Assets",
+    label: tAuto("currentAssets_b981a584"),
     status: locked || importedAssets.length > 0 || critiqueAssets.length > 0 ? "complete" : "pending",
     detail: importedAssets.length > 0
       ? `${importedAssets.length} current study assets have been pulled into the compiler review path.`
@@ -99,7 +100,7 @@ export function buildStudyDesignGuidance({
 
   const phenotypesStage: StudyCompilerStage = {
     id: "phenotypes",
-    label: "Phenotypes",
+    label: tAuto("phenotypes_5dd96121"),
     status: locked || acceptedRecommendations.length > 0 || downstreamDraftsStarted
       ? "complete"
       : !intentAccepted && !intentReady
@@ -122,7 +123,7 @@ export function buildStudyDesignGuidance({
   const conceptBlocker = firstBlockedAssetMessage(conceptDrafts);
   const conceptSetsStage: StudyCompilerStage = {
     id: "concept_sets",
-    label: "Concept Sets",
+    label: tAuto("conceptSets_c4867420"),
     status: locked || materializedConceptSets.length > 0
       ? "complete"
       : conceptBlocker
@@ -148,7 +149,7 @@ export function buildStudyDesignGuidance({
   const cohortBlocker = cohortBlockers[0] ?? firstBlockedAssetMessage(cohortDrafts);
   const cohortsStage: StudyCompilerStage = {
     id: "cohorts",
-    label: "Cohorts",
+    label: tAuto("cohorts_c54a6a4e"),
     status: locked || cohortsReady || linkedCohorts.length > 0
       ? "complete"
       : cohortBlocker
@@ -174,7 +175,7 @@ export function buildStudyDesignGuidance({
   const feasibilityBlocker = cohortsReady ? null : cohortBlockers[0] ?? "Required study cohorts must be linked before source feasibility can run.";
   const feasibilityStage: StudyCompilerStage = {
     id: "feasibility",
-    label: "Feasibility",
+    label: tAuto("feasibility_54565a58"),
     status: locked
       ? "complete"
       : feasibilityAssets.length > 0
@@ -196,7 +197,7 @@ export function buildStudyDesignGuidance({
   const analysisBlocker = firstBlockedAssetMessage(analysisPlans);
   const analysisStage: StudyCompilerStage = {
     id: "analysis",
-    label: "Analysis Plans",
+    label: tAuto("analysisPlans_92c689c7"),
     status: locked || materializedAnalyses.length > 0
       ? "complete"
       : analysisBlocker
@@ -221,7 +222,7 @@ export function buildStudyDesignGuidance({
 
   const lockStage: StudyCompilerStage = {
     id: "lock",
-    label: "Package Lock",
+    label: tAuto("packageLock_c0ea4367"),
     status: locked
       ? "complete"
       : lockBlockers.length > 0

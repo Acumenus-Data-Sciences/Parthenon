@@ -20,6 +20,7 @@ import {
   valueAt,
   verificationCheckRows,
 } from "./studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function PhenotypeRecommendationPanel({
   assets,
@@ -203,11 +204,11 @@ function RecommendationCard({
           )}
           {!reviewed && (
             <textarea
-              aria-label="Recommendation review note"
+              aria-label={tAuto("recommendationReviewNote_afb8f050")}
               value={reviewNote}
               onChange={(event) => setReviewNote(event.target.value)}
               rows={2}
-              placeholder="Review note"
+              placeholder={tAuto("reviewNote_0e846b75")}
               className="form-input form-textarea mt-2 text-xs"
             />
           )}

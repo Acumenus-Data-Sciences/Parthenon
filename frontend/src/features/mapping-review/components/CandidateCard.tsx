@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { CandidateDetail } from "../types";
 import { SimilarityBar } from "./SimilarityBar";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface CandidateCardProps {
   candidate: CandidateDetail;
@@ -41,11 +42,11 @@ export const CandidateCard = forwardRef<HTMLDivElement, CandidateCardProps>(
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-center gap-2">
               <span className="font-mono text-xs text-zinc-500">
-                #{rank} · concept_id {candidate.concept_id}
+                #{rank} {tAuto("conceptId_e17d09f7")} {candidate.concept_id}
               </span>
               {candidate.standard_concept !== "S" && (
                 <span className="rounded bg-[#9B1B30]/20 px-1.5 py-0.5 font-mono text-[10px] uppercase text-[#FCA5A5]">
-                  Non-standard
+                  {tAuto("nonStandard_2223c0ad")}
                 </span>
               )}
             </div>
@@ -76,21 +77,21 @@ export const CandidateCard = forwardRef<HTMLDivElement, CandidateCardProps>(
             aria-keyshortcuts={isFocused ? "A" : undefined}
             className="shrink-0 rounded-lg bg-[#2DD4BF] px-3 py-1.5 text-sm font-medium text-zinc-950 transition hover:bg-[#34E5CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0E0E11] disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
           >
-            Approve
+            {tAuto("approve_7b2c7f14")}
           </button>
         </div>
 
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <div className="mb-1 text-xs uppercase tracking-wide text-zinc-500">
-              Cosine similarity
+              {tAuto("cosineSimilarity_57484e1a")}
             </div>
             <SimilarityBar value={candidate.similarity} />
           </div>
           {candidate.rerank_score !== null && (
             <div>
               <div className="mb-1 text-xs uppercase tracking-wide text-zinc-500">
-                LLM rerank score
+                {tAuto("llmRerankScore_d8783baa")}
               </div>
               <SimilarityBar
                 value={candidate.rerank_score}
@@ -111,7 +112,7 @@ export const CandidateCard = forwardRef<HTMLDivElement, CandidateCardProps>(
             role="alert"
             className="mt-3 rounded-lg border border-[#9B1B30]/50 bg-[#9B1B30]/10 px-3 py-2 text-sm text-[#FCA5A5]"
           >
-            ⚠ This concept was retired or invalidated since rerank — choose another candidate or escalate.
+            {tAuto("thisConceptWasRetiredOrInvalidatedSinceRerank_bfbfb987")}
           </div>
         )}
       </div>

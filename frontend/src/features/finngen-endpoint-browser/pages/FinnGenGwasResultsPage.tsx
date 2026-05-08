@@ -30,6 +30,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { HelpButton } from "@/features/help";
 import type { TopVariantRow } from "../api/gwas-results";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function FinnGenGwasResultsPage(): JSX.Element {
   const params = useParams<{ name: string; run_id: string }>();
@@ -54,7 +55,7 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
     return (
       <div className="p-8">
         <EmptyState
-          title="Missing run parameters"
+          title={tAuto("missingRunParameters_b994cd31")}
           message="Both endpoint name and run id are required in the URL."
         />
       </div>
@@ -71,9 +72,9 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
     >
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">GWAS Results</h1>
+          <h1 className="text-xl font-semibold">{tAuto("gwasResults_09e67548")}</h1>
           <p className="text-xs text-text-muted">
-            Endpoint:{" "}
+            {tAuto("endpoint_956071b4")}{" "}
             <Link
               to={endpointHref}
               className="underline"
@@ -81,7 +82,7 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
             >
               {name}
             </Link>
-            {" \u00B7 "}Run:{" "}
+            {" \u00B7 "}{tAuto("run_247f6e49")}{" "}
             <span className="font-mono" title={runId}>
               {"\u2026"}
               {runIdTail}
@@ -92,7 +93,7 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
       </header>
 
       <ErrorBoundary
-        fallback={<EmptyState title="Manhattan plot failed to render" />}
+        fallback={<EmptyState title={tAuto("manhattanPlotFailedToRender_917f04ff")} />}
       >
         <FinnGenManhattanPanel
           runId={runId}
@@ -101,7 +102,7 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
       </ErrorBoundary>
 
       {regionCenter !== null && (
-        <ErrorBoundary fallback={<EmptyState title="Regional view failed" />}>
+        <ErrorBoundary fallback={<EmptyState title={tAuto("regionalViewFailed_b042f9fe")} />}>
           <RegionalView
             runId={runId}
             chrom={regionCenter.chrom}
@@ -112,16 +113,16 @@ export default function FinnGenGwasResultsPage(): JSX.Element {
       )}
 
       <ErrorBoundary
-        fallback={<EmptyState title="Top variants table failed" />}
+        fallback={<EmptyState title={tAuto("topVariantsTableFailed_77955448")} />}
       >
         <section
           className="rounded-lg border border-border bg-surface p-4"
           data-testid="gwas-top-variants-section"
         >
-          <h2 className="mb-3 text-sm font-semibold">Top 50 Variants</h2>
+          <h2 className="mb-3 text-sm font-semibold">{tAuto("top50Variants_2ddc96bb")}</h2>
           {topVariantsQuery.isLoading ? (
             <p className="py-6 text-center text-sm text-text-muted">
-              Loading top variants…
+              {tAuto("loadingTopVariants_d8230c22")}
             </p>
           ) : (
             <TopVariantsTable

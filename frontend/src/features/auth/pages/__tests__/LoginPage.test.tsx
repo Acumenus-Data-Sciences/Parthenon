@@ -161,7 +161,6 @@ describe("LoginPage", () => {
         },
       },
     });
-    mockedApiClient.put.mockResolvedValueOnce({ data: { locale: "en-US" } });
 
     renderLoginPage();
 
@@ -226,7 +225,50 @@ describe("LoginPage", () => {
         locale: "fr-FR",
       });
     });
-    expect(useAuthStore.getState().user?.locale).toBe("fr-FR");
+    await waitFor(() => {
+      expect(useAuthStore.getState().user?.locale).toBe("fr-FR");
+    });
+  });
+
+  it("respects the profile locale when the login language selector is not changed", async () => {
+    const user = userEvent.setup();
+    await setActiveLocale("es-ES");
+    mockedApiClient.post.mockResolvedValueOnce({
+      data: {
+        token: "test-token-123",
+        user: {
+          id: 1,
+          name: "Test User",
+          email: "test@example.com",
+          must_change_password: false,
+          onboarding_completed: true,
+          locale: "en-US",
+          roles: ["viewer"],
+          permissions: [],
+        },
+      },
+    });
+
+    const { container } = renderLoginPage();
+
+    await user.type(
+      container.querySelector<HTMLInputElement>("#email")!,
+      "test@example.com",
+    );
+    await user.type(
+      container.querySelector<HTMLInputElement>("#password")!,
+      "mypassword",
+    );
+    await user.click(
+      container.querySelector<HTMLButtonElement>('button[type="submit"]')!,
+    );
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().user?.locale).toBe("en-US");
+    });
+    expect(mockedApiClient.put).not.toHaveBeenCalled();
+    expect(document.documentElement.lang).toBe("en-US");
+    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("en-US");
   });
 
   it("persists auth only for the browser session when remember me is off", async () => {

@@ -5,6 +5,7 @@ import { Shell } from "@/components/workbench/primitives";
 import { HelpButton } from "@/features/help";
 import { useVsacCodes, useVsacOmopConcepts, useVsacValueSet } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundleVsacValueSetDetailPage() {
   const { oid: oidParam } = useParams<{ oid: string }>();
@@ -39,7 +40,7 @@ export default function CareBundleVsacValueSetDetailPage() {
         to="/workbench/care-bundles/value-sets"
         className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-primary"
       >
-        <ArrowLeft className="h-3 w-3" /> Value Sets
+        <ArrowLeft className="h-3 w-3" /> {tAuto("valueSets_05805154")}
       </Link>
 
       <header className="flex items-start justify-between gap-4">
@@ -60,7 +61,7 @@ export default function CareBundleVsacValueSetDetailPage() {
             disabled={!omop.data || omop.data.data.length === 0}
             className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--accent)" }}
-            title="Copy all OMOP concept_ids as JSON array — paste into a care bundle's omop_concept_ids"
+            title={tAuto("copyAllOmopConceptIdsAsJsonArray_a318e0c6")}
           >
             <Copy className="h-4 w-4" />
             {copyError ? "Copy failed" : copied ? "Copied!" : "Copy OMOP concept_ids"}
@@ -88,13 +89,13 @@ export default function CareBundleVsacValueSetDetailPage() {
       )}
 
       {d?.value_set.purpose_clinical_focus && (
-        <Shell title="Clinical focus">
+        <Shell title={tAuto("clinicalFocus_c3ebb702")}>
           <p className="p-4 text-sm text-text-muted">{d.value_set.purpose_clinical_focus}</p>
         </Shell>
       )}
 
       {d && d.linked_measures.length > 0 && (
-        <Shell title="Used by CMS measures">
+        <Shell title={tAuto("usedByCmsMeasures_c815ce49")}>
           <ul className="divide-y divide-border-default/50">
             {d.linked_measures.map((m) => (
               <li key={m.cms_id} className="flex items-center justify-between px-4 py-2">
@@ -112,21 +113,21 @@ export default function CareBundleVsacValueSetDetailPage() {
       )}
 
       <Shell
-        title="Codes"
+        title={tAuto("codes_199993be")}
         subtitle={codes.data ? `${codes.data.meta.total.toLocaleString()} codes` : "—"}
       >
         <div className="overflow-x-auto">
           {codes.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading codes…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loadingCodes_328cf851")}
             </div>
           ) : (
             <table className="min-w-full text-sm">
               <thead className="border-b border-border-default">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Code</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">System</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Description</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("code_adac6937")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("system_bc0792d8")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("description_55f8ebc8")}</th>
                 </tr>
               </thead>
               <tbody>

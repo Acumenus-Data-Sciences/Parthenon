@@ -21,7 +21,11 @@ import { fetchDashboardStats } from "@/features/dashboard/api/dashboardApi";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import type { AuthResponse } from "@/types/api";
 import { setActiveLocale } from "@/i18n/i18n";
-import { normalizeLocale, PUBLIC_SELECTABLE_LOCALES } from "@/i18n/locales";
+import {
+  normalizeLocale,
+  PUBLIC_SELECTABLE_LOCALES,
+  type SupportedLocale,
+} from "@/i18n/locales";
 
 const capabilityKeys = [
   "cohortDefinitions",
@@ -48,6 +52,8 @@ export function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [loginLocaleOverride, setLoginLocaleOverride] =
+    useState<SupportedLocale | null>(null);
   const { data: providers } = useAuthProviders();
   const selectedLocale = normalizeLocale(i18n.language);
 
@@ -62,6 +68,7 @@ export function LoginPage() {
 
   async function handleLocaleChange(locale: string) {
     const nextLocale = normalizeLocale(locale);
+    setLoginLocaleOverride(nextLocale);
     await setActiveLocale(nextLocale);
   }
 
@@ -78,13 +85,14 @@ export function LoginPage() {
         email,
         password,
       });
-      const loginLocale = normalizeLocale(selectedLocale);
+      const profileLocale = normalizeLocale(data.user.locale);
+      const loginLocale = loginLocaleOverride ?? profileLocale;
       const nextUser = { ...data.user, locale: loginLocale };
 
       setAuth(data.token, nextUser, rememberMe);
       await setActiveLocale(loginLocale);
 
-      if (data.user.locale !== loginLocale) {
+      if (loginLocaleOverride && profileLocale !== loginLocale) {
         void apiClient
           .put<{ locale: string }>("/user/locale", { locale: loginLocale })
           .then(async ({ data: localeData }) => {

@@ -15,6 +15,7 @@ import {
   Database,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface RecentRunsPanelProps {
   runIds: string[];
@@ -32,7 +33,7 @@ export function RecentRunsPanel({ runIds, activeRunId, onSelect }: RecentRunsPan
     <section className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-2">
       <header className="flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-          Recent runs in this session
+          {tAuto("recentRunsInThisSession_df9e29ac")}
         </h3>
         <span className="text-[10px] text-text-ghost">
           {Math.min(runIds.length, MAX_ROWS)} of {runIds.length}

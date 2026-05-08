@@ -15,6 +15,7 @@
 // Returns null when variant prop is null so the parent can do <Drawer
 // variant={drawerVariant} /> without conditional wrapping.
 import type { TopVariantRow } from "../../api/gwas-results";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export interface VariantDrawerProps {
   variant: TopVariantRow | null;
@@ -37,16 +38,16 @@ export function VariantDrawer({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Variant detail"
+      aria-label={tAuto("variantDetail_478dbe45")}
       className="fixed right-0 top-0 z-50 h-screen w-96 overflow-y-auto border-l border-border bg-surface p-4 shadow-xl"
       data-testid="variant-drawer"
     >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Variant Detail</h3>
+        <h3 className="text-sm font-semibold">{tAuto("variantDetail_3227640b")}</h3>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close drawer"
+          aria-label={tAuto("closeDrawer_de4e7f6f")}
           className="rounded px-2 text-text-muted hover:text-text-primary"
         >
           {"\u00D7"}
@@ -54,25 +55,25 @@ export function VariantDrawer({
       </div>
       <dl className="space-y-1 text-xs">
         <div>
-          <dt className="inline text-text-muted">Chr: </dt>
+          <dt className="inline text-text-muted">{tAuto("chr_ee750d68")} </dt>
           <dd className="inline" data-testid="drawer-chrom">
             {variant.chrom}
           </dd>
         </div>
         <div>
-          <dt className="inline text-text-muted">Pos: </dt>
+          <dt className="inline text-text-muted">{tAuto("pos_bd5e376f")} </dt>
           <dd className="inline" data-testid="drawer-pos">
             {variant.pos.toLocaleString()}
           </dd>
         </div>
         <div>
-          <dt className="inline text-text-muted">Ref: </dt>
+          <dt className="inline text-text-muted">{tAuto("ref_e7c5439d")} </dt>
           <dd className="inline" data-testid="drawer-ref">
             {variant.ref}
           </dd>
         </div>
         <div>
-          <dt className="inline text-text-muted">Alt: </dt>
+          <dt className="inline text-text-muted">{tAuto("alt_2bcaf12d")} </dt>
           <dd className="inline" data-testid="drawer-alt">
             {variant.alt}
           </dd>
@@ -102,13 +103,13 @@ export function VariantDrawer({
           </dd>
         </div>
         <div>
-          <dt className="inline text-text-muted">SNP ID: </dt>
+          <dt className="inline text-text-muted">{tAuto("snpId_c1598c36")} </dt>
           <dd className="inline font-mono" data-testid="drawer-snp">
             {variant.snp_id ?? "\u2014"}
           </dd>
         </div>
         <div>
-          <dt className="inline text-text-muted">Run ID: </dt>
+          <dt className="inline text-text-muted">{tAuto("runId_46d8cf6f")} </dt>
           <dd
             className="inline font-mono"
             title={variant.gwas_run_id}

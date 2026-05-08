@@ -32,6 +32,7 @@ import type {
 import { useDispatchGwas } from "../hooks/useDispatchGwas";
 import { useEligibleControlCohorts } from "../hooks/useEligibleControlCohorts";
 import { useCovariateSets } from "../hooks/useCovariateSets";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type RunGwasPanelProps = {
   endpoint: EndpointDetail & { gwas_ready_sources?: string[] };
@@ -157,7 +158,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
           id="run-gwas-heading"
           className="text-xs font-semibold uppercase tracking-wider text-slate-500"
         >
-          Run GWAS
+          {tAuto("runGwas_ea65a82e")}
         </p>
         <button
           ref={triggerRef}
@@ -186,7 +187,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
         id="run-gwas-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        Run GWAS
+        {tAuto("runGwas_ea65a82e")}
       </p>
       <div className="mt-2 space-y-4 rounded-lg border border-slate-800 bg-slate-950/60 p-4">
         {/* Source picker */}
@@ -195,7 +196,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             htmlFor="run-gwas-source"
             className="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
           >
-            Source
+            {tAuto("source_6da13add")}
           </label>
           <div className="mt-1.5">
             <select
@@ -204,7 +205,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
               onChange={(e) => setSourceKey(e.target.value)}
               className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-200 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
             >
-              <option value="">Pick a source…</option>
+              <option value="">{tAuto("pickASource_98b4b52e")}</option>
               {sourcesReadyForGwas.map((key) => (
                 <option key={key} value={key}>
                   {key}
@@ -214,8 +215,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
           </div>
           {sourceKey && !sourcesReadyForGwas.includes(sourceKey) && (
             <p className="mt-2 text-[11px] text-rose-300">
-              This endpoint hasn't been generated against {sourceKey} —
-              generate first.
+              {tAuto("thisEndpointHasnTBeenGeneratedAgainst_fb449b7d")} {sourceKey} {tAuto("generateFirst_e839db69")}
             </p>
           )}
         </div>
@@ -226,7 +226,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             htmlFor="run-gwas-control"
             className="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
           >
-            Control cohort
+            {tAuto("controlCohort_996fb57a")}
           </label>
           <div className="mt-1.5">
             <select
@@ -263,8 +263,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             eligibleControls.data.length === 0 &&
             sourceKey && (
               <p className="mt-2 text-[11px] text-slate-500">
-                No eligible control cohorts for {sourceKey}. Generate a
-                non-FinnGen cohort first.
+                {tAuto("noEligibleControlCohortsFor_9c1446eb")} {sourceKey}{tAuto("generateANonFinngenCohortFirst_4ce9a2a2")}
               </p>
             )}
         </div>
@@ -272,7 +271,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
         {/* Covariates — default chip + Advanced disclosure */}
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Covariates
+            {tAuto("covariates_e3d57198")}
           </p>
           <div className="mt-1.5 flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-300">
@@ -285,13 +284,13 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
               className="rounded px-1 text-[11px] text-slate-500 hover:text-teal-300 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
               aria-expanded={advancedOpen}
             >
-              Advanced {advancedOpen ? "▴" : "▾"}
+              {tAuto("advanced_4d064726")} {advancedOpen ? "▴" : "▾"}
             </button>
           </div>
           {advancedOpen && (
             <div className="mt-2 space-y-2">
               <select
-                aria-label="Covariate set"
+                aria-label={tAuto("covariateSet_a2903ebf")}
                 value={covariateSetId ?? ""}
                 onChange={(e) => {
                   const v = e.target.value;
@@ -311,9 +310,9 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
                 type="button"
                 disabled
                 className="cursor-not-allowed text-[11px] text-slate-600"
-                title="Covariate-set CRUD ships in v1.1"
+                title={tAuto("covariateSetCrudShipsInV11_7d90f025")}
               >
-                Create new… (coming soon)
+                {tAuto("createNewComingSoon_fa0e96ab")}
               </button>
             </div>
           )}
@@ -333,7 +332,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             className="h-3 w-3 accent-rose-500"
             disabled={dispatch.isPending}
           />
-          Overwrite existing run (will supersede prior succeeded run)
+          {tAuto("overwriteExistingRunWillSupersedePriorSucceededRun_573f3f4a")}
         </label>
 
         {/* Error banner */}
@@ -351,7 +350,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
                   to={`/workbench/finngen-analyses?run=${encodeURIComponent(refusal.existing_run_id)}`}
                   className="mt-1 inline-block text-teal-400 hover:text-teal-300"
                 >
-                  Go to running run →
+                  {tAuto("goToRunningRun_46265903")}
                 </Link>
               )}
             {refusal.error_code === "endpoint_not_materialized" && (
@@ -359,7 +358,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
                 href="#gen-history-heading"
                 className="mt-1 inline-block text-teal-400 hover:text-teal-300"
               >
-                Generate first →
+                {tAuto("generateFirst_d78af250")}
               </a>
             )}
           </div>
@@ -373,7 +372,7 @@ export function RunGwasPanel({ endpoint, generationRuns: _generationRuns }: RunG
             className="px-2 py-1 text-[11px] text-slate-500 hover:text-slate-300"
             disabled={dispatch.isPending}
           >
-            Cancel
+            {tAuto("cancel_77dfd213")}
           </button>
           <button
             type="button"

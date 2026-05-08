@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { EndpointProfileDrugClass } from "../../api";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type DrugClassesPanelProps = {
   drugClasses: EndpointProfileDrugClass[];
@@ -32,15 +33,13 @@ export function DrugClassesPanel({
         id="drug-classes-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        Drug classes (90d pre-index)
+        {tAuto("drugClasses90dPreIndex_aa3f5e8f")}
       </p>
       <p className="text-xs text-slate-400">
-        Top 10 ATC3 drug classes prescribed in the 90 days before first
-        qualifying event.
+        {tAuto("top10Atc3DrugClassesPrescribedInThe_01e26b15")}
       </p>
       <p className="text-xs text-slate-500">
-        Subjects with no drug records in the 90d window are excluded from the
-        denominator.
+        {tAuto("subjectsWithNoDrugRecordsInThe90d_5609cb71")}
       </p>
 
       {drugClasses.length === 0 ? (

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const SHORTCUTS = [
   { key: "J", desc: "Next row / candidate" },
@@ -47,7 +48,7 @@ export function KeyboardHelpOverlay({ open, onClose }: KeyboardHelpOverlayProps)
           id="keyboard-help-title"
           className="mb-4 text-lg font-semibold text-zinc-100"
         >
-          Keyboard shortcuts
+          {tAuto("keyboardShortcuts_26669547")}
         </h2>
         <ul className="space-y-2">
           {SHORTCUTS.map((s) => (
@@ -63,15 +64,15 @@ export function KeyboardHelpOverlay({ open, onClose }: KeyboardHelpOverlayProps)
           ))}
         </ul>
         <p className="mt-4 border-t border-zinc-800 pt-3 text-xs text-zinc-500">
-          Press{" "}
+          {tAuto("press_ea683ad6")}{" "}
           <kbd className="rounded border border-zinc-700 px-1 py-0.5 font-mono">
             ?
           </kbd>{" "}
           or{" "}
           <kbd className="rounded border border-zinc-700 px-1 py-0.5 font-mono">
-            Esc
+            {tAuto("esc_1f7a4f9e")}
           </kbd>{" "}
-          to close.
+          {tAuto("toClose_242a438b")}
         </p>
       </div>
     </div>

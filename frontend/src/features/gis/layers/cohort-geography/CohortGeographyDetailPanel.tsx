@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useCohortGeographyAggregate } from "../../hooks/useGis";
 import type { LayerDetailProps } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function CohortGeographyDetailPanel({ fips, cohortGeography }: LayerDetailProps) {
   const hasTarget = Boolean(cohortGeography?.cohort_definition_id ?? cohortGeography?.concept_id);
@@ -11,15 +12,15 @@ export function CohortGeographyDetailPanel({ fips, cohortGeography }: LayerDetai
   );
 
   if (!hasTarget) {
-    return <p className="text-xs text-text-ghost">No cohort selected.</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("noCohortSelected_8ff0ff96")}</p>;
   }
 
   if (aggregate.isLoading) {
-    return <p className="text-xs text-text-ghost">Loading...</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("loading_b04ba49f")}</p>;
   }
 
   if (!row) {
-    return <p className="text-xs text-text-ghost">No mapped members.</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("noMappedMembers_2e98da22")}</p>;
   }
 
   return (

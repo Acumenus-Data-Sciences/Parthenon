@@ -11,6 +11,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useMeasureTrend } from "../hooks";
 import { formatRateWithCI } from "../lib/formatting";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   bundleId: number | null;
@@ -45,7 +46,7 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
         className="flex items-center gap-2 p-4 text-xs text-text-ghost"
       >
         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-        Loading trend…
+        {tAuto("loadingTrend_529688e7")}
       </div>
     );
   }
@@ -53,7 +54,7 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
   if (error || !data || data.points.length < 1) {
     return (
       <p className="p-4 text-xs text-text-ghost">
-        No historical runs yet — trend appears once two or more runs complete.
+        {tAuto("noHistoricalRunsYetTrendAppearsOnceTwo_5ebd5698")}
       </p>
     );
   }
@@ -85,7 +86,7 @@ export function MeasureTrendChart({ bundleId, measureId, sourceId }: Props) {
   return (
     <div className="space-y-2">
       <div className="text-[10px] font-semibold uppercase tracking-wide text-text-ghost">
-        Rate over time ({points.length} run{points.length === 1 ? "" : "s"})
+        {tAuto("rateOverTime_66333be9")}{points.length} run{points.length === 1 ? "" : "s"})
       </div>
       <div role="img" aria-label={trendLabel} style={{ width: "100%", height: 180 }}>
         <ResponsiveContainer>

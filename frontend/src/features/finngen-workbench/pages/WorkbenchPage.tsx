@@ -25,6 +25,7 @@ import { useWorkbenchStore } from "../stores/workbenchStore";
 import type { OperationNode } from "../lib/operationTree";
 import type { MatchedCohortPromotion } from "../types";
 import { HelpButton } from "@/features/help";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function WorkbenchPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -87,26 +88,26 @@ export default function WorkbenchPage() {
   if (isPending) {
     return (
       <div className="flex items-center gap-2 p-6 text-sm text-text-secondary">
-        <Loader2 size={16} className="animate-spin" /> Loading workbench session...
+        <Loader2 size={16} className="animate-spin" /> {tAuto("loadingWorkbenchSession_b93a1ee3")}
       </div>
     );
   }
   if (isError || session === undefined) {
     return (
       <div className="mx-auto max-w-xl p-6 space-y-3 text-sm">
-        <h1 className="text-base font-semibold text-error">Workbench session unavailable</h1>
+        <h1 className="text-base font-semibold text-error">{tAuto("workbenchSessionUnavailable_a3957b4f")}</h1>
         <p className="text-text-secondary">
-          This session may have been deleted, or you don't have permission to open it.
+          {tAuto("thisSessionMayHaveBeenDeletedOrYou_8cc4761c")}
         </p>
         <div className="flex items-center gap-3 pt-2">
           <Link
             to="/workbench/cohorts"
             className="inline-flex items-center gap-1 rounded bg-success px-3 py-1.5 text-xs font-medium text-bg-canvas hover:bg-success/90"
           >
-            <ArrowLeft size={12} /> Back to sessions
+            <ArrowLeft size={12} /> {tAuto("backToSessions_e7bfaed7")}
           </Link>
           <Link to="/workbench" className="text-xs text-text-ghost hover:text-text-secondary">
-            Workbench launcher
+            {tAuto("workbenchLauncher_7a589eaf")}
           </Link>
         </div>
       </div>
@@ -122,7 +123,7 @@ export default function WorkbenchPage() {
           to="/workbench/cohorts"
           className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary"
         >
-          <ArrowLeft size={12} /> All sessions
+          <ArrowLeft size={12} /> {tAuto("allSessions_6a5f3906")}
         </Link>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -132,7 +133,7 @@ export default function WorkbenchPage() {
               </h1>
               <span
                 className="inline-flex shrink-0 items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
-                title="Data source this session is bound to"
+                title={tAuto("dataSourceThisSessionIsBoundTo_4554ec79")}
               >
                 {session.source_key}
               </span>
@@ -295,12 +296,9 @@ function HandoffStep({
   if (!ready && !hasPromotions) {
     return (
       <div className="rounded-lg border border-dashed border-border-default bg-surface-raised p-8 text-center">
-        <h2 className="text-sm font-semibold text-text-secondary">Nothing to hand off yet</h2>
+        <h2 className="text-sm font-semibold text-text-secondary">{tAuto("nothingToHandOffYet_8abfe494")}</h2>
         <p className="mx-auto mt-1 max-w-md text-xs text-text-ghost">
-          Finish the <span className="font-mono">Materialize</span> step to persist your operation
-          tree as a cohort, or promote a succeeded <span className="font-mono">Match</span> run to
-          bring matched comparator cohorts forward. Either will enable handoff to the Analysis
-          Gallery.
+          {tAuto("finishThe_48ae2582")} <span className="font-mono">{tAuto("materialize_8e5c1300")}</span> {tAuto("stepToPersistYourOperationTreeAsA_01550606")} <span className="font-mono">{tAuto("match_0335207f")}</span> {tAuto("runToBringMatchedComparatorCohortsForwardEither_9a463c3c")}
         </p>
         <button
           type="button"
@@ -308,7 +306,7 @@ function HandoffStep({
           className="mt-4 inline-flex items-center gap-2 rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-raised"
         >
           <ExternalLink size={12} />
-          Open {sourceKey} Analysis Gallery without a pre-selected cohort
+          {tAuto("open_cf9b7706")} {sourceKey} {tAuto("analysisGalleryWithoutAPreSelectedCohort_e13121a3")}
         </button>
       </div>
     );
@@ -318,17 +316,15 @@ function HandoffStep({
     <div className="space-y-4">
       <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-6">
         <h2 className="text-sm font-semibold text-text-secondary">
-          Handoff: materialized cohort
+          {tAuto("handoffMaterializedCohort_dab84a33")}
         </h2>
         {ready ? (
           <p className="text-xs text-text-secondary">
-            Materialized cohort <span className="font-mono">#{materializedCohortId}</span> is ready.
-            Open it directly in a CO2 analysis (CodeWAS, Demographics, Overlaps, timeCodeWAS).
+            {tAuto("materializedCohort_c41f64ef")} <span className="font-mono">#{materializedCohortId}</span> {tAuto("isReadyOpenItDirectlyInACo2_4b959058")}
           </p>
         ) : (
           <p className="text-xs text-text-ghost">
-            Materialize the operation tree in the previous step to enable hand-off of your tree as
-            a cohort. You can still open the gallery empty and pick a cohort manually.
+            {tAuto("materializeTheOperationTreeInThePreviousStep_cdf80cab")}
           </p>
         )}
         <button
@@ -352,11 +348,10 @@ function HandoffStep({
         <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-6">
           <div>
             <h2 className="text-sm font-semibold text-text-secondary">
-              Handoff: matched comparator cohorts
+              {tAuto("handoffMatchedComparatorCohorts_f478e7b5")}
             </h2>
             <p className="text-[10px] text-text-ghost">
-              Promoted from cohort.match runs in this session. Open any as the primary cohort in an
-              analysis, or pair with the materialized cohort for comparative studies.
+              {tAuto("promotedFromCohortMatchRunsInThisSession_3266a8fb")}
             </p>
           </div>
           <ul className="space-y-2">
@@ -371,8 +366,8 @@ function HandoffStep({
                     · {p.name}
                   </p>
                   <p className="text-[10px] text-text-ghost">
-                    Primary #{p.primary_cohort_id} vs [
-                    {p.comparator_cohort_ids.map((id) => "#" + id).join(", ")}] at 1:{p.ratio}
+                    {tAuto("primary_49d13030")}{p.primary_cohort_id} {tAuto("vs_55e8fb81")}
+                    {p.comparator_cohort_ids.map((id) => "#" + id).join(", ")}{tAuto("at1_df6b11c6")}{p.ratio}
                   </p>
                 </div>
                 <button
@@ -386,7 +381,7 @@ function HandoffStep({
                   className="inline-flex items-center gap-1.5 rounded bg-success px-2.5 py-1 text-[11px] font-medium text-bg-canvas hover:bg-success/90"
                 >
                   <ExternalLink size={11} />
-                  Open in gallery
+                  {tAuto("openInGallery_e9ca9cb4")}
                 </button>
               </li>
             ))}

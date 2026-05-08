@@ -1,3 +1,4 @@
+import { tAuto } from "@/i18n/autoUserFacing";
 // frontend/src/features/finngen-workbench/lib/operationTree.ts
 //
 // SP4 Phase B — pure operation-tree algebra. The frontend OperationBuilder
@@ -181,7 +182,7 @@ export function validate(root: OperationNode | null): ValidationError[] {
         errors.push({
           node_id: node.id,
           code: "COHORT_NODE_MISSING_ID",
-          message: `Cohort node missing or invalid cohort_id`,
+          message: tAuto("cohortNodeMissingOrInvalidCohortId_be9aeee6"),
         });
       }
       return;

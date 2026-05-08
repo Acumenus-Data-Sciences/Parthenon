@@ -1,20 +1,21 @@
 import { useCohortGeographyAggregate } from "../../hooks/useGis";
 import type { LayerAnalysisProps } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function CohortGeographyAnalysisPanel({ cohortGeography }: LayerAnalysisProps) {
   const hasTarget = Boolean(cohortGeography?.cohort_definition_id ?? cohortGeography?.concept_id);
   const aggregate = useCohortGeographyAggregate(hasTarget ? cohortGeography ?? null : null);
 
   if (!hasTarget) {
-    return <p className="text-xs text-text-ghost">Select a generated cohort or condition.</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("selectAGeneratedCohortOrCondition_0c85d86b")}</p>;
   }
 
   if (aggregate.isLoading) {
-    return <p className="text-xs text-text-ghost">Loading cohort geography...</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("loadingCohortGeography_575c6146")}</p>;
   }
 
   if (!aggregate.data) {
-    return <p className="text-xs text-text-ghost">No cohort geography data.</p>;
+    return <p className="text-xs text-text-ghost">{tAuto("noCohortGeographyData_ff0096ed")}</p>;
   }
 
   const rows = [...aggregate.data.features]
@@ -42,7 +43,7 @@ export function CohortGeographyAnalysisPanel({ cohortGeography }: LayerAnalysisP
       </div>
       {aggregate.data.summary.suppressed_geographies > 0 && (
         <p className="text-[10px] text-text-ghost">
-          {aggregate.data.summary.suppressed_geographies} geographies suppressed by cell count.
+          {aggregate.data.summary.suppressed_geographies} {tAuto("geographiesSuppressedByCellCount_fc33fd92")}
         </p>
       )}
     </div>
