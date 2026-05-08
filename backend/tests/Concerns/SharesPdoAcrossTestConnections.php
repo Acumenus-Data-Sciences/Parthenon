@@ -88,6 +88,15 @@ trait SharesPdoAcrossTestConnections
      */
     protected function setUpTraits()
     {
+        // Force testing connections to point at the docker postgres container
+        // BEFORE any code resolves a PDO. backend/.env values leak into
+        // $_SERVER at container start and Laravel's env() helper prefers
+        // $_SERVER over PHPUnit's force="true" overrides — so we override
+        // config() at runtime instead. Also creates required schemas.
+        if (method_exists($this, 'bootTestSchemas')) {
+            $this->bootTestSchemas();
+        }
+
         $this->rebindTestConnectionPdos();
         $this->pruneSiblingsFromTransactionList();
 

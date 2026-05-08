@@ -3,10 +3,12 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\Concerns\BootsTestSchemas;
 use Tests\Concerns\SharesPdoAcrossTestConnections;
 
 abstract class TestCase extends BaseTestCase
 {
+    use BootsTestSchemas;
     use SharesPdoAcrossTestConnections;
 
     /**
