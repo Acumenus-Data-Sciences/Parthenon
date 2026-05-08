@@ -34,7 +34,7 @@ scikit-learn>=1.8.0
 # Spatial statistics (lazy-loaded)
 libpysal>=4.9
 esda>=2.5
-spreg>=1.4
+spreg>=1.9.0
 redis>=7.4.0
 
 # Genomics — C-backed VCF parser (~100K variants/sec)
