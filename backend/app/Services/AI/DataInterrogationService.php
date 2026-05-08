@@ -189,16 +189,34 @@ class DataInterrogationService
         // Replace with space to preserve token boundaries like "DROP/**/TABLE"
         $stripped = preg_replace('/--.*$|\/\*[\s\S]*?\*\//m', ' ', $stripped) ?? $stripped;
 
+        // Strip trailing semicolons and whitespace so a single query ending in ';' is not falsely rejected
+        $noTrailingSemicolon = rtrim($stripped, " \t\n\r\0\x0B;");
+
         // Check for multi-statement
-        if (substr_count($stripped, ';') > 1) {
+        if (str_contains($noTrailingSemicolon, ';')) {
             return 'Multiple statements are not allowed. Send one query at a time.';
         }
 
         // Check for forbidden patterns (excluding temp_abby operations)
         foreach (self::FORBIDDEN_PATTERNS as $pattern) {
             if (preg_match($pattern, $stripped)) {
-                // Allow CREATE/INSERT/DROP on temp_abby schema
-                if (preg_match('/temp_abby\./i', $stripped)) {
+                // Strip out explicitly allowed operations on temp_abby
+                $strippedWithoutAllowed = preg_replace(
+                    '/\b(INSERT\s+INTO|DROP\s+(?:TABLE|INDEX)(?:\s+IF\s+EXISTS)?|CREATE\s+(?:TABLE|INDEX)(?:\s+IF\s+NOT\s+EXISTS)?)\s+temp_abby\.[a-z0-9_]+/i',
+                    ' ',
+                    $stripped
+                );
+
+                // Re-check for any remaining forbidden patterns
+                $stillForbidden = false;
+                foreach (self::FORBIDDEN_PATTERNS as $p) {
+                    if (preg_match($p, $strippedWithoutAllowed ?? '')) {
+                        $stillForbidden = true;
+                        break;
+                    }
+                }
+
+                if (! $stillForbidden) {
                     continue;
                 }
 
