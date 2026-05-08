@@ -70,69 +70,66 @@ trait BootsTestSchemas
     }
 
     /**
-     * Override every *_testing connection's host/port/credentials at runtime
-     * so they actually reach a usable Postgres regardless of $_SERVER state.
-     *
-     * Resolution order:
-     *   1. If `postgres` resolves (we're inside docker) → postgres:5432
-     *   2. Else use getenv('DB_TEST_HOST') / 'DB_HOST' (set by CI workflow
-     *      env or phpunit.xml force=true), default 127.0.0.1
-     *   3. Same for port (defaults to 5432)
+     * Patch *_testing connection config ONLY when it is obviously broken
+     * (host.docker.internal leaked from backend/.env, or username=smudoshi
+     * because env() picked up the OS user). In a healthy context (GitHub
+     * Actions runner with DB_HOST/DB_PORT in workflow env) leave the
+     * config alone — the trait must not stomp over correct values.
      */
     private function forceTestConnectionConfig(): void
     {
-        [$host, $port] = $this->resolveTestDbAddress();
-        $username = (string) (getenv('DB_TEST_USERNAME') ?: getenv('DB_USERNAME') ?: 'parthenon');
-        // env() leaked smudoshi via $_SERVER. Force the test seed user
-        // unless the workflow explicitly sets a different one.
-        if ($username === 'smudoshi' || $username === '') {
-            $username = 'parthenon';
-        }
-        $password = (string) (getenv('DB_TEST_PASSWORD') ?: getenv('DB_PASSWORD') ?: 'secret');
-
+        $changed = false;
         foreach ($this->testConnections as $name) {
             $key = "database.connections.$name";
             if (Config::get($key) === null) {
                 continue;
             }
-            Config::set("$key.host", $host);
-            Config::set("$key.port", $port);
-            Config::set("$key.database", 'parthenon_testing');
-            Config::set("$key.username", $username);
-            Config::set("$key.password", $password);
-            Config::set("$key.sslmode", 'prefer');
+            if ($this->maybePatchConnection($key)) {
+                $changed = true;
+            }
         }
 
-        // Drop any cached connection objects so the new config takes effect
-        // on the next DB::connection(...) call.
-        DB::purge();
-        foreach ($this->testConnections as $name) {
-            DB::purge($name);
+        if ($changed) {
+            DB::purge();
+            foreach ($this->testConnections as $name) {
+                DB::purge($name);
+            }
         }
     }
 
     /**
-     * @return array{0:string,1:string} [host, port]
+     * Returns true when at least one field on the connection was rewritten.
      */
-    private function resolveTestDbAddress(): array
+    private function maybePatchConnection(string $configKey): bool
     {
-        // Inside docker (parthenon-php container): postgres service hostname
-        // resolves and we should use it directly.
-        if (gethostbynamel('postgres') !== false) {
-            return ['postgres', '5432'];
+        $changed = false;
+        $host = (string) Config::get("$configKey.host");
+        $username = (string) Config::get("$configKey.username");
+        $database = (string) Config::get("$configKey.database");
+
+        // host.docker.internal leaks from backend/.env when the parthenon-php
+        // container ran the suite. Inside that container, postgres:5432 is
+        // the right destination; skip the rewrite if we cannot resolve it.
+        if ($host === 'host.docker.internal' && gethostbynamel('postgres') !== false) {
+            Config::set("$configKey.host", 'postgres');
+            Config::set("$configKey.port", 5432);
+            $changed = true;
         }
 
-        // GitHub Actions / host-side: respect the workflow's env vars.
-        $host = (string) (getenv('DB_TEST_HOST') ?: getenv('DB_HOST') ?: '127.0.0.1');
-        $port = (string) (getenv('DB_TEST_PORT') ?: getenv('DB_PORT') ?: '5432');
-
-        // Defensive: if container env leaked host.docker.internal here we
-        // would fail with the OS user. Force a sane default.
-        if ($host === 'host.docker.internal') {
-            $host = '127.0.0.1';
-            $port = '5432';
+        // env() returned the OS user when phpunit.xml lacked force="true"
+        // and $_SERVER was empty. Replace with the seeded test superuser.
+        $brokenUsernames = ['', 'smudoshi', 'DB_USERNAME_NOT_SET'];
+        if (in_array($username, $brokenUsernames, true)) {
+            Config::set("$configKey.username", 'parthenon');
+            Config::set("$configKey.password", 'secret');
+            $changed = true;
         }
 
-        return [$host, $port];
+        if ($database === '' || $database === 'DB_DATABASE_NOT_SET') {
+            Config::set("$configKey.database", 'parthenon_testing');
+            $changed = true;
+        }
+
+        return $changed;
     }
 }
