@@ -105,8 +105,10 @@ class TemplateRunService
         if (isset($payload['post_conditions']) && is_array($payload['post_conditions'])) {
             $update['post_conditions'] = $payload['post_conditions'];
         }
-        if (isset($payload['error'])) {
-            $update['error_message'] = (string) $payload['error'];
+        // Upstream emits `error_message`; older mocks/tests use `error`.
+        $upstreamError = $payload['error_message'] ?? $payload['error'] ?? null;
+        if ($upstreamError !== null) {
+            $update['error_message'] = (string) $upstreamError;
         }
 
         DB::transaction(function () use ($run, $update, $newStatus): void {

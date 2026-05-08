@@ -24,6 +24,7 @@ from runtime.orchestration.interface import (
     ArtifactRef,
     LogLine,
     OrchestrationBackend,
+    RunDetails,
     RunHandle,
     RunStatus,
 )
@@ -41,6 +42,10 @@ class _RunRecord:
     started_at: float = 0.0
     finished_at: float = 0.0
     thread: threading.Thread | None = None
+    total_nodes: int = 0
+    completed_nodes: set[str] = field(default_factory=set)
+    current_node: str | None = None
+    error_message: str | None = None
 
 
 class PrefectBackend(OrchestrationBackend):
@@ -65,7 +70,11 @@ class PrefectBackend(OrchestrationBackend):
         flow.validate()
         run_id = str(uuid.uuid4())
         backend_id = run_id
-        record = _RunRecord(flow_id=flow.flow_id, status=RunStatus.QUEUED)
+        record = _RunRecord(
+            flow_id=flow.flow_id,
+            status=RunStatus.QUEUED,
+            total_nodes=len(flow.nodes),
+        )
         with self._lock:
             self._runs[backend_id] = record
 
@@ -83,6 +92,30 @@ class PrefectBackend(OrchestrationBackend):
         with self._lock:
             record = self._runs.get(handle.backend_id)
         return record.status if record else RunStatus.PENDING
+
+    def get_run_details(self, handle: RunHandle) -> RunDetails:
+        with self._lock:
+            record = self._runs.get(handle.backend_id)
+        if record is None:
+            return RunDetails(status=RunStatus.PENDING)
+
+        progress = 0.0
+        if record.total_nodes > 0:
+            progress = min(1.0, len(record.completed_nodes) / record.total_nodes)
+        # Once the run reaches a terminal state, force progress to 1.0 (or 0.0
+        # if it never started any nodes) so the UI doesn't show e.g. 67%
+        # forever after a failure.
+        if record.status == RunStatus.COMPLETED:
+            progress = 1.0
+
+        return RunDetails(
+            status=record.status,
+            progress=progress,
+            current_node=record.current_node,
+            started_at=_iso_or_none(record.started_at),
+            finished_at=_iso_or_none(record.finished_at),
+            error_message=record.error_message,
+        )
 
     def get_logs(self, handle: RunHandle, *, limit: int = 1000) -> list[LogLine]:
         with self._lock:
@@ -187,5 +220,35 @@ class PrefectBackend(OrchestrationBackend):
         )
         with self._lock:
             record = self._runs.get(backend_id)
-            if record is not None:
-                record.logs.append(line)
+            if record is None:
+                return
+            record.logs.append(line)
+
+            # Track current_node and completed_nodes for progress reporting.
+            # Conventions used by execute_node above:
+            #   "start <type>"             — node begins (node_id set)
+            #   "end status=success"       — node completed successfully
+            #   "end status=<other>"       — node completed but not OK; do not
+            #                                count toward progress
+            if node_id is not None:
+                if message.startswith("start "):
+                    record.current_node = node_id
+                elif message.startswith("end status="):
+                    if message == "end status=success":
+                        record.completed_nodes.add(node_id)
+                    # Whether success or failure, this node is no longer
+                    # "current" — clear it so the UI shows nothing in-flight.
+                    if record.current_node == node_id:
+                        record.current_node = None
+
+            # First ERROR-level message wins as the error_message surface
+            # (subsequent crash logs are noisy and less informative).
+            if level == "ERROR" and record.error_message is None:
+                record.error_message = message
+
+
+def _iso_or_none(ts: float) -> str | None:
+    """Convert an epoch float (0.0 == unset) to ISO-8601 UTC."""
+    if ts <= 0.0:
+        return None
+    return datetime.fromtimestamp(ts, UTC).isoformat()
