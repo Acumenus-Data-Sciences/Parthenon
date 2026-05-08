@@ -72,7 +72,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/sudoshi/parthenon
+  IMAGE_PREFIX: ghcr.io/acumenus-data-sciences/parthenon
 
 permissions:
   contents: read
@@ -297,5 +297,5 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           labels: |
-            org.opencontainers.image.source=https://github.com/sudoshi/Parthenon
+            org.opencontainers.image.source=https://github.com/Acumenus-Data-Sciences/Parthenon
             org.opencontainers.image.revision=${{ github.sha }}

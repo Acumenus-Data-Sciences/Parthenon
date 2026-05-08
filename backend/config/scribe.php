@@ -54,7 +54,7 @@ The response includes a `token` field — pass it as `Authorization: Bearer {tok
 
 ---
 
-*Built by [Acumenus Data Sciences](https://www.acumenus.io) — open source on [GitHub](https://github.com/sudoshi/Parthenon)*
+*Built by [Acumenus Data Sciences](https://www.acumenus.io) — open source on [GitHub](https://github.com/Acumenus-Data-Sciences/Parthenon)*
 INTRO,
 
     'base_url' => env('APP_URL', 'http://localhost:8082'),

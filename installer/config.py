@@ -882,7 +882,7 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"REDIS_PORT={cfg['redis_port']}",
         f"AI_PORT={cfg['ai_port']}",
         f"JUPYTER_PORT={cfg.get('jupyter_port', 8888)}",
-        f"JUPYTER_IMAGE=ghcr.io/sudoshi/parthenon-jupyter-user:latest",
+        f"JUPYTER_IMAGE=ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest",
         f"JUPYTER_PULL_POLICY=ifnotpresent",
         f"R_PORT={cfg.get('r_port', 8787)}",
     ]

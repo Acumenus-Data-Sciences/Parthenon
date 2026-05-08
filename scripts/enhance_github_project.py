@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 
 OWNER = "sudoshi"
-REPO = "sudoshi/Parthenon"
+REPO = "Acumenus-Data-Sciences/Parthenon"
 PROJECT_NUMBER = 3
 PROJECT_TITLE = "Parthenon Roadmap"
 

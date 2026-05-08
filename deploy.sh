@@ -373,7 +373,7 @@ clear_runtime_caches() {
 echo "==> Parthenon deploy"
 
 # ── Pull pre-built images from GHCR ───────────────────────────────────────────
-# Images are built in CI (GitHub Actions) and pushed to ghcr.io/sudoshi/parthenon-*.
+# Images are built in CI (GitHub Actions) and pushed to ghcr.io/acumenus-data-sciences/parthenon-*.
 # Pulling here avoids local rebuilds and speeds up deploys significantly.
 # If GHCR is unreachable or images don't exist yet, fall back to local images.
 # Skip for targeted deploys (--php, --frontend, --db, --docs, --openapi)

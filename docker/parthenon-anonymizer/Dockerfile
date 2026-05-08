@@ -1,5 +1,5 @@
 # Built from MS Tools-for-Health-Data-Anonymization v3.1.1
-# Mirrored to ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.1.1 per spec Q1.
+# Mirrored to ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer:v3.1.1 per spec Q1.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dotnet-build
 WORKDIR /build
 RUN apt-get update && apt-get install -y --no-install-recommends git \
