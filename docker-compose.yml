@@ -1110,11 +1110,22 @@ services:
       context: .
       dockerfile: templates/Dockerfile
     restart: unless-stopped
+    # Inherit DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE from
+    # backend/.env so the templates runtime targets the same Postgres as
+    # Laravel (host PG17 via host.docker.internal, not the unused docker
+    # postgres container). The entrypoint constructs DATABASE_URL from
+    # these if not set explicitly via TEMPLATES_DATABASE_URL.
+    env_file:
+      - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - PARTHENON_INTERNAL_TOKEN=${PARTHENON_INTERNAL_TOKEN:?PARTHENON_INTERNAL_TOKEN must be set}
       - PARTHENON_ORCHESTRATION_BACKEND=${PARTHENON_ORCHESTRATION_BACKEND:-prefect}
       - PARTHENON_STORAGE_ROOT=/var/parthenon/storage/templates
-      - DATABASE_URL=${TEMPLATES_DATABASE_URL:-postgresql+psycopg://parthenon_app@postgres:5432/parthenon}
+      # If TEMPLATES_DATABASE_URL is set in host .env, it wins; otherwise the
+      # entrypoint derives DATABASE_URL from DB_* vars in backend/.env.
+      - DATABASE_URL=${TEMPLATES_DATABASE_URL:-}
       - PREFECT_API_URL=http://127.0.0.1:4200/api
     volumes:
       - templates_storage:/var/parthenon/storage/templates

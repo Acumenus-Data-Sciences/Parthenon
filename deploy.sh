@@ -544,15 +544,37 @@ if $DO_DB; then
     fi
     # Tripwire in AppServiceProvider blocks bare `migrate` — must use --path= per migration.
     # Get pending migrations and run each one individually.
-    PENDING=$(docker compose exec -T php php artisan migrate:status --pending 2>/dev/null \
-      | grep -oP '(?<=\s)\d{4}_\d{2}_\d{2}_\d+_\S+(?=\s)' || true)
+    #
+    # Capture: lines that start with whitespace + YYYY_MM_DD_<digits>_<name>.
+    # Awk over column 1 is more robust than a PCRE lookbehind/lookahead — the
+    # earlier `grep -oP '(?<=\s)\d{4}_\d{2}_\d{2}_\d+_\S+(?=\s)'` silently
+    # produced empty output in some artisan output variants, causing new
+    # migrations to be skipped without warning. (2026-05-08 incident.)
+    PENDING_RAW=$(docker compose exec -T php php artisan migrate:status --pending 2>&1)
+    PENDING=$(printf '%s\n' "$PENDING_RAW" \
+      | awk '/^[[:space:]]+[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]+_/ { print $1 }')
     if [ -z "$PENDING" ]; then
-      ok "No pending migrations"
+      # Surface the raw artisan output if it looked like an error so the
+      # operator can tell "nothing pending" from "artisan crashed".
+      if printf '%s' "$PENDING_RAW" | grep -qiE 'error|exception|fatal'; then
+        fail "Could not determine pending migrations:"
+        printf '%s\n' "$PENDING_RAW" | sed 's/^/     /'
+        ERRORS=$((ERRORS + 1))
+      else
+        ok "No pending migrations"
+      fi
     else
+      MIG_COUNT=$(printf '%s\n' "$PENDING" | wc -l | tr -d ' ')
+      echo "   ${MIG_COUNT} pending migration(s):"
       MIG_ERRORS=0
       while IFS= read -r mig; do
+        [ -z "$mig" ] && continue
         echo "   → ${mig}"
-        if ! "${MIGRATE_EXEC[@]}" migrate --path="database/migrations/${mig}.php" --force 2>&1; then
+        # `</dev/null` is critical: artisan + docker-compose-exec read stdin,
+        # which would otherwise consume the rest of the loop's heredoc input
+        # and cause every iteration after the first to be silently skipped.
+        # (2026-05-08 incident.)
+        if ! "${MIGRATE_EXEC[@]}" migrate --path="database/migrations/${mig}.php" --force </dev/null 2>&1; then
           fail "Migration failed: ${mig}"
           MIG_ERRORS=$((MIG_ERRORS + 1))
         fi
