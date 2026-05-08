@@ -126,11 +126,39 @@ class TemplateRunService
         if ($run->isTerminal()) {
             return;
         }
+
+        // Phase 1: ask upstream to cancel. We tolerate a missing run (409/404)
+        // because the run may have completed between the SPA fetching status
+        // and the user clicking cancel — that's a benign race.
         if ($run->prefect_run_id !== null) {
-            $this->registry->cancelRun((string) $run->prefect_run_id);
+            try {
+                $this->registry->cancelRun((string) $run->prefect_run_id);
+            } catch (TemplateRegistryException $e) {
+                // Don't bubble — proceed to phase 2 and let upstream's
+                // current status drive the local update.
+            }
         }
+
+        // Phase 2: reflect upstream's actual current status if available.
+        // If upstream now reports `completed` or `failed`, do not blindly
+        // overwrite to `cancelled` — the run finished before our cancel
+        // arrived. If upstream is gone (no prefect_run_id, or unreachable),
+        // fall back to optimistic-cancel.
+        $finalStatus = TemplateRun::STATUS_CANCELLED;
+        if ($run->prefect_run_id !== null) {
+            try {
+                $payload = $this->registry->getRun((string) $run->prefect_run_id);
+                $upstreamStatus = (string) ($payload['status'] ?? '');
+                if (in_array($upstreamStatus, TemplateRun::TERMINAL_STATUSES, true)) {
+                    $finalStatus = $upstreamStatus;
+                }
+            } catch (TemplateRegistryException $e) {
+                // Upstream unreachable — keep optimistic cancellation.
+            }
+        }
+
         $run->update([
-            'status' => TemplateRun::STATUS_CANCELLED,
+            'status' => $finalStatus,
             'finished_at' => now(),
         ]);
     }

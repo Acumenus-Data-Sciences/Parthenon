@@ -22,6 +22,7 @@ import {
   useTemplateRunArtifacts,
   useSubmitTemplateRun,
   useCancelTemplateRun,
+  useTemplateRunHistory,
   templateRunRefetchInterval,
 } from "../api/templates";
 import type { TemplateRun } from "../types/templates";
@@ -173,5 +174,54 @@ describe("useTemplate / useTemplateRun / logs / artifacts URL shape", () => {
       "/ingestion/templates/runs/7/artifacts",
     );
     expect(result.current.data?.[0].name).toBe("summary.json");
+  });
+});
+
+describe("useTemplateRunHistory", () => {
+  it("hits /ingestion/templates/runs?page=...&per_page=... and preserves the {data, meta} envelope", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: 1,
+            template_id: "hello_cdm",
+            template_version: "0.1.0",
+            status: "completed",
+          },
+        ],
+        meta: { total: 1, page: 1, per_page: 20 },
+      },
+    });
+    const { result } = renderHook(
+      () => useTemplateRunHistory({ page: 1, pageSize: 20 }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const url = mockedGet.mock.calls[0]?.[0] as string;
+    expect(url).toMatch(/^\/ingestion\/templates\/runs\?/);
+    expect(url).toContain("page=1");
+    expect(url).toContain("per_page=20");
+    expect(result.current.data?.data[0].id).toBe(1);
+    expect(result.current.data?.meta.total).toBe(1);
+  });
+
+  it("appends status[]=… for each requested status filter", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: { data: [], meta: { total: 0, page: 1, per_page: 20 } },
+    });
+    const { result } = renderHook(
+      () =>
+        useTemplateRunHistory({
+          page: 1,
+          pageSize: 20,
+          statuses: ["failed", "cancelled"],
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const url = mockedGet.mock.calls[0]?.[0] as string;
+    // URLSearchParams encodes "[" and "]" as %5B / %5D
+    expect(url).toContain("status%5B%5D=failed");
+    expect(url).toContain("status%5B%5D=cancelled");
   });
 });

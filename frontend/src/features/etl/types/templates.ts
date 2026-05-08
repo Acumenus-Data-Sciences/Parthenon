@@ -48,15 +48,22 @@ export interface JsonSchemaObject {
   required?: string[];
 }
 
+/**
+ * Catalog summary returned by GET /ingestion/templates.
+ *
+ * `description` and `parameters_schema` are NOT in the list response — only
+ * the manifest endpoint returns them. They are required on TemplateManifest
+ * (the detail shape) but optional here.
+ */
 export interface Template {
   id: string;
   name: string;
   version: string;
-  description: string;
+  description?: string;
   category: TemplateCategory;
   tags: string[];
   cdm_versions: string[];
-  parameters_schema: JsonSchemaObject;
+  parameters_schema?: JsonSchemaObject;
 }
 
 export interface TemplateNode {
@@ -75,7 +82,15 @@ export interface PostCondition {
   detail?: string;
 }
 
+/**
+ * Detail shape returned by GET /ingestion/templates/{id}.
+ *
+ * Promotes `description` and `parameters_schema` to required (the manifest
+ * endpoint always returns them) and adds nodes/post_conditions.
+ */
 export interface TemplateManifest extends Template {
+  description: string;
+  parameters_schema: JsonSchemaObject;
   nodes: TemplateNode[];
   post_conditions: PostCondition[];
 }
