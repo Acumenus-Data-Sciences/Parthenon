@@ -66,6 +66,8 @@ class TemplatesControllerCancelTest extends TestCase
         $this->actingAs($user)
             ->deleteJson('/api/v1/ingestion/templates/runs/'.$run->id)
             ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('id', $run->id)
             ->assertJsonPath('status', TemplateRun::STATUS_CANCELLED);
 
         $this->assertSame(TemplateRun::STATUS_CANCELLED, $run->refresh()->status);

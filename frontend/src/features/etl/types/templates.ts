@@ -15,13 +15,20 @@ export type TemplateRunStatus =
   | "failed"
   | "cancelled";
 
+// Upstream categories evolve as new manifests are added. Keep the union
+// open-ended so the SPA does not crash on a new category emitted by the
+// templates service. The known values are listed for autocomplete but any
+// string is accepted.
 export type TemplateCategory =
   | "bootstrap"
   | "diagnostic"
   | "vocabulary"
   | "demo_data"
   | "etl"
-  | "validation";
+  | "validation"
+  | "ingestion"
+  | "transform"
+  | (string & {});
 
 export interface JsonSchemaProperty {
   type: "string" | "number" | "integer" | "boolean";

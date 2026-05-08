@@ -73,11 +73,11 @@ describe("RunInspector", () => {
   it("shows the cancel button while running, hides on terminal", async () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates/runs/7")
-        return Promise.resolve({ data: { data: RUN_RUNNING } });
+        return Promise.resolve({ data: RUN_RUNNING });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       if (url === "/ingestion/templates/runs/7/logs")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { lines: [] } });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
 
@@ -95,13 +95,13 @@ describe("RunInspector", () => {
   it("shows the retry button when failed", async () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates/runs/7")
-        return Promise.resolve({ data: { data: RUN_FAILED } });
+        return Promise.resolve({ data: RUN_FAILED });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       if (url === "/ingestion/templates/runs/7/logs")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { lines: [] } });
       if (url === "/ingestion/templates/runs/7/artifacts")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { artifacts: [] } });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
 
@@ -119,14 +119,16 @@ describe("RunInspector", () => {
   it("DELETEs the run when cancel is clicked", async () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates/runs/7")
-        return Promise.resolve({ data: { data: RUN_RUNNING } });
+        return Promise.resolve({ data: RUN_RUNNING });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       if (url === "/ingestion/templates/runs/7/logs")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { lines: [] } });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
-    mockedDel.mockResolvedValueOnce({ data: { data: { ok: true } } });
+    mockedDel.mockResolvedValueOnce({
+      data: { ok: true, id: 7, status: "cancelled" },
+    });
 
     render(<RunInspector runId={7} />, { wrapper });
     const btn = await screen.findByRole("button", { name: /Cancel run/i });
@@ -140,17 +142,24 @@ describe("RunInspector", () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates/runs/7")
         return Promise.resolve({
-          data: { data: { ...RUN_FAILED, parameters: { foo: "bar" } } },
+          data: { ...RUN_FAILED, parameters: { foo: "bar" } },
         });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       if (url === "/ingestion/templates/runs/7/logs")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { lines: [] } });
       if (url === "/ingestion/templates/runs/7/artifacts")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { artifacts: [] } });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
-    mockedPost.mockResolvedValueOnce({ data: { data: { id: 8 } } });
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        id: 8,
+        template_run_id: 8,
+        ingestion_job_id: null,
+        status: "queued",
+      },
+    });
 
     render(<RunInspector runId={7} />, { wrapper });
     const btn = await screen.findByRole("button", { name: /Retry/i });

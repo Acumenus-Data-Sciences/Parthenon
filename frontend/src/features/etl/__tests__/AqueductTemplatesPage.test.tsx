@@ -67,7 +67,7 @@ const MANIFEST = {
 
 describe("AqueductTemplatesPage", () => {
   it("shows the empty state when no templates", async () => {
-    mockedGet.mockResolvedValueOnce({ data: { data: [] } });
+    mockedGet.mockResolvedValueOnce({ data: [] });
     render(<AqueductTemplatesPage />, { wrapper });
     expect(
       await screen.findByText(/No templates available/i),
@@ -75,7 +75,7 @@ describe("AqueductTemplatesPage", () => {
   });
 
   it("renders a card per template", async () => {
-    mockedGet.mockResolvedValueOnce({ data: { data: TEMPLATES } });
+    mockedGet.mockResolvedValueOnce({ data: TEMPLATES });
     render(<AqueductTemplatesPage />, { wrapper });
     expect(await screen.findByText("Hello CDM")).toBeInTheDocument();
   });
@@ -83,9 +83,9 @@ describe("AqueductTemplatesPage", () => {
   it("opens the parameter modal on card click", async () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates")
-        return Promise.resolve({ data: { data: TEMPLATES } });
+        return Promise.resolve({ data: TEMPLATES });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
     render(<AqueductTemplatesPage />, { wrapper });
@@ -98,12 +98,19 @@ describe("AqueductTemplatesPage", () => {
   it("submits the run and navigates to ?subtab=runs&run=<id>", async () => {
     mockedGet.mockImplementation((url: string) => {
       if (url === "/ingestion/templates")
-        return Promise.resolve({ data: { data: TEMPLATES } });
+        return Promise.resolve({ data: TEMPLATES });
       if (url === "/ingestion/templates/hello_cdm")
-        return Promise.resolve({ data: { data: MANIFEST } });
+        return Promise.resolve({ data: MANIFEST });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
-    mockedPost.mockResolvedValueOnce({ data: { data: { id: 42 } } });
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        id: 42,
+        template_run_id: 42,
+        ingestion_job_id: null,
+        status: "queued",
+      },
+    });
 
     render(<AqueductTemplatesPage />, { wrapper });
     fireEvent.click(await screen.findByRole("button", { name: /Hello CDM/ }));

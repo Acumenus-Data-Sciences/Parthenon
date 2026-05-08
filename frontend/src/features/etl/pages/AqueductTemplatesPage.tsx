@@ -61,7 +61,7 @@ export function AqueductTemplatesPage() {
       {
         onSuccess: (resp) => {
           setSelectedId(null);
-          navigate(`/data-ingestion?tab=aqueduct&subtab=runs&run=${resp.id}`);
+          navigate(`/ingestion?tab=aqueduct&subtab=runs&run=${resp.id}`);
         },
       },
     );
