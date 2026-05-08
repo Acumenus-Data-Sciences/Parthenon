@@ -71,14 +71,24 @@ trait BootsTestSchemas
 
     /**
      * Override every *_testing connection's host/port/credentials at runtime
-     * so they always point at the docker postgres container (`postgres:5432`
-     * inside the network) with the seeded `parthenon` superuser, regardless
-     * of $_SERVER state.
+     * so they actually reach a usable Postgres regardless of $_SERVER state.
+     *
+     * Resolution order:
+     *   1. If `postgres` resolves (we're inside docker) → postgres:5432
+     *   2. Else use getenv('DB_TEST_HOST') / 'DB_HOST' (set by CI workflow
+     *      env or phpunit.xml force=true), default 127.0.0.1
+     *   3. Same for port (defaults to 5432)
      */
     private function forceTestConnectionConfig(): void
     {
-        $host = $this->detectTestDbHost();
-        $port = $host === 'postgres' ? '5432' : '5480';
+        [$host, $port] = $this->resolveTestDbAddress();
+        $username = (string) (getenv('DB_TEST_USERNAME') ?: getenv('DB_USERNAME') ?: 'parthenon');
+        // env() leaked smudoshi via $_SERVER. Force the test seed user
+        // unless the workflow explicitly sets a different one.
+        if ($username === 'smudoshi' || $username === '') {
+            $username = 'parthenon';
+        }
+        $password = (string) (getenv('DB_TEST_PASSWORD') ?: getenv('DB_PASSWORD') ?: 'secret');
 
         foreach ($this->testConnections as $name) {
             $key = "database.connections.$name";
@@ -88,8 +98,8 @@ trait BootsTestSchemas
             Config::set("$key.host", $host);
             Config::set("$key.port", $port);
             Config::set("$key.database", 'parthenon_testing');
-            Config::set("$key.username", 'parthenon');
-            Config::set("$key.password", 'secret');
+            Config::set("$key.username", $username);
+            Config::set("$key.password", $password);
             Config::set("$key.sslmode", 'prefer');
         }
 
@@ -102,18 +112,27 @@ trait BootsTestSchemas
     }
 
     /**
-     * Resolve a host that this PHP process can reach. Inside the docker
-     * `php` service the postgres container is reachable as `postgres`;
-     * on the host machine it's `127.0.0.1:5480`.
+     * @return array{0:string,1:string} [host, port]
      */
-    private function detectTestDbHost(): string
+    private function resolveTestDbAddress(): array
     {
-        // Heuristic: inside the parthenon-php container, /etc/hostname is
-        // the container's docker hostname. The host has its own hostname.
+        // Inside docker (parthenon-php container): postgres service hostname
+        // resolves and we should use it directly.
         if (gethostbynamel('postgres') !== false) {
-            return 'postgres';
+            return ['postgres', '5432'];
         }
 
-        return '127.0.0.1';
+        // GitHub Actions / host-side: respect the workflow's env vars.
+        $host = (string) (getenv('DB_TEST_HOST') ?: getenv('DB_HOST') ?: '127.0.0.1');
+        $port = (string) (getenv('DB_TEST_PORT') ?: getenv('DB_PORT') ?: '5432');
+
+        // Defensive: if container env leaked host.docker.internal here we
+        // would fail with the OS user. Force a sane default.
+        if ($host === 'host.docker.internal') {
+            $host = '127.0.0.1';
+            $port = '5432';
+        }
+
+        return [$host, $port];
     }
 }
