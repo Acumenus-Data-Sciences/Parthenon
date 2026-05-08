@@ -36,6 +36,9 @@ mkdir -p /var/www/html/storage/logs \
          /var/www/html/bootstrap/cache
 
 chown -R "www-data:www-data" /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Set 775 on directories and 664 on files, but skip tracked .gitignore files
+# so git doesn't see the executable bit flip on every container start.
+find /var/www/html/storage /var/www/html/bootstrap/cache -type d -exec chmod 775 {} +
+find /var/www/html/storage /var/www/html/bootstrap/cache -type f ! -name .gitignore -exec chmod 664 {} +
 
 exec "$@"
