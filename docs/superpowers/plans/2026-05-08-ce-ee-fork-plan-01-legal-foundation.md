@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Get the Parthenon repo into the state where Phase 2 (CE extension points) can begin: legal foundation drafted (CLA, EULA placeholder, NOTICE, LICENSING.md, TRADEMARKS.md), repo moved from `github.com/sudoshi/Parthenon` to `github.com/acumenus/Parthenon`, and the public LICENSE flipped from Apache-2.0 to AGPL-3.0-only with all package manifests aligned.
+**Goal:** Get the Parthenon repo into the state where Phase 2 (CE extension points) can begin: legal foundation drafted (CLA, EULA placeholder, NOTICE, LICENSING.md, TRADEMARKS.md), repo moved from `github.com/sudoshi/Parthenon` to `github.com/Acumenus-Data-Sciences/Parthenon`, and the public LICENSE flipped from Apache-2.0 to AGPL-3.0-only with all package manifests aligned.
 
 **Architecture:** Phases 0 + 0.5 + 1 of the parent spec. Most tasks produce file artifacts (license/policy text, package manifest edits). A few tasks are GitHub admin runbooks for actions only the repo owner (Sanjay) can perform. The plan is executable in linear order; tasks marked **USER ACTION** require Sanjay's GitHub account access and cannot be delegated to Claude.
 
@@ -48,8 +48,8 @@ Before starting any task:
 | `frontend/package.json` | Add `license`, `repository`, `author` fields |
 | `ai/pyproject.toml` | Add `license`, `authors` fields |
 | `templates/pyproject.toml` | `license = { text = "Apache-2.0" }` → `{ text = "AGPL-3.0-only" }` |
-| `docker-compose.community.yml` | `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus/parthenon-*` (after org transfer) |
-| All CI workflows under `.github/workflows/` | `sudoshi/Parthenon` → `acumenus/Parthenon` references (after org transfer) |
+| `docker-compose.community.yml` | `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus-data-sciences/parthenon-*` (after org transfer) |
+| All CI workflows under `.github/workflows/` | `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon` references (after org transfer) |
 | `ROADMAP.md` | Mention Enterprise Edition status |
 
 **Files deleted during this plan:**
@@ -61,8 +61,8 @@ Before starting any task:
 **External artifacts created (not in repo):**
 
 - `Parthenon-EE` placeholder commercial EULA stored at `~/Documents/acumenus-legal/LICENSE-EE-draft-v1.md` (not committed; for counsel review).
-- CLA Assistant configuration at https://cla-assistant.io for `acumenus/Parthenon`.
-- GitHub teams `@acumenus/maintainers`, `@acumenus/employees`, `@acumenus/ee-team` on `github.com/acumenus`.
+- CLA Assistant configuration at https://cla-assistant.io for `Acumenus-Data-Sciences/Parthenon`.
+- GitHub teams `@Acumenus-Data-Sciences/maintainers`, `@Acumenus-Data-Sciences/employees`, `@Acumenus-Data-Sciences/ee-team` on `github.com/Acumenus-Data-Sciences`.
 
 ---
 
@@ -329,7 +329,7 @@ contexts without prior permission:
 - Referring to Parthenon by name in technical documentation, blog posts,
   academic papers, or social media commentary.
 - Identifying yourself as a "Parthenon contributor" if you have had a
-  contribution merged to the public `acumenus/Parthenon` repository.
+  contribution merged to the public `Acumenus-Data-Sciences/Parthenon` repository.
 - Operating a personal or community-run fork of Parthenon for internal
   research use, provided the fork is not represented as the official version.
 
@@ -367,7 +367,7 @@ policy, please report it to `legal@acumenus.net`.
 ## Updates
 
 This policy may be updated as Parthenon's commercial program evolves. The
-canonical version is the one in the public `acumenus/Parthenon` repository on
+canonical version is the one in the public `Acumenus-Data-Sciences/Parthenon` repository on
 the `main` branch.
 
 ---
@@ -564,7 +564,7 @@ Expected: all 4 OK lines printed.
 To: <counsel@firm>
 Subject: Parthenon Enterprise Commercial EULA — draft for your review
 
-I'm preparing to fork Parthenon (github.com/acumenus/Parthenon, currently
+I'm preparing to fork Parthenon (github.com/Acumenus-Data-Sciences/Parthenon, currently
 under Apache 2.0 transitioning to AGPL-3.0-only) into a paid Enterprise
 Edition under a commercial license. Attached is a placeholder EULA draft
 that I generated as a starting point — it is not legally binding and is
@@ -599,7 +599,7 @@ These drafts stay in `/tmp/` and `~/Documents/` until Task 8 copies the public o
 
 ## Task 2: Configure CLA Assistant
 
-**Why now:** Must be live before any external PR merges to `acumenus/Parthenon` post-AGPLv3-flip, so contributors agree to dual-licensing terms.
+**Why now:** Must be live before any external PR merges to `Acumenus-Data-Sciences/Parthenon` post-AGPLv3-flip, so contributors agree to dual-licensing terms.
 
 **Files:** No file changes; this is a configuration on https://cla-assistant.io.
 
@@ -609,7 +609,7 @@ Visit https://cla-assistant.io and sign in with your `sudoshi` GitHub account.
 
 - [ ] **Step 2.2: USER ACTION — Configure CLA for `sudoshi/Parthenon` (pre-transfer)**
 
-Even though the repo will move to `acumenus/` later, configure CLA Assistant now against the current `sudoshi/Parthenon` URL so we can test it before transfer. After Task 4 (transfer), re-link to `acumenus/Parthenon`.
+Even though the repo will move to `Acumenus-Data-Sciences/` later, configure CLA Assistant now against the current `sudoshi/Parthenon` URL so we can test it before transfer. After Task 4 (transfer), re-link to `Acumenus-Data-Sciences/Parthenon`.
 
 CLA text to paste into CLA Assistant (the standard CLA wording for our project):
 
@@ -673,7 +673,7 @@ indicates agreement to the above terms.
 ```
 
 In CLA Assistant settings:
-- Apply to: `sudoshi/Parthenon` (will re-link to `acumenus/Parthenon` after transfer)
+- Apply to: `sudoshi/Parthenon` (will re-link to `Acumenus-Data-Sciences/Parthenon` after transfer)
 - Allow list: empty initially (no bypasses)
 - Require CLA on: all PRs from non-employee contributors
 
@@ -691,7 +691,7 @@ For automated bots (Sentinel, Bolt, Palette, Jules, Dependabot), bot identities 
 
 (a) **Recommended:** Create a CLA Assistant allow-list entry with each bot's GitHub user ID (e.g., `dependabot[bot]`). The bypass is documented in `CONTRIBUTING.md` under "Bots".
 
-(b) Create an Acumenus account (`@acumenus-bot`) and have it sign the CLA on behalf of all Acumenus-operated bots. Bot PRs are filed as `@acumenus-bot` not the individual bot identity.
+(b) Create an Acumenus account (`@acumenus-data-sciences-bot`) and have it sign the CLA on behalf of all Acumenus-Data-Sciences-operated bots. Bot PRs are filed as `@acumenus-data-sciences-bot` not the individual bot identity.
 
 Pick (a) for now (lower friction) and document in CONTRIBUTING.md update at Task 8.
 
@@ -726,7 +726,7 @@ Hi [Name],
 A heads-up that we're changing Parthenon's open-source license from
 Apache 2.0 to AGPL-3.0-only in approximately 1-2 weeks. We're also
 moving the canonical repository from github.com/sudoshi/Parthenon to
-github.com/acumenus/Parthenon.
+github.com/Acumenus-Data-Sciences/Parthenon.
 
 What this means for you:
 
@@ -775,7 +775,7 @@ Do not proceed to Task 8 (AGPLv3 PR merge) until all expected acks received OR y
 
 ---
 
-## Task 4: Org transfer — `sudoshi/Parthenon` → `acumenus/Parthenon`
+## Task 4: Org transfer — `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon`
 
 **Why before AGPLv3 PR:** All license metadata, badge URLs, container image references, and CLA Assistant configuration generate against the canonical repo URL. Doing the transfer first means we make these changes once, in their final form.
 
@@ -802,21 +802,21 @@ Expected: 50-150 hits in active source files. Save the file — Task 5 uses it.
 
 - [ ] **Step 4.2: USER ACTION — Decide org-level structure**
 
-On `github.com/acumenus`, plan the following before transferring:
+On `github.com/Acumenus-Data-Sciences`, plan the following before transferring:
 
 **Teams to create:**
-- `@acumenus/maintainers` — repo admins (Sanjay + 1 backup)
-- `@acumenus/employees` — write access to CE + EE
-- `@acumenus/ee-team` — write access to EE only (subset of employees)
-- `@acumenus/contributors` — public-facing community team (advisory; no write access by default)
+- `@Acumenus-Data-Sciences/maintainers` — repo admins (Sanjay + 1 backup)
+- `@Acumenus-Data-Sciences/employees` — write access to CE + EE
+- `@Acumenus-Data-Sciences/ee-team` — write access to EE only (subset of employees)
+- `@Acumenus-Data-Sciences/contributors` — public-facing community team (advisory; no write access by default)
 
 **Org-level Actions secrets to migrate:**
 - `RESEND_KEY` (currently per-repo; move to org)
-- `GHCR_PUSH_TOKEN` (new — for pushing to `ghcr.io/acumenus`)
+- `GHCR_PUSH_TOKEN` (new — for pushing to `ghcr.io/acumenus-data-sciences`)
 - Cosign signing key (new — for EE artifact signing)
 - Codecov token (re-issue at org level)
 
-**Org-level branch protection ruleset (apply to `acumenus/Parthenon` after transfer):**
+**Org-level branch protection ruleset (apply to `Acumenus-Data-Sciences/Parthenon` after transfer):**
 - Require PR review
 - Require CI to pass: `pint`, `phpstan`, `tsc`, `eslint`, `vitest`, `pest`, `pytest`
 - Require signed commits
@@ -828,7 +828,7 @@ Document these decisions in `~/Documents/acumenus-legal/org-transfer-plan-2026-0
 
 - [ ] **Step 4.3: USER ACTION — Pre-transfer dry-run on a dummy repo**
 
-Create a tiny test repo under `sudoshi/parthenon-transfer-test`, transfer it to `acumenus/parthenon-transfer-test`, verify everything works, then delete the test repo. This catches any account-level issues before touching the real one.
+Create a tiny test repo under `sudoshi/parthenon-transfer-test`, transfer it to `Acumenus-Data-Sciences/parthenon-transfer-test`, verify everything works, then delete the test repo. This catches any account-level issues before touching the real one.
 
 ```bash
 # create
@@ -837,10 +837,10 @@ echo "test" | gh repo create sudoshi/parthenon-transfer-test --public --confirm 
 
 # transfer (via UI: Settings → Danger Zone → Transfer ownership)
 # then verify
-gh repo view acumenus/parthenon-transfer-test
+gh repo view Acumenus-Data-Sciences/parthenon-transfer-test
 
 # delete
-gh repo delete acumenus/parthenon-transfer-test --yes
+gh repo delete Acumenus-Data-Sciences/parthenon-transfer-test --yes
 ```
 
 **Verification:** Dummy transfer succeeded and was deleted cleanly.
@@ -855,7 +855,7 @@ On https://github.com/sudoshi/Parthenon/settings:
 
 1. Scroll to **Danger Zone** → **Transfer ownership**.
 2. Type repo name to confirm: `Parthenon`.
-3. Enter new owner: `acumenus`.
+3. Enter new owner: `Acumenus-Data-Sciences`.
 4. Confirm.
 
 GitHub preserves: PRs, issues, stars, watchers, releases, branches, tags, commits, contributors, security advisories.
@@ -864,32 +864,32 @@ GitHub redirects from old URL: yes (HTTP 301 for ~the next year).
 - [ ] **Step 4.6: Verify the transfer**
 
 ```bash
-gh repo view acumenus/Parthenon | head -10
+gh repo view Acumenus-Data-Sciences/Parthenon | head -10
 gh repo view sudoshi/Parthenon 2>&1 | grep -i 'redirect\|moved\|not found'
 ```
 
-Expected: First command shows the repo at acumenus; second confirms redirect.
+Expected: First command shows the repo at Acumenus-Data-Sciences; second confirms redirect.
 
 - [ ] **Step 4.7: USER ACTION — Update local clone remote**
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git remote set-url origin git@github.com:acumenus/Parthenon.git
+git remote set-url origin git@github.com:Acumenus-Data-Sciences/Parthenon.git
 git remote -v   # verify
 git fetch origin
 ```
 
-Expected: Both `fetch` and `push` URLs point at `acumenus/Parthenon`. Fetch succeeds.
+Expected: Both `fetch` and `push` URLs point at `Acumenus-Data-Sciences/Parthenon`. Fetch succeeds.
 
 - [ ] **Step 4.8: USER ACTION — Re-link integrations**
 
-For each integration, re-authorize against `acumenus/Parthenon`:
+For each integration, re-authorize against `Acumenus-Data-Sciences/Parthenon`:
 
-- [ ] CLA Assistant (https://cla-assistant.io) — re-link CLA to `acumenus/Parthenon`. Test with another no-op PR.
+- [ ] CLA Assistant (https://cla-assistant.io) — re-link CLA to `Acumenus-Data-Sciences/Parthenon`. Test with another no-op PR.
 - [ ] Codecov (if used)
-- [ ] Sentinel/Bolt/Palette/Jules bots (re-install GitHub Apps on `acumenus` org if scoped to org)
+- [ ] Sentinel/Bolt/Palette/Jules bots (re-install GitHub Apps on `Acumenus-Data-Sciences` org if scoped to org)
 - [ ] Dependabot — config in `.github/dependabot.yml` continues to work via redirect, but for cleanliness, the next post-transfer PR (Task 5) refreshes it.
-- [ ] GitHub Pages (if any custom domain) — redomain to `acumenus.github.io/Parthenon` if applicable
+- [ ] GitHub Pages (if any custom domain) — redomain to `acumenus-data-sciences.github.io/Parthenon` if applicable
 - [ ] Public webhook recipients (Slack, Discord, etc.)
 
 Track each in `~/Documents/acumenus-legal/org-transfer-plan-2026-05-08.txt`.
@@ -922,7 +922,7 @@ git pull
 
 ## Task 5: Post-transfer cleanup PR
 
-**Why:** Bulk-rename `sudoshi/Parthenon` → `acumenus/Parthenon` and `ghcr.io/sudoshi` → `ghcr.io/acumenus` in active source. This is independent of the AGPLv3 flip (which is Task 8) so each PR's diff stays focused and reviewable.
+**Why:** Bulk-rename `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon` and `ghcr.io/sudoshi` → `ghcr.io/acumenus-data-sciences` in active source. This is independent of the AGPLv3 flip (which is Task 8) so each PR's diff stays focused and reviewable.
 
 **Files:**
 - Modify (varies based on Task 4.1 audit output): `README.md`, `docker-compose.community.yml`, `.github/workflows/*`, scripts that hard-code the org/repo, `frontend/package.json` `repository` field if present, etc.
@@ -934,10 +934,10 @@ git pull
 cd /home/smudoshi/Github/Parthenon
 git checkout main
 git pull
-git checkout -b chore/post-transfer-rename-acumenus
+git checkout -b chore/post-transfer-rename-acumenus-ds
 ```
 
-- [ ] **Step 5.2: Bulk replace `sudoshi/Parthenon` → `acumenus/Parthenon`**
+- [ ] **Step 5.2: Bulk replace `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon`**
 
 Use the audit list from Task 4.1 as the worklist. For each file, do a careful edit (`sed -i` is OK for plain matches but verify each diff before staging).
 
@@ -953,7 +953,7 @@ find . -type f \
   -not -path './.git/*' \
   -not -path './ai/.venv/*' \
   -not -path './backups/*' \
-  -exec sed -i 's|sudoshi/Parthenon|acumenus/Parthenon|g' {} +
+  -exec sed -i 's|sudoshi/Parthenon|Acumenus-Data-Sciences/Parthenon|g' {} +
 
 find . -type f \
   \( -name '*.md' -o -name '*.yml' -o -name '*.yaml' \
@@ -964,7 +964,7 @@ find . -type f \
   -not -path './.git/*' \
   -not -path './ai/.venv/*' \
   -not -path './backups/*' \
-  -exec sed -i 's|ghcr\.io/sudoshi/parthenon|ghcr.io/acumenus/parthenon|g' {} +
+  -exec sed -i 's|ghcr\.io/sudoshi/parthenon|ghcr.io/acumenus-data-sciences/parthenon|g' {} +
 ```
 
 - [ ] **Step 5.3: Review the diff**
@@ -1054,7 +1054,7 @@ jobs:
             echo "Found stale sudoshi/Parthenon references in active source:"
             echo "$STALE"
             echo ""
-            echo "Update these to acumenus/Parthenon. Historical references in"
+            echo "Update these to Acumenus-Data-Sciences/Parthenon. Historical references in"
             echo "docs/handoffs/ and docs/devlog/ are excluded automatically."
             exit 1
           fi
@@ -1074,11 +1074,11 @@ The pre-commit hook (`scripts/githooks/pre-commit`) runs Pint, PHPStan, tsc, ESL
 - [ ] **Step 5.8: Commit and open PR**
 
 ```bash
-git commit -m "chore: rename sudoshi/Parthenon → acumenus/Parthenon after org transfer
+git commit -m "chore: rename sudoshi/Parthenon → Acumenus-Data-Sciences/Parthenon after org transfer
 
 Bulk-renames all active source references following the GitHub repo
-transfer from github.com/sudoshi/Parthenon to github.com/acumenus/Parthenon.
-Container image namespace ghcr.io/sudoshi/parthenon-* → ghcr.io/acumenus/parthenon-*.
+transfer from github.com/sudoshi/Parthenon to github.com/Acumenus-Data-Sciences/Parthenon.
+Container image namespace ghcr.io/sudoshi/parthenon-* → ghcr.io/acumenus-data-sciences/parthenon-*.
 
 Submodules (OHDSI-scraper, study-agent) retain sudoshi/ URLs — they are
 separate repos that have not been transferred.
@@ -1089,13 +1089,13 @@ preserved as-of-date documents.
 Adds a CI guard (license-guard.yml :: org-references) to prevent
 regression."
 
-git push -u origin chore/post-transfer-rename-acumenus
+git push -u origin chore/post-transfer-rename-acumenus-ds
 
-gh pr create --title "chore: rename sudoshi/Parthenon → acumenus/Parthenon" --body "$(cat <<'EOF'
+gh pr create --title "chore: rename sudoshi/Parthenon → Acumenus-Data-Sciences/Parthenon" --body "$(cat <<'EOF'
 ## Summary
 
-- Bulk-rename `sudoshi/Parthenon` → `acumenus/Parthenon` in active source
-- Bulk-rename `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus/parthenon-*` in compose/CI
+- Bulk-rename `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon` in active source
+- Bulk-rename `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus-data-sciences/parthenon-*` in compose/CI
 - Submodules retain `sudoshi/` URLs (separate repos)
 - Historical references in `docs/handoffs/` and `docs/devlog/` preserved
 - Adds CI guard to prevent regression
@@ -1479,7 +1479,7 @@ Edit to:
 ```json
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "acumenus/parthenon-backend",
+    "name": "acumenus-data-sciences/parthenon-backend",
     "type": "project",
     "description": "Parthenon — unified OHDSI outcomes research platform on OMOP CDM v5.4. Backend (Laravel).",
     "keywords": ["parthenon", "ohdsi", "omop", "cdm", "healthcare", "informatics", "outcomes-research"],
@@ -1504,20 +1504,20 @@ Edit to:
 
 ```json
 {
-  "name": "@acumenus/parthenon-frontend",
+  "name": "@acumenus-data-sciences/parthenon-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "https://github.com/acumenus/Parthenon.git",
+    "url": "https://github.com/Acumenus-Data-Sciences/Parthenon.git",
     "directory": "frontend"
   },
   "author": "Acumenus Data Sciences, Inc.",
 ```
 
-After the rename of `name` from `frontend` to `@acumenus/parthenon-frontend`, search for any imports that reference the old package name:
+After the rename of `name` from `frontend` to `@acumenus-data-sciences/parthenon-frontend`, search for any imports that reference the old package name:
 
 ```bash
 grep -rn '"frontend"' frontend/src 2>/dev/null | grep -v node_modules
@@ -1734,9 +1734,9 @@ Adds:
 
 Aligns license metadata across all package manifests:
   backend/composer.json     MIT       → AGPL-3.0-only
-                            laravel/laravel → acumenus/parthenon-backend
+                            laravel/laravel → acumenus-data-sciences/parthenon-backend
   frontend/package.json     (none)    → AGPL-3.0-only + repository + author
-                            frontend  → @acumenus/parthenon-frontend
+                            frontend  → @acumenus-data-sciences/parthenon-frontend
   ai/pyproject.toml         (none)    → AGPL-3.0-only + authors
   templates/pyproject.toml  Apache-2.0 → AGPL-3.0-only
 
@@ -1783,8 +1783,8 @@ dual-licensing offer for Enterprise Edition.
 - `NOTICE` — new (heritage attribution)
 - `LICENSING.md` — new (dual-licensing offer + commercial contact)
 - `TRADEMARKS.md` — new (standalone trademark policy)
-- `backend/composer.json` — license MIT → AGPL-3.0-only; name laravel/laravel → acumenus/parthenon-backend
-- `frontend/package.json` — added license + repository + author; name → @acumenus/parthenon-frontend
+- `backend/composer.json` — license MIT → AGPL-3.0-only; name laravel/laravel → acumenus-data-sciences/parthenon-backend
+- `frontend/package.json` — added license + repository + author; name → @acumenus-data-sciences/parthenon-frontend
 - `ai/pyproject.toml` — added license + authors
 - `templates/pyproject.toml` — Apache-2.0 → AGPL-3.0-only
 - `README.md` — badge + footer + EE pointer
@@ -1838,7 +1838,7 @@ git checkout main
 git pull
 ```
 
-**Verification:** `acumenus/Parthenon` main now has LICENSE = AGPL-3.0, all manifests AGPL-3.0-only, NOTICE/LICENSING.md/TRADEMARKS.md present, license-guard CI green.
+**Verification:** `Acumenus-Data-Sciences/Parthenon` main now has LICENSE = AGPL-3.0, all manifests AGPL-3.0-only, NOTICE/LICENSING.md/TRADEMARKS.md present, license-guard CI green.
 
 ---
 
@@ -1850,7 +1850,7 @@ git pull
 
 - [ ] **Step 9.1: USER ACTION — Update branch protection**
 
-On https://github.com/acumenus/Parthenon/settings/branches → branch protection rule for `main`:
+On https://github.com/Acumenus-Data-Sciences/Parthenon/settings/branches → branch protection rule for `main`:
 
 Required status checks (add these to existing list):
 - `License & Org Reference Guard / org-references`
@@ -1886,11 +1886,11 @@ git checkout main
 
 Post a blog entry or pinned issue announcing:
 - The license change to AGPL-3.0-only
-- The repo move to `github.com/acumenus`
+- The repo move to `github.com/Acumenus-Data-Sciences`
 - The Enterprise Edition program (forthcoming)
 - The CLA Assistant requirement on new contributions
 
-Suggested location: `docs/blog/2026-05-XX-license-change-and-acumenus-org.md` (already AGPLv3-published doc).
+Suggested location: `docs/blog/2026-05-XX-license-change-and-acumenus-data-sciences-org.md` (already AGPLv3-published doc).
 
 - [ ] **Step 10.2: USER ACTION — Update SAM.gov / nonprofit filings**
 
@@ -1914,9 +1914,9 @@ These are off-repo records; nothing to commit.
 
 ## Plan completion checklist
 
-- [ ] CLA Assistant is live and gating PRs at `acumenus/Parthenon`
-- [ ] Repo moved from `sudoshi/` to `acumenus/`; CI green on transferred repo
-- [ ] All `sudoshi/Parthenon` references in active source updated to `acumenus/Parthenon`
+- [ ] CLA Assistant is live and gating PRs at `Acumenus-Data-Sciences/Parthenon`
+- [ ] Repo moved from `sudoshi/` to `Acumenus-Data-Sciences/`; CI green on transferred repo
+- [ ] All `sudoshi/Parthenon` references in active source updated to `Acumenus-Data-Sciences/Parthenon`
 - [ ] LICENSE is AGPL-3.0
 - [ ] NOTICE, LICENSING.md, TRADEMARKS.md exist with correct content
 - [ ] All package manifests declare `AGPL-3.0-only`
@@ -1933,7 +1933,7 @@ These are off-repo records; nothing to commit.
 ## What this plan does NOT do (out of scope, deferred to subsequent plans)
 
 - **Phase 2** — CE extension points (8 PRs adding `AuthDriver`, `TenantResolver`, `CryptoProvider`, `AuditSink`, `ObservabilityShipper`, frontend `featureFlags` + `<EnterpriseGate>`, Acropolis installer phase registry, compose composition contract). See **Plan 02**.
-- **Phase 3** — `acumenus/Parthenon-EE` private repo bootstrap, `git subtree` setup, sync GH Action, EE CI on self-hosted runners, signed image build, private GHCR namespace. See **Plan 03**.
+- **Phase 3** — `Acumenus-Data-Sciences/Parthenon-EE` private repo bootstrap, `git subtree` setup, sync GH Action, EE CI on self-hosted runners, signed image build, private GHCR namespace. See **Plan 03**.
 - **Phase 4** — First-pass EE migration: move Acropolis enterprise services CE → EE, build Keycloak/SAML/SCIM drivers, MultiTenantResolver, FipsCryptoProvider, SignedAuditSink, Datadog/Splunk shippers, Operator skeleton, license module. See **Plan 04**.
 - Counsel-finalized EULA (counsel turnaround time, not in our control).
 - Trademark filings/registrations (parallel legal effort with counsel).
