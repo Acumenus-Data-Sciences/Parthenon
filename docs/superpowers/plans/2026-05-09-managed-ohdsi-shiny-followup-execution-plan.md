@@ -75,7 +75,7 @@ Acceptance:
 
 ### Phase 1: Result Bundle Loader Contract
 
-Status: pending
+Status: complete
 
 Rationale: Every managed Shiny app should consume a canonical launch manifest.
 The manifest must be stable enough that Shiny, native React viewers, publish
@@ -83,14 +83,14 @@ exports, and result importers can share it.
 
 Todo:
 
-- [ ] Define `managed-shiny-manifest.json` schema for launch workspaces.
-- [ ] Add manifest generation to `ManagedShinyLaunchService`.
-- [ ] Include result family, artifact type, MIME type, local materialized file,
+- [x] Define `managed-shiny-manifest.json` schema for launch workspaces.
+- [x] Add manifest generation to `ManagedShinyLaunchService`.
+- [x] Include result family, artifact type, MIME type, local materialized file,
   metadata hints, and loader selection.
-- [ ] Add Laravel tests for manifest generation by result type.
-- [ ] Add Shiny app-side manifest parser with validation errors that are visible
+- [x] Add Laravel tests for manifest generation by result type.
+- [x] Add Shiny app-side manifest parser with validation errors that are visible
   but do not leak sensitive paths.
-- [ ] Add fixture manifests for PLP, population estimation, cohort diagnostics,
+- [x] Add fixture manifests for PLP, population estimation, cohort diagnostics,
   characterization, PheValuator, and report bundles.
 
 Acceptance:
@@ -302,10 +302,19 @@ failure reason counts, and the configured launch-context rate limit.
 
 ### P1-A: Manifest Contract
 
-- [ ] Add manifest writer to Laravel launch service.
-- [ ] Add manifest reader in Shiny app.
-- [ ] Add fixture manifests under `docker/shiny-ohdsi/tests/fixtures`.
-- [ ] Add R parse/validation test command.
+- [x] Add manifest writer to Laravel launch service.
+- [x] Add manifest reader in Shiny app.
+- [x] Add fixture manifests under `docker/shiny-ohdsi/tests/fixtures`.
+- [x] Add R parse/validation test command.
+
+Run commands:
+
+```bash
+cd backend
+vendor/bin/pest tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php
+cd ..
+Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
+```
 
 ## Risk Notes
 
@@ -328,4 +337,5 @@ failure reason counts, and the configured launch-context rate limit.
   - `P0-B Launch Audit`
   - `P0-C Workspace Cleanup`
   - `P0-D Metrics and Launch-Context Abuse Controls`
-- Next implementation slice: `P1-A Manifest Contract`.
+  - `P1-A Manifest Contract`
+- Next implementation slice: `P2 Package-Specific Loaders`.

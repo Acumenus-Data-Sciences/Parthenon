@@ -9,6 +9,8 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -197,6 +199,68 @@ it('persists managed Shiny launch audit records and marks resolved contexts', fu
 
     expect($audit->status)->toBe('resolved')
         ->and($audit->resolved_at)->not->toBeNull();
+});
+
+it('writes managed Shiny launch manifests without exposing host paths', function () {
+    Storage::fake('local');
+
+    config()->set('services.shiny_proxy.base_url', '/shiny');
+    config()->set('services.shiny_proxy.workspace_root', storage_path('framework/testing/shiny-manifest-workspaces'));
+    config()->set('services.shiny_proxy.container_workspace_root', '/srv/parthenon-shiny');
+
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $study = Study::factory()->create(['created_by' => $user->id]);
+    Storage::disk('local')->put('testing/ohdsi-report-results.zip', 'fake zip payload');
+
+    $artifact = StudyArtifact::create([
+        'study_id' => $study->id,
+        'artifact_type' => 'results_report',
+        'title' => 'OHDSI Report Generator Bundle',
+        'description' => 'Smoke bundle for manifest contract validation.',
+        'version' => '1.0',
+        'mime_type' => 'application/zip',
+        'file_path' => 'testing/ohdsi-report-results.zip',
+        'metadata' => [
+            'result_type' => 'OhdsiReportGenerator',
+            'managed_shiny_app' => 'ohdsi-report',
+            'internal_host_path' => storage_path('private/should-not-leak'),
+        ],
+        'uploaded_by' => $user->id,
+        'is_current' => true,
+    ]);
+
+    $launch = $this->actingAs($user)
+        ->postJson("/api/v1/studies/{$study->slug}/artifacts/{$artifact->id}/shiny-launch", [
+            'app_key' => 'ohdsi-report',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.workspace.manifest_path', fn (string $path): bool => str_ends_with($path, '/managed-shiny-manifest.json'))
+        ->json('data');
+
+    $manifestPath = storage_path("framework/testing/shiny-manifest-workspaces/launches/{$launch['workspace']['id']}/managed-shiny-manifest.json");
+    expect(File::exists($manifestPath))->toBeTrue();
+
+    $manifestJson = (string) file_get_contents($manifestPath);
+    $manifest = json_decode($manifestJson, true, flags: JSON_THROW_ON_ERROR);
+
+    expect($manifest['schema'])->toBe('parthenon.managed_shiny_manifest')
+        ->and($manifest['schema_version'])->toBe('1.0')
+        ->and($manifest['app']['key'])->toBe('ohdsi-report')
+        ->and($manifest['artifact']['artifact_type'])->toBe('results_report')
+        ->and($manifest['artifact']['mime_type'])->toBe('application/zip')
+        ->and($manifest['artifact']['detected_result_types'])->toBe(['OhdsiReportGenerator'])
+        ->and($manifest['artifact']['materialized_file']['present'])->toBeTrue()
+        ->and($manifest['artifact']['materialized_file']['container_path'])->toBe($launch['workspace']['artifact_file'])
+        ->and($manifest['artifact']['materialized_file']['relative_path'])->toBe('artifact/ohdsi-report-generator-bundle.zip')
+        ->and($manifest['loader']['key'])->toBe('ohdsi_report_bundle')
+        ->and($manifest['loader']['selection_basis'])->toBe('detected_result_type')
+        ->and($manifest['loader']['expected_packages'])->toContain('OhdsiShinyModules')
+        ->and($manifest['loader']['expected_packages'])->toContain('OhdsiShinyAppBuilder');
+
+    expect($manifestJson)->not->toContain(storage_path())
+        ->and($manifest['artifact']['metadata_hints'])->not->toHaveKey('internal_host_path');
 });
 
 it('uses default managed Shiny workspace roots when environment values are blank', function () {

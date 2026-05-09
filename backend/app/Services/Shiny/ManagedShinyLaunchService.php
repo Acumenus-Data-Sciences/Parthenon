@@ -267,10 +267,12 @@ class ManagedShinyLaunchService
         @chmod($artifactDirectory, 0755);
 
         $artifactFile = $this->materializeArtifactFile($artifact, $artifactDirectory);
+        $manifest = $this->buildManifest($study, $artifact, $app, $payload, $workspaceId, $containerRoot, $artifactFile);
         $context = [
             'launch' => [
                 'workspace_id' => $workspaceId,
                 'expires_at' => Carbon::createFromTimestamp((int) $payload['exp'])->toIso8601String(),
+                'manifest_path' => "{$containerRoot}/launches/{$workspaceId}/managed-shiny-manifest.json",
             ],
             'app' => $app,
             'study' => [
@@ -291,14 +293,147 @@ class ManagedShinyLaunchService
         ];
 
         $contextPath = "{$workspacePath}/context.json";
+        $manifestPath = "{$workspacePath}/managed-shiny-manifest.json";
         $this->writeJsonFile($contextPath, $context);
+        $this->writeJsonFile($manifestPath, $manifest);
 
         return [
             'id' => $workspaceId,
             'container_path' => "{$containerRoot}/launches/{$workspaceId}",
             'context_path' => "{$containerRoot}/launches/{$workspaceId}/context.json",
+            'manifest_path' => "{$containerRoot}/launches/{$workspaceId}/managed-shiny-manifest.json",
             'artifact_file' => $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function buildManifest(
+        Study $study,
+        StudyArtifact $artifact,
+        array $app,
+        array $payload,
+        string $workspaceId,
+        string $containerRoot,
+        ?string $artifactFile,
+    ): array {
+        $metadata = is_array($artifact->metadata) ? $artifact->metadata : [];
+        $detectedResultTypes = $this->registry->resultTypesForArtifact($artifact);
+        $artifactContainerPath = $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null;
+        $sizeBytes = null;
+
+        if ($artifact->file_path !== null && Storage::disk('local')->exists($artifact->file_path)) {
+            try {
+                $sizeBytes = Storage::disk('local')->size($artifact->file_path);
+            } catch (\Throwable) {
+                $sizeBytes = null;
+            }
+        }
+
+        return [
+            'schema' => 'parthenon.managed_shiny_manifest',
+            'schema_version' => '1.0',
+            'generated_at' => now()->toIso8601String(),
+            'launch' => [
+                'workspace_id' => $workspaceId,
+                'expires_at' => Carbon::createFromTimestamp((int) $payload['exp'])->toIso8601String(),
+            ],
+            'app' => [
+                'key' => (string) ($app['key'] ?? ''),
+                'label' => $app['label'] ?? null,
+                'runtime_app' => $app['runtime_app'] ?? $app['key'] ?? null,
+                'package' => $app['package'] ?? null,
+                'module_family' => $app['module_family'] ?? null,
+                'entrypoint' => $app['entrypoint'] ?? null,
+                'supported_result_types' => array_values($app['result_types'] ?? []),
+            ],
+            'study' => [
+                'id' => $study->id,
+                'slug' => $study->slug,
+                'title' => $study->title,
+            ],
+            'artifact' => [
+                'id' => $artifact->id,
+                'artifact_type' => $artifact->artifact_type,
+                'title' => $artifact->title,
+                'description' => $artifact->description,
+                'version' => $artifact->version,
+                'mime_type' => $artifact->mime_type,
+                'detected_result_types' => $detectedResultTypes,
+                'metadata_hints' => $this->manifestMetadataHints($metadata),
+                'materialized_file' => [
+                    'present' => $artifactFile !== null,
+                    'container_path' => $artifactContainerPath,
+                    'relative_path' => $artifactFile !== null ? "artifact/{$artifactFile}" : null,
+                    'filename' => $artifactFile,
+                    'extension' => $artifactFile !== null ? pathinfo($artifactFile, PATHINFO_EXTENSION) : null,
+                    'size_bytes' => $sizeBytes,
+                ],
+            ],
+            'loader' => [
+                'key' => $this->loaderKeyForApp($app),
+                'selection_basis' => $detectedResultTypes !== [] ? 'detected_result_type' : 'artifact_type_fallback',
+                'result_family' => $app['module_family'] ?? null,
+                'detected_result_types' => $detectedResultTypes,
+                'expected_packages' => $this->expectedPackages($app),
+                'entrypoint' => $app['entrypoint'] ?? null,
+                'status' => $artifactFile !== null ? 'bundle_available' : 'context_only',
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     * @return array<string, mixed>
+     */
+    private function manifestMetadataHints(array $metadata): array
+    {
+        $allowed = [
+            'result_type',
+            'result_types',
+            'ohdsi_result_type',
+            'hades_result_type',
+            'hades_package',
+            'analysis_package',
+            'package',
+            'managed_shiny_app',
+            'managed_shiny_apps',
+            'shiny_app_key',
+        ];
+
+        return array_intersect_key($metadata, array_flip($allowed));
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     */
+    private function loaderKeyForApp(array $app): string
+    {
+        return match ((string) ($app['key'] ?? '')) {
+            'plp-results' => 'plp_result_bundle',
+            'population-estimation-results' => 'population_estimation_result_bundle',
+            'cohort-diagnostics' => 'cohort_diagnostics_result_bundle',
+            'characterization' => 'characterization_result_bundle',
+            'phevaluator' => 'phevaluator_result_bundle',
+            'ohdsi-report' => 'ohdsi_report_bundle',
+            default => 'managed_shiny_result_bundle',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @return list<string>
+     */
+    private function expectedPackages(array $app): array
+    {
+        return array_values(array_unique(array_filter([
+            $app['package'] ?? null,
+            'OhdsiShinyModules',
+            'OhdsiShinyAppBuilder',
+        ], static fn (mixed $package): bool => is_string($package) && trim($package) !== '')));
     }
 
     private function materializeArtifactFile(StudyArtifact $artifact, string $artifactDirectory): ?string

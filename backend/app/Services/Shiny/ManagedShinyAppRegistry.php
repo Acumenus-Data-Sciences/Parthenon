@@ -148,6 +148,16 @@ class ManagedShinyAppRegistry
     }
 
     /**
+     * @return list<string>
+     */
+    public function resultTypesForArtifact(StudyArtifact $artifact): array
+    {
+        $metadata = is_array($artifact->metadata) ? $artifact->metadata : [];
+
+        return $this->artifactResultTypes($artifact, $metadata);
+    }
+
+    /**
      * @param  array<string, mixed>  $app
      * @param  list<string>  $resultTypes
      */

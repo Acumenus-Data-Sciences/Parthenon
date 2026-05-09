@@ -1,0 +1,52 @@
+{
+  "schema": "parthenon.managed_shiny_manifest",
+  "schema_version": "1.0",
+  "generated_at": "2026-05-09T18:00:00Z",
+  "launch": {
+    "workspace_id": "00000000-0000-4000-8000-000000000003",
+    "expires_at": "2026-05-09T18:15:00Z"
+  },
+  "app": {
+    "key": "cohort-diagnostics",
+    "label": "Cohort Diagnostics Explorer",
+    "runtime_app": "cohort-diagnostics",
+    "package": "OhdsiShinyModules",
+    "module_family": "Cohort Diagnostic module",
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultCohortDiagnosticsConfig",
+    "supported_result_types": ["CohortDiagnostics"]
+  },
+  "study": {
+    "id": 3,
+    "slug": "fixture-cohort-diagnostics",
+    "title": "Fixture Cohort Diagnostics Study"
+  },
+  "artifact": {
+    "id": 103,
+    "artifact_type": "results_report",
+    "title": "Cohort Diagnostics Fixture",
+    "description": "Fixture manifest for CohortDiagnostics bundle parsing.",
+    "version": "1.0",
+    "mime_type": "application/zip",
+    "detected_result_types": ["CohortDiagnostics"],
+    "metadata_hints": {
+      "result_type": "CohortDiagnostics"
+    },
+    "materialized_file": {
+      "present": true,
+      "container_path": "/srv/parthenon-shiny/launches/00000000-0000-4000-8000-000000000003/artifact/cohort-diagnostics-fixture.zip",
+      "relative_path": "artifact/cohort-diagnostics-fixture.zip",
+      "filename": "cohort-diagnostics-fixture.zip",
+      "extension": "zip",
+      "size_bytes": 128
+    }
+  },
+  "loader": {
+    "key": "cohort_diagnostics_result_bundle",
+    "selection_basis": "detected_result_type",
+    "result_family": "Cohort Diagnostic module",
+    "detected_result_types": ["CohortDiagnostics"],
+    "expected_packages": ["OhdsiShinyModules", "OhdsiShinyAppBuilder"],
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultCohortDiagnosticsConfig",
+    "status": "bundle_available"
+  }
+}

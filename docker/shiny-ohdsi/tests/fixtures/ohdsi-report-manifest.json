@@ -1,0 +1,52 @@
+{
+  "schema": "parthenon.managed_shiny_manifest",
+  "schema_version": "1.0",
+  "generated_at": "2026-05-09T18:00:00Z",
+  "launch": {
+    "workspace_id": "00000000-0000-4000-8000-000000000006",
+    "expires_at": "2026-05-09T18:15:00Z"
+  },
+  "app": {
+    "key": "ohdsi-report",
+    "label": "OHDSI Report Viewer",
+    "runtime_app": "ohdsi-report",
+    "package": "OhdsiShinyModules",
+    "module_family": "Report module",
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultReportConfig",
+    "supported_result_types": ["OhdsiReportGenerator", "OhdsiSharing"]
+  },
+  "study": {
+    "id": 6,
+    "slug": "fixture-ohdsi-report",
+    "title": "Fixture OHDSI Report Study"
+  },
+  "artifact": {
+    "id": 106,
+    "artifact_type": "results_report",
+    "title": "OHDSI Report Fixture",
+    "description": "Fixture manifest for OHDSI report bundle parsing.",
+    "version": "1.0",
+    "mime_type": "application/zip",
+    "detected_result_types": ["OhdsiReportGenerator"],
+    "metadata_hints": {
+      "result_type": "OhdsiReportGenerator"
+    },
+    "materialized_file": {
+      "present": true,
+      "container_path": "/srv/parthenon-shiny/launches/00000000-0000-4000-8000-000000000006/artifact/ohdsi-report-fixture.zip",
+      "relative_path": "artifact/ohdsi-report-fixture.zip",
+      "filename": "ohdsi-report-fixture.zip",
+      "extension": "zip",
+      "size_bytes": 128
+    }
+  },
+  "loader": {
+    "key": "ohdsi_report_bundle",
+    "selection_basis": "detected_result_type",
+    "result_family": "Report module",
+    "detected_result_types": ["OhdsiReportGenerator"],
+    "expected_packages": ["OhdsiShinyModules", "OhdsiShinyAppBuilder"],
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultReportConfig",
+    "status": "bundle_available"
+  }
+}

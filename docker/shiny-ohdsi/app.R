@@ -7,6 +7,11 @@ suppressPackageStartupMessages({
 })
 
 api_url <- sub("/+$", "", Sys.getenv("PARTHENON_API_URL", "http://nginx:80/api/v1"))
+manifest_helper <- Sys.getenv("PARTHENON_SHINY_MANIFEST_HELPER", "/srv/parthenon-shiny/app/manifest.R")
+
+if (file.exists(manifest_helper)) {
+  source(manifest_helper)
+}
 
 resolve_launch <- function(token) {
   req <- request(paste0(api_url, "/shiny/launch-context")) |>
@@ -41,6 +46,7 @@ ui <- fluidPage(
   uiOutput("launch_status"),
   uiOutput("context_summary"),
   uiOutput("artifact_files"),
+  uiOutput("manifest_status"),
   uiOutput("package_status")
 )
 
@@ -130,6 +136,56 @@ server <- function(input, output, session) {
       } else {
         tags$ul(lapply(files, tags$li))
       }
+    )
+  })
+
+  output$manifest_status <- renderUI({
+    context <- launch_context()
+    req(context)
+
+    if (!exists("read_managed_shiny_manifest")) {
+      return(div(class = "panel", div(class = "eyebrow", "Result Manifest"), p("Managed Shiny manifest parser is unavailable.")))
+    }
+
+    parsed <- read_managed_shiny_manifest(
+      value_or(context$workspace$container_path),
+      value_or(context$workspace$manifest_path)
+    )
+
+    if (!isTRUE(parsed$valid)) {
+      return(div(
+        class = "panel",
+        div(class = "eyebrow", "Unsupported Result Bundle"),
+        p("This launch workspace does not contain a supported managed Shiny manifest."),
+        tags$ul(lapply(parsed$errors, tags$li))
+      ))
+    }
+
+    manifest <- parsed$manifest
+    materialized <- manifest$artifact$materialized_file$present
+    if (!isTRUE(materialized)) {
+      return(div(
+        class = "panel",
+        div(class = "eyebrow", "Result Manifest"),
+        h3(managed_shiny_loader_label(manifest)),
+        p("The manifest is valid, but this artifact did not materialize a local result bundle.")
+      ))
+    }
+
+    div(
+      class = "panel",
+      div(class = "eyebrow", "Result Manifest"),
+      h3(managed_shiny_loader_label(manifest)),
+      tags$dl(
+        tags$dt("Loader"),
+        tags$dd(value_or(manifest$loader$key)),
+        tags$dt("Selection"),
+        tags$dd(value_or(manifest$loader$selection_basis)),
+        tags$dt("Result types"),
+        tags$dd(paste(unlist(manifest$artifact$detected_result_types), collapse = ", ")),
+        tags$dt("Bundle file"),
+        tags$dd(code(value_or(manifest$artifact$materialized_file$relative_path)))
+      )
     )
   })
 

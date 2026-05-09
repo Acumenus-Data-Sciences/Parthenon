@@ -1,0 +1,52 @@
+{
+  "schema": "parthenon.managed_shiny_manifest",
+  "schema_version": "1.0",
+  "generated_at": "2026-05-09T18:00:00Z",
+  "launch": {
+    "workspace_id": "00000000-0000-4000-8000-000000000001",
+    "expires_at": "2026-05-09T18:15:00Z"
+  },
+  "app": {
+    "key": "plp-results",
+    "label": "PatientLevelPrediction Results",
+    "runtime_app": "plp-results",
+    "package": "OhdsiShinyModules",
+    "module_family": "Prediction module",
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultPredictionConfig",
+    "supported_result_types": ["PatientLevelPrediction"]
+  },
+  "study": {
+    "id": 1,
+    "slug": "fixture-plp",
+    "title": "Fixture PLP Study"
+  },
+  "artifact": {
+    "id": 101,
+    "artifact_type": "results_report",
+    "title": "PLP Results Fixture",
+    "description": "Fixture manifest for PLP bundle parsing.",
+    "version": "1.0",
+    "mime_type": "application/zip",
+    "detected_result_types": ["PatientLevelPrediction"],
+    "metadata_hints": {
+      "result_type": "PatientLevelPrediction"
+    },
+    "materialized_file": {
+      "present": true,
+      "container_path": "/srv/parthenon-shiny/launches/00000000-0000-4000-8000-000000000001/artifact/plp-results-fixture.zip",
+      "relative_path": "artifact/plp-results-fixture.zip",
+      "filename": "plp-results-fixture.zip",
+      "extension": "zip",
+      "size_bytes": 128
+    }
+  },
+  "loader": {
+    "key": "plp_result_bundle",
+    "selection_basis": "detected_result_type",
+    "result_family": "Prediction module",
+    "detected_result_types": ["PatientLevelPrediction"],
+    "expected_packages": ["OhdsiShinyModules", "OhdsiShinyAppBuilder"],
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultPredictionConfig",
+    "status": "bundle_available"
+  }
+}

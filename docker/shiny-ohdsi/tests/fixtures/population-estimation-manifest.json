@@ -1,0 +1,52 @@
+{
+  "schema": "parthenon.managed_shiny_manifest",
+  "schema_version": "1.0",
+  "generated_at": "2026-05-09T18:00:00Z",
+  "launch": {
+    "workspace_id": "00000000-0000-4000-8000-000000000002",
+    "expires_at": "2026-05-09T18:15:00Z"
+  },
+  "app": {
+    "key": "population-estimation-results",
+    "label": "CohortMethod, SCCS, and Evidence Synthesis Results",
+    "runtime_app": "population-estimation-results",
+    "package": "OhdsiShinyModules",
+    "module_family": "Estimator module",
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultEstimationConfig",
+    "supported_result_types": ["CohortMethod", "SelfControlledCaseSeries", "EvidenceSynthesis"]
+  },
+  "study": {
+    "id": 2,
+    "slug": "fixture-population-estimation",
+    "title": "Fixture Population Estimation Study"
+  },
+  "artifact": {
+    "id": 102,
+    "artifact_type": "results_report",
+    "title": "Population Estimation Results Fixture",
+    "description": "Fixture manifest for estimator bundle parsing.",
+    "version": "1.0",
+    "mime_type": "application/zip",
+    "detected_result_types": ["CohortMethod"],
+    "metadata_hints": {
+      "result_type": "CohortMethod"
+    },
+    "materialized_file": {
+      "present": true,
+      "container_path": "/srv/parthenon-shiny/launches/00000000-0000-4000-8000-000000000002/artifact/population-estimation-fixture.zip",
+      "relative_path": "artifact/population-estimation-fixture.zip",
+      "filename": "population-estimation-fixture.zip",
+      "extension": "zip",
+      "size_bytes": 128
+    }
+  },
+  "loader": {
+    "key": "population_estimation_result_bundle",
+    "selection_basis": "detected_result_type",
+    "result_family": "Estimator module",
+    "detected_result_types": ["CohortMethod"],
+    "expected_packages": ["OhdsiShinyModules", "OhdsiShinyAppBuilder"],
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultEstimationConfig",
+    "status": "bundle_available"
+  }
+}

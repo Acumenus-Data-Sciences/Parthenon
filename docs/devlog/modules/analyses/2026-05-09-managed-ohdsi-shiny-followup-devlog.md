@@ -52,11 +52,11 @@ The plan defines six implementation phases:
 5. HADES version automation.
 6. Runtime operations and golden-data quality.
 
-The plan also includes concrete P0 and P1 todo lists. P0-A through P0-D are now
-executed: browser smoke coverage, launch audit persistence, workspace retention
-cleanup, launch/runtime metrics, and launch-context abuse controls are in
-place. Manifest generation and real package loaders remain open follow-up
-items.
+The plan also includes concrete P0 and P1 todo lists. P0-A through P1-A are
+now executed: browser smoke coverage, launch audit persistence, workspace
+retention cleanup, launch/runtime metrics, launch-context abuse controls, and
+the managed Shiny manifest contract are in place. Real package loaders remain
+open follow-up items.
 
 ### 2. Opt-In Managed Shiny Browser Smoke Suite
 
@@ -237,6 +237,45 @@ System Health now exposes a `managed-shiny` service under the AI & Analytics
 tier. Its metrics distinguish package/runtime parity work from actual managed
 launch runtime behavior.
 
+### 6. Managed Shiny Manifest Contract
+
+Added:
+
+- `docker/shiny-ohdsi/manifest.R`
+- `docker/shiny-ohdsi/tests/manifest_parser_test.R`
+- fixture manifests under `docker/shiny-ohdsi/tests/fixtures/`
+
+Updated:
+
+- `backend/app/Services/Shiny/ManagedShinyAppRegistry.php`
+- `backend/app/Services/Shiny/ManagedShinyLaunchService.php`
+- `backend/tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php`
+- `docker/shiny-ohdsi/app.R`
+- `docker/shiny-ohdsi/Dockerfile`
+
+Every managed Shiny workspace now receives a `managed-shiny-manifest.json`
+alongside `context.json`. The manifest is schema-versioned as
+`parthenon.managed_shiny_manifest` version `1.0` and includes:
+
+- launch workspace id and expiry;
+- managed app key, runtime app, module family, package, and entrypoint;
+- study identity fields;
+- artifact type, MIME type, version, detected result types, and safe metadata
+  hints;
+- materialized artifact file details using container paths and relative paths,
+  not host paths;
+- loader key, loader selection basis, expected packages, entrypoint, and
+  loader status.
+
+The Shiny app now sources `manifest.R`, validates the manifest from the launch
+workspace, and renders a visible unsupported-result panel when the manifest is
+missing, invalid, or names an unsupported loader. Valid manifests render the
+loader family, loader key, selected result types, and relative bundle path.
+
+Fixture manifests cover PLP, population estimation, cohort diagnostics,
+characterization, PheValuator, and OHDSI report bundles. The R parser test
+validates every fixture plus missing-manifest and unsupported-loader failures.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -287,13 +326,16 @@ vendor/bin/pint --test app/Models/App/ManagedShinyLaunch.php app/Services/Shiny/
 vendor/bin/phpstan analyse --memory-limit=1G
 vendor/bin/pest tests/Feature/Shiny/CleanupManagedShinyWorkspacesCommandTest.php
 vendor/bin/pest tests/Feature/Shiny/ManagedShinyLaunchMetricsTest.php tests/Feature/Api/V1/ManagedShinyLaunchContextRateLimitTest.php tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php tests/Feature/Api/V1/HadesCapabilityTest.php
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
 ```
 
 Results:
 
 - PHP syntax checks passed.
 - Focused managed Shiny metrics, launch-context, workspace cleanup, audit, and
-  HADES Pest suite passed with 20 tests and 138 assertions.
+  HADES Pest suite passed with 20 tests and 153 assertions.
+- R parser validation passed for 6 managed Shiny fixture manifests.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -368,8 +410,6 @@ model rewrite:
 
 Immediate next backlog items:
 
-- define `managed-shiny-manifest.json`;
-- teach the Shiny runtime to parse that manifest;
 - add package-specific loaders for PLP, population estimation, cohort
   diagnostics, characterization, cohort incidence, PheValuator, and report
   bundles;

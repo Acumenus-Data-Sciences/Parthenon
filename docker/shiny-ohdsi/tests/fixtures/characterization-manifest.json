@@ -1,0 +1,52 @@
+{
+  "schema": "parthenon.managed_shiny_manifest",
+  "schema_version": "1.0",
+  "generated_at": "2026-05-09T18:00:00Z",
+  "launch": {
+    "workspace_id": "00000000-0000-4000-8000-000000000004",
+    "expires_at": "2026-05-09T18:15:00Z"
+  },
+  "app": {
+    "key": "characterization",
+    "label": "Characterization and Incidence Results",
+    "runtime_app": "characterization",
+    "package": "OhdsiShinyModules",
+    "module_family": "Characterization module",
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultCharacterizationConfig",
+    "supported_result_types": ["Characterization", "CohortIncidence"]
+  },
+  "study": {
+    "id": 4,
+    "slug": "fixture-characterization",
+    "title": "Fixture Characterization Study"
+  },
+  "artifact": {
+    "id": 104,
+    "artifact_type": "results_report",
+    "title": "Characterization Fixture",
+    "description": "Fixture manifest for characterization bundle parsing.",
+    "version": "1.0",
+    "mime_type": "application/zip",
+    "detected_result_types": ["Characterization"],
+    "metadata_hints": {
+      "result_type": "Characterization"
+    },
+    "materialized_file": {
+      "present": true,
+      "container_path": "/srv/parthenon-shiny/launches/00000000-0000-4000-8000-000000000004/artifact/characterization-fixture.zip",
+      "relative_path": "artifact/characterization-fixture.zip",
+      "filename": "characterization-fixture.zip",
+      "extension": "zip",
+      "size_bytes": 128
+    }
+  },
+  "loader": {
+    "key": "characterization_result_bundle",
+    "selection_basis": "detected_result_type",
+    "result_family": "Characterization module",
+    "detected_result_types": ["Characterization"],
+    "expected_packages": ["OhdsiShinyModules", "OhdsiShinyAppBuilder"],
+    "entrypoint": "OhdsiShinyAppBuilder::createDefaultCharacterizationConfig",
+    "status": "bundle_available"
+  }
+}
