@@ -1,8 +1,15 @@
 {
-  "name": "frontend",
+  "name": "@acumenus-data-sciences/parthenon-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Acumenus-Data-Sciences/Parthenon.git",
+    "directory": "frontend"
+  },
+  "author": "Acumenus Data Sciences, Inc.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
