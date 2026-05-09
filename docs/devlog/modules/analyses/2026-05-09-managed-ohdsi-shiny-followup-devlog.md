@@ -52,10 +52,11 @@ The plan defines six implementation phases:
 5. HADES version automation.
 6. Runtime operations and golden-data quality.
 
-The plan also includes concrete P0 and P1 todo lists. P0-A and P0-B are now
-executed in this slice: browser smoke coverage and launch audit persistence are
-in place. Workspace cleanup, metrics, rate-limit review, failed-token auditing,
-manifest generation, and real package loaders remain open follow-up items.
+The plan also includes concrete P0 and P1 todo lists. P0-A, P0-B, and P0-C are
+now executed: browser smoke coverage, launch audit persistence, and workspace
+retention cleanup are in place. Metrics, rate-limit review, failed-token
+auditing, manifest generation, and real package loaders remain open follow-up
+items.
 
 ### 2. Opt-In Managed Shiny Browser Smoke Suite
 
@@ -139,6 +140,54 @@ The migration also grants DML on the table and sequence to `parthenon_app` when
 that role exists, preserving the production split between migration credentials
 and runtime credentials.
 
+### 4. Workspace Retention Cleanup
+
+Added:
+
+- `backend/app/Console/Commands/Shiny/CleanupManagedShinyWorkspacesCommand.php`
+
+Updated:
+
+- `backend/config/services.php`
+- `backend/routes/console.php`
+- `backend/tests/Feature/Shiny/CleanupManagedShinyWorkspacesCommandTest.php`
+
+The new `shiny:cleanup-workspaces` command prunes managed Shiny launch
+workspaces from `{SHINY_WORKSPACE_ROOT}/launches`. It deletes audited
+directories whose launch token has expired past the configured grace period.
+It also handles pre-audit orphan workspaces by deleting only valid UUID
+directories whose directory mtime is older than the longer orphan grace period.
+Malformed directories are reported and skipped rather than deleted.
+
+Deletion eligibility is based on `expires_at` plus a configurable grace period.
+The default grace period is controlled by:
+
+```bash
+SHINY_WORKSPACE_CLEANUP_GRACE_MINUTES=60
+SHINY_WORKSPACE_ORPHAN_CLEANUP_GRACE_MINUTES=1440
+```
+
+Operators can override that value per run:
+
+```bash
+php artisan shiny:cleanup-workspaces --grace-minutes=120
+php artisan shiny:cleanup-workspaces --orphan-grace-minutes=2880
+```
+
+The command supports dry-run output for operational review:
+
+```bash
+php artisan shiny:cleanup-workspaces --dry-run
+```
+
+Output is JSONL-shaped so it can be captured by logs or future metrics
+collectors. Successful deletion records `workspace_cleaned_at` in the launch
+metadata, preserving a lightweight cleanup trail without changing the launch
+outcome status.
+
+The scheduler now runs the cleanup hourly through `routes/console.php`, with
+overlap protection and failure logging.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -187,12 +236,15 @@ php -l database/migrations/2026_05_09_180000_create_managed_shiny_launches_table
 vendor/bin/pest tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php tests/Feature/Api/V1/HadesCapabilityTest.php
 vendor/bin/pint --test app/Models/App/ManagedShinyLaunch.php app/Services/Shiny/ManagedShinyLaunchService.php database/migrations/2026_05_09_180000_create_managed_shiny_launches_table.php tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php
 vendor/bin/phpstan analyse --memory-limit=1G
+vendor/bin/pest tests/Feature/Shiny/CleanupManagedShinyWorkspacesCommandTest.php
 ```
 
 Results:
 
 - PHP syntax checks passed.
-- Focused Pest suite passed with 12 tests and 84 assertions.
+- Focused managed Shiny and HADES Pest suite passed with 17 tests and 113
+  assertions.
+- Workspace cleanup Pest suite passed with 5 tests and 29 assertions.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -267,7 +319,6 @@ model rewrite:
 
 Immediate next backlog items:
 
-- add workspace retention cleanup and dry-run support;
 - add failed-token audit behavior without leaking token validation details;
 - add launch and resolver metrics;
 - review rate limits for the public launch-context resolver;

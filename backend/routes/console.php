@@ -37,6 +37,18 @@ Schedule::command('care-bundles:materialize-all')
         Log::error('care-bundles:materialize-all scheduled run failed.');
     });
 
+// Managed OHDSI Shiny — prune expired launch workspaces after token TTL + grace.
+// The command only deletes schema-audited UUID workspaces; malformed or
+// fresh untracked directories are reported and skipped. Stale pre-audit UUID
+// workspaces are pruned after the longer orphan grace period.
+Schedule::command('shiny:cleanup-workspaces')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onFailure(function () {
+        Log::error('shiny:cleanup-workspaces scheduled run failed.');
+    });
+
 // Phase 18 D-11 — warm recently-accessed endpoint profiles daily at 02:00 local.
 // Reads finngen.endpoint_profile_access for (endpoint, source) pairs touched in
 // the last 14 days and dispatches a fresh compute whenever the cached row is

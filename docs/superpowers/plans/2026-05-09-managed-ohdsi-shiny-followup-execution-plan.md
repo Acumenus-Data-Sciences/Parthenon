@@ -58,7 +58,7 @@ Todo:
 - [x] Add opt-in Playwright coverage for direct Shiny launch denial.
 - [x] Add test documentation and npm script for the managed Shiny smoke suite.
 - [x] Add persisted launch audit records.
-- [ ] Add workspace retention cleanup.
+- [x] Add workspace retention cleanup.
 - [ ] Add operator metrics for launches, token failures, app starts, and active
   sessions.
 - [ ] Add rate-limit or abuse-control review for `/api/v1/shiny/launch-context`.
@@ -268,11 +268,21 @@ npm run test:shiny
 
 ### P0-C: Workspace Cleanup
 
-- [ ] Add `php artisan shiny:cleanup-workspaces`.
-- [ ] Delete expired launch workspaces after configurable grace period.
-- [ ] Support dry-run mode.
-- [ ] Add scheduler registration.
-- [ ] Add tests for expired, active, and malformed workspace names.
+- [x] Add `php artisan shiny:cleanup-workspaces`.
+- [x] Delete expired launch workspaces after configurable grace period.
+- [x] Delete stale pre-audit UUID workspaces after configurable orphan grace
+  period.
+- [x] Support dry-run mode.
+- [x] Add scheduler registration.
+- [x] Add tests for expired, active, and malformed workspace names.
+
+Run commands:
+
+```bash
+cd backend
+php artisan shiny:cleanup-workspaces --dry-run
+php artisan shiny:cleanup-workspaces --grace-minutes=60
+```
 
 ### P1-A: Manifest Contract
 
@@ -300,4 +310,6 @@ npm run test:shiny
 - Completed implementation slices:
   - `P0-A Managed Shiny Playwright Smoke`
   - `P0-B Launch Audit`
-- Next implementation slice: `P0-C Workspace Cleanup`.
+  - `P0-C Workspace Cleanup`
+- Next implementation slice: launch/runtime metrics and launch-context
+  abuse-control review.
