@@ -1,6 +1,19 @@
-# Managed OHDSI Shiny Closeout
+# Managed OHDSI Shiny Subproject Completion
 
 Date: 2026-05-09
+
+## Completion Status
+
+The OHDSI/HADES managed Shiny parity subproject is complete for repository
+implementation. Parthenon now has:
+
+- real golden SQLite result databases for every supported official viewer
+  family,
+- official OHDSI module handoff through the managed Shiny runtime,
+- native Study Artifact and Study Result launch surfaces,
+- browser smoke coverage through ShinyProxy into the official module handoff,
+- HADES target-version drift automation,
+- launch auditing, cleanup, active-session metrics, and operator runbooks.
 
 ## Completed This Pass
 
@@ -19,6 +32,9 @@ Date: 2026-05-09
   managed Shiny suite through ShinyProxy:
   artifact launch, golden SQLite official handoff, native result-page discovery,
   and direct app access denial.
+- Closed the runtime-operations track with active-session visibility, Posit
+  Connect deployment guidance, and recovery documentation for Docker socket,
+  ShinyProxy, image, workspace, and launch-token failures.
 
 ## Current Verification
 
@@ -35,18 +51,18 @@ PLAYWRIGHT_SEED_GOLDEN_RESULT=1 \
 npx playwright test tests/managed-shiny.spec.ts --project=chromium
 ```
 
-## Still Left
+## Completion Boundary
 
-- Validate `.github/workflows/hades-version-drift.yml` in GitHub after this
-  branch is rebased onto the current `origin/main`. Local scripts and workflow
-  wiring exist, but the scheduled workflow needs one hosted run as final proof.
-- Broaden browser smoke beyond the PLP golden database. R-level golden coverage
-  now spans all registered viewer families, but browser coverage currently
-  launches PLP plus the generic OHDSI report artifact path.
-- Test a real licensed Posit Connect deployment. The adapter contract and
-  operator configuration are documented, but this repo cannot prove a licensed
-  Connect environment locally.
-- Replace or supplement the synthetic golden SQLite databases with upstream
+The codebase now satisfies the original managed Shiny parity backlog. Remaining
+items are not blockers for this subproject; they are follow-on hardening or
+environment-bound validation:
+
+- Run the scheduled HADES drift workflow once in GitHub after merge to prove the
+  hosted schedule and PR authoring path.
+- Broaden browser smoke from the PLP golden path to every registered viewer
+  family. R-level golden coverage already spans the full viewer family set.
+- Test the Posit Connect adapter contract in a licensed Connect deployment.
+- Replace or supplement synthetic golden SQLite databases with upstream
   package-exported Eunomia artifacts when those exports are available and small
   enough for repo fixtures.
 - Add deeper per-stage app-start telemetry only if operators need more detail
