@@ -45,7 +45,7 @@ Known remaining gap:
 
 ### Phase 0: Guardrails Before More Runtime Surface
 
-Status: in progress
+Status: complete
 
 Rationale: The runtime already touches browser, Laravel, ShinyProxy, Docker,
 and R. Before adding richer loaders, preserve the verified path in automated
@@ -59,9 +59,9 @@ Todo:
 - [x] Add test documentation and npm script for the managed Shiny smoke suite.
 - [x] Add persisted launch audit records.
 - [x] Add workspace retention cleanup.
-- [ ] Add operator metrics for launches, token failures, app starts, and active
+- [x] Add operator metrics for launches, token failures, app starts, and active
   sessions.
-- [ ] Add rate-limit or abuse-control review for `/api/v1/shiny/launch-context`.
+- [x] Add rate-limit or abuse-control review for `/api/v1/shiny/launch-context`.
 
 Acceptance:
 
@@ -263,8 +263,7 @@ npm run test:shiny
   and status.
 - [x] Update status when launch context resolves.
 - [x] Add tests for audit persistence and context resolution.
-- [ ] Add explicit invalid-token audit/non-disclosure assertions once failed
-  launch auditing is introduced.
+- [x] Add explicit correlatable failed-token audit/non-disclosure assertions.
 
 ### P0-C: Workspace Cleanup
 
@@ -283,6 +282,23 @@ cd backend
 php artisan shiny:cleanup-workspaces --dry-run
 php artisan shiny:cleanup-workspaces --grace-minutes=60
 ```
+
+### P0-D: Metrics and Launch-Context Abuse Controls
+
+- [x] Add named `shiny-launch-context` rate limiter.
+- [x] Make the launch-context limit configurable through
+  `SHINY_LAUNCH_CONTEXT_RATE_LIMIT_PER_MINUTE`.
+- [x] Replace broad numeric route throttle with the named limiter.
+- [x] Record failed outcomes for correlatable expired/context-mismatch/workspace
+  preparation failures without persisting bearer tokens.
+- [x] Add managed Shiny launch metrics service.
+- [x] Surface managed Shiny metrics through System Health as `managed-shiny`.
+- [x] Add tests for metrics, throttling, and expired-token non-disclosure.
+
+Metrics include total launches, status counts, launches/resolutions/failures in
+the last 24 hours, active sessions, pending launches, expired unresolved
+launches, average resolution latency, last issued/resolved/failed timestamps,
+failure reason counts, and the configured launch-context rate limit.
 
 ### P1-A: Manifest Contract
 
@@ -306,10 +322,10 @@ php artisan shiny:cleanup-workspaces --grace-minutes=60
 
 ## Current Execution Status
 
-- Phase 0 is active.
+- Phase 0 is complete.
 - Completed implementation slices:
   - `P0-A Managed Shiny Playwright Smoke`
   - `P0-B Launch Audit`
   - `P0-C Workspace Cleanup`
-- Next implementation slice: launch/runtime metrics and launch-context
-  abuse-control review.
+  - `P0-D Metrics and Launch-Context Abuse Controls`
+- Next implementation slice: `P1-A Manifest Contract`.

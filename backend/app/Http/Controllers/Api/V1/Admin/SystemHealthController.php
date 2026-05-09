@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
 use App\Models\App\SystemSetting;
+use App\Services\Shiny\ManagedShinyLaunchMetrics;
 use Illuminate\Database\Connection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -54,6 +55,7 @@ class SystemHealthController extends Controller
             // AI & Analytics
             'ai' => fn () => $this->checkAiService(),
             'darkstar' => fn () => $this->checkDarkstar(),
+            'managed-shiny' => fn () => $this->checkManagedShiny(),
             'study-agent' => fn () => $this->checkStudyAgent(),
             'poseidon' => fn () => $this->checkPoseidon(),
             // Clinical Services
@@ -82,6 +84,7 @@ class SystemHealthController extends Controller
             'chromadb' => self::TIER_DATA,
             'ai' => self::TIER_COMPUTE,
             'darkstar' => self::TIER_COMPUTE,
+            'managed-shiny' => self::TIER_COMPUTE,
             'study-agent' => self::TIER_COMPUTE,
             'poseidon' => self::TIER_COMPUTE,
             'orthanc' => self::TIER_CLINICAL,
@@ -167,6 +170,7 @@ class SystemHealthController extends Controller
             'redis' => $this->getRedisMetrics(),
             'ai' => $this->getAiMetrics(),
             'darkstar' => $this->getDarkstarMetrics(),
+            'managed-shiny' => $this->getManagedShinyMetrics(),
             'solr' => $this->getSolrMetrics(),
             'orthanc' => $this->getOrthancMetrics(),
             'queue' => $this->getQueueMetrics(),
@@ -311,6 +315,40 @@ class SystemHealthController extends Controller
                 'message' => $e->getMessage(),
             ];
         }
+    }
+
+    private function checkManagedShiny(): array
+    {
+        $metrics = $this->getManagedShinyMetrics();
+
+        if (($metrics['base_url_configured'] ?? false) !== true) {
+            return [
+                'name' => 'Managed OHDSI Shiny',
+                'key' => 'managed-shiny',
+                'status' => 'degraded',
+                'message' => 'Managed Shiny launch runtime is not configured.',
+            ];
+        }
+
+        $failedLastDay = (int) ($metrics['failed_last_24h'] ?? 0);
+        if ($failedLastDay > 0) {
+            return [
+                'name' => 'Managed OHDSI Shiny',
+                'key' => 'managed-shiny',
+                'status' => 'degraded',
+                'message' => "{$failedLastDay} launch-context failures in the last 24 hours.",
+            ];
+        }
+
+        $activeSessions = (int) ($metrics['active_sessions'] ?? 0);
+        $issuedLastDay = (int) ($metrics['issued_last_24h'] ?? 0);
+
+        return [
+            'name' => 'Managed OHDSI Shiny',
+            'key' => 'managed-shiny',
+            'status' => 'healthy',
+            'message' => "{$activeSessions} active sessions; {$issuedLastDay} launches issued in the last 24 hours.",
+        ];
     }
 
     private function checkSolr(): array
@@ -953,6 +991,18 @@ class SystemHealthController extends Controller
             }
 
             return $metrics;
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getManagedShinyMetrics(): array
+    {
+        try {
+            return app(ManagedShinyLaunchMetrics::class)->snapshot();
         } catch (\Throwable) {
             return [];
         }

@@ -45,6 +45,7 @@ return [
         'base_url' => env('SHINY_PROXY_BASE_URL', env('PARTHENON_SHINY_PROXY_BASE_URL')) ?: '/shiny',
         'runtime' => env('SHINY_RUNTIME', 'shinyproxy'),
         'launch_ttl_minutes' => (int) env('SHINY_LAUNCH_TTL_MINUTES', 15),
+        'launch_context_rate_limit_per_minute' => (int) env('SHINY_LAUNCH_CONTEXT_RATE_LIMIT_PER_MINUTE', 60),
         'workspace_cleanup_grace_minutes' => (int) env('SHINY_WORKSPACE_CLEANUP_GRACE_MINUTES', 60),
         'workspace_orphan_cleanup_grace_minutes' => (int) env('SHINY_WORKSPACE_ORPHAN_CLEANUP_GRACE_MINUTES', 1440),
         'workspace_root' => env('SHINY_WORKSPACE_ROOT') ?: storage_path('app/managed-shiny'),

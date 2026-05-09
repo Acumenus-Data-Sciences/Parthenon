@@ -8,11 +8,16 @@ use App\Models\App\StudyArtifact;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
 });
 
 it('does not expose legacy Shiny study artifacts', function () {
@@ -228,6 +233,55 @@ it('rejects invalid managed Shiny launch context tokens', function () {
     ])
         ->assertUnauthorized()
         ->assertJsonValidationErrors(['launch_token']);
+});
+
+it('records expired managed Shiny launch token failures without disclosing context', function () {
+    Carbon::setTestNow(Carbon::parse('2026-05-09 18:00:00'));
+
+    config()->set('services.shiny_proxy.base_url', '/shiny');
+    config()->set('services.shiny_proxy.launch_ttl_minutes', 1);
+    config()->set('services.shiny_proxy.workspace_root', storage_path('framework/testing/shiny-workspaces'));
+    config()->set('services.shiny_proxy.container_workspace_root', '/srv/parthenon-shiny');
+
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $study = Study::factory()->create(['created_by' => $user->id]);
+
+    $artifact = StudyArtifact::create([
+        'study_id' => $study->id,
+        'artifact_type' => 'results_report',
+        'title' => 'OHDSI Report Generator Bundle',
+        'version' => '1.0',
+        'metadata' => ['result_type' => 'OhdsiReportGenerator'],
+        'uploaded_by' => $user->id,
+        'is_current' => true,
+    ]);
+
+    $launch = $this->actingAs($user)
+        ->postJson("/api/v1/studies/{$study->slug}/artifacts/{$artifact->id}/shiny-launch", [
+            'app_key' => 'ohdsi-report',
+        ])
+        ->assertOk()
+        ->json('data');
+
+    parse_str((string) parse_url($launch['launch_url'], PHP_URL_QUERY), $query);
+
+    Carbon::setTestNow(now()->addMinutes(2));
+
+    $this->postJson('/api/v1/shiny/launch-context', [
+        'launch_token' => $query['parthenon_launch'],
+    ])
+        ->assertUnauthorized()
+        ->assertJsonPath('message', 'Managed Shiny launch token is invalid.')
+        ->assertJsonValidationErrors(['launch_token']);
+
+    $audit = ManagedShinyLaunch::where('workspace_id', $launch['workspace']['id'])->firstOrFail();
+
+    expect($audit->status)->toBe('failed')
+        ->and($audit->failure_reason)->toBe('expired')
+        ->and($audit->failed_at)->not->toBeNull()
+        ->and($audit->metadata['failure_attempts'][0]['reason'] ?? null)->toBe('expired');
 });
 
 it('reports managed Shiny runtime configuration gaps without exposing arbitrary app URLs', function () {

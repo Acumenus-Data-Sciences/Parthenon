@@ -93,14 +93,18 @@ use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenIdempotencyStore;
 use App\Services\FinnGen\GencodeService;
 use App\Services\FinnGen\ManhattanAggregationService;
+use App\Services\Shiny\ManagedShinyLaunchMetrics;
 use App\Services\SqlRenderer\SqlRendererService;
 use App\Services\Translation\PlaceholderIntegrityService;
 use App\Services\Translation\Providers\LocalFileTranslationProvider;
 use App\Services\Translation\TranslationPolicyService;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageManagerInterface;
@@ -233,6 +237,8 @@ class AppServiceProvider extends ServiceProvider
             (int) config('finngen.idempotency_ttl_seconds'),
         ));
 
+        $this->app->singleton(ManagedShinyLaunchMetrics::class);
+
         // FinnGenClient has a primitive constructor — use the config-driven factory.
         $this->app->singleton(
             FinnGenClient::class,
@@ -281,6 +287,8 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(CommandStarting::class, function (CommandStarting $event): void {
             $this->guardDangerousConsoleCommands($event->command);
         });
+
+        $this->configureRateLimiters();
 
         // Ares event → listener mappings
         Event::listen(AchillesRunCompleted::class, CreateAutoRelease::class);
@@ -343,6 +351,16 @@ class AppServiceProvider extends ServiceProvider
         PathwayAnalysis::observe(PathwayAnalysisProtectionObserver::class);
         EvidenceSynthesisAnalysis::observe(EvidenceSynthesisAnalysisProtectionObserver::class);
         HeorAnalysis::observe(HeorAnalysisProtectionObserver::class);
+    }
+
+    private function configureRateLimiters(): void
+    {
+        RateLimiter::for('shiny-launch-context', function (Request $request): Limit {
+            $perMinute = max(1, (int) config('services.shiny_proxy.launch_context_rate_limit_per_minute', 60));
+            $clientKey = $request->ip() ?: 'unknown';
+
+            return Limit::perMinute($perMinute)->by("shiny-launch-context:{$clientKey}");
+        });
     }
 
     private function configureTestingDatabaseConnection(): void

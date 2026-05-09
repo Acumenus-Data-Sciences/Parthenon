@@ -94,25 +94,44 @@ class ManagedShinyLaunchService
      */
     public function resolve(string $token): array
     {
-        $payload = $this->decodeToken($token);
+        $payload = $this->decodeToken($token, false);
+
+        if ($this->payloadExpired($payload)) {
+            $this->markLaunchFailed($payload, $token, 'expired');
+
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token has expired.'],
+            ]);
+        }
 
         $study = Study::query()->find((int) ($payload['study_id'] ?? 0));
         $artifact = StudyArtifact::query()->find((int) ($payload['artifact_id'] ?? 0));
         $app = $this->registry->find((string) ($payload['app_key'] ?? ''));
 
         if ($study === null || $artifact === null || $app === null || (int) $artifact->study_id !== (int) $study->id) {
+            $this->markLaunchFailed($payload, $token, 'context_unavailable');
+
             throw ValidationException::withMessages([
                 'launch_token' => ['Managed Shiny launch context is no longer available.'],
             ]);
         }
 
         if (! $this->registry->supportsArtifact($app, $artifact)) {
+            $this->markLaunchFailed($payload, $token, 'artifact_mismatch');
+
             throw ValidationException::withMessages([
                 'launch_token' => ['Managed Shiny launch token does not match this artifact.'],
             ]);
         }
 
-        $workspace = $this->prepareWorkspace($study, $artifact, $app, $payload);
+        try {
+            $workspace = $this->prepareWorkspace($study, $artifact, $app, $payload);
+        } catch (ValidationException $exception) {
+            $this->markLaunchFailed($payload, $token, 'workspace_prepare_failed');
+
+            throw $exception;
+        }
+
         $this->markLaunchResolved($payload, $token);
 
         return [
@@ -172,7 +191,7 @@ class ManagedShinyLaunchService
     /**
      * @return array<string, mixed>
      */
-    private function decodeToken(string $token): array
+    private function decodeToken(string $token, bool $enforceExpiry = true): array
     {
         $parts = explode('.', $token, 2);
 
@@ -200,13 +219,21 @@ class ManagedShinyLaunchService
             ]);
         }
 
-        if ((int) ($payload['exp'] ?? 0) < now()->timestamp) {
+        if ($enforceExpiry && $this->payloadExpired($payload)) {
             throw ValidationException::withMessages([
                 'launch_token' => ['Managed Shiny launch token has expired.'],
             ]);
         }
 
         return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function payloadExpired(array $payload): bool
+    {
+        return (int) ($payload['exp'] ?? 0) < now()->timestamp;
     }
 
     /**
@@ -401,15 +428,57 @@ class ManagedShinyLaunchService
      */
     private function markLaunchResolved(array $payload, string $token): void
     {
-        ManagedShinyLaunch::query()
+        $launch = ManagedShinyLaunch::query()
             ->where('workspace_id', (string) ($payload['workspace_id'] ?? ''))
             ->where('token_hash', hash('sha256', $token))
             ->latest('id')
-            ->first()
-            ?->update([
-                'status' => 'resolved',
-                'resolved_at' => now(),
-            ]);
+            ->first();
+
+        if (! $launch instanceof ManagedShinyLaunch) {
+            return;
+        }
+
+        $launch->forceFill([
+            'status' => 'resolved',
+            'resolved_at' => now(),
+        ])->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function markLaunchFailed(array $payload, string $token, string $reason): void
+    {
+        $launch = ManagedShinyLaunch::query()
+            ->where('workspace_id', (string) ($payload['workspace_id'] ?? ''))
+            ->where('token_hash', hash('sha256', $token))
+            ->latest('id')
+            ->first();
+
+        if (! $launch instanceof ManagedShinyLaunch) {
+            return;
+        }
+
+        $metadata = $launch->metadata ?? [];
+        $attempts = $metadata['failure_attempts'] ?? [];
+        $attempts = is_array($attempts) ? $attempts : [];
+        $attempts[] = [
+            'at' => now()->toIso8601String(),
+            'reason' => $reason,
+        ];
+        $metadata['failure_attempts'] = array_slice($attempts, -10);
+
+        $attributes = [
+            'failed_at' => now(),
+            'failure_reason' => $reason,
+            'metadata' => $metadata,
+        ];
+
+        if ($launch->status !== 'resolved') {
+            $attributes['status'] = 'failed';
+        }
+
+        $launch->forceFill($attributes)->save();
     }
 
     private function signingKey(): string

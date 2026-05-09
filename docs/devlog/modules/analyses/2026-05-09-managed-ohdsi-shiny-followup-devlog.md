@@ -52,10 +52,10 @@ The plan defines six implementation phases:
 5. HADES version automation.
 6. Runtime operations and golden-data quality.
 
-The plan also includes concrete P0 and P1 todo lists. P0-A, P0-B, and P0-C are
-now executed: browser smoke coverage, launch audit persistence, and workspace
-retention cleanup are in place. Metrics, rate-limit review, failed-token
-auditing, manifest generation, and real package loaders remain open follow-up
+The plan also includes concrete P0 and P1 todo lists. P0-A through P0-D are now
+executed: browser smoke coverage, launch audit persistence, workspace retention
+cleanup, launch/runtime metrics, and launch-context abuse controls are in
+place. Manifest generation and real package loaders remain open follow-up
 items.
 
 ### 2. Opt-In Managed Shiny Browser Smoke Suite
@@ -188,6 +188,55 @@ outcome status.
 The scheduler now runs the cleanup hourly through `routes/console.php`, with
 overlap protection and failure logging.
 
+### 5. Launch Metrics and Launch-Context Abuse Controls
+
+Added:
+
+- `backend/app/Services/Shiny/ManagedShinyLaunchMetrics.php`
+
+Updated:
+
+- `backend/app/Providers/AppServiceProvider.php`
+- `backend/app/Http/Controllers/Api/V1/Admin/SystemHealthController.php`
+- `backend/app/Services/Shiny/ManagedShinyLaunchService.php`
+- `backend/config/services.php`
+- `backend/routes/api.php`
+- `backend/tests/Feature/Api/V1/ManagedShinyLaunchContextRateLimitTest.php`
+- `backend/tests/Feature/Shiny/ManagedShinyLaunchMetricsTest.php`
+- `backend/tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php`
+
+The public launch-context resolver now uses a named `shiny-launch-context`
+rate limiter instead of a broad numeric route throttle. The limiter is keyed by
+client IP and reads its default from:
+
+```bash
+SHINY_LAUNCH_CONTEXT_RATE_LIMIT_PER_MINUTE=60
+```
+
+The resolver still returns the same public non-disclosing failure envelope for
+bad launch tokens. When a token is cryptographically valid enough to correlate
+to an issued audit row, failed outcomes are now recorded on
+`managed_shiny_launches` without persisting bearer tokens. The first covered
+failure class is expired token resolution; the service also records
+context-unavailable, artifact-mismatch, and workspace-preparation failures.
+
+`ManagedShinyLaunchMetrics` produces an operator snapshot for System Health:
+
+- total launches;
+- counts by status;
+- launches, resolutions, and failures in the last 24 hours;
+- active sessions;
+- pending launches;
+- expired unresolved launches;
+- average resolution latency;
+- last issued, resolved, and failed timestamps;
+- failure reason counts;
+- launch TTL and launch-context rate-limit configuration.
+
+System Health now exposes a `managed-shiny` service under the AI & Analytics
+tier. Its metrics distinguish package/runtime parity work from actual managed
+launch runtime behavior.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -237,14 +286,14 @@ vendor/bin/pest tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php tests/Feat
 vendor/bin/pint --test app/Models/App/ManagedShinyLaunch.php app/Services/Shiny/ManagedShinyLaunchService.php database/migrations/2026_05_09_180000_create_managed_shiny_launches_table.php tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php
 vendor/bin/phpstan analyse --memory-limit=1G
 vendor/bin/pest tests/Feature/Shiny/CleanupManagedShinyWorkspacesCommandTest.php
+vendor/bin/pest tests/Feature/Shiny/ManagedShinyLaunchMetricsTest.php tests/Feature/Api/V1/ManagedShinyLaunchContextRateLimitTest.php tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php tests/Feature/Api/V1/HadesCapabilityTest.php
 ```
 
 Results:
 
 - PHP syntax checks passed.
-- Focused managed Shiny and HADES Pest suite passed with 17 tests and 113
-  assertions.
-- Workspace cleanup Pest suite passed with 5 tests and 29 assertions.
+- Focused managed Shiny metrics, launch-context, workspace cleanup, audit, and
+  HADES Pest suite passed with 20 tests and 138 assertions.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -319,9 +368,6 @@ model rewrite:
 
 Immediate next backlog items:
 
-- add failed-token audit behavior without leaking token validation details;
-- add launch and resolver metrics;
-- review rate limits for the public launch-context resolver;
 - define `managed-shiny-manifest.json`;
 - teach the Shiny runtime to parse that manifest;
 - add package-specific loaders for PLP, population estimation, cohort

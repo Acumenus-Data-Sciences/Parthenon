@@ -169,7 +169,7 @@ Route::post('/broadcasting/auth', function (Request $request) {
 // API v1
 Route::prefix('v1')->group(function () {
     Route::post('/shiny/launch-context', [ManagedShinyLaunchController::class, 'resolve'])
-        ->middleware('throttle:120,1');
+        ->middleware('throttle:shiny-launch-context');
 
     // Auth (public)
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
