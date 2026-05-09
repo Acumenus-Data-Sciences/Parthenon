@@ -1,0 +1,122 @@
+server:
+  servlet:
+    context-path: /shiny
+  forward-headers-strategy: native
+
+proxy:
+  title: Parthenon OHDSI Shiny
+  port: 8080
+  authentication: none
+  container-backend: docker
+  heartbeat-rate: 10000
+  heartbeat-timeout: 60000
+  docker:
+    internal-networking: true
+    default-container-network: parthenon
+    image-pull-policy: IfNotPresent
+  specs:
+    - id: plp-results
+      display-name: PatientLevelPrediction Results
+      description: Managed OHDSI PatientLevelPrediction result viewer.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: plp-results
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+    - id: population-estimation-results
+      display-name: CohortMethod, SCCS, and Evidence Synthesis Results
+      description: Managed OHDSI population estimation result viewer.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: population-estimation-results
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+    - id: cohort-diagnostics
+      display-name: Cohort Diagnostics Explorer
+      description: Managed OHDSI CohortDiagnostics viewer.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: cohort-diagnostics
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+    - id: characterization
+      display-name: Characterization and Incidence Results
+      description: Managed OHDSI characterization and incidence result viewer.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: characterization
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+    - id: phevaluator
+      display-name: PheValuator Results
+      description: Managed OHDSI PheValuator result viewer.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: phevaluator
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+    - id: ohdsi-report
+      display-name: OHDSI Report Viewer
+      description: Managed OHDSI report viewer for report bundles and sharing packages.
+      container-image: ${PARTHENON_SHINY_APP_IMAGE}
+      container-network: parthenon
+      container-env:
+        PARTHENON_API_URL: http://nginx:80/api/v1
+        PARTHENON_SHINY_APP_KEY: ohdsi-report
+      container-volumes:
+        - parthenon_shiny_workspaces:/srv/parthenon-shiny:ro
+        - parthenon_finngen_artifacts:/opt/finngen-artifacts:ro
+      port: 3838
+      max-instances: ${PARTHENON_SHINY_MAX_INSTANCES}
+      max-lifetime: ${PARTHENON_SHINY_MAX_LIFETIME_MINUTES}
+      container-memory-limit: ${PARTHENON_SHINY_APP_MEMORY}
+      container-cpu-limit: ${PARTHENON_SHINY_APP_CPU}
+
+logging:
+  level:
+    root: INFO

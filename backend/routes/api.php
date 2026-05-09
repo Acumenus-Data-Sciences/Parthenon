@@ -98,6 +98,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\InvestigationExportController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
+use App\Http\Controllers\Api\V1\ManagedShinyLaunchController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\MorpheusDashboardController;
 use App\Http\Controllers\Api\V1\MorpheusDatasetController;
@@ -167,6 +168,9 @@ Route::post('/broadcasting/auth', function (Request $request) {
 
 // API v1
 Route::prefix('v1')->group(function () {
+    Route::post('/shiny/launch-context', [ManagedShinyLaunchController::class, 'resolve'])
+        ->middleware('throttle:120,1');
+
     // Auth (public)
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
     Route::post('/auth/register', [AuthController::class, 'register']);

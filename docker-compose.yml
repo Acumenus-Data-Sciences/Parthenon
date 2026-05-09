@@ -38,6 +38,7 @@ services:
       - ./dicom_samples:/var/www/html/dicom_samples:ro
       - ./.resendapikey:/var/www/.resendapikey:ro
       - finngen-artifacts:/opt/finngen-artifacts
+      - shiny-workspaces:/var/www/html/storage/app/managed-shiny
     env_file:
       - ./backend/.env
     environment:
@@ -354,6 +355,52 @@ services:
     build:
       context: .
       dockerfile: docker/jupyter-user/Dockerfile
+    profiles:
+      - build
+
+  shinyproxy:
+    container_name: parthenon-shinyproxy
+    image: openanalytics/shinyproxy:3.2.4
+    group_add:
+      - "${SHINY_PROXY_DOCKER_GID:-984}"
+    ports:
+      - "${SHINY_PROXY_PORT:-3839}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/shinyproxy/application.yml:/opt/shinyproxy/application.yml:ro
+    environment:
+      - PARTHENON_SHINY_APP_IMAGE=${PARTHENON_SHINY_APP_IMAGE:-ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest}
+      - PARTHENON_SHINY_MAX_INSTANCES=${PARTHENON_SHINY_MAX_INSTANCES:-6}
+      - PARTHENON_SHINY_MAX_LIFETIME_MINUTES=${PARTHENON_SHINY_MAX_LIFETIME_MINUTES:-240}
+      - PARTHENON_SHINY_APP_MEMORY=${PARTHENON_SHINY_APP_MEMORY:-4G}
+      - PARTHENON_SHINY_APP_CPU=${PARTHENON_SHINY_APP_CPU:-2}
+    depends_on:
+      php:
+        condition: service_healthy
+      nginx:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/shiny/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  # Build-only: image used by ShinyProxy for managed OHDSI app sessions.
+  shiny-ohdsi:
+    image: ${PARTHENON_SHINY_APP_IMAGE:-ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest}
+    build:
+      context: .
+      dockerfile: docker/shiny-ohdsi/Dockerfile
+      args:
+        PARTHENON_DARKSTAR_IMAGE: ${PARTHENON_DARKSTAR_IMAGE:-ghcr.io/sudoshi/parthenon-darkstar:latest}
     profiles:
       - build
 
@@ -1159,6 +1206,8 @@ volumes:
   qdrant-data:
   finngen-artifacts:
     name: parthenon_finngen_artifacts
+  shiny-workspaces:
+    name: parthenon_shiny_workspaces
   hecate-data:
   ohif-dist:
   prometheus_data:

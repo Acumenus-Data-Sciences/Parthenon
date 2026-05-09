@@ -6,6 +6,8 @@ use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -51,7 +53,9 @@ class ManagedShinyLaunchService
         $baseUrl = trim((string) config('services.shiny_proxy.base_url', ''));
         $runtime = (string) config('services.shiny_proxy.runtime', $app['runtime_preference'] ?? 'shinyproxy');
         $runtimeConfigured = $baseUrl !== '';
-        $token = $runtimeConfigured ? $this->createToken($study, $artifact, $user, $app, $expiresAt) : null;
+        $launchPayload = $runtimeConfigured ? $this->buildLaunchPayload($study, $artifact, $user, $app, $expiresAt) : null;
+        $workspace = $launchPayload !== null ? $this->prepareWorkspace($study, $artifact, $app, $launchPayload) : null;
+        $token = $launchPayload !== null ? $this->encodeToken($launchPayload) : null;
 
         return [
             'app' => $app,
@@ -66,6 +70,7 @@ class ManagedShinyLaunchService
             'status' => $runtimeConfigured ? 'ready' : 'runtime_unconfigured',
             'launch_url' => $runtimeConfigured && $token !== null ? $this->buildLaunchUrl($baseUrl, $app, $study, $artifact, $token) : null,
             'token_expires_at' => $expiresAt->toIso8601String(),
+            'workspace' => $workspace,
             'embedding' => [
                 'allowed' => $runtimeConfigured && $mode === 'embedded',
                 'container' => 'iframe',
@@ -79,25 +84,249 @@ class ManagedShinyLaunchService
     }
 
     /**
-     * @param  array<string, mixed>  $app
+     * @return array<string, mixed>
      */
-    private function createToken(Study $study, StudyArtifact $artifact, User $user, array $app, Carbon $expiresAt): string
+    public function resolve(string $token): array
     {
-        $payload = [
+        $payload = $this->decodeToken($token);
+
+        $study = Study::query()->find((int) ($payload['study_id'] ?? 0));
+        $artifact = StudyArtifact::query()->find((int) ($payload['artifact_id'] ?? 0));
+        $app = $this->registry->find((string) ($payload['app_key'] ?? ''));
+
+        if ($study === null || $artifact === null || $app === null || (int) $artifact->study_id !== (int) $study->id) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch context is no longer available.'],
+            ]);
+        }
+
+        if (! $this->registry->supportsArtifact($app, $artifact)) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token does not match this artifact.'],
+            ]);
+        }
+
+        $workspace = $this->prepareWorkspace($study, $artifact, $app, $payload);
+
+        return [
+            'launch' => [
+                'workspace_id' => $payload['workspace_id'],
+                'expires_at' => Carbon::createFromTimestamp((int) $payload['exp'])->toIso8601String(),
+            ],
+            'app' => $app,
+            'study' => [
+                'id' => $study->id,
+                'slug' => $study->slug,
+                'title' => $study->title,
+            ],
+            'artifact' => [
+                'id' => $artifact->id,
+                'artifact_type' => $artifact->artifact_type,
+                'title' => $artifact->title,
+                'description' => $artifact->description,
+                'version' => $artifact->version,
+                'mime_type' => $artifact->mime_type,
+                'metadata' => $artifact->metadata ?? [],
+            ],
+            'workspace' => $workspace,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @return array<string, mixed>
+     */
+    private function buildLaunchPayload(Study $study, StudyArtifact $artifact, User $user, array $app, Carbon $expiresAt): array
+    {
+        return [
             'iss' => 'parthenon',
             'sub' => $user->id,
             'study_id' => $study->id,
             'study_slug' => $study->slug,
             'artifact_id' => $artifact->id,
             'app_key' => $app['key'],
+            'workspace_id' => (string) Str::uuid(),
             'exp' => $expiresAt->timestamp,
             'nonce' => (string) Str::uuid(),
         ];
+    }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function encodeToken(array $payload): string
+    {
         $encodedPayload = $this->base64UrlEncode(json_encode($payload, JSON_THROW_ON_ERROR));
         $signature = hash_hmac('sha256', $encodedPayload, $this->signingKey(), true);
 
         return $encodedPayload.'.'.$this->base64UrlEncode($signature);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeToken(string $token): array
+    {
+        $parts = explode('.', $token, 2);
+
+        if (count($parts) !== 2) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token is malformed.'],
+            ]);
+        }
+
+        [$encodedPayload, $encodedSignature] = $parts;
+        $expected = $this->base64UrlEncode(hash_hmac('sha256', $encodedPayload, $this->signingKey(), true));
+
+        if (! hash_equals($expected, $encodedSignature)) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token signature is invalid.'],
+            ]);
+        }
+
+        $decoded = $this->base64UrlDecode($encodedPayload);
+        $payload = json_decode($decoded, true);
+
+        if (! is_array($payload) || ($payload['iss'] ?? null) !== 'parthenon') {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token payload is invalid.'],
+            ]);
+        }
+
+        if ((int) ($payload['exp'] ?? 0) < now()->timestamp) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch token has expired.'],
+            ]);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function prepareWorkspace(Study $study, StudyArtifact $artifact, array $app, array $payload): array
+    {
+        $workspaceId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($payload['workspace_id'] ?? ''));
+
+        if ($workspaceId === '') {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch workspace is invalid.'],
+            ]);
+        }
+
+        $root = rtrim((string) config('services.shiny_proxy.workspace_root', storage_path('app/managed-shiny')), '/');
+        $containerRoot = rtrim((string) config('services.shiny_proxy.container_workspace_root', '/srv/parthenon-shiny'), '/');
+        $workspacePath = "{$root}/launches/{$workspaceId}";
+        $artifactDirectory = "{$workspacePath}/artifact";
+
+        File::ensureDirectoryExists($artifactDirectory, 0755, true);
+        @chmod($workspacePath, 0755);
+        @chmod($artifactDirectory, 0755);
+
+        $artifactFile = $this->materializeArtifactFile($artifact, $artifactDirectory);
+        $context = [
+            'launch' => [
+                'workspace_id' => $workspaceId,
+                'expires_at' => Carbon::createFromTimestamp((int) $payload['exp'])->toIso8601String(),
+            ],
+            'app' => $app,
+            'study' => [
+                'id' => $study->id,
+                'slug' => $study->slug,
+                'title' => $study->title,
+            ],
+            'artifact' => [
+                'id' => $artifact->id,
+                'artifact_type' => $artifact->artifact_type,
+                'title' => $artifact->title,
+                'description' => $artifact->description,
+                'version' => $artifact->version,
+                'mime_type' => $artifact->mime_type,
+                'metadata' => $artifact->metadata ?? [],
+                'materialized_file' => $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null,
+            ],
+        ];
+
+        $contextPath = "{$workspacePath}/context.json";
+        $this->writeJsonFile($contextPath, $context);
+
+        return [
+            'id' => $workspaceId,
+            'container_path' => "{$containerRoot}/launches/{$workspaceId}",
+            'context_path' => "{$containerRoot}/launches/{$workspaceId}/context.json",
+            'artifact_file' => $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null,
+        ];
+    }
+
+    private function materializeArtifactFile(StudyArtifact $artifact, string $artifactDirectory): ?string
+    {
+        if ($artifact->file_path === null || ! Storage::disk('local')->exists($artifact->file_path)) {
+            return null;
+        }
+
+        $extension = pathinfo($artifact->file_path, PATHINFO_EXTENSION);
+        $filename = Str::slug($artifact->title) ?: 'artifact';
+        $filename .= $extension !== '' ? ".{$extension}" : '.bin';
+        $target = "{$artifactDirectory}/{$filename}";
+
+        if (File::exists($target)) {
+            return $filename;
+        }
+
+        $stream = Storage::disk('local')->readStream($artifact->file_path);
+
+        if ($stream === false) {
+            return null;
+        }
+
+        $targetHandle = fopen($target, 'wb');
+
+        if ($targetHandle === false) {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+
+            return null;
+        }
+
+        stream_copy_to_stream($stream, $targetHandle);
+        fclose($targetHandle);
+        @chmod($target, 0644);
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        return $filename;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function writeJsonFile(string $path, array $payload): void
+    {
+        $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        if ($json === false) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch context could not be serialized.'],
+            ]);
+        }
+
+        if (File::exists($path) && ! is_writable($path)) {
+            return;
+        }
+
+        if (@file_put_contents($path, $json) === false && ! File::exists($path)) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch workspace could not be prepared.'],
+            ]);
+        }
+
+        @chmod($path, 0644);
     }
 
     /**
@@ -133,5 +362,10 @@ class ManagedShinyLaunchService
     private function base64UrlEncode(string $value): string
     {
         return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+    }
+
+    private function base64UrlDecode(string $value): string
+    {
+        return base64_decode(strtr($value, '-_', '+/').str_repeat('=', (4 - strlen($value) % 4) % 4), true) ?: '';
     }
 }

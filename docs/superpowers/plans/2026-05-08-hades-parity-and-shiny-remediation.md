@@ -55,6 +55,24 @@ Shiny compatibility layer.
 - Added the first frontend launch surface in Study Artifacts: eligible OHDSI
   result artifacts now expose an embedded managed Shiny viewer panel or the
   runtime setup gap.
+- Added the managed Shiny runtime foundation:
+  - ShinyProxy 3.2.4 compose service with Docker internal networking
+  - configurable `SHINY_PROXY_DOCKER_GID` so the non-root ShinyProxy process can
+    access `/var/run/docker.sock` without running the service as root
+  - `/shiny/*` nginx WebSocket proxy route
+  - public Apache `/shiny/` HTTP and WebSocket reverse proxy on
+    `parthenon.acumenus.net`
+  - `parthenon-shiny-ohdsi` app image scaffold backed by the HADES/Darkstar R
+    runtime
+  - shared `parthenon_shiny_workspaces` volume for per-launch context and
+    materialized artifacts
+  - public signed-token context resolver for Shiny app containers at
+    `/api/v1/shiny/launch-context`
+  - ShinyProxy app specs aligned to the vetted Parthenon managed app registry
+  - live browser smoke verified public ShinyProxy launch behavior: direct
+    `plp-results` access blocks without a Parthenon launch token, and a real
+    `ohdsi-report` launch token renders the study artifact context plus installed
+    OHDSI Shiny packages
 
 ## Remaining implementation todo
 
@@ -69,13 +87,13 @@ Shiny compatibility layer.
   MethodEvaluation, EnsemblePatientLevelPrediction, and full PheValuator output.
 - Expand Strategus module discovery and add a JSON/manual configuration fallback
   for modules without first-class React panels.
-- Add Shiny runtime infrastructure:
-  - ShinyProxy compose service for open-source deployments.
+- Expand Shiny runtime infrastructure:
   - Posit Connect adapter settings for licensed deployments.
-  - Apache/WebSocket proxy route for `/shiny/*`.
   - Optional persisted launch audit records for source/study/artifact permission
     checks; the initial broker currently issues signed stateless launch tokens.
-  - Per-session working directories and result-bundle mounts.
+  - Result-bundle specific loaders inside the managed Shiny app image for PLP,
+    PLE/SCCS/Evidence Synthesis, CohortDiagnostics, Characterization,
+    PheValuator, and OHDSI report bundles.
 - Add frontend launch surfaces from PLP/PLE/SCCS/Evidence Synthesis results,
   Cohort Diagnostics, Characterization, and PheValuator pages.
 - Add golden Eunomia smoke tests for package-native endpoints and managed Shiny
