@@ -91,6 +91,8 @@ Document and enforce:
 
 9. **Profile usage.** Compose profiles (`profiles: [...]`) are reserved for **opt-in CE features** (e.g. `profiles: [tour]`). EE does NOT use profiles to gate enterprise services — those gate via overlay file selection at compose-up time. This keeps the rule simple: "if it's loaded, it runs."
 
+10. **`extra_hosts` is additive (R8).** EE overrides MAY add entries to a stable service's `extra_hosts:` block (e.g. `host.docker.internal:host-gateway` for IdP federation testing on developer hosts, or pinning an internal hostname to a specific IP). EE MUST NOT remove or override CE-added `extra_hosts` entries. Verifier must merge — never replace — when both files declare `extra_hosts:` for the same service.
+
 ### 1.3 What an EE override is allowed to do
 
 For any STABLE_SERVICE_NAMES entry, EE may set:

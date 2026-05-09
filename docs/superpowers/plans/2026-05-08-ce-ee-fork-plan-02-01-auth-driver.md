@@ -170,6 +170,14 @@ final readonly class AuthDriverResult
         public ?string $providerSubject = null,
         /** @var array<string, mixed> */
         public array $providerClaims = [],
+        /**
+         * Whether the upstream provider asserted MFA in this authentication
+         * event (R1). Drivers like SAML/Keycloak set this true when the
+         * AuthnContext / amr claim indicates step-up auth. Downstream RBAC
+         * may use this to require step-up for sensitive operations.
+         * Default false preserves CE local + authentik-oidc behavior.
+         */
+        public bool $mfaAuthenticated = false,
     ) {}
 }
 ```

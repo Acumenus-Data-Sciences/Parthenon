@@ -72,6 +72,11 @@ class PhaseResult:
     duration_s: float = 0.0
     message: str = ""
     diagnostics: dict[str, Any] = field(default_factory=dict)
+    # R7: non-fatal issues. Phase still considered successful, but warnings
+    # are surfaced to the operator. EE phases like signed_audit_setup or
+    # observability shippers use this to report "primary action OK, optional
+    # verification (test ship) failed; please check after install."
+    warnings: list[str] = field(default_factory=list)
 
 
 class PhaseError(RuntimeError):

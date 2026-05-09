@@ -72,6 +72,12 @@ final readonly class MetricEvent
         /** @var array<string, string> */
         public array $tags = [],
         public \DateTimeImmutable $occurredAt = new \DateTimeImmutable(),
+        /**
+         * Unit hint for OTel/Prometheus/Datadog (R5). UCUM-style codes
+         * preferred ('s', 'ms', 'By', 'KiBy', '1' for unitless count).
+         * Empty string = unspecified (existing CE behavior).
+         */
+        public string $unit = '',
     ) {}
 }
 

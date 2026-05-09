@@ -221,16 +221,35 @@ git commit -m "feat(feature-flags): backend resolver + GET /api/v1/system/featur
 
 ```ts
 // frontend/src/types/featureFlags.ts
-export type FlagName =
-  | 'auth.saml'
-  | 'auth.scim'
-  | 'auth.keycloak'
-  | 'tenancy.multi'
-  | 'audit.signed'
-  | 'observability.datadog'
-  | 'observability.splunk'
-  | 'crypto.fips'
-  | string;  // EE may add more; keep widening fallback
+//
+// R6: do NOT include `| string` fallback. The union must be exhaustive so
+// `useFlag('typo')` is a compile error and IDE autocomplete works.
+//
+// EE adds flag names via TypeScript module augmentation in
+// `enterprise/frontend/src/types/featureFlags.d.ts`:
+//
+//   declare module '@acumenus-data-sciences/parthenon-frontend/types/featureFlags' {
+//     interface FlagNameRegistry {
+//       'auth.keycloak-step-up': true;
+//       'auth.saml-step-up': true;
+//     }
+//   }
+//
+// CE consumers see the closed union; EE consumers see the augmented union.
+export interface FlagNameRegistry {
+  'auth.saml': true;
+  'auth.scim': true;
+  'auth.keycloak': true;
+  'tenancy.multi': true;
+  'audit.signed': true;
+  'observability.datadog': true;
+  'observability.splunk': true;
+  'observability.opentelemetry': true;
+  'crypto.fips': true;
+  'operator.k8s': true;
+}
+
+export type FlagName = keyof FlagNameRegistry;
 
 export interface FeatureFlag {
   name: FlagName;
@@ -239,7 +258,7 @@ export interface FeatureFlag {
   description: string | null;
 }
 
-export type FeatureFlagMap = Record<FlagName, FeatureFlag>;
+export type FeatureFlagMap = Partial<Record<FlagName, FeatureFlag>>;
 ```
 
 - [ ] **Step 2.2: Zustand store**

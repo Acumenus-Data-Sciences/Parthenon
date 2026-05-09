@@ -75,10 +75,31 @@ interface CryptoProviderInterface
     /** Whether a hash was produced under outdated parameters and should be rehashed on next login. */
     public function needsRehash(string $hash): bool;
 
-    /** Symmetric AEAD encryption of a small payload. Returns base64 ciphertext+tag+nonce. */
+    /**
+     * Symmetric AEAD encryption of a small payload (R3).
+     *
+     * @return string Base64-encoded ciphertext. Implementations MAY embed
+     *   metadata (key id, algorithm version, nonce, auth tag) inside this
+     *   string. The format is provider-specific; only the same provider
+     *   that produced a ciphertext is required to decrypt it.
+     *
+     *   Implementations supporting key rotation MUST encode the active
+     *   key id in the ciphertext so decrypt() can pick the historical key
+     *   when needed. EE's FipsCryptoProvider does this; CE's
+     *   LaravelNativeCryptoProvider inherits Laravel's Crypt facade behavior
+     *   which already encodes a key reference.
+     */
     public function encrypt(#[\SensitiveParameter] string $plaintext): string;
 
-    /** Decrypt a payload produced by encrypt(). Throws CryptoException on tamper. */
+    /**
+     * Decrypt a payload produced by encrypt(). Throws CryptoException on tamper.
+     *
+     * Implementations MUST handle ciphertexts produced by past key rotations
+     * of the same provider, falling back to historical keys as needed. A
+     * customer who rotates their data-encryption key should be able to
+     * read records encrypted under the old key for the lifetime of those
+     * records.
+     */
     public function decrypt(string $ciphertext): string;
 
     /** HMAC-SHA-256 (minimum). Returns hex digest. */

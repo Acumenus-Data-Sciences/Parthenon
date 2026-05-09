@@ -54,15 +54,167 @@ test -x scripts/build-ee.sh
 
 ## Plan 04 task ordering
 
-The plan has 14 tasks. Many are independent and can be parallelized; follow this dependency order if working sequentially:
+The plan has 15 tasks. Many are independent and can be parallelized; follow this dependency order if working sequentially:
 
 ```
+Foundation:           Task 0 (EE packaging — composer.json, npm scope, templates/commercial decision)
 Track A (migrations): Tasks 1, 2 (pair-PR per asset)
 Track B (drivers):    Tasks 3 (license module — first because everything else gates on it),
                       Tasks 4-9 (drivers, parallelizable)
 Track C (infra):      Tasks 10 (operator skeleton), 11 (EE installer phases)
 Bookkeeping:          Tasks 12 (CE README/ROADMAP), 13 (smoke), 14 (release)
 ```
+
+---
+
+## Task 0: EE packaging foundation (C2, C3, I2, I5)
+
+**Why first:** Without these structural pieces, every later task breaks. Composer can't autoload the `Acumenus\Parthenon\Enterprise\` namespace, the EE service provider can't register, and the existing `templates/commercial/` directory creates an architectural conflict.
+
+### 0.1 EE backend `composer.json` (C3)
+
+```bash
+cd /home/smudoshi/Github/Parthenon-EE
+mkdir -p enterprise/backend/src
+cat > enterprise/backend/composer.json <<'EOF'
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "acumenus-data-sciences/parthenon-ee-backend",
+  "description": "Parthenon Enterprise Edition — proprietary backend overlay extending parthenon-backend (AGPL-3.0-only) via documented extension points.",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.4",
+    "firebase/php-jwt": "^7.0",
+    "aacotroneo/laravel-saml2": "^7.0",
+    "league/oauth2-client": "^2.7"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.8",
+    "mockery/mockery": "^1.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Acumenus\\Parthenon\\Enterprise\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Acumenus\\Parthenon\\Enterprise\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Acumenus\\Parthenon\\Enterprise\\EnterpriseServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable"
+}
+EOF
+```
+
+### 0.2 Composer install layering — CE first, then EE (I5)
+
+CE's `parthenon/backend/composer.lock` is authoritative for shared deps. EE adds dependencies that don't exist in CE; if EE needs a different version of a CE dep, **that's a contract breach and must be resolved by upstreaming the version bump to CE first**.
+
+The combined install runs in order:
+1. `composer install --working-dir=parthenon/backend --no-dev --no-interaction` — installs CE deps + locks autoloader
+2. Overlay EE PSR-4 namespace by appending to CE's autoload at runtime via the EE service provider's `register()` hook (composer doesn't natively merge two `composer.json` files in one project)
+
+The overlay mechanism: EE's `Dockerfile.fips` (Task 8) mounts `enterprise/backend/src/` into the CE PHP container at `/var/www/html/enterprise-overlay/src/` and adds a custom autoload entry to `vendor/composer/autoload_psr4.php` via a `composer-merge-plugin` registered in `enterprise/backend/composer.json`:
+
+```bash
+# enterprise/backend/Dockerfile.layer (built on top of CE's parthenon-php image)
+FROM ghcr.io/acumenus-data-sciences/parthenon-php:${PARTHENON_IMAGE_TAG}
+
+USER root
+RUN composer global require wikimedia/composer-merge-plugin:^2.1
+COPY enterprise/backend/composer.json /var/www/html/enterprise/composer.json
+COPY enterprise/backend/src /var/www/html/enterprise/src
+
+# Merge EE composer.json into CE's via composer-merge-plugin
+WORKDIR /var/www/html
+RUN composer config extra.merge-plugin.include "enterprise/composer.json" && \
+    composer install --no-dev --no-interaction --no-scripts && \
+    composer dump-autoload -o
+USER www-data
+```
+
+**Pin versions in `enterprise/backend/composer.json`** (no `^`-style ranges) for reproducibility. Update via Renovate / Dependabot configured separately on the EE repo.
+
+### 0.3 EE frontend packaging (I2)
+
+EE frontend code lives at `enterprise/frontend/src/features/admin-enterprise/`. Decision: **relative imports through the subtree, no separate npm package**. Rationale:
+
+- One Vite build pipeline; no peer-dep matching dance
+- EE devs see one tree in IDE; better DX
+- `vite build` from `parthenon/frontend/` with `enterprise/frontend/` added as an extra `resolve.alias` entry produces a single bundle
+- EE-only routes register via `enterprise/frontend/src/registerRoutes.ts` which is conditionally imported when the `auth.keycloak` (or any EE) flag is set
+
+Add to `parthenon/frontend/vite.config.ts` a CE-side conditional that respects the EE working tree:
+
+```ts
+// enterprise/frontend/vite.config.overlay.ts (EE side; loaded when present)
+import { defineConfig, mergeConfig } from 'vite';
+import baseConfig from '../../parthenon/frontend/vite.config';
+
+export default mergeConfig(baseConfig, defineConfig({
+  resolve: {
+    alias: {
+      '@enterprise': '../../enterprise/frontend/src',
+    },
+  },
+}));
+```
+
+EE devs run `vite build --config enterprise/frontend/vite.config.overlay.ts` from the EE working tree root. CE devs run the standard `vite build` and never see EE code.
+
+The CE frontend's `App.tsx` does **not** import from `@enterprise/...` — only the EE-built bundle does. EE-only views are dynamically imported behind the corresponding `<EnterpriseGate>`:
+
+```tsx
+// In parthenon/frontend/src/App.tsx — CE has no static reference to enterprise/.
+// EE's overlay vite config injects this dynamic import:
+const EeAdminPanel = React.lazy(() => import('@enterprise/features/admin-enterprise/AdminPanel'));
+```
+
+### 0.4 `templates/commercial/` decision (C2)
+
+The pre-existing `templates/commercial/` directory in CE (and its companion `parthenon-templates-commercial` wheel + `community-wheel-isolation` CI job) is a CE-resident proprietary tier that **predates** the CE/EE fork plans. Decision: **migrate it to EE**.
+
+Rationale:
+- Spec model says proprietary code lives in `Parthenon-EE`. CE-resident proprietary code violates that.
+- The existing `community-wheel-isolation` CI job becomes redundant once the proprietary code is no longer in the CE tree.
+- Customers who use the templates-commercial wheel can install it from the EE namespace going forward.
+
+Migration steps (treat as Task 2 sub-asset):
+
+1. **EE side** — copy `templates/commercial/` (from the pinned CE subtree) into `enterprise/templates/commercial/`:
+   ```bash
+   cp -r parthenon/templates/commercial enterprise/templates/commercial
+   ```
+2. **EE side** — update the wheel's `pyproject.toml`:
+   - Rename package: `parthenon-templates-commercial` → `acumenus-data-sciences-parthenon-templates-commercial`
+   - Update GitHub source URL in metadata
+   - Update license to `proprietary` (was implicit before)
+3. **EE side** — wire the EE wheel build into `scripts/build-ee.sh`:
+   ```bash
+   docker buildx build -t ghcr.io/acumenus-data-sciences/parthenon-ee-templates-commercial:${TAG} \
+     -f enterprise/templates/Dockerfile.commercial .
+   ```
+4. **CE side (paired PR)** — delete `templates/commercial/` from CE; remove the `community-wheel-isolation` CI job (its sole purpose was preventing accidental inclusion of proprietary code; once that code is gone, the job is moot); update `templates/pyproject.toml` to drop the `runtime/commercial` exclusion (the path no longer exists).
+5. **CE side** — add a brief note in `CHANGELOG.md` explaining that the templates-commercial wheel has moved to EE; existing users get instructions to switch the install source.
+
+This is a **breaking change for any existing customer using the templates-commercial wheel**. Coordinate with customer-success before merging the CE deletion PR. The EE addition PR can land first; CE deletion follows after a 1-version deprecation period (consistent with the deprecation pattern used in Tasks 1 and 2).
+
+### 0.5 Done criteria for Task 0
+
+- [ ] `enterprise/backend/composer.json` exists; `composer install` from EE working tree succeeds
+- [ ] `enterprise/backend/Dockerfile.layer` builds on top of `parthenon-php` and produces a working autoloader
+- [ ] EE frontend overlay vite config builds without touching CE code
+- [ ] `enterprise/templates/commercial/` lives in EE; CE deprecation PR opened
+- [ ] `composer-merge-plugin` overlay verified: `php artisan tinker` from inside EE container can `new \Acumenus\Parthenon\Enterprise\License\LicenseService(...)` without autoload error
 
 ---
 
@@ -218,10 +370,26 @@ class LicenseService
 
     public function claims(): LicenseClaims
     {
-        return Cache::remember('parthenon-ee.license', 3600, function () {
+        // I4: cache TTL is intentionally short (60s) to bound the
+        // revocation window. If a customer's license is revoked
+        // (cancellation, fraud), they keep working for at most 60s.
+        // For investor MVP this is sufficient; v1.x adds a CRL
+        // (certificate revocation list) fetch + license-server check-in.
+        // Tunable via LICENSE_CACHE_TTL_SECONDS env (min 30, max 3600).
+        $ttl = max(30, min(3600, (int) env('LICENSE_CACHE_TTL_SECONDS', 60)));
+        return Cache::remember('parthenon-ee.license', $ttl, function () {
             try {
                 $decoded = JWT::decode($this->licenseToken, new Key($this->publicKeyPem, 'RS256'));
-                return LicenseClaims::fromObject($decoded);
+                $claims = LicenseClaims::fromObject($decoded);
+                // Belt-and-braces: enforce nbf/exp here even though JWT::decode does too.
+                $now = time();
+                if ($claims->expiresAt < $now) {
+                    throw new InvalidLicenseException('License expired at ' . date('c', $claims->expiresAt));
+                }
+                if ($claims->notBefore > $now) {
+                    throw new InvalidLicenseException('License not yet valid (nbf=' . date('c', $claims->notBefore) . ')');
+                }
+                return $claims;
             } catch (\Throwable $e) {
                 throw new InvalidLicenseException('License validation failed: ' . $e->getMessage(), 0, $e);
             }
@@ -444,7 +612,16 @@ class KeycloakAuthDriver implements AuthDriverInterface
             ['name' => $userInfo->name, 'password' => null, 'must_change_password' => false],
         );
 
-        // Group → role mapping
+        // C1 + HIGHSEC §1.1: every newly-provisioned SSO user gets the viewer
+        // role baseline. Group → role mapping then PROMOTES on top of that
+        // baseline. This ensures a misconfigured group claim or empty
+        // groups list never leaves a fresh user with no role at all,
+        // and never silently elevates beyond what the IdP asserts.
+        if ($user->wasRecentlyCreated) {
+            $user->assignRole(['viewer']);
+        }
+
+        // Group → role mapping (PROMOTES from viewer based on IdP groups)
         $this->mapGroupsToRoles($user, $userInfo->groups);
 
         return new AuthDriverResult(
@@ -470,9 +647,84 @@ Plan 02-01's `AuthDriverResult` does **not** carry an `mfa_authenticated` flag i
 
 ### 4.4 Tests + PR
 
-Tests at `enterprise/backend/tests/Auth/KeycloakAuthDriverTest.php`. Mock the `KeycloakClient` to verify token exchange, user upsert, group→role mapping, MFA claim propagation.
+Tests at `enterprise/backend/tests/Auth/KeycloakAuthDriverTest.php`. Mock the `KeycloakClient` to verify token exchange, user upsert, group→role mapping, MFA claim propagation, and the C1 `viewer`-role-baseline assignment for newly-provisioned users.
 
 Open PR: `feat(ee-auth): KeycloakAuthDriver`
+
+### 4.5 Customer migration: Authentik → Keycloak (I1)
+
+Existing pilot customers (Geisinger, Hive Networks, any other private-fork users) running CE+EE in the single-repo deployment have user data + groups in Authentik. After Plan 04 ships they're upgrading to the EE repo's Keycloak. Here's the user-data migration runbook:
+
+#### Pre-migration checklist
+
+- [ ] Export Authentik users + groups + permissions (admin → Backup → Configurable JSON)
+- [ ] Identify in-flight Sanctum tokens issued through Authentik OIDC (these stay valid until `sanctum.expiration` — 8h per HIGHSEC §1.2 — so plan a window)
+- [ ] Notify users 7 days ahead: SSO sign-in flow changing; logout/login required
+- [ ] Snapshot the Acumenus database (Authentik's user_external_identities rows must survive)
+
+#### Migration day
+
+1. **Stand up Keycloak** alongside Authentik (both running, no traffic to Keycloak yet):
+   ```bash
+   docker compose -f parthenon/docker-compose.yml \
+                  -f docker-compose.ee.yml \
+                  up -d keycloak
+   ```
+
+2. **Bootstrap the realm** by running the EE installer's `keycloak_setup` phase (Plan 02-07 + Plan 04 Task 12):
+   ```bash
+   python3 enterprise/installer/main.py --phase=keycloak_setup --tier=enterprise
+   ```
+   This creates the Parthenon realm, the `parthenon-app` client, and applies the standard mapper set (email, given_name, family_name, groups).
+
+3. **Import users from Authentik** via Keycloak's bulk import:
+   ```bash
+   # Convert Authentik export JSON → Keycloak realm JSON via the helper
+   python3 enterprise/installer/scripts/authentik-to-keycloak.py \
+     --authentik-export ~/authentik-backup-$(date -I).json \
+     --output /tmp/keycloak-realm-import.json
+
+   # Import (Keycloak admin CLI)
+   docker compose exec keycloak \
+     /opt/keycloak/bin/kcadm.sh create partial-import \
+     -r parthenon \
+     -f /tmp/keycloak-realm-import.json \
+     -s ifResourceExists=OVERWRITE
+   ```
+
+4. **Verify group → role mapping** by running a smoke test for each role tier (super-admin, admin, researcher, data-steward, mapping-reviewer, viewer): create one test user per tier in Keycloak with the appropriate group membership; log in via the new flow; confirm Spatie permissions match the IdP groups.
+
+5. **Switch Parthenon's auth driver** by setting in `enterprise/.env`:
+   ```
+   AUTH_DEFAULT_DRIVER=keycloak
+   ```
+   then restart php + node containers. The login page auto-discovers via `GET /api/v1/system/feature-flags` and routes new logins to Keycloak.
+
+6. **Drain Authentik traffic.** Sanctum tokens issued under Authentik continue to work until they expire (≤8h). New logins go to Keycloak. The Authentik container can stay running for the 8h window for in-flight session continuity, then be stopped.
+
+7. **Decommission Authentik** after the 8h drain:
+   ```bash
+   docker compose stop authentik
+   docker compose rm -f authentik
+   docker volume rm parthenon-authentik-data    # AFTER backing up the volume
+   ```
+
+#### Rollback
+
+If Keycloak login fails for any tier during step 4 verification:
+
+1. `AUTH_DEFAULT_DRIVER=authentik-oidc` in `.env`; restart php+node
+2. Authentik resumes serving login traffic
+3. File a bug; do not proceed until it's resolved
+4. Imported Keycloak users remain (idempotent on next attempt)
+
+#### Customers running their own IdP
+
+For customers who already use Okta / Azure AD / Auth0 via Authentik as a federation broker: Keycloak supports the same broker pattern. Configure the Keycloak Identity Provider in the Parthenon realm to point at their existing IdP. No user-data migration needed — Keycloak just acts as a different broker.
+
+#### Documentation deliverable
+
+Add this runbook to `enterprise/docs/customer-migrations/authentik-to-keycloak.md` as a deliverable of this PR.
 
 ---
 
@@ -531,6 +783,13 @@ class SamlAuthDriver implements AuthDriverInterface
             ['email' => strtolower($email)],
             ['name' => $samlUser->getAttribute('displayName')[0] ?? $email],
         );
+
+        // C1 + HIGHSEC §1.1: SAML-provisioned new users get viewer role only.
+        // SAML group attribute → role mapping (when implemented) PROMOTES from
+        // this baseline. Default safety: no role claim = viewer.
+        if ($user->wasRecentlyCreated) {
+            $user->assignRole(['viewer']);
+        }
 
         return new AuthDriverResult(
             user: $user,

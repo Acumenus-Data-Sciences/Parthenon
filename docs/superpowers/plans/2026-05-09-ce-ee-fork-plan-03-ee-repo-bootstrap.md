@@ -612,21 +612,56 @@ jobs:
             exit $rc
           fi
 
-      - name: Open conflict PR (if needed)
+      - name: Skip if a sync-conflict PR is already open (I3 dedup)
+        id: dedup
         if: steps.sync.outputs.result == 'conflict'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          OPEN=$(gh pr list --label sync-conflict --state open --json number --jq 'length')
+          echo "open_conflict_prs=$OPEN" >> "$GITHUB_OUTPUT"
+          if [ "$OPEN" -gt 0 ]; then
+            echo "::notice::A sync-conflict PR is already open ($OPEN). Skipping new PR creation."
+          fi
+
+      - name: Ensure sync-conflict label exists
+        if: steps.sync.outputs.result == 'conflict' && steps.dedup.outputs.open_conflict_prs == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create sync-conflict --color BFD4F2 --description "Daily CE→EE sync hit a merge conflict; needs maintainer resolution" 2>/dev/null || true
+
+      - name: Open conflict PR (if needed and none open)
+        if: steps.sync.outputs.result == 'conflict' && steps.dedup.outputs.open_conflict_prs == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           BR=$(git rev-parse --abbrev-ref HEAD)
+          CE_SHORT=$(git rev-parse --short ce-upstream/main)
+          # I3: title includes the CE pin sha so duplicate detection works
+          # and so each PR title is human-distinguishable.
           gh pr create \
-            --title "sync: CE main → EE @ $(git rev-parse --short HEAD)" \
-            --body "Automated sync hit conflicts. \`@Acumenus-Data-Sciences/maintainers\` please resolve.
+            --title "sync: CE main → EE @ $CE_SHORT" \
+            --body "Automated sync hit conflicts at CE \`$CE_SHORT\`. \`@Acumenus-Data-Sciences/maintainers\` please resolve.
+
+          ### Conflicted files
 
           \`\`\`
           $(git diff --name-only --diff-filter=U || true)
-          \`\`\`" \
+          \`\`\`
+
+          ### Resolution
+
+          1. Check out this branch locally
+          2. Manually resolve conflicts under \`parthenon/\` (these are CE files; \`[ce-sync]\` marker required when committing the resolution)
+          3. Commit with message starting \`[ce-sync]\` to satisfy verify-no-ce-patches.sh
+          4. Push; CI runs full EE suite
+          5. Once green, squash-merge
+
+          The next daily sync run will be skipped while this PR remains open." \
             --base main \
             --head "$BR" \
+            --label sync-conflict \
             --reviewer Acumenus-Data-Sciences/maintainers
 EOF
 

@@ -107,6 +107,26 @@ interface TenantResolverInterface
     /** Switch the request-scoped tenant context (for impersonation, jobs). */
     public function setCurrent(Tenant $tenant): void;
     public function clear(): void;
+
+    /**
+     * Serialize the current tenant context for embedding in a queue
+     * payload (R2). Laravel queued jobs serialize their payload and
+     * restore on dequeue; tenant context must survive that boundary.
+     *
+     * SingleTenantResolver returns []; MultiTenantResolver returns
+     * something like ['slug' => 'tenant-x'].
+     *
+     * @return array<string, mixed>
+     */
+    public function snapshot(): array;
+
+    /**
+     * Restore tenant context from a snapshot produced by snapshot().
+     * Called by the queued-job middleware before $job->handle() runs.
+     *
+     * @param array<string, mixed> $snap
+     */
+    public function restore(array $snap): void;
 }
 ```
 
@@ -235,6 +255,10 @@ class SingleTenantResolver implements TenantResolverInterface {
     public function currentId(): int { return $this->current()->id; }
     public function setCurrent(Tenant $tenant): void { $this->current = $tenant; }
     public function clear(): void { $this->current = null; }
+
+    /** R2: queued-job lifecycle — single tenant always resolves to id=1; nothing to snapshot. */
+    public function snapshot(): array { return []; }
+    public function restore(array $snap): void { /* no-op: always Tenant#1 */ }
 }
 ```
 

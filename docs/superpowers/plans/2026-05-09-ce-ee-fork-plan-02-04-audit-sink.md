@@ -98,6 +98,34 @@ final readonly class AuditEvent
             'metadata' => $this->metadata,
         ];
     }
+
+    /**
+     * Canonical JSON form for HMAC chain signing (R4).
+     *
+     * Two implementations of an AuditSink (e.g. CE's DatabaseAuditSink
+     * and EE's SignedAuditSink) must compute IDENTICAL canonical forms
+     * for the same event so a signed-chain verifier can independently
+     * recompute event_hash. The recipe:
+     *   1. toArray() to get the field map
+     *   2. Sort top-level keys lexicographically
+     *   3. Sort any nested array keys lexicographically (deterministic
+     *      metadata ordering)
+     *   4. JSON encode with UNESCAPED_SLASHES + UNESCAPED_UNICODE +
+     *      THROW_ON_ERROR
+     *
+     * See RFC 8785 (JSON Canonicalization Scheme) for background.
+     * Implementations MUST NOT change this method's output without a
+     * coordinated migration of historical audit chains.
+     */
+    public function canonicalJson(): string {
+        $arr = $this->toArray();
+        ksort($arr);
+        foreach ($arr as $k => &$v) {
+            if (is_array($v)) ksort($v);
+        }
+        unset($v);
+        return json_encode($arr, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    }
 }
 ```
 

@@ -468,6 +468,27 @@ EE then declares CE packages as dependencies, applies overlays via package exten
 
 ---
 
+## 11.5 Acumenus Sister Projects — Impact Statement (I6)
+
+Acumenus Data Sciences maintains other open-source / commercial codebases beyond Parthenon. The AGPL-3.0-only relicense + EE fork affect them as follows:
+
+| Project | Status | Impact | Action |
+|---|---|---|---|
+| **Aurora** (clinical collaboration / molecular tumor board) | Independent codebase | No source-level dependency on Parthenon today (verified at the time of this spec). Aurora may consume Parthenon API endpoints over the network, which AGPLv3 §13 does not restrict. | None required. |
+| **Hive Networks** (federated learning platform) | Independent codebase, pilot-stage | No Parthenon source imported. Federation is API-mediated. | None required. |
+| **MindLog** (Expo/React Native mental wellness) | Independent codebase | No shared code. | None required. |
+| **OHDSI-scraper** (submodule of Parthenon) | Separate repo, separate license | Submodule URL stays at `github.com/sudoshi/OHDSI-scraper`; license is its own. | None required. NOTICE attribution pointer suffices. |
+| **study-agent / StudyAgent** (submodule of Parthenon) | Separate repo, separate license | Submodule URL stays at `github.com/sudoshi/StudyAgent`; license is its own. | None required. |
+
+**Forward-looking constraint:** any future code-sharing pattern between Parthenon and an Acumenus sister project must respect AGPLv3 §13. If a sister project would need to embed Parthenon source (rather than calling its API), the embedding either:
+
+(a) makes that sister project itself AGPL-3.0-only (preferred for open-source sister projects), or
+(b) operates under the dual-license commercial grant Acumenus controls (preferred for proprietary sister projects)
+
+Plan authors and maintainers in any Acumenus repository: when proposing a Parthenon-source dependency, document which path applies in the proposing PR and tag `@Acumenus-Data-Sciences/maintainers` for IP-boundary review.
+
+---
+
 ## 12. Out of Scope (explicitly)
 
 - Full Parthenon Operator implementation (deferred to v1.2; only skeleton CRDs + reconciler stubs in this window).
