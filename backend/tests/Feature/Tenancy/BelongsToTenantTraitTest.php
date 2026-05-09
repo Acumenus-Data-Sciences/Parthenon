@@ -34,25 +34,33 @@ it('uses an explicitly-set tenant_id when provided on create', function () {
 
 it('scopes User queries to the current tenant', function () {
     $other = Tenant::create(['slug' => 'pharma-acme', 'display_name' => 'ACME', 'billing_status' => 'active']);
-    User::factory()->create(['email' => 'tenant1@x.com']);
-    User::factory()->create(['email' => 'tenant2@x.com', 'tenant_id' => $other->id]);
+    User::factory()->create(['email' => 'tenant1-bttt@parthenon.local']);
+    User::factory()->create(['email' => 'tenant2-bttt@parthenon.local', 'tenant_id' => $other->id]);
 
-    // Default resolver = Tenant#1 → only 1 user visible.
-    expect(User::count())->toBe(1)
-        ->and(User::first()->email)->toBe('tenant1@x.com');
+    // Filter to test-created emails so unrelated users from other tests don't leak in.
+    $bttQuery = fn () => User::query()->where('email', 'like', '%-bttt@parthenon.local');
+
+    // Default resolver = Tenant#1 → only the tenant1 user is visible (scope filters to tenant_id=1).
+    expect($bttQuery()->count())->toBe(1)
+        ->and($bttQuery()->first()->email)->toBe('tenant1-bttt@parthenon.local');
 
     // Switch to other tenant → only the other user visible.
     app(SingleTenantResolver::class)->setCurrent($other);
-    expect(User::count())->toBe(1)
-        ->and(User::first()->email)->toBe('tenant2@x.com');
+    expect($bttQuery()->count())->toBe(1)
+        ->and($bttQuery()->first()->email)->toBe('tenant2-bttt@parthenon.local');
 });
 
 it('allows withoutGlobalScope to bypass for admin tooling', function () {
     $other = Tenant::create(['slug' => 'p2', 'display_name' => 'P2', 'billing_status' => 'active']);
-    User::factory()->create(['email' => 'a1@x.com']);
-    User::factory()->create(['email' => 'a2@x.com', 'tenant_id' => $other->id]);
+    User::factory()->create(['email' => 'a1-bttt@parthenon.local']);
+    User::factory()->create(['email' => 'a2-bttt@parthenon.local', 'tenant_id' => $other->id]);
 
-    expect(User::withoutGlobalScope(TenantScope::class)->count())->toBe(2);
+    // Filter to test-created emails — global scope OFF should reveal both.
+    expect(
+        User::withoutGlobalScope(TenantScope::class)
+            ->where('email', 'like', '%-bttt@parthenon.local')
+            ->count()
+    )->toBe(2);
 });
 
 it('preserves single-tenant behavior — no users invisible if tenant_id defaults to 1', function () {
