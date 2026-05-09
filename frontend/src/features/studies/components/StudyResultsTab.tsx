@@ -14,6 +14,10 @@ import {
   Plus,
   Trash2,
   Filter,
+  Play,
+  ExternalLink,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import { formatDate, formatNumber } from "@/i18n/format";
 import {
@@ -22,8 +26,9 @@ import {
   useStudySyntheses,
   useCreateStudySynthesis,
   useDeleteStudySynthesis,
+  useLaunchStudyResultShinyApp,
 } from "../hooks/useStudies";
-import type { StudyResult, StudySynthesis } from "../types/study";
+import type { ManagedShinyLaunch, StudyResult, StudySynthesis } from "../types/study";
 
 const RESULT_TYPE_LABELS: Record<string, string> = {
   cohort_count: "Cohort Count",
@@ -60,6 +65,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
   const [showSynthesisPanel, setShowSynthesisPanel] = useState(false);
   const [selectedResultIds, setSelectedResultIds] = useState<number[]>([]);
   const [synthesisType, setSynthesisType] = useState("random_effects_meta");
+  const [launchingResultId, setLaunchingResultId] = useState<number | null>(null);
+  const [activeLaunch, setActiveLaunch] = useState<ManagedShinyLaunch | null>(null);
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   const { data: resultsData, isLoading: loadingResults } = useStudyResults(slug, {
     result_type: resultType || undefined,
@@ -68,6 +76,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
     per_page: 25,
   });
   const updateResult = useUpdateStudyResult();
+  const launchMutation = useLaunchStudyResultShinyApp();
 
   const { data: syntheses, isLoading: loadingSyntheses } = useStudySyntheses(slug);
   const createSynthesis = useCreateStudySynthesis();
@@ -83,6 +92,27 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
 
   const handleTogglePublishable = (r: StudyResult) => {
     updateResult.mutate({ slug, resultId: r.id, payload: { is_publishable: !r.is_publishable } });
+  };
+
+  const launchManagedShiny = (result: StudyResult) => {
+    const app = result.managed_shiny_apps?.[0];
+    if (!app) return;
+
+    setLaunchingResultId(result.id);
+    setLaunchError(null);
+
+    launchMutation.mutate(
+      {
+        slug,
+        resultId: result.id,
+        payload: { app_key: app.key, mode: "embedded" },
+      },
+      {
+        onSuccess: (launch) => setActiveLaunch(launch),
+        onError: (error) => setLaunchError(extractLaunchError(error)),
+        onSettled: () => setLaunchingResultId(null),
+      },
+    );
   };
 
   const toggleResultSelection = (id: number) => {
@@ -129,6 +159,52 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
             </button>
           </div>
         </div>
+
+        {launchError && (
+          <div className="rounded-lg border border-critical/30 bg-critical/10 p-3 text-sm text-critical">
+            {launchError}
+          </div>
+        )}
+
+        {activeLaunch && (
+          <div className="panel overflow-hidden p-0">
+            <div className="flex items-center justify-between gap-3 border-b border-border-muted px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-text-primary">{activeLaunch.app.label}</p>
+                <p className="truncate text-xs text-text-muted">{activeLaunch.artifact.title}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {activeLaunch.launch_url && (
+                  <a
+                    href={activeLaunch.launch_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <ExternalLink size={14} />
+                    {t("studies.artifacts.actions.openLink")}
+                  </a>
+                )}
+                <button type="button" onClick={() => setActiveLaunch(null)} className="btn btn-ghost btn-sm" aria-label="Close managed Shiny viewer">
+                  <X size={14} />
+                </button>
+              </div>
+            </div>
+            {activeLaunch.launch_url && activeLaunch.embedding.allowed ? (
+              <iframe
+                src={activeLaunch.launch_url}
+                title={activeLaunch.app.label}
+                className="h-[640px] w-full border-0 bg-surface"
+                sandbox={activeLaunch.embedding.sandbox.join(" ")}
+              />
+            ) : (
+              <div className="flex items-start gap-3 px-4 py-6 text-sm text-text-muted">
+                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
+                <span>{activeLaunch.setup.message}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -221,6 +297,18 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
+                        {r.managed_shiny_apps?.[0] && (
+                          <button
+                            type="button"
+                            onClick={() => launchManagedShiny(r)}
+                            disabled={launchMutation.isPending}
+                            className="inline-flex max-w-[14rem] items-center gap-1 rounded border border-success/30 bg-success/10 px-2 py-1 text-xs text-success hover:bg-success/15 disabled:cursor-not-allowed disabled:opacity-60"
+                            title={`Open ${r.managed_shiny_apps[0].label}`}
+                          >
+                            {launchingResultId === r.id ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
+                            <span className="truncate">{r.managed_shiny_apps[0].label}</span>
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleTogglePrimary(r)}
@@ -481,4 +569,11 @@ function SynthesisCard({
       )}
     </div>
   );
+}
+
+function extractLaunchError(error: unknown): string {
+  const response = (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }).response;
+  const validationMessage = response?.data?.errors ? Object.values(response.data.errors)[0]?.[0] : null;
+
+  return validationMessage ?? response?.data?.message ?? (error instanceof Error ? error.message : "Managed Shiny launch failed.");
 }

@@ -847,6 +847,8 @@ Route::prefix('v1')->group(function () {
             // Results
             Route::get('results', [StudyResultController::class, 'index']);
             Route::get('results/{result}', [StudyResultController::class, 'show']);
+            Route::post('results/{result}/shiny-launch', [StudyResultController::class, 'launchShiny'])
+                ->middleware('permission:studies.view');
             Route::put('results/{result}', [StudyResultController::class, 'update']);
 
             // Synthesis

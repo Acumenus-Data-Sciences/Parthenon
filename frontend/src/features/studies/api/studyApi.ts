@@ -678,6 +678,18 @@ export async function launchStudyArtifactShinyApp(
   return data.data ?? data;
 }
 
+export async function launchStudyResultShinyApp(
+  slug: string,
+  resultId: number,
+  payload: { app_key?: string; mode?: "embedded" | "full_page" },
+): Promise<ManagedShinyLaunch> {
+  const { data } = await apiClient.post(
+    `${BASE}/${slug}/results/${resultId}/shiny-launch`,
+    payload,
+  );
+  return data.data ?? data;
+}
+
 // ---------------------------------------------------------------------------
 // Results
 // ---------------------------------------------------------------------------

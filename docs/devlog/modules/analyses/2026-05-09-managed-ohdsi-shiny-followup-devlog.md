@@ -609,16 +609,60 @@ model rewrite:
   image metadata;
 - `workspace_id` remains the stable runtime correlation key.
 
-## Open Follow-Ups
+## 2026-05-09 Closeout Status Update
 
-Immediate next backlog items:
+The next implementation pass completed the main code-side items that were left
+open after the first managed Shiny runtime slice:
 
-- add complete package-specific OHDSI fixture artifacts and deeper schema
-  guards for PLP, population estimation, cohort diagnostics, characterization,
-  cohort incidence, PheValuator, and report bundles;
-- surface managed launch actions on native result pages where artifacts already
-  represent supported result families;
-- automate HADES latest-target and stable-release-lock drift detection.
+- added golden SQLite result databases for PatientLevelPrediction,
+  CohortMethod, SCCS, EvidenceSynthesis, CohortDiagnostics, Characterization,
+  CohortIncidence, PheValuator, OHDSI report, and OHDSI sharing families;
+- added R tests that validate every golden database against the managed loader
+  registry, schema guards, and official-module handoff contract;
+- added native Study Result managed Shiny launch support in Laravel, including
+  result-scoped launch context, audit metadata, route coverage, and launch
+  eligibility hiding when no supported runtime or materialized bundle exists;
+- added the Study Results frontend launch action and integration coverage for
+  the managed viewer button;
+- expanded active-session metrics with admin-visible session detail records;
+- added HADES version drift automation that checks latest upstream metadata
+  separately from the stable HADES release lock and can open scheduled drift
+  PRs;
+- added managed runtime operations documentation, including ShinyProxy,
+  Posit Connect, recovery steps, golden-smoke setup, and production smoke
+  checklist coverage.
+
+The commit/deploy decision for this slice is to keep the change as a scoped
+source commit and not deploy it directly from the current workspace. This work
+touches Laravel runtime behavior, R/Shiny loader behavior, Playwright smoke
+configuration, GitHub Actions, and binary fixture assets. A frontend-only deploy
+would be misleading, and production validation still needs a runtime with
+ShinyProxy or Posit Connect plus the official OHDSI Shiny packages installed.
+
+## Remaining Completion Backlog
+
+The subproject is code-complete for the local managed-launch and loader
+contract, but not operationally complete until the following are finished:
+
+1. Run the golden SQLite browser smoke against a configured managed Shiny
+   runtime with official OHDSI packages installed. The local R tests prove the
+   handoff contract; the final gate is browser rendering through ShinyProxy or
+   Posit Connect into the real module UI.
+2. Decide and implement non-SQLite bundle conversion paths. RDS/RData results
+   need package-aware conversion into OHDSI SQLite result databases, and
+   HTML/JSON/sharing bundles need an explicit policy for when they are treated
+   as managed artifacts versus converted official-module inputs.
+3. Seed launchable Study Results in the Playwright environment and expand
+   viewer-discovery coverage beyond the placeholder opt-in path. The target is
+   discovery plus one actual managed module render per supported viewer family.
+4. Validate HADES version automation in GitHub Actions after merge by checking
+   the scheduled workflow artifact reports and the generated drift PR contents.
+5. Exercise the production smoke checklist end to end in the deployment
+   environment: `/`, `/login`, `/jobs`, System Health,
+   `/api/v1/hades/packages`, and one managed viewer launched through Parthenon.
+6. If runtime latency remains a concern after real ShinyProxy/Posit Connect
+   testing, add deeper app-start timing and container-start correlation to the
+   launch audit or System Health payload.
 
 ## Known Non-Goals In This Slice
 

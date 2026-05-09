@@ -769,6 +769,7 @@ export interface StudyResult {
   updated_at: string;
   site?: { id: number; source?: { id: number; source_name: string } } | null;
   reviewed_by_user?: { id: number; name: string; email: string } | null;
+  managed_shiny_apps?: ManagedShinyApp[];
 }
 
 export interface StudySynthesis {

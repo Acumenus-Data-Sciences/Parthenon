@@ -452,6 +452,54 @@ Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
 ```
 
+### P2-E-B: Golden Package Result Databases and Browser Smoke
+
+- [x] Add deterministic golden SQLite result databases under
+  `docker/shiny-ohdsi/tests/golden/`.
+- [x] Cover PLP, CohortMethod, SCCS, EvidenceSynthesis, CohortDiagnostics,
+  Characterization, CohortIncidence, PheValuator, and OHDSI report schemas.
+- [x] Add `golden_result_database_test.R` to validate non-empty data rows,
+  concrete schema variants, zip extraction, and official handoff behavior.
+- [x] Extend Playwright managed Shiny smoke with an opt-in golden SQLite
+  official-module launch path via `PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH`.
+
+Run commands:
+
+```bash
+Rscript docker/shiny-ohdsi/tests/golden/create_golden_result_databases.R
+Rscript docker/shiny-ohdsi/tests/golden_result_database_test.R
+cd e2e
+PLAYWRIGHT_ENABLE_SHINY_SMOKE=1 PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH=testing/golden/plp-results.sqlite npm run test:shiny
+```
+
+### P3-A: Native Study Result Launch Surface
+
+- [x] Add backend discovery of managed OHDSI Shiny apps for native
+  `StudyResult` records with materialized bundle paths.
+- [x] Add result-specific launch endpoint:
+  `POST /api/v1/studies/{study}/results/{result}/shiny-launch`.
+- [x] Preserve launch audit records for result-origin launches with
+  `study_result_id` metadata.
+- [x] Add Study Results tab launch button, embedded viewer panel, and frontend
+  integration coverage.
+
+### P4-A: HADES Version Automation
+
+- [x] Add `scripts/hades/check_hades_versions.py`.
+- [x] Support latest-target checks separately from stable HADES release-lock
+  checks.
+- [x] Add scheduled GitHub workflow to refresh targets and open drift PRs.
+- [x] Upload readable drift reports as workflow artifacts.
+
+### P5-A: Runtime Operations Closeout
+
+- [x] Add active session detail rows to managed Shiny System Health metrics.
+- [x] Add Posit Connect adapter guidance.
+- [x] Document Docker socket, ShinyProxy, app-image, workspace, and launch-token
+  recovery steps.
+- [x] Add production smoke checklist for `/`, `/login`, `/jobs`, System Health,
+  `/api/v1/hades/packages`, and a managed viewer.
+
 ## Risk Notes
 
 - ShinyProxy tests can be slow because app containers start on demand. The
@@ -479,5 +527,14 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
   - `P2-C SQLite Schema Guards`
   - `P2-D Package-Specific SQLite Fixtures and Deep Schema Guards`
   - `P2-E-A Official Module Entrypoint Smoke`
-- Next implementation slice: `P2-E-B Golden Package Result Databases and
-  Browser Smoke`.
+  - `P2-E-B Golden Package Result Databases and Browser Smoke`
+  - `P3-A Native Study Result Launch Surface`
+  - `P4-A HADES Version Automation`
+  - `P5-A Runtime Operations Closeout`
+- Remaining deepening work:
+  - exercise the golden SQLite browser smoke in a fully configured ShinyProxy or
+    Posit Connect deployment,
+  - add conversion/import paths for non-SQLite RDS/RData, HTML, JSON, and
+    sharing bundle formats,
+  - broaden result-page viewer discovery Playwright coverage once seeded
+    launchable results are available in the target environment.

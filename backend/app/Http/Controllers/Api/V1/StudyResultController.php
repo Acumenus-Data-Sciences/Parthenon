@@ -5,21 +5,30 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Study;
 use App\Models\App\StudyResult;
+use App\Models\User;
+use App\Services\Shiny\ManagedShinyAppRegistry;
+use App\Services\Shiny\ManagedShinyLaunchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * @group Studies
  */
 class StudyResultController extends Controller
 {
+    public function __construct(
+        private readonly ManagedShinyAppRegistry $shinyAppRegistry,
+        private readonly ManagedShinyLaunchService $shinyLaunches,
+    ) {}
+
     /**
      * GET /v1/studies/{study}/results
      */
     public function index(Request $request, Study $study): JsonResponse
     {
         $query = $study->results()
-            ->with(['site.source:id,source_name', 'reviewedByUser:id,name,email'])
+            ->with(['execution', 'site.source:id,source_name', 'reviewedByUser:id,name,email'])
             ->orderByDesc('created_at');
 
         if ($request->filled('result_type')) {
@@ -35,6 +44,7 @@ class StudyResultController extends Controller
         }
 
         $results = $query->paginate($request->integer('per_page', 50));
+        $results->getCollection()->transform(fn (StudyResult $result): array => $this->presentResult($result));
 
         return response()->json($results);
     }
@@ -48,9 +58,9 @@ class StudyResultController extends Controller
             return response()->json(['message' => 'Result does not belong to this study.'], 404);
         }
 
-        $result->load(['site.source:id,source_name', 'reviewedByUser:id,name,email']);
+        $result->load(['execution', 'site.source:id,source_name', 'reviewedByUser:id,name,email']);
 
-        return response()->json(['data' => $result]);
+        return response()->json(['data' => $this->presentResult($result)]);
     }
 
     /**
@@ -76,9 +86,53 @@ class StudyResultController extends Controller
 
         $result->update($validated);
 
+        $fresh = $result->fresh(['execution', 'site.source:id,source_name', 'reviewedByUser:id,name,email']);
+
         return response()->json([
-            'data' => $result->fresh(),
+            'data' => $fresh instanceof StudyResult ? $this->presentResult($fresh) : $result->fresh(),
             'message' => 'Result updated.',
         ]);
+    }
+
+    /**
+     * POST /v1/studies/{study}/results/{result}/shiny-launch
+     *
+     * Create a launch envelope for a managed OHDSI Shiny viewer from a native
+     * Parthenon result page.
+     */
+    public function launchShiny(Request $request, Study $study, StudyResult $result): JsonResponse
+    {
+        if ((int) $result->study_id !== (int) $study->id) {
+            return response()->json(['message' => 'Result does not belong to this study.'], 404);
+        }
+
+        $validated = $request->validate([
+            'app_key' => ['nullable', 'string', 'max:120'],
+            'mode' => ['nullable', 'string', Rule::in(['embedded', 'full_page'])],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        return response()->json([
+            'data' => $this->shinyLaunches->createForResult(
+                $study,
+                $result,
+                $user,
+                $validated['app_key'] ?? null,
+                $validated['mode'] ?? 'embedded',
+            ),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function presentResult(StudyResult $result): array
+    {
+        $payload = $result->toArray();
+        $payload['managed_shiny_apps'] = $this->shinyAppRegistry->appsForResult($result);
+
+        return $payload;
     }
 }

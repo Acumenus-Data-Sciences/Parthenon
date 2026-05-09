@@ -274,10 +274,23 @@ managed_shiny_create_result_database_settings <- function(definition) {
 }
 
 managed_shiny_result_database_tables <- function(database_path) {
-  con <- DBI::dbConnect(RSQLite::SQLite(), database_path)
-  on.exit(DBI::dbDisconnect(con), add = TRUE)
+  if (requireNamespace("RSQLite", quietly = TRUE) && requireNamespace("DBI", quietly = TRUE)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), database_path)
+    on.exit(DBI::dbDisconnect(con), add = TRUE)
 
-  tolower(DBI::dbListTables(con))
+    return(tolower(DBI::dbListTables(con)))
+  }
+
+  sqlite <- Sys.which("sqlite3")
+  if (!nzchar(sqlite)) {
+    stop("RSQLite or sqlite3 is required to inspect SQLite result database schemas.")
+  }
+
+  query <- "SELECT lower(name) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;"
+  output <- system2(sqlite, args = database_path, input = query, stdout = TRUE, stderr = TRUE)
+  output <- output[nzchar(output)]
+
+  tolower(output)
 }
 
 managed_shiny_variant_matches <- function(tables, variant) {
@@ -386,12 +399,20 @@ managed_shiny_prepare_official_viewer_handoff <- function(readiness, extract_roo
 
   database <- managed_shiny_extract_result_database(readiness, extract_root)
   if (!managed_shiny_nonempty_string(database$path)) {
+    conversion_message <- if (readiness$extension %in% c("rds", "rda")) {
+      "RDS/RData result bundles need a package-specific conversion step into an OHDSI SQLite result database before official Shiny module handoff."
+    } else if (readiness$extension %in% c("html", "htm", "json")) {
+      "HTML, JSON, and sharing-package bundles are detected as managed artifacts, but official OHDSI module rendering requires an extracted SQLite result database."
+    } else {
+      "The ready bundle does not expose a SQLite result database for the official OHDSI module handoff."
+    }
+
     return(managed_shiny_official_viewer_result(
       status = "incomplete",
       definition = definition,
       packages = package_status,
       extract_directory = database$extract_directory %||% "",
-      messages = c("The ready bundle does not expose a SQLite result database for the official OHDSI module handoff.")
+      messages = c(conversion_message)
     ))
   }
 

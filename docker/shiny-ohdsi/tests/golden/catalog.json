@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-05-09T18:00:00Z",
+  "databases": [
+    {
+      "loader_key": "plp_result_bundle",
+      "app_key": "plp-results",
+      "file": "plp-results.sqlite",
+      "expected_variant": "PatientLevelPrediction result database",
+      "required_nonempty_tables": ["database_meta_data", "plp_model_designs", "plp_performances"]
+    },
+    {
+      "loader_key": "population_estimation_result_bundle",
+      "app_key": "population-estimation-results",
+      "file": "cohort-method-results.sqlite",
+      "expected_variant": "CohortMethod result database",
+      "required_nonempty_tables": ["database_meta_data", "cm_analysis", "cm_result"]
+    },
+    {
+      "loader_key": "population_estimation_result_bundle",
+      "app_key": "population-estimation-results",
+      "file": "sccs-results.sqlite",
+      "expected_variant": "SelfControlledCaseSeries result database",
+      "required_nonempty_tables": ["database_meta_data", "sccs_analysis", "sccs_result"]
+    },
+    {
+      "loader_key": "population_estimation_result_bundle",
+      "app_key": "population-estimation-results",
+      "file": "evidence-synthesis-results.sqlite",
+      "expected_variant": "EvidenceSynthesis CohortMethod result database",
+      "required_nonempty_tables": ["database_meta_data", "es_analysis", "es_cm_result"]
+    },
+    {
+      "loader_key": "cohort_diagnostics_result_bundle",
+      "app_key": "cohort-diagnostics",
+      "file": "cohort-diagnostics-results.sqlite",
+      "expected_variant": "CohortDiagnostics result database",
+      "required_nonempty_tables": ["database_meta_data", "cd_cohort", "cd_cohort_count"]
+    },
+    {
+      "loader_key": "characterization_result_bundle",
+      "app_key": "characterization",
+      "file": "characterization-results.sqlite",
+      "expected_variant": "Characterization time-to-event result database",
+      "required_nonempty_tables": ["database_meta_data", "c_time_to_event_targets", "c_time_to_event"]
+    },
+    {
+      "loader_key": "characterization_result_bundle",
+      "app_key": "characterization",
+      "file": "cohort-incidence-results.sqlite",
+      "expected_variant": "CohortIncidence result database",
+      "required_nonempty_tables": ["database_meta_data", "ci_incidence_rate"]
+    },
+    {
+      "loader_key": "phevaluator_result_bundle",
+      "app_key": "phevaluator",
+      "file": "phevaluator-results.sqlite",
+      "expected_variant": "PheValuator result database",
+      "required_nonempty_tables": ["database_meta_data", "pv_algorithm_performance_results", "pv_diagnostics"]
+    },
+    {
+      "loader_key": "ohdsi_report_bundle",
+      "app_key": "ohdsi-report",
+      "file": "ohdsi-report-results.sqlite",
+      "expected_variant": "OHDSI report PLP result database",
+      "required_nonempty_tables": ["database_meta_data", "plp_model_designs", "plp_performances"]
+    },
+    {
+      "loader_key": "ohdsi_report_bundle",
+      "app_key": "ohdsi-report",
+      "file": "ohdsi-sharing-results.sqlite",
+      "expected_variant": "OHDSI report CohortMethod result database",
+      "required_nonempty_tables": ["database_meta_data", "cm_analysis", "cm_result", "sharing_manifest"]
+    }
+  ]
+}

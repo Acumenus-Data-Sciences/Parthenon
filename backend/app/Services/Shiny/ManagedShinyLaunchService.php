@@ -5,6 +5,7 @@ namespace App\Services\Shiny;
 use App\Models\App\ManagedShinyLaunch;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
+use App\Models\App\StudyResult;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -33,12 +34,35 @@ class ManagedShinyLaunchService
             ]);
         }
 
-        $apps = $this->registry->appsForArtifact($artifact);
+        return $this->createForContext($study, $this->artifactContext($artifact), $user, $appKey, $mode);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function createForResult(Study $study, StudyResult $result, User $user, ?string $appKey = null, string $mode = 'embedded'): array
+    {
+        if ((int) $result->study_id !== (int) $study->id) {
+            throw ValidationException::withMessages([
+                'result' => ['Result does not belong to this study.'],
+            ]);
+        }
+
+        return $this->createForContext($study, $this->resultContext($result), $user, $appKey, $mode);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function createForContext(Study $study, array $context, User $user, ?string $appKey = null, string $mode = 'embedded'): array
+    {
+        $apps = $this->appsForContext($context);
         $app = $appKey !== null ? $this->registry->find($appKey) : ($apps[0] ?? null);
 
-        if ($app === null || ! $this->registry->supportsArtifact($app, $artifact)) {
+        if ($app === null || ! $this->supportsContext($app, $context)) {
             throw ValidationException::withMessages([
-                'app_key' => ['No managed OHDSI Shiny app is registered for this artifact.'],
+                'app_key' => ['No managed OHDSI Shiny app is registered for this result context.'],
             ]);
         }
 
@@ -54,23 +78,24 @@ class ManagedShinyLaunchService
         $baseUrl = trim((string) config('services.shiny_proxy.base_url', ''));
         $runtime = (string) config('services.shiny_proxy.runtime', $app['runtime_preference'] ?? 'shinyproxy');
         $runtimeConfigured = $baseUrl !== '';
-        $launchPayload = $runtimeConfigured ? $this->buildLaunchPayload($study, $artifact, $user, $app, $expiresAt) : null;
-        $workspace = $launchPayload !== null ? $this->prepareWorkspace($study, $artifact, $app, $launchPayload) : null;
+        $launchPayload = $runtimeConfigured ? $this->buildLaunchPayload($study, $context, $user, $app, $expiresAt) : null;
+        $workspace = $launchPayload !== null ? $this->prepareWorkspace($study, $context, $app, $launchPayload) : null;
         $token = $launchPayload !== null ? $this->encodeToken($launchPayload) : null;
-        $launchUrl = $runtimeConfigured && $token !== null ? $this->buildLaunchUrl($baseUrl, $app, $study, $artifact, $token) : null;
+        $launchUrl = $runtimeConfigured && $token !== null ? $this->buildLaunchUrl($baseUrl, $app, $study, $context, $token) : null;
 
         if ($launchPayload !== null && $workspace !== null && $token !== null && $launchUrl !== null) {
-            $this->recordLaunchIssued($study, $artifact, $user, $app, $launchPayload, $workspace, $runtime, $mode, $token, $expiresAt);
+            $this->recordLaunchIssued($study, $context, $user, $app, $launchPayload, $workspace, $runtime, $mode, $token, $expiresAt);
         }
 
         return [
             'app' => $app,
             'artifact' => [
-                'id' => $artifact->id,
-                'title' => $artifact->title,
-                'artifact_type' => $artifact->artifact_type,
-                'version' => $artifact->version,
+                'id' => $context['id'],
+                'title' => $context['title'],
+                'artifact_type' => $context['artifact_type'],
+                'version' => $context['version'],
             ],
+            'context_type' => $context['context_type'],
             'mode' => $mode,
             'runtime' => $runtime,
             'status' => $runtimeConfigured ? 'ready' : 'runtime_unconfigured',
@@ -105,10 +130,10 @@ class ManagedShinyLaunchService
         }
 
         $study = Study::query()->find((int) ($payload['study_id'] ?? 0));
-        $artifact = StudyArtifact::query()->find((int) ($payload['artifact_id'] ?? 0));
         $app = $this->registry->find((string) ($payload['app_key'] ?? ''));
+        $context = $study instanceof Study ? $this->resolveContextFromPayload($study, $payload) : null;
 
-        if ($study === null || $artifact === null || $app === null || (int) $artifact->study_id !== (int) $study->id) {
+        if ($study === null || $context === null || $app === null) {
             $this->markLaunchFailed($payload, $token, 'context_unavailable');
 
             throw ValidationException::withMessages([
@@ -116,7 +141,7 @@ class ManagedShinyLaunchService
             ]);
         }
 
-        if (! $this->registry->supportsArtifact($app, $artifact)) {
+        if (! $this->supportsContext($app, $context)) {
             $this->markLaunchFailed($payload, $token, 'artifact_mismatch');
 
             throw ValidationException::withMessages([
@@ -125,7 +150,7 @@ class ManagedShinyLaunchService
         }
 
         try {
-            $workspace = $this->prepareWorkspace($study, $artifact, $app, $payload);
+            $workspace = $this->prepareWorkspace($study, $context, $app, $payload);
         } catch (ValidationException $exception) {
             $this->markLaunchFailed($payload, $token, 'workspace_prepare_failed');
 
@@ -146,30 +171,156 @@ class ManagedShinyLaunchService
                 'title' => $study->title,
             ],
             'artifact' => [
-                'id' => $artifact->id,
-                'artifact_type' => $artifact->artifact_type,
-                'title' => $artifact->title,
-                'description' => $artifact->description,
-                'version' => $artifact->version,
-                'mime_type' => $artifact->mime_type,
-                'metadata' => $artifact->metadata ?? [],
+                'id' => $context['id'],
+                'artifact_type' => $context['artifact_type'],
+                'title' => $context['title'],
+                'description' => $context['description'],
+                'version' => $context['version'],
+                'mime_type' => $context['mime_type'],
+                'metadata' => $context['metadata'],
             ],
+            'context_type' => $context['context_type'],
             'workspace' => $workspace,
         ];
     }
 
     /**
-     * @param  array<string, mixed>  $app
      * @return array<string, mixed>
      */
-    private function buildLaunchPayload(Study $study, StudyArtifact $artifact, User $user, array $app, Carbon $expiresAt): array
+    private function artifactContext(StudyArtifact $artifact): array
+    {
+        return [
+            'context_type' => 'artifact',
+            'id' => $artifact->id,
+            'artifact_id' => $artifact->id,
+            'result_id' => null,
+            'record' => $artifact,
+            'artifact_type' => $artifact->artifact_type,
+            'title' => $artifact->title,
+            'description' => $artifact->description,
+            'version' => $artifact->version,
+            'mime_type' => $artifact->mime_type,
+            'metadata' => is_array($artifact->metadata) ? $artifact->metadata : [],
+            'file_path' => $artifact->file_path,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resultContext(StudyResult $result): array
+    {
+        $result->loadMissing('execution');
+        $metadata = $this->registry->resultMetadata($result);
+
+        return [
+            'context_type' => 'result',
+            'id' => $result->id,
+            'artifact_id' => null,
+            'result_id' => $result->id,
+            'record' => $result,
+            'artifact_type' => 'study_result',
+            'title' => (string) ($metadata['title'] ?? $metadata['name'] ?? "Study result #{$result->id}"),
+            'description' => (string) ($metadata['description'] ?? "Managed OHDSI viewer launch for {$result->result_type} result #{$result->id}."),
+            'version' => (string) ($metadata['version'] ?? "result-{$result->id}"),
+            'mime_type' => (string) ($metadata['mime_type'] ?? $this->mimeTypeForPath($this->registry->resultBundleFilePath($result))),
+            'metadata' => $metadata,
+            'file_path' => $this->registry->resultBundleFilePath($result),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return list<array<string, mixed>>
+     */
+    private function appsForContext(array $context): array
+    {
+        $record = $context['record'] ?? null;
+
+        if ($record instanceof StudyArtifact) {
+            return $this->registry->appsForArtifact($record);
+        }
+
+        if ($record instanceof StudyResult) {
+            return $this->registry->appsForResult($record);
+        }
+
+        return [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $context
+     */
+    private function supportsContext(array $app, array $context): bool
+    {
+        $record = $context['record'] ?? null;
+
+        if ($record instanceof StudyArtifact) {
+            return $this->registry->supportsArtifact($app, $record);
+        }
+
+        if ($record instanceof StudyResult) {
+            return $this->registry->supportsResult($app, $record);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>|null
+     */
+    private function resolveContextFromPayload(Study $study, array $payload): ?array
+    {
+        $contextType = (string) ($payload['context_type'] ?? 'artifact');
+
+        if ($contextType === 'result') {
+            $result = StudyResult::query()
+                ->with('execution')
+                ->find((int) ($payload['result_id'] ?? 0));
+
+            if (! $result instanceof StudyResult || (int) $result->study_id !== (int) $study->id) {
+                return null;
+            }
+
+            return $this->resultContext($result);
+        }
+
+        $artifact = StudyArtifact::query()->find((int) ($payload['artifact_id'] ?? 0));
+        if (! $artifact instanceof StudyArtifact || (int) $artifact->study_id !== (int) $study->id) {
+            return null;
+        }
+
+        return $this->artifactContext($artifact);
+    }
+
+    private function mimeTypeForPath(?string $path): string
+    {
+        return match (strtolower(pathinfo((string) $path, PATHINFO_EXTENSION))) {
+            'zip' => 'application/zip',
+            'sqlite', 'sqlite3', 'db' => 'application/vnd.sqlite3',
+            'json' => 'application/json',
+            'html', 'htm' => 'text/html',
+            default => 'application/octet-stream',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function buildLaunchPayload(Study $study, array $context, User $user, array $app, Carbon $expiresAt): array
     {
         return [
             'iss' => 'parthenon',
             'sub' => $user->id,
             'study_id' => $study->id,
             'study_slug' => $study->slug,
-            'artifact_id' => $artifact->id,
+            'context_type' => $context['context_type'],
+            'artifact_id' => $context['artifact_id'],
+            'result_id' => $context['result_id'],
             'app_key' => $app['key'],
             'workspace_id' => (string) Str::uuid(),
             'exp' => $expiresAt->timestamp,
@@ -239,9 +390,10 @@ class ManagedShinyLaunchService
     /**
      * @param  array<string, mixed>  $app
      * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $context
      * @return array<string, mixed>
      */
-    private function prepareWorkspace(Study $study, StudyArtifact $artifact, array $app, array $payload): array
+    private function prepareWorkspace(Study $study, array $context, array $app, array $payload): array
     {
         $workspaceId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($payload['workspace_id'] ?? ''));
 
@@ -266,35 +418,36 @@ class ManagedShinyLaunchService
         @chmod($workspacePath, 0755);
         @chmod($artifactDirectory, 0755);
 
-        $artifactFile = $this->materializeArtifactFile($artifact, $artifactDirectory);
-        $manifest = $this->buildManifest($study, $artifact, $app, $payload, $workspaceId, $containerRoot, $artifactFile);
-        $context = [
+        $artifactFile = $this->materializeContextFile($context, $artifactDirectory);
+        $manifest = $this->buildManifest($study, $context, $app, $payload, $workspaceId, $containerRoot, $artifactFile);
+        $contextPayload = [
             'launch' => [
                 'workspace_id' => $workspaceId,
                 'expires_at' => Carbon::createFromTimestamp((int) $payload['exp'])->toIso8601String(),
                 'manifest_path' => "{$containerRoot}/launches/{$workspaceId}/managed-shiny-manifest.json",
             ],
             'app' => $app,
+            'context_type' => $context['context_type'],
             'study' => [
                 'id' => $study->id,
                 'slug' => $study->slug,
                 'title' => $study->title,
             ],
             'artifact' => [
-                'id' => $artifact->id,
-                'artifact_type' => $artifact->artifact_type,
-                'title' => $artifact->title,
-                'description' => $artifact->description,
-                'version' => $artifact->version,
-                'mime_type' => $artifact->mime_type,
-                'metadata' => $artifact->metadata ?? [],
+                'id' => $context['id'],
+                'artifact_type' => $context['artifact_type'],
+                'title' => $context['title'],
+                'description' => $context['description'],
+                'version' => $context['version'],
+                'mime_type' => $context['mime_type'],
+                'metadata' => $context['metadata'],
                 'materialized_file' => $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null,
             ],
         ];
 
         $contextPath = "{$workspacePath}/context.json";
         $manifestPath = "{$workspacePath}/managed-shiny-manifest.json";
-        $this->writeJsonFile($contextPath, $context);
+        $this->writeJsonFile($contextPath, $contextPayload);
         $this->writeJsonFile($manifestPath, $manifest);
 
         return [
@@ -309,25 +462,26 @@ class ManagedShinyLaunchService
     /**
      * @param  array<string, mixed>  $app
      * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $context
      * @return array<string, mixed>
      */
     private function buildManifest(
         Study $study,
-        StudyArtifact $artifact,
+        array $context,
         array $app,
         array $payload,
         string $workspaceId,
         string $containerRoot,
         ?string $artifactFile,
     ): array {
-        $metadata = is_array($artifact->metadata) ? $artifact->metadata : [];
-        $detectedResultTypes = $this->registry->resultTypesForArtifact($artifact);
+        $metadata = is_array($context['metadata'] ?? null) ? $context['metadata'] : [];
+        $detectedResultTypes = $this->resultTypesForContext($context);
         $artifactContainerPath = $artifactFile !== null ? "{$containerRoot}/launches/{$workspaceId}/artifact/{$artifactFile}" : null;
         $sizeBytes = null;
 
-        if ($artifact->file_path !== null && Storage::disk('local')->exists($artifact->file_path)) {
+        if (is_string($context['file_path'] ?? null) && Storage::disk('local')->exists($context['file_path'])) {
             try {
-                $sizeBytes = Storage::disk('local')->size($artifact->file_path);
+                $sizeBytes = Storage::disk('local')->size($context['file_path']);
             } catch (\Throwable) {
                 $sizeBytes = null;
             }
@@ -355,13 +509,19 @@ class ManagedShinyLaunchService
                 'slug' => $study->slug,
                 'title' => $study->title,
             ],
+            'source' => [
+                'type' => $context['context_type'],
+                'id' => $context['id'],
+                'study_artifact_id' => $context['artifact_id'],
+                'study_result_id' => $context['result_id'],
+            ],
             'artifact' => [
-                'id' => $artifact->id,
-                'artifact_type' => $artifact->artifact_type,
-                'title' => $artifact->title,
-                'description' => $artifact->description,
-                'version' => $artifact->version,
-                'mime_type' => $artifact->mime_type,
+                'id' => $context['id'],
+                'artifact_type' => $context['artifact_type'],
+                'title' => $context['title'],
+                'description' => $context['description'],
+                'version' => $context['version'],
+                'mime_type' => $context['mime_type'],
                 'detected_result_types' => $detectedResultTypes,
                 'metadata_hints' => $this->manifestMetadataHints($metadata),
                 'materialized_file' => [
@@ -408,6 +568,25 @@ class ManagedShinyLaunchService
     }
 
     /**
+     * @param  array<string, mixed>  $context
+     * @return list<string>
+     */
+    private function resultTypesForContext(array $context): array
+    {
+        $record = $context['record'] ?? null;
+
+        if ($record instanceof StudyArtifact) {
+            return $this->registry->resultTypesForArtifact($record);
+        }
+
+        if ($record instanceof StudyResult) {
+            return $this->registry->resultTypesForResult($record);
+        }
+
+        return [];
+    }
+
+    /**
      * @param  array<string, mixed>  $app
      */
     private function loaderKeyForApp(array $app): string
@@ -436,14 +615,19 @@ class ManagedShinyLaunchService
         ], static fn (mixed $package): bool => is_string($package) && trim($package) !== '')));
     }
 
-    private function materializeArtifactFile(StudyArtifact $artifact, string $artifactDirectory): ?string
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function materializeContextFile(array $context, string $artifactDirectory): ?string
     {
-        if ($artifact->file_path === null || ! Storage::disk('local')->exists($artifact->file_path)) {
+        $filePath = $context['file_path'] ?? null;
+
+        if (! is_string($filePath) || trim($filePath) === '' || ! Storage::disk('local')->exists($filePath)) {
             return null;
         }
 
-        $extension = pathinfo($artifact->file_path, PATHINFO_EXTENSION);
-        $filename = Str::slug($artifact->title) ?: 'artifact';
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $filename = Str::slug((string) ($context['title'] ?? '')) ?: 'artifact';
         $filename .= $extension !== '' ? ".{$extension}" : '.bin';
         $target = "{$artifactDirectory}/{$filename}";
 
@@ -451,7 +635,7 @@ class ManagedShinyLaunchService
             return $filename;
         }
 
-        $stream = Storage::disk('local')->readStream($artifact->file_path);
+        $stream = Storage::disk('local')->readStream($filePath);
 
         if ($stream === false) {
             return null;
@@ -506,15 +690,23 @@ class ManagedShinyLaunchService
 
     /**
      * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $context
      */
-    private function buildLaunchUrl(string $baseUrl, array $app, Study $study, StudyArtifact $artifact, string $token): string
+    private function buildLaunchUrl(string $baseUrl, array $app, Study $study, array $context, string $token): string
     {
         $runtimeApp = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($app['runtime_app'] ?? $app['key']));
-        $query = http_build_query([
+        $queryPayload = [
             'parthenon_launch' => $token,
             'study' => $study->slug,
-            'artifact' => $artifact->id,
-        ]);
+        ];
+
+        if (($context['context_type'] ?? null) === 'result') {
+            $queryPayload['result'] = $context['id'];
+        } else {
+            $queryPayload['artifact'] = $context['id'];
+        }
+
+        $query = http_build_query($queryPayload);
 
         return rtrim($baseUrl, '/').'/app/'.$runtimeApp.'?'.$query;
     }
@@ -523,10 +715,11 @@ class ManagedShinyLaunchService
      * @param  array<string, mixed>  $app
      * @param  array<string, mixed>  $payload
      * @param  array<string, mixed>  $workspace
+     * @param  array<string, mixed>  $context
      */
     private function recordLaunchIssued(
         Study $study,
-        StudyArtifact $artifact,
+        array $context,
         User $user,
         array $app,
         array $payload,
@@ -540,9 +733,9 @@ class ManagedShinyLaunchService
             'workspace_id' => (string) $payload['workspace_id'],
             'user_id' => $user->id,
             'study_id' => $study->id,
-            'study_artifact_id' => $artifact->id,
+            'study_artifact_id' => $context['artifact_id'],
             'study_slug' => $study->slug,
-            'artifact_type' => $artifact->artifact_type,
+            'artifact_type' => $context['artifact_type'],
             'app_key' => (string) $app['key'],
             'runtime' => $runtime,
             'mode' => $mode,
@@ -550,8 +743,10 @@ class ManagedShinyLaunchService
             'token_hash' => hash('sha256', $token),
             'expires_at' => $expiresAt,
             'metadata' => [
+                'context_type' => $context['context_type'],
+                'study_result_id' => $context['result_id'],
                 'app_label' => $app['label'] ?? null,
-                'artifact_title' => $artifact->title,
+                'artifact_title' => $context['title'],
                 'container_path' => $workspace['container_path'] ?? null,
                 'context_path' => $workspace['context_path'] ?? null,
             ],

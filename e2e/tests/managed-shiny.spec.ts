@@ -48,6 +48,58 @@ test.describe("managed OHDSI Shiny runtime", () => {
     }
   });
 
+  test("launches a golden SQLite result database into the official module handoff", async ({ page, request }) => {
+    test.skip(
+      !process.env.PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH,
+      "Set PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH to a backend storage-disk relative SQLite result database path.",
+    );
+
+    let studySlug: string | null = null;
+
+    try {
+      const study = await createSmokeStudy(request);
+      studySlug = study.slug;
+      const artifact = await createGoldenPlpArtifact(request, study.slug, process.env.PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH!);
+      const launch = await createManagedLaunch(request, study.slug, artifact.id, "plp-results");
+
+      expect(launch.status).toBe("ready");
+      expect(launch.launch_url).toBeTruthy();
+
+      await page.goto(resolveUrl(launch.launch_url), {
+        waitUntil: "load",
+        timeout: 120_000,
+      });
+
+      const iframeText = await waitForFrameText(page, (text) => {
+        const normalized = text.toLowerCase();
+
+        return normalized.includes("official ohdsi module") &&
+          normalized.includes("schema variant") &&
+          normalized.includes("patientlevelprediction result database");
+      });
+
+      expect(iframeText).toContain("Official OHDSI Module");
+    } finally {
+      if (studySlug) {
+        await deleteStudy(request, studySlug);
+      }
+    }
+  });
+
+  test("discovers managed viewer actions on native result pages", async ({ page }) => {
+    test.skip(
+      process.env.PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY !== "1",
+      "Set PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY=1 when the target environment has launchable study results.",
+    );
+
+    await page.goto(resolveUrl("/studies"), {
+      waitUntil: "load",
+      timeout: 120_000,
+    });
+
+    await expect(page.getByText(/PatientLevelPrediction Results|Cohort Diagnostics Explorer|OHDSI Report Viewer/)).toBeVisible({ timeout: 120_000 });
+  });
+
   test("blocks direct Shiny app access without a Parthenon launch token", async ({ page }) => {
     await page.goto(resolveUrl("/shiny/app/plp-results"), {
       waitUntil: "load",
@@ -138,16 +190,44 @@ async function createOhdsiReportArtifact(
   return unwrap(envelope, "create study artifact");
 }
 
+async function createGoldenPlpArtifact(
+  request: APIRequestContext,
+  studySlug: string,
+  filePath: string,
+): Promise<StudyArtifactRecord> {
+  const envelope = await postJson<StudyArtifactRecord>(
+    request,
+    `/api/v1/studies/${studySlug}/artifacts`,
+    {
+      artifact_type: "results_report",
+      title: "Golden PLP SQLite Results",
+      description: "Temporary E2E artifact backed by a golden PatientLevelPrediction SQLite result database.",
+      version: "1.0",
+      file_path: filePath,
+      mime_type: "application/vnd.sqlite3",
+      metadata: {
+        result_type: "PatientLevelPrediction",
+        managed_shiny_app: "plp-results",
+      },
+      is_current: true,
+    },
+    201,
+  );
+
+  return unwrap(envelope, "create golden PLP study artifact");
+}
+
 async function createManagedLaunch(
   request: APIRequestContext,
   studySlug: string,
   artifactId: number,
+  appKey = "ohdsi-report",
 ): Promise<ManagedShinyLaunch> {
   const envelope = await postJson<ManagedShinyLaunch>(
     request,
     `/api/v1/studies/${studySlug}/artifacts/${artifactId}/shiny-launch`,
     {
-      app_key: "ohdsi-report",
+      app_key: appKey,
       mode: "embedded",
     },
   );

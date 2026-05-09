@@ -33,6 +33,7 @@ class ManagedShinyLaunchMetrics
                 ->where('status', 'resolved')
                 ->where('expires_at', '>', $now)
                 ->count(),
+            'active_session_details' => $this->activeSessionDetails($now),
             'pending_launches' => ManagedShinyLaunch::query()
                 ->where('status', 'issued')
                 ->where('expires_at', '>', $now)
@@ -72,6 +73,35 @@ class ManagedShinyLaunchMetrics
             ->whereNotNull($column)
             ->where($column, '>=', $since)
             ->count();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function activeSessionDetails(Carbon $now): array
+    {
+        return ManagedShinyLaunch::query()
+            ->with(['user:id,name,email', 'study:id,title,slug'])
+            ->where('status', 'resolved')
+            ->where('expires_at', '>', $now)
+            ->latest('resolved_at')
+            ->limit(10)
+            ->get()
+            ->map(static fn (ManagedShinyLaunch $launch): array => [
+                'workspace_id' => $launch->workspace_id,
+                'app_key' => $launch->app_key,
+                'runtime' => $launch->runtime,
+                'mode' => $launch->mode,
+                'study_slug' => $launch->study?->slug ?? $launch->study_slug,
+                'study_title' => $launch->study?->title,
+                'user' => $launch->user?->only(['id', 'name', 'email']),
+                'resolved_at' => $launch->resolved_at?->toIso8601String(),
+                'expires_at' => $launch->expires_at?->toIso8601String(),
+                'context_type' => $launch->metadata['context_type'] ?? 'artifact',
+                'study_result_id' => $launch->metadata['study_result_id'] ?? null,
+                'study_artifact_id' => $launch->study_artifact_id,
+            ])
+            ->all();
     }
 
     private function averageResolutionSeconds(): ?float

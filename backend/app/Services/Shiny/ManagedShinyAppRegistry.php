@@ -3,6 +3,8 @@
 namespace App\Services\Shiny;
 
 use App\Models\App\StudyArtifact;
+use App\Models\App\StudyResult;
+use Illuminate\Support\Facades\Storage;
 
 class ManagedShinyAppRegistry
 {
@@ -148,6 +150,89 @@ class ManagedShinyAppRegistry
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function appsForResult(StudyResult $result): array
+    {
+        if (trim((string) config('services.shiny_proxy.base_url', '')) === '') {
+            return [];
+        }
+
+        if ($this->resultBundleFilePath($result) === null) {
+            return [];
+        }
+
+        $metadata = $this->resultMetadata($result);
+        $explicitKeys = $this->stringsFromMetadata($metadata, ['managed_shiny_app', 'managed_shiny_apps', 'shiny_app_key']);
+        $resultTypes = $this->resultTypesForResult($result);
+
+        $apps = array_filter($this->all(), function (array $app) use ($explicitKeys, $resultTypes): bool {
+            if ($explicitKeys !== []) {
+                return in_array((string) ($app['key'] ?? ''), $explicitKeys, true);
+            }
+
+            return $this->supportsResultTypes($app, $resultTypes);
+        });
+
+        return array_values($apps);
+    }
+
+    public function supportsResult(array $app, StudyResult $result): bool
+    {
+        return in_array((string) ($app['key'] ?? ''), array_column($this->appsForResult($result), 'key'), true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resultTypesForResult(StudyResult $result): array
+    {
+        $metadata = $this->resultMetadata($result);
+        $values = $this->stringsFromMetadata($metadata, [
+            'result_type',
+            'result_types',
+            'ohdsi_result_type',
+            'hades_result_type',
+            'hades_package',
+            'analysis_package',
+            'package',
+        ]);
+
+        $values[] = $this->canonicalResultType((string) $result->result_type);
+
+        return array_values(array_unique(array_filter($values)));
+    }
+
+    public function resultBundleFilePath(StudyResult $result): ?string
+    {
+        $result->loadMissing('execution');
+
+        $metadata = $this->resultMetadata($result);
+        $paths = $this->stringsFromMetadata($metadata, [
+            'result_file_path',
+            'result_bundle_path',
+            'bundle_file_path',
+            'managed_shiny_file_path',
+            'managed_shiny_bundle_path',
+            'artifact_file_path',
+            'file_path',
+        ]);
+
+        $executionPath = $result->execution?->result_file_path;
+        if (is_string($executionPath) && trim($executionPath) !== '') {
+            array_unshift($paths, trim($executionPath));
+        }
+
+        foreach ($paths as $path) {
+            if (Storage::disk('local')->exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return list<string>
      */
     public function resultTypesForArtifact(StudyArtifact $artifact): array
@@ -155,6 +240,30 @@ class ManagedShinyAppRegistry
         $metadata = is_array($artifact->metadata) ? $artifact->metadata : [];
 
         return $this->artifactResultTypes($artifact, $metadata);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resultMetadata(StudyResult $result): array
+    {
+        $summary = is_array($result->summary_data) ? $result->summary_data : [];
+        $diagnostics = is_array($result->diagnostics) ? $result->diagnostics : [];
+
+        $managed = [];
+        foreach ([$summary['managed_shiny'] ?? null, $diagnostics['managed_shiny'] ?? null] as $value) {
+            if (is_array($value)) {
+                $managed = [...$managed, ...$value];
+            }
+        }
+
+        return [
+            ...$summary,
+            ...$diagnostics,
+            ...$managed,
+            'result_type' => $this->canonicalResultType((string) $result->result_type),
+            'native_result_type' => $result->result_type,
+        ];
     }
 
     /**
@@ -217,6 +326,25 @@ class ManagedShinyAppRegistry
         }
 
         return array_values(array_unique(array_filter($values)));
+    }
+
+    private function canonicalResultType(string $resultType): string
+    {
+        $normalized = strtolower(trim(str_replace(['-', ' '], '_', $resultType)));
+
+        return match ($normalized) {
+            'prediction', 'prediction_performance', 'patient_level_prediction', 'patientlevelprediction', 'plp' => 'PatientLevelPrediction',
+            'effect_estimate', 'estimation', 'population_estimation', 'cohort_method', 'cohortmethod' => 'CohortMethod',
+            'sccs', 'self_controlled_case_series', 'selfcontrolledcaseseries' => 'SelfControlledCaseSeries',
+            'evidence_synthesis', 'evidencesynthesis', 'meta_analysis', 'network_meta_analysis' => 'EvidenceSynthesis',
+            'cohort_diagnostics', 'cohortdiagnostics', 'diagnostic', 'diagnostics' => 'CohortDiagnostics',
+            'characterization', 'baseline_characterization' => 'Characterization',
+            'incidence_rate', 'cohort_incidence', 'cohortincidence' => 'CohortIncidence',
+            'phevaluator', 'phenotype_validation', 'phenotype_evaluation' => 'PheValuator',
+            'ohdsi_report', 'report', 'results_report', 'ohdsireportgenerator' => 'OhdsiReportGenerator',
+            'ohdsi_sharing', 'sharing', 'sharing_bundle', 'ohdsisharing' => 'OhdsiSharing',
+            default => $resultType,
+        };
     }
 
     /**

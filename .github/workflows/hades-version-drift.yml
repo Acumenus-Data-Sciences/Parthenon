@@ -1,0 +1,64 @@
+name: HADES Version Drift
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 10 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-hades-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Refresh latest HADES target metadata
+        run: |
+          scripts/hades/check_hades_versions.py \
+            --mode latest \
+            --write-targets \
+            --report output/hades/latest-target-drift.md \
+            --json output/hades/latest-target-drift.json \
+            --no-fail
+
+      - name: Validate stable HADES release lock parity
+        run: |
+          scripts/hades/check_hades_versions.py \
+            --mode lock \
+            --report output/hades/stable-release-lock-parity.md \
+            --json output/hades/stable-release-lock-parity.json \
+            --no-fail
+
+      - name: Upload HADES drift reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: hades-version-drift
+          path: output/hades/
+
+      - name: Open drift pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: automation/hades-version-drift
+          commit-message: "chore(hades): refresh target package versions"
+          title: "chore(hades): refresh target package versions"
+          body: |
+            Automated HADES package drift check.
+
+            Reports are attached to the workflow run:
+            - latest target drift
+            - stable HADES release lock parity
+
+            The latest-target mode may update Parthenon's tracked target versions.
+            The stable-lock mode is reported separately and does not rewrite latest targets.
+          labels: |
+            automation
+            hades
+            dependencies

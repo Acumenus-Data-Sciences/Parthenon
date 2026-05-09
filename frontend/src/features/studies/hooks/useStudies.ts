@@ -43,6 +43,7 @@ import {
   updateStudyArtifact,
   deleteStudyArtifact,
   launchStudyArtifactShinyApp,
+  launchStudyResultShinyApp,
   listStudyActivity,
   listStudyResults,
   updateStudyResult,
@@ -963,6 +964,20 @@ export function useLaunchStudyArtifactShinyApp() {
       artifactId: number;
       payload: { app_key?: string; mode?: "embedded" | "full_page" };
     }) => launchStudyArtifactShinyApp(slug, artifactId, payload),
+  });
+}
+
+export function useLaunchStudyResultShinyApp() {
+  return useMutation({
+    mutationFn: ({
+      slug,
+      resultId,
+      payload,
+    }: {
+      slug: string;
+      resultId: number;
+      payload: { app_key?: string; mode?: "embedded" | "full_page" };
+    }) => launchStudyResultShinyApp(slug, resultId, payload),
   });
 }
 

@@ -57,6 +57,8 @@ it('summarizes managed Shiny launch and resolver metrics', function () {
         ->and($snapshot['resolved_last_24h'])->toBe(1)
         ->and($snapshot['failed_last_24h'])->toBe(1)
         ->and($snapshot['active_sessions'])->toBe(1)
+        ->and($snapshot['active_session_details'])->toHaveCount(1)
+        ->and($snapshot['active_session_details'][0]['app_key'])->toBe('ohdsi-report')
         ->and($snapshot['pending_launches'])->toBe(1)
         ->and($snapshot['expired_unresolved'])->toBe(1)
         ->and($snapshot['average_resolution_seconds'])->toBe(900.0)
