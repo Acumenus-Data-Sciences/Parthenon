@@ -121,6 +121,10 @@ Todo:
   handoff when runtime packages are present.
 - [x] Add SQLite schema guards for required metadata tables and registered
   result-family table prefixes.
+- [x] Add variant-based SQLite guards with concrete OHDSI result table aliases
+  for all official managed loader families.
+- [x] Add positive and negative SQLite fixture coverage for every official
+  managed loader family.
 - [ ] PLP loader for PatientLevelPrediction result bundles.
 - [ ] Population estimation loader for CohortMethod results.
 - [ ] Population estimation loader for SelfControlledCaseSeries results.
@@ -379,16 +383,11 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
 
 ### P2-C: SQLite Schema Guards
 
-- [x] Require `RSQLite` and `DBI` for official SQLite handoff readiness.
+- [x] Require `RSQLite`, `DBI`, and `OhdsiReportGenerator` for official SQLite
+  handoff readiness.
 - [x] Inspect candidate SQLite result databases before constructing official
   module connection details.
 - [x] Require `database_meta_data` for official module handoff.
-- [x] Require at least one registered result-family table prefix:
-  - PLP: `plp_`
-  - population estimation: `cm_`, `sccs_`, or `es_`
-  - CohortDiagnostics: `cd_`
-  - characterization/incidence: `c_` or `ci_`
-  - PheValuator: `pv_`
 - [x] Render schema table counts in the managed Shiny app handoff panel.
 - [x] Extend handoff tests to create real SQLite fixtures on host and container
   runtimes.
@@ -397,6 +396,38 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
 Run commands:
 
 ```bash
+Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+```
+
+### P2-D: Package-Specific SQLite Fixtures and Deep Schema Guards
+
+- [x] Replace prefix-only guards with named schema variants.
+- [x] Validate PLP databases through concrete `plp_model_designs` plus
+  `plp_performances` or diagnostics tables.
+- [x] Validate population estimation databases through concrete CohortMethod,
+  SCCS, or EvidenceSynthesis result-table pairs.
+- [x] Validate CohortDiagnostics databases through `cd_cohort` and
+  `cd_cohort_count`.
+- [x] Validate characterization and incidence databases through concrete
+  `c_...` or `ci_...` result-table pairs.
+- [x] Validate PheValuator databases through concrete `pv_...` result-table
+  pairs used by `OhdsiShinyModules`.
+- [x] Validate OHDSI report SQLite databases only when they match a known OHDSI
+  result-family schema variant.
+- [x] Render the matched schema variant in the managed Shiny app.
+- [x] Expand R handoff fixtures to cover PLP, population estimation,
+  CohortDiagnostics, characterization/incidence, PheValuator, and OHDSI report
+  positive cases.
+- [x] Add negative fixture coverage for incomplete schema variants across all
+  official managed loader families.
+
+Run commands:
+
+```bash
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); invisible(parse(file="docker/shiny-ohdsi/handoffs.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
+Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
 Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 ```
@@ -426,5 +457,6 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
   - `P2-A Loader Registry and Bundle Readiness`
   - `P2-B Official SQLite Result Database Handoff`
   - `P2-C SQLite Schema Guards`
-- Next implementation slice: `P2-D Complete Package-Specific Fixture
-  Artifacts and Deep Schema Guards`.
+  - `P2-D Package-Specific SQLite Fixtures and Deep Schema Guards`
+- Next implementation slice: `P2-E Golden Package Result Databases and Browser
+  Smoke`.

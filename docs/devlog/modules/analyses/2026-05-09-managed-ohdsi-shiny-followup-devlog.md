@@ -389,21 +389,51 @@ constructs connection details for an OHDSI module. This prevents an empty,
 wrong-family, or non-result database from being handed to a module that would
 then fail deeper in its server lifecycle.
 
-The guard checks are intentionally coarse but family-specific:
+The first guard checks were intentionally coarse but family-specific:
+`database_meta_data` plus a registered result-family prefix. The next slice
+deepens those checks into concrete named schema variants.
 
-- all official SQLite handoffs require `database_meta_data`;
-- PLP handoffs require at least one `plp_` table;
-- population-estimation handoffs require at least one `cm_`, `sccs_`, or `es_`
-  table;
-- CohortDiagnostics handoffs require at least one `cd_` table;
-- characterization handoffs require at least one `c_` or `ci_` table;
-- PheValuator handoffs require at least one `pv_` table.
+`RSQLite`, `DBI`, and `OhdsiReportGenerator` are now included in the official
+handoff package gate. The managed app also shows the validated schema table
+count in the official module handoff panel.
 
-`RSQLite` and `DBI` are now included in the official handoff package gate. The
-managed app also shows the validated schema table count in the official module
-handoff panel. The handoff test creates real SQLite fixture databases on both
-host and container runtimes, and includes negative coverage for a PLP handoff
-that has `database_meta_data` but no `plp_` result table.
+### 10. Package-Specific SQLite Fixtures and Deep Schema Guards
+
+Updated:
+
+- `docker/shiny-ohdsi/handoffs.R`
+- `docker/shiny-ohdsi/app.R`
+- `docker/shiny-ohdsi/tests/handoff_registry_test.R`
+- `docs/superpowers/plans/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
+
+The schema guard now validates named result-family variants instead of only
+checking table prefixes. This is grounded in the installed runtime assets:
+
+- `PatientLevelPrediction/settings/resultsDataModelSpecification.csv`;
+- `CohortMethod/csv/resultsDataModelSpecification.csv`;
+- `SelfControlledCaseSeries/csv/resultsDataModelSpecification.csv`;
+- `CohortDiagnostics/settings/resultsDataModelSpecification.csv`;
+- PheValuator table names queried directly by `OhdsiShinyModules`.
+
+Current accepted SQLite variants include:
+
+- PLP: `plp_model_designs` plus `plp_performances`, or PLP diagnostics;
+- population estimation: CohortMethod `cm_analysis` plus `cm_result`, SCCS
+  `sccs_analysis` plus `sccs_result`, or EvidenceSynthesis `es_analysis` plus
+  `es_cm_result` / `es_sccs_result`;
+- CohortDiagnostics: `cd_cohort` plus `cd_cohort_count`;
+- characterization/incidence: `c_time_to_event_targets` plus `c_time_to_event`,
+  `c_covariate_ref` plus `c_covariate_value`, or `ci_incidence_rate`;
+- PheValuator: `pv_algorithm_performance_results` plus `pv_diagnostics`, or
+  `pv_model_performance` plus `pv_model_input_parameters`;
+- OHDSI report: any recognized managed OHDSI result-family database variant.
+
+The managed app now displays the matched schema variant next to the schema
+table count. The handoff test creates real SQLite zip fixtures for all six
+official loader families and verifies both positive cases and incomplete
+schema variants. Host tests still cover the safe blocked path when the full R
+runtime is not installed, while the Shiny OHDSI container test exercises the
+package-present path for every official loader family.
 
 ## Implementation Notes
 
@@ -462,6 +492,7 @@ Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
 Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); invisible(parse(file="docker/shiny-ohdsi/handoffs.R")); cat("R parse ok\n")'
 Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest sh -lc 'Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R && Rscript docker/shiny-ohdsi/tests/loader_registry_test.R && Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R'
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 ```
 
 Results:
@@ -476,8 +507,8 @@ Results:
   which exercises the package-present path for `OhdsiShinyModules`,
   `OhdsiShinyAppBuilder`, `DatabaseConnector`, `ResultModelManager`, `RSQLite`,
   and `DBI`.
-- SQLite schema guards passed for positive PLP fixtures and negative missing
-  result-table fixtures.
+- SQLite schema guards passed for positive and negative fixture variants across
+  all six official managed loader families.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 

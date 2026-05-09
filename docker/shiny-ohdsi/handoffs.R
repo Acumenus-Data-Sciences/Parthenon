@@ -7,7 +7,16 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultPredictionConfig",
       result_settings = list(plpTablePrefix = "plp_"),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = c("plp_")
+      schema_variants = list(
+        list(
+          name = "PatientLevelPrediction result database",
+          all_of = c("plp_model_designs", "plp_performances")
+        ),
+        list(
+          name = "PatientLevelPrediction diagnostics database",
+          all_of = c("plp_model_designs", "plp_diagnostics")
+        )
+      )
     ),
     population_estimation_result_bundle = list(
       module_id = "estimation",
@@ -16,7 +25,24 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultEstimationConfig",
       result_settings = list(cmTablePrefix = "cm_", sccsTablePrefix = "sccs_", esTablePrefix = "es_"),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = c("cm_", "sccs_", "es_")
+      schema_variants = list(
+        list(
+          name = "CohortMethod result database",
+          all_of = c("cm_analysis", "cm_result")
+        ),
+        list(
+          name = "SelfControlledCaseSeries result database",
+          all_of = c("sccs_analysis", "sccs_result")
+        ),
+        list(
+          name = "EvidenceSynthesis CohortMethod result database",
+          all_of = c("es_analysis", "es_cm_result")
+        ),
+        list(
+          name = "EvidenceSynthesis SCCS result database",
+          all_of = c("es_analysis", "es_sccs_result")
+        )
+      )
     ),
     cohort_diagnostics_result_bundle = list(
       module_id = "cohortDiagnostics",
@@ -25,7 +51,12 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultCohortDiagnosticsConfig",
       result_settings = list(cdTablePrefix = "cd_"),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = c("cd_")
+      schema_variants = list(
+        list(
+          name = "CohortDiagnostics result database",
+          all_of = c("cd_cohort", "cd_cohort_count")
+        )
+      )
     ),
     characterization_result_bundle = list(
       module_id = "characterization",
@@ -34,7 +65,20 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultCharacterizationConfig",
       result_settings = list(cTablePrefix = "c_", incidenceTablePrefix = "ci_"),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = c("c_", "ci_")
+      schema_variants = list(
+        list(
+          name = "Characterization time-to-event result database",
+          all_of = c("c_time_to_event_targets", "c_time_to_event")
+        ),
+        list(
+          name = "Characterization feature result database",
+          all_of = c("c_covariate_ref", "c_covariate_value")
+        ),
+        list(
+          name = "CohortIncidence result database",
+          all_of = c("ci_incidence_rate")
+        )
+      )
     ),
     phevaluator_result_bundle = list(
       module_id = "phevaluator",
@@ -43,7 +87,16 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultPhevaluatorConfig",
       result_settings = list(pvTablePrefix = "pv_"),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = c("pv_")
+      schema_variants = list(
+        list(
+          name = "PheValuator result database",
+          all_of = c("pv_algorithm_performance_results", "pv_diagnostics")
+        ),
+        list(
+          name = "PheValuator model result database",
+          all_of = c("pv_model_performance", "pv_model_input_parameters")
+        )
+      )
     ),
     ohdsi_report_bundle = list(
       module_id = "report",
@@ -52,7 +105,28 @@ managed_shiny_official_viewer_registry <- function() {
       config_function = "createDefaultReportConfig",
       result_settings = list(),
       required_tables = c("database_meta_data"),
-      required_any_prefixes = character()
+      schema_variants = list(
+        list(
+          name = "OHDSI report PLP result database",
+          all_of = c("plp_model_designs", "plp_performances")
+        ),
+        list(
+          name = "OHDSI report CohortMethod result database",
+          all_of = c("cm_analysis", "cm_result")
+        ),
+        list(
+          name = "OHDSI report CohortDiagnostics result database",
+          all_of = c("cd_cohort", "cd_cohort_count")
+        ),
+        list(
+          name = "OHDSI report Characterization result database",
+          all_of = c("c_time_to_event_targets", "c_time_to_event")
+        ),
+        list(
+          name = "OHDSI report PheValuator result database",
+          all_of = c("pv_algorithm_performance_results", "pv_diagnostics")
+        )
+      )
     )
   )
 }
@@ -70,6 +144,7 @@ managed_shiny_official_viewer_packages <- function() {
   c(
     "OhdsiShinyModules",
     "OhdsiShinyAppBuilder",
+    "OhdsiReportGenerator",
     "DatabaseConnector",
     "ResultModelManager",
     "RSQLite",
@@ -205,6 +280,15 @@ managed_shiny_result_database_tables <- function(database_path) {
   tolower(DBI::dbListTables(con))
 }
 
+managed_shiny_variant_matches <- function(tables, variant) {
+  required <- tolower(variant$all_of %||% character())
+  length(required) > 0 && all(required %in% tables)
+}
+
+managed_shiny_schema_variant_names <- function(variants) {
+  vapply(variants, function(variant) variant$name %||% "unnamed variant", character(1))
+}
+
 managed_shiny_validate_result_database_schema <- function(database_path, definition) {
   tables <- tryCatch(
     managed_shiny_result_database_tables(database_path),
@@ -233,34 +317,42 @@ managed_shiny_validate_result_database_schema <- function(database_path, definit
     ))
   }
 
-  required_any_prefixes <- definition$required_any_prefixes %||% character()
-  if (length(required_any_prefixes) > 0) {
-    has_prefix <- vapply(required_any_prefixes, function(prefix) {
-      any(startsWith(tables, tolower(prefix)))
+  schema_variants <- definition$schema_variants %||% list()
+  if (length(schema_variants) > 0) {
+    variant_matches <- vapply(schema_variants, function(variant) {
+      managed_shiny_variant_matches(tables, variant)
     }, logical(1))
 
-    if (!any(has_prefix)) {
+    if (!any(variant_matches)) {
+      expected <- managed_shiny_schema_variant_names(schema_variants)
       return(list(
         valid = FALSE,
-        messages = c(paste("The SQLite result database does not contain expected result tables for prefixes:", paste(required_any_prefixes, collapse = ", "))),
+        messages = c(paste("The SQLite result database does not match any expected result schema variant:", paste(expected, collapse = "; "))),
         table_count = length(tables),
-        tables_preview = utils::head(tables, 12)
+        tables_preview = utils::head(tables, 12),
+        matched_variant = ""
       ))
     }
+
+    matched_variant <- schema_variants[[which(variant_matches)[[1]]]]$name
   } else if (length(tables) == 0) {
     return(list(
       valid = FALSE,
       messages = c("The SQLite result database does not contain any tables."),
       table_count = 0L,
-      tables_preview = character()
+      tables_preview = character(),
+      matched_variant = ""
     ))
+  } else {
+    matched_variant <- "generic SQLite result database"
   }
 
   list(
     valid = TRUE,
     messages = c("The SQLite result database matches the registered schema guard."),
     table_count = length(tables),
-    tables_preview = utils::head(tables, 12)
+    tables_preview = utils::head(tables, 12),
+    matched_variant = matched_variant
   )
 }
 

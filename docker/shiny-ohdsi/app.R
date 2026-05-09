@@ -300,6 +300,8 @@ server <- function(input, output, session) {
         tags$dd(value_or(handoff$server_function)),
         tags$dt("Result database"),
         tags$dd(code(value_or(handoff$database_relative_path))),
+        tags$dt("Schema variant"),
+        tags$dd(value_or(handoff$schema$matched_variant, "Unknown")),
         tags$dt("Schema tables"),
         tags$dd(as.character(value_or(handoff$schema$table_count, 0L)))
       ),
