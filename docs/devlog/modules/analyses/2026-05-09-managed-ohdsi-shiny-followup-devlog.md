@@ -276,6 +276,53 @@ Fixture manifests cover PLP, population estimation, cohort diagnostics,
 characterization, PheValuator, and OHDSI report bundles. The R parser test
 validates every fixture plus missing-manifest and unsupported-loader failures.
 
+### 7. Loader Registry and Bundle Readiness
+
+Added:
+
+- `docker/shiny-ohdsi/loaders.R`
+- `docker/shiny-ohdsi/tests/loader_registry_test.R`
+
+Updated:
+
+- `docker/shiny-ohdsi/app.R`
+- `docker/shiny-ohdsi/Dockerfile`
+
+The Shiny runtime now has a loader registry for every managed OHDSI app family:
+
+- PatientLevelPrediction result bundles;
+- population-level estimation bundles for CohortMethod, SCCS, and Evidence
+  Synthesis;
+- CohortDiagnostics bundles;
+- Characterization and CohortIncidence bundles;
+- PheValuator bundles;
+- OHDSI report and sharing bundles;
+- generic managed Shiny bundles for future vetted apps.
+
+This is the first P2 loader slice. It does not yet call the final OHDSI viewer
+entrypoints with complete package-specific fixture data. It does add the shared
+contract those handoffs need: loader metadata, accepted file extensions,
+expected result types, expected packages, official app-builder entrypoints,
+safe workspace-relative bundle resolution, readable zip validation, and zip
+entry path validation before any future extraction or package handoff.
+
+The Shiny app now renders loader readiness rather than only manifest fields.
+Ready bundles show the registered loader, app-builder entrypoint, workspace
+relative bundle path, zip entry count, and expected runtime packages. Missing,
+unsafe, unsupported, or unreadable bundles render the shared incomplete or
+unsupported panel with messages that do not expose host filesystem paths.
+
+The loader registry test covers every fixture manifest by creating a temporary
+workspace and a minimal readable zip bundle at the manifest-relative path. It
+also verifies the failure modes that matter most before accepting uploaded
+artifacts into an R runtime:
+
+- manifest references a bundle that is not present;
+- manifest uses an unsafe relative path such as parent traversal;
+- manifest points to an extension the selected loader does not accept;
+- manifest points to a `.zip` file that is not a readable zip archive;
+- manifest points to a readable zip containing unsafe entry paths.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -328,6 +375,8 @@ vendor/bin/pest tests/Feature/Shiny/CleanupManagedShinyWorkspacesCommandTest.php
 vendor/bin/pest tests/Feature/Shiny/ManagedShinyLaunchMetricsTest.php tests/Feature/Api/V1/ManagedShinyLaunchContextRateLimitTest.php tests/Feature/Api/V1/StudyArtifactShinyPolicyTest.php tests/Feature/Api/V1/HadesCapabilityTest.php
 Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); cat("R parse ok\n")'
 Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
 ```
 
 Results:
@@ -336,6 +385,7 @@ Results:
 - Focused managed Shiny metrics, launch-context, workspace cleanup, audit, and
   HADES Pest suite passed with 20 tests and 153 assertions.
 - R parser validation passed for 6 managed Shiny fixture manifests.
+- R loader readiness validation passed for 6 managed Shiny fixture manifests.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -392,9 +442,11 @@ verification, leaving the ShinyProxy service running.
 ## Operational Impact
 
 This change gives operators a durable audit trail for successful managed Shiny
-launches. It does not yet expose an admin UI, metrics dashboard, or cleanup
-command. Those are intentionally listed as follow-up work in the execution
-plan.
+launches, scheduled workspace cleanup, System Health metrics, and now a
+deterministic R-side readiness contract for materialized result bundles. It
+does not yet expose a dedicated admin UI or invoke every official OHDSI package
+viewer against complete result artifacts. Those are intentionally listed as the
+next follow-up work in the execution plan.
 
 The audit table is designed to support those next steps without another data
 model rewrite:
@@ -410,9 +462,9 @@ model rewrite:
 
 Immediate next backlog items:
 
-- add package-specific loaders for PLP, population estimation, cohort
-  diagnostics, characterization, cohort incidence, PheValuator, and report
-  bundles;
+- add package-specific OHDSI viewer handoffs for PLP, population estimation,
+  cohort diagnostics, characterization, cohort incidence, PheValuator, and
+  report bundles using complete fixtures;
 - surface managed launch actions on native result pages where artifacts already
   represent supported result families;
 - automate HADES latest-target and stable-release-lock drift detection.
@@ -420,9 +472,12 @@ Immediate next backlog items:
 ## Known Non-Goals In This Slice
 
 This slice does not attempt to make every OHDSI Shiny app fully functional
-against every result artifact yet. The scaffold still needs package-specific
-loaders and fixture-backed R tests. The purpose of this commit is to preserve
-the launch path and add auditability before the app surface becomes larger.
+against every result artifact yet. The scaffold now has manifest validation,
+loader registration, bundle readiness checks, and fixture-backed R tests, but
+it still needs package-specific OHDSI viewer handoff tests against complete
+result fixtures. The purpose of this increment is to make the transition from
+manifest to official viewer deterministic and safe before the app surface
+becomes larger.
 
 This slice also does not change the current managed Shiny suppression posture
 for arbitrary apps. It continues the policy of surfacing vetted OHDSI Shiny

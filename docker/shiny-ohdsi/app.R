@@ -8,9 +8,14 @@ suppressPackageStartupMessages({
 
 api_url <- sub("/+$", "", Sys.getenv("PARTHENON_API_URL", "http://nginx:80/api/v1"))
 manifest_helper <- Sys.getenv("PARTHENON_SHINY_MANIFEST_HELPER", "/srv/parthenon-shiny/app/manifest.R")
+loader_helper <- Sys.getenv("PARTHENON_SHINY_LOADER_HELPER", "/srv/parthenon-shiny/app/loaders.R")
 
 if (file.exists(manifest_helper)) {
   source(manifest_helper)
+}
+
+if (file.exists(loader_helper)) {
+  source(loader_helper)
 }
 
 resolve_launch <- function(token) {
@@ -161,30 +166,60 @@ server <- function(input, output, session) {
       ))
     }
 
-    manifest <- parsed$manifest
-    materialized <- manifest$artifact$materialized_file$present
-    if (!isTRUE(materialized)) {
+    if (!exists("managed_shiny_loader_readiness")) {
+      manifest <- parsed$manifest
       return(div(
         class = "panel",
         div(class = "eyebrow", "Result Manifest"),
         h3(managed_shiny_loader_label(manifest)),
-        p("The manifest is valid, but this artifact did not materialize a local result bundle.")
+        p("The manifest is valid, but the managed Shiny loader registry is unavailable."),
+        tags$dl(
+          tags$dt("Loader"),
+          tags$dd(value_or(manifest$loader$key)),
+          tags$dt("Result types"),
+          tags$dd(paste(unlist(manifest$artifact$detected_result_types), collapse = ", "))
+        )
+      ))
+    }
+
+    readiness <- managed_shiny_loader_readiness(
+      parsed,
+      value_or(context$workspace$container_path)
+    )
+
+    if (!identical(readiness$status, "ready")) {
+      return(div(
+        class = "panel",
+        div(class = "eyebrow", readiness$status_label),
+        h3(readiness$loader_label),
+        tags$ul(lapply(readiness$messages, tags$li)),
+        tags$dl(
+          tags$dt("Loader"),
+          tags$dd(value_or(readiness$loader_key)),
+          tags$dt("Expected result types"),
+          tags$dd(paste(readiness$expected_result_types, collapse = ", ")),
+          tags$dt("Accepted files"),
+          tags$dd(paste(readiness$accepted_extensions, collapse = ", "))
+        )
       ))
     }
 
     div(
       class = "panel",
-      div(class = "eyebrow", "Result Manifest"),
-      h3(managed_shiny_loader_label(manifest)),
+      div(class = "eyebrow", "Loader Readiness"),
+      h3(readiness$loader_label),
+      p(readiness$messages[[1]]),
       tags$dl(
         tags$dt("Loader"),
-        tags$dd(value_or(manifest$loader$key)),
-        tags$dt("Selection"),
-        tags$dd(value_or(manifest$loader$selection_basis)),
-        tags$dt("Result types"),
-        tags$dd(paste(unlist(manifest$artifact$detected_result_types), collapse = ", ")),
+        tags$dd(value_or(readiness$loader_key)),
+        tags$dt("Entrypoint"),
+        tags$dd(value_or(readiness$entrypoint, "Registered generic loader")),
         tags$dt("Bundle file"),
-        tags$dd(code(value_or(manifest$artifact$materialized_file$relative_path)))
+        tags$dd(code(value_or(readiness$bundle_relative_path))),
+        tags$dt("Archive entries"),
+        tags$dd(as.character(readiness$archive$entries_count)),
+        tags$dt("Expected packages"),
+        tags$dd(paste(readiness$expected_packages, collapse = ", "))
       )
     )
   })

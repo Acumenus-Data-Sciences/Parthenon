@@ -102,7 +102,7 @@ Acceptance:
 
 ### Phase 2: Package-Specific Loaders
 
-Status: pending
+Status: in progress
 
 Rationale: The scaffold must become useful for real OHDSI result exploration.
 Each loader should prefer official OHDSI package APIs and degrade to manifest
@@ -110,6 +110,11 @@ inspection when the artifact does not contain a complete result bundle.
 
 Todo:
 
+- [x] Add shared loader registry for every managed OHDSI app family.
+- [x] Add safe workspace-relative path validation for materialized bundles.
+- [x] Add readable-bundle and safe-entry validation for zip result bundles.
+- [x] Add shared unsupported/incomplete bundle UI.
+- [x] Add R-level readiness tests for fixture manifests.
 - [ ] PLP loader for PatientLevelPrediction result bundles.
 - [ ] Population estimation loader for CohortMethod results.
 - [ ] Population estimation loader for SelfControlledCaseSeries results.
@@ -120,8 +125,8 @@ Todo:
 - [ ] PheValuator loader.
 - [ ] OHDSI report bundle loader.
 - [ ] OHDSI sharing bundle loader.
-- [ ] Shared unsupported/incomplete bundle UI.
-- [ ] R-level smoke tests for each loader with fixture artifacts.
+- [ ] R-level smoke tests for each package-specific OHDSI viewer handoff with
+  complete fixture artifacts.
 
 Acceptance:
 
@@ -316,6 +321,28 @@ cd ..
 Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
 ```
 
+### P2-A: Loader Registry and Bundle Readiness
+
+- [x] Add `docker/shiny-ohdsi/loaders.R`.
+- [x] Register PLP, population estimation, cohort diagnostics,
+  characterization, PheValuator, OHDSI report, and generic managed loaders.
+- [x] Validate materialized bundle files stay inside the launch workspace.
+- [x] Reject missing bundles, unsafe relative paths, unsupported extensions,
+  unreadable zip files, and unsafe zip entry paths with safe user-facing
+  messages.
+- [x] Render loader readiness from the Shiny app before deeper OHDSI module
+  handoff.
+- [x] Copy the loader helper into the managed Shiny image.
+- [x] Add `docker/shiny-ohdsi/tests/loader_registry_test.R`.
+
+Run commands:
+
+```bash
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
+Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
+```
+
 ## Risk Notes
 
 - ShinyProxy tests can be slow because app containers start on demand. The
@@ -338,4 +365,5 @@ Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
   - `P0-C Workspace Cleanup`
   - `P0-D Metrics and Launch-Context Abuse Controls`
   - `P1-A Manifest Contract`
-- Next implementation slice: `P2 Package-Specific Loaders`.
+  - `P2-A Loader Registry and Bundle Readiness`
+- Next implementation slice: `P2-B Package-Specific OHDSI Viewer Handoffs`.
