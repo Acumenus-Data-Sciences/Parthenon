@@ -140,6 +140,34 @@ it('resolves managed Shiny launch context tokens for Shiny app containers', func
         ->assertJsonPath('data.workspace.context_path', "{$launch['workspace']['container_path']}/context.json");
 });
 
+it('uses default managed Shiny workspace roots when environment values are blank', function () {
+    config()->set('services.shiny_proxy.base_url', '/shiny');
+    config()->set('services.shiny_proxy.workspace_root', '');
+    config()->set('services.shiny_proxy.container_workspace_root', '');
+
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $study = Study::factory()->create(['created_by' => $user->id]);
+
+    $artifact = StudyArtifact::create([
+        'study_id' => $study->id,
+        'artifact_type' => 'results_report',
+        'title' => 'OHDSI Report Generator Bundle',
+        'version' => '1.0',
+        'metadata' => ['result_type' => 'OhdsiReportGenerator'],
+        'uploaded_by' => $user->id,
+        'is_current' => true,
+    ]);
+
+    $this->actingAs($user)
+        ->postJson("/api/v1/studies/{$study->slug}/artifacts/{$artifact->id}/shiny-launch", [
+            'app_key' => 'ohdsi-report',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.workspace.container_path', fn (string $path): bool => str_starts_with($path, '/srv/parthenon-shiny/launches/'));
+});
+
 it('rejects invalid managed Shiny launch context tokens', function () {
     $this->postJson('/api/v1/shiny/launch-context', [
         'launch_token' => 'not-a-valid-token',

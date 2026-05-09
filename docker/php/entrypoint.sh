@@ -18,13 +18,17 @@ HOST_GID="${HOST_GID:-1000}"
 # Then remap the www-data user to HOST_UID so files written via the bind
 # mount are owned by the host user on Linux. On macOS the gRPC-FUSE /
 # virtiofs layer translates uids transparently, so a mismatch is benign.
-if ! getent group www-data >/dev/null 2>&1; then
-    addgroup -g "$HOST_GID" -S www-data 2>/dev/null || addgroup -S www-data
-fi
-www_data_gid=$(getent group www-data | cut -d: -f3)
+ensure_www_data_group() {
+    if ! getent group www-data >/dev/null 2>&1; then
+        addgroup -g "$HOST_GID" -S www-data 2>/dev/null || addgroup -S www-data
+    fi
+}
+
+ensure_www_data_group
 
 if [ "$(id -u www-data 2>/dev/null)" != "$HOST_UID" ]; then
     deluser www-data 2>/dev/null || true
+    ensure_www_data_group
     adduser -u "$HOST_UID" -G www-data -S -D -H www-data 2>/dev/null \
         || adduser -G www-data -S -D -H www-data
 fi
@@ -33,6 +37,7 @@ mkdir -p /var/www/html/storage/logs \
          /var/www/html/storage/framework/cache \
          /var/www/html/storage/framework/sessions \
          /var/www/html/storage/framework/views \
+         /var/www/html/storage/app/managed-shiny/launches \
          /var/www/html/bootstrap/cache
 
 chown -R "www-data:www-data" /var/www/html/storage /var/www/html/bootstrap/cache

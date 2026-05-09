@@ -42,11 +42,11 @@ return [
     ],
 
     'shiny_proxy' => [
-        'base_url' => env('SHINY_PROXY_BASE_URL', env('PARTHENON_SHINY_PROXY_BASE_URL', '/shiny')),
+        'base_url' => env('SHINY_PROXY_BASE_URL', env('PARTHENON_SHINY_PROXY_BASE_URL')) ?: '/shiny',
         'runtime' => env('SHINY_RUNTIME', 'shinyproxy'),
         'launch_ttl_minutes' => (int) env('SHINY_LAUNCH_TTL_MINUTES', 15),
-        'workspace_root' => env('SHINY_WORKSPACE_ROOT', storage_path('app/managed-shiny')),
-        'container_workspace_root' => env('SHINY_CONTAINER_WORKSPACE_ROOT', '/srv/parthenon-shiny'),
+        'workspace_root' => env('SHINY_WORKSPACE_ROOT') ?: storage_path('app/managed-shiny'),
+        'container_workspace_root' => env('SHINY_CONTAINER_WORKSPACE_ROOT') ?: '/srv/parthenon-shiny',
     ],
 
     // Phase 16: DICOMweb / Orthanc

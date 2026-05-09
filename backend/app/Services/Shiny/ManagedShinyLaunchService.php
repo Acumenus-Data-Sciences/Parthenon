@@ -217,12 +217,18 @@ class ManagedShinyLaunchService
             ]);
         }
 
-        $root = rtrim((string) config('services.shiny_proxy.workspace_root', storage_path('app/managed-shiny')), '/');
-        $containerRoot = rtrim((string) config('services.shiny_proxy.container_workspace_root', '/srv/parthenon-shiny'), '/');
+        $root = rtrim((string) (config('services.shiny_proxy.workspace_root') ?: storage_path('app/managed-shiny')), '/');
+        $containerRoot = rtrim((string) (config('services.shiny_proxy.container_workspace_root') ?: '/srv/parthenon-shiny'), '/');
         $workspacePath = "{$root}/launches/{$workspaceId}";
         $artifactDirectory = "{$workspacePath}/artifact";
 
-        File::ensureDirectoryExists($artifactDirectory, 0755, true);
+        try {
+            File::ensureDirectoryExists($artifactDirectory, 0755, true);
+        } catch (\Throwable) {
+            throw ValidationException::withMessages([
+                'launch_token' => ['Managed Shiny launch workspace could not be prepared.'],
+            ]);
+        }
         @chmod($workspacePath, 0755);
         @chmod($artifactDirectory, 0755);
 
