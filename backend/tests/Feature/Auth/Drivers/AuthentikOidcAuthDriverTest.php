@@ -4,6 +4,7 @@ use App\Auth\Drivers\AuthDriverException;
 use App\Auth\Drivers\AuthDriverResult;
 use App\Auth\Drivers\AuthentikOidcAuthDriver;
 use App\Models\User;
+use App\Services\Auth\Oidc\Exceptions\OidcAccessDeniedException;
 use App\Services\Auth\Oidc\OidcReconciliationService;
 use App\Services\Auth\Oidc\ValidatedClaims;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,4 +99,21 @@ it('wraps reconciler exceptions as AuthDriverException with code 401', function 
         expect($e->getCode())->toBe(AuthDriverException::CODE_INVALID_CREDENTIALS)
             ->and($e->driverName)->toBe('authentik-oidc');
     }
+});
+
+it('passes OidcAccessDeniedException through unchanged so controller can return 403', function () {
+    $claims = new ValidatedClaims(
+        sub: 'authentik|abc123',
+        email: 'sso-user@acumenus.net',
+        name: 'SSO User',
+        groups: [],
+    );
+
+    $oidcException = new OidcAccessDeniedException('account_not_provisioned');
+    $this->reconciler
+        ->shouldReceive('reconcile')
+        ->andThrow($oidcException);
+
+    expect(fn () => $this->driver->authenticate(['claims' => $claims]))
+        ->toThrow(OidcAccessDeniedException::class);
 });

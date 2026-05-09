@@ -3,6 +3,7 @@
 namespace App\Auth\Drivers;
 
 use App\Contracts\AuthDriverInterface;
+use App\Services\Auth\Oidc\Exceptions\OidcAccessDeniedException;
 use App\Services\Auth\Oidc\OidcReconciliationService;
 use App\Services\Auth\Oidc\ValidatedClaims;
 use Throwable;
@@ -49,6 +50,11 @@ class AuthentikOidcAuthDriver implements AuthDriverInterface
 
         try {
             $result = $this->reconciler->reconcile($claims);
+        } catch (OidcAccessDeniedException $e) {
+            // Pass through: the controller has specific handling for this
+            // (returns 403 with the OIDC reason claim). Wrapping in
+            // AuthDriverException would erase that semantic.
+            throw $e;
         } catch (Throwable $e) {
             throw new AuthDriverException(
                 'OIDC reconciliation failed',
