@@ -8,7 +8,7 @@
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)](https://php.net)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![OMOP CDM v5.4](https://img.shields.io/badge/OMOP_CDM-v5.4-0078D4)](https://ohdsi.github.io/CommonDataModel/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
 
 **Live demo:** [parthenon.acumenus.net](https://parthenon.acumenus.net)
 **User manual:** [parthenon.acumenus.net/docs](https://parthenon.acumenus.net/docs)
@@ -291,6 +291,10 @@ The original OHDSI Atlas codebase is archived at the `archive/legacy` branch.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) for details.
+Parthenon Community Edition is licensed under **GNU AGPL-3.0-only** — see [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md) for details.
+
+A commercial **Enterprise Edition** is available with additional features (SSO with SAML/SCIM, multi-tenancy, FIPS crypto, signed audit retention, Kubernetes operator, premium support). Contact `licensing@acumenus.net` for inquiries.
 
 Built on the [OMOP Common Data Model](https://ohdsi.github.io/CommonDataModel/). OMOP CDM and the OHDSI vocabulary are governed by their respective licenses — see [ohdsi.org](https://ohdsi.org).
+
+"Parthenon", "Acumenus", and "Wellstack.ai" are trademarks of Acumenus Data Sciences, Inc. — see [TRADEMARKS.md](TRADEMARKS.md).

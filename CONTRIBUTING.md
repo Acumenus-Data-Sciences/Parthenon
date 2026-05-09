@@ -150,6 +150,18 @@ Touching code that interacts with PHI, OMOP CDM data, or clinical concepts? Tag 
 
 ---
 
-## License
+## License and Contributor License Agreement
 
-By contributing, you agree that your contributions will be licensed under Apache 2.0 (the same license as Parthenon).
+Parthenon Community Edition is licensed under **GNU AGPL-3.0-only**. By contributing, you agree to the Parthenon Contributor License Agreement (CLA), which grants Acumenus Data Sciences, Inc.:
+
+1. The right to distribute your contribution under AGPL-3.0-only as part of Parthenon Community Edition.
+2. The right to re-license your contribution under any other terms, including commercial licenses for the Parthenon Enterprise Edition. This grant is necessary to support the project's dual-licensing model.
+3. A patent grant equivalent to Apache-2.0 §3.
+
+The CLA is administered by **CLA Assistant** at https://cla-assistant.io, which automatically requests your agreement on your first pull request. The full CLA text is at the cla-assistant.io page for this repository.
+
+For details on dual licensing and the Enterprise Edition, see [LICENSING.md](LICENSING.md). For trademark policy, see [TRADEMARKS.md](TRADEMARKS.md).
+
+### Bots
+
+Automated contribution bots (Sentinel, Bolt, Palette, Jules, Dependabot) are allow-listed in CLA Assistant. They are not subject to per-PR CLA prompts.

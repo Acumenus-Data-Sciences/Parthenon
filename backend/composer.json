@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "acumenus-data-sciences/parthenon-backend",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "description": "Parthenon — unified OHDSI outcomes research platform on OMOP CDM v5.4. Backend (Laravel).",
+    "keywords": ["parthenon", "ohdsi", "omop", "cdm", "healthcare", "informatics", "outcomes-research"],
+    "license": "AGPL-3.0-only",
     "require": {
         "php": "^8.2",
         "doctrine/dbal": "^4.4",
