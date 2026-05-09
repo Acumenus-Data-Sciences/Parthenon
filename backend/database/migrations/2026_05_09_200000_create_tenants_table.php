@@ -40,10 +40,30 @@ return new class extends Migration
         DB::connection('pgsql')->statement(
             "SELECT setval(pg_get_serial_sequence('tenants', 'id'), GREATEST((SELECT MAX(id) FROM tenants), 1))"
         );
+
+        DB::connection('pgsql')->statement(<<<'SQL'
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_app') THEN
+                    GRANT SELECT, INSERT, UPDATE, DELETE ON app.tenants TO parthenon_app;
+                    GRANT USAGE, SELECT, UPDATE ON SEQUENCE app.tenants_id_seq TO parthenon_app;
+                END IF;
+            END $$;
+        SQL);
     }
 
     public function down(): void
     {
+        DB::connection('pgsql')->statement(<<<'SQL'
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_app') THEN
+                    REVOKE SELECT, INSERT, UPDATE, DELETE ON app.tenants FROM parthenon_app;
+                    REVOKE USAGE, SELECT, UPDATE ON SEQUENCE app.tenants_id_seq FROM parthenon_app;
+                END IF;
+            END $$;
+        SQL);
+
         Schema::connection('pgsql')->dropIfExists('tenants');
     }
 };

@@ -51,6 +51,58 @@ PLAYWRIGHT_SEED_GOLDEN_RESULT=1 \
 npx playwright test tests/managed-shiny.spec.ts --project=chromium
 ```
 
+## Post-Closeout Live Runtime Validation
+
+The local ShinyProxy-backed smoke environment was brought up and validated after
+the repository closeout. The host already had Docker access, the Docker socket
+group matched the `SHINY_PROXY_DOCKER_GID` default, the managed Shiny image was
+present locally, and `parthenon-shinyproxy` was running healthy behind nginx.
+
+Setup and verification performed:
+
+```bash
+./deploy.sh --frontend
+docker compose exec -T php php artisan migrate:status
+docker compose exec -T php php artisan shiny:seed-golden-result --cleanup --json
+cd e2e
+PLAYWRIGHT_BASE_URL=http://localhost:8082 \
+PLAYWRIGHT_ENABLE_SHINY_SMOKE=1 \
+PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH=testing/golden/plp-results.sqlite \
+PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY=1 \
+PLAYWRIGHT_SEED_GOLDEN_RESULT=1 \
+npm run test:shiny
+```
+
+The full managed Shiny Playwright suite passed against the live runtime:
+
+- study artifact launch through ShinyProxy,
+- golden SQLite official module handoff,
+- native Study Results tab viewer discovery,
+- direct Shiny app access denial without a Parthenon launch token.
+
+During setup, the live database exposed a role-split defect outside the managed
+Shiny code path: `app.tenants` had been created by the migrator role without
+runtime grants for `parthenon_app`, so normal runtime lookups could fail with
+`permission denied for table tenants`. The migration now includes the same
+conditional `parthenon_app` table and sequence grants used by the managed Shiny
+launch audit migration. The live database was granted the same privileges before
+rerunning smoke.
+
+Final live checks:
+
+```bash
+curl http://localhost:8082/
+curl http://localhost:8082/login
+curl http://localhost:8082/jobs
+curl http://localhost:8082/shiny/
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:8082/api/v1/hades/packages
+```
+
+The frontend routes and `/shiny/` returned `200`. The HADES package endpoint
+reported `parity=ready` and `freshness=current`. Smoke study records and
+ShinyProxy-generated app containers were cleaned up after the browser run.
+
 ## Completion Boundary
 
 The codebase now satisfies the original managed Shiny parity backlog. Remaining
