@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Auth\AuthDriverRegistry;
+use App\Auth\Drivers\AuthDriverException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
@@ -62,16 +64,22 @@ class AuthController extends Controller
         return response()->json(ApiMessage::payload('auth.account_created'));
     }
 
-    public function login(LoginRequest $request): JsonResponse
+    public function login(LoginRequest $request, AuthDriverRegistry $registry): JsonResponse
     {
-        $user = User::where('email', strtolower($request->email))
-            ->with('roles.permissions')  // Eager-load upfront — avoids extra queries in formatUser
-            ->first();
-
-        // Same error for "not found" and "wrong password" to prevent enumeration
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        try {
+            $result = $registry->driver('local')->authenticate([
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
+        } catch (AuthDriverException $e) {
+            // Same error for unknown email and wrong password (enumeration protection).
+            // Driver-thrown 422 (malformed) is also flattened to 401 here so the
+            // public API response shape is unchanged for any auth failure mode.
             return response()->json(ApiMessage::payload('auth.invalid_credentials'), 401);
         }
+
+        $user = $result->user;
+        $user->load('roles.permissions');  // Eager-load — formatUser() depends on this
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
