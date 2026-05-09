@@ -17,3 +17,13 @@
 **Vulnerability:** The temporary password created for the user when an email send failed was being logged to the backend logger in plaintext, leaking secrets into application logs.
 **Learning:** Even well-intentioned error handling and logging (e.g., providing a fallback so an admin can give a user their password if an email fails) can introduce critical security risks by leaving plaintext secrets in persistent logs.
 **Prevention:** Never log plaintext passwords or sensitive credentials. Fallback mechanisms should rely on standard password reset flows rather than exposing temporary credentials in logs.
+
+## 2024-05-08 - [Data Interrogation Service SQL Bypass Vulnerabilities]
+**Vulnerability:** The AI DataInterrogationService contained two severe SQL check bypasses:
+1. The check `substr_count($stripped, ';') > 1` permitted queries with exactly 1 semicolon, effectively allowing *two* SQL statements (e.g. `SELECT 1; DROP TABLE users`).
+2. The check simply looked for the presence of `temp_abby.` and, if found, bypassed all forbidden keyword checks. This allowed arbitrary forbidden SQL anywhere in the query if the string `temp_abby.` was appended.
+**Learning:** Poorly crafted regular expressions and simplistic substring counts can completely negate the intended purpose of input validation, specifically around SQL execution safeguards.
+**Prevention:**
+- Explicitly validate statements based on strict bounds rather than blind string existence.
+- When validating multiple statements, check if a semicolon exists `str_contains(rtrim($string, " \t\n\r\0\x0B;"), ';')` rather than assuming `< 2` means one statement.
+- First extract and remove intentionally whitelisted/safe patterns, then check the remainder for forbidden logic.
