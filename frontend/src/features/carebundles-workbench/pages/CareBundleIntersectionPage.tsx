@@ -10,6 +10,7 @@ import { VennDiagram } from "../components/VennDiagram";
 import { IntersectionCohortDialog } from "../components/IntersectionCohortDialog";
 import { useCareBundleIntersection } from "../hooks";
 import type { IntersectionMode } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundleIntersectionPage() {
   const bundlesQuery = useBundles({ per_page: 100 });
@@ -59,7 +60,7 @@ export default function CareBundleIntersectionPage() {
             className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-primary"
           >
             <ArrowLeft className="h-3 w-3" />
-            Coverage matrix
+            {tAuto("coverageMatrix_3e46ef46")}
           </Link>
           <div className="mt-2 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
@@ -67,10 +68,10 @@ export default function CareBundleIntersectionPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-text-primary">
-                Intersection explorer
+                {tAuto("intersectionExplorer_9b71c86f")}
               </h1>
               <p className="text-sm text-text-ghost">
-                Cross-bundle comorbidity counts against one data source.
+                {tAuto("crossBundleComorbidityCountsAgainstOneDataSource_adfdea9e")}
               </p>
             </div>
           </div>
@@ -88,16 +89,16 @@ export default function CareBundleIntersectionPage() {
             className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--primary)" }}
           >
-            Save intersection as cohort
+            {tAuto("saveIntersectionAsCohort_aa5896ec")}
           </button>
         </div>
       </header>
 
-      <Shell title="Query" subtitle="Pick bundles, a source, and a mode">
+      <Shell title={tAuto("query_a618b4be")} subtitle="Pick bundles, a source, and a mode">
         <div className="space-y-4 p-4">
           <div className="flex items-center gap-3">
             <label className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-              Source
+              {tAuto("source_6da13add")}
             </label>
             <select
               value={effectiveSourceId ?? ""}
@@ -113,7 +114,7 @@ export default function CareBundleIntersectionPage() {
 
             <div className="ml-6 flex items-center gap-2">
               <label className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-                Mode
+                {tAuto("mode_a7b93d21")}
               </label>
               {(["all", "any", "exactly"] as const).map((m) => (
                 <button
@@ -133,7 +134,7 @@ export default function CareBundleIntersectionPage() {
 
             <div className="ml-6 flex items-center gap-2">
               <label className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-                Chart
+                {tAuto("chart_66c77347")}
               </label>
               {(["upset", "venn"] as const).map((c) => (
                 <button
@@ -154,7 +155,7 @@ export default function CareBundleIntersectionPage() {
 
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-ghost">
-              Bundles ({selectedBundleIds.length} selected)
+              {tAuto("bundles_abf552f5")}{selectedBundleIds.length} {tAuto("selected_23f30dee")}
             </p>
             <div className="flex flex-wrap gap-2">
               {bundles.map((b) => {
@@ -179,15 +180,15 @@ export default function CareBundleIntersectionPage() {
         </div>
       </Shell>
 
-      <Shell title="Result" subtitle={`${mode.toUpperCase()} of ${selectedBundleIds.length} bundles`}>
+      <Shell title={tAuto("result_5faa59d4")} subtitle={`${mode.toUpperCase()} of ${selectedBundleIds.length} bundles`}>
         {selectedBundleIds.length === 0 ? (
           <p className="p-6 text-sm text-text-ghost">
-            Pick one or more bundles to compute an intersection.
+            {tAuto("pickOneOrMoreBundlesToComputeAn_5a326abd")}
           </p>
         ) : intersection.isLoading ? (
           <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Computing intersection…
+            {tAuto("computingIntersection_6911da37")}
           </div>
         ) : intersection.isError ? (
           <p className="p-6 text-sm text-red-300">
@@ -201,7 +202,7 @@ export default function CareBundleIntersectionPage() {
                 {intersection.data.count.toLocaleString()}
               </p>
               <p className="text-sm text-text-ghost">
-                qualified persons in {selectedBundles.map((b) => b.bundle_code).join(", ")}
+                {tAuto("qualifiedPersonsIn_d9777523")} {selectedBundles.map((b) => b.bundle_code).join(", ")}
               </p>
             </div>
 
@@ -216,7 +217,7 @@ export default function CareBundleIntersectionPage() {
             {intersection.data.sample_person_ids.length > 0 && (
               <details className="text-xs text-text-ghost">
                 <summary className="cursor-pointer text-text-muted">
-                  Sample person IDs ({intersection.data.sample_person_ids.length} of {intersection.data.count})
+                  {tAuto("samplePersonIds_7bbd53bc")}{intersection.data.sample_person_ids.length} of {intersection.data.count})
                 </summary>
                 <p className="mt-2 font-mono text-[11px]">
                   {intersection.data.sample_person_ids.join(", ")}

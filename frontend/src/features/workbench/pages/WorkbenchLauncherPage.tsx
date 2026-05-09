@@ -10,6 +10,7 @@ import {
   formatWorkbenchDate,
   getWorkbenchInvestigationStatusLabel,
 } from "../lib/i18n";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 // i18n-exempt: FinnGen-branded toolset copy remains deferred per scoped FinnGen exclusion.
 const FINNGEN_TOOLSET_NAME = "FinnGen Cohort Workbench";
@@ -51,10 +52,10 @@ const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     // i18n-exempt: P1 scaffolding — copy can graduate to i18n once the toolset
     // copy catalogue gets a "carebundles" key.
     slug: "carebundles",
-    name: "CareBundles Workbench",
+    name: tAuto("carebundlesWorkbench_f0754a48"),
     tagline: "Population qualification across care bundles",
     description:
-      "Materialize eCQM care bundles (HTN, T2DM, Obesity, Cardio-renal, Oncology screening, Behavioral health) against every CDM source. See qualified patient counts per bundle × source, drill into per-measure rates, and explore cross-bundle intersections (P2).",
+      tAuto("materializeEcqmCareBundlesHtnT2dmObesityCardio_e1ff452a"),
     icon: "LayoutGrid",
     accent: "var(--accent)",
     status: "available",

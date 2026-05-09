@@ -28,7 +28,7 @@ services:
 
   php:
     container_name: parthenon-php
-    image: ghcr.io/sudoshi/parthenon-php:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -43,6 +43,8 @@ services:
     environment:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
+      - TEMPLATES_SERVICE_URL=${TEMPLATES_SERVICE_URL:-http://parthenon-templates:8000}
+      - TEMPLATES_INTERNAL_TOKEN=${PARTHENON_INTERNAL_TOKEN:?PARTHENON_INTERNAL_TOKEN must be set}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -67,7 +69,7 @@ services:
 
   node:
     container_name: parthenon-node
-    image: ghcr.io/sudoshi/parthenon-node:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-node:latest
     build:
       context: .
       dockerfile: docker/node/Dockerfile
@@ -96,7 +98,7 @@ services:
 
   postgres:
     container_name: parthenon-postgres
-    image: ghcr.io/sudoshi/parthenon-postgres:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-postgres:latest
     build:
       context: .
       dockerfile: docker/postgres/Dockerfile
@@ -147,7 +149,7 @@ services:
 
   python-ai:
     container_name: python-ai
-    image: ghcr.io/sudoshi/parthenon-python-ai:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-python-ai:latest
     build:
       context: .
       dockerfile: docker/python/Dockerfile
@@ -255,7 +257,7 @@ services:
 
   study-agent:
     container_name: parthenon-study-agent
-    image: ghcr.io/sudoshi/parthenon-study-agent:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-study-agent:latest
     build:
       context: .
       dockerfile: docker/study-agent/Dockerfile
@@ -300,7 +302,7 @@ services:
 
   jupyterhub:
     container_name: parthenon-jupyterhub
-    image: ghcr.io/sudoshi/parthenon-jupyterhub:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-jupyterhub:latest
     build:
       context: .
       dockerfile: docker/jupyterhub/Dockerfile
@@ -317,7 +319,7 @@ services:
       - PARTHENON_API_URL=http://nginx/api/v1
       - DOCKER_NETWORK_NAME=parthenon
       - JUPYTER_USER_NETWORK_NAME=parthenon_jupyter_users
-      - JUPYTER_IMAGE=${JUPYTER_IMAGE:-ghcr.io/sudoshi/parthenon-jupyter-user:latest}
+      - JUPYTER_IMAGE=${JUPYTER_IMAGE:-ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest}
       - JUPYTER_PULL_POLICY=${JUPYTER_PULL_POLICY:-ifnotpresent}
       - JUPYTER_IDLE_TIMEOUT=${JUPYTER_IDLE_TIMEOUT:-1800}
       - JUPYTER_MEM_LIMIT=${JUPYTER_MEM_LIMIT:-2G}
@@ -348,7 +350,7 @@ services:
 
   # Build-only: image used by JupyterHub DockerSpawner (not started by compose)
   jupyter-user:
-    image: ${JUPYTER_IMAGE:-ghcr.io/sudoshi/parthenon-jupyter-user:latest}
+    image: ${JUPYTER_IMAGE:-ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest}
     build:
       context: .
       dockerfile: docker/jupyter-user/Dockerfile
@@ -381,7 +383,7 @@ services:
 
   hecate:
     container_name: parthenon-hecate
-    image: ghcr.io/sudoshi/parthenon-hecate:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-hecate:latest
     build:
       context: .
       dockerfile: docker/hecate/Dockerfile
@@ -465,7 +467,7 @@ services:
 
   blackrabbit:
     container_name: parthenon-blackrabbit
-    image: ghcr.io/sudoshi/parthenon-blackrabbit:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-blackrabbit:latest
     build:
       context: .
       dockerfile: docker/blackrabbit/Dockerfile
@@ -490,7 +492,7 @@ services:
 
   darkstar:
     container_name: parthenon-darkstar
-    image: ghcr.io/sudoshi/parthenon-darkstar:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest
     build:
       context: .
       dockerfile: docker/r/Dockerfile
@@ -523,7 +525,7 @@ services:
 
   horizon:
     container_name: parthenon-horizon
-    image: ghcr.io/sudoshi/parthenon-php:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -536,6 +538,8 @@ services:
     environment:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
+      - TEMPLATES_SERVICE_URL=${TEMPLATES_SERVICE_URL:-http://parthenon-templates:8000}
+      - TEMPLATES_INTERNAL_TOKEN=${PARTHENON_INTERNAL_TOKEN:?PARTHENON_INTERNAL_TOKEN must be set}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -560,7 +564,7 @@ services:
 
   reverb:
     container_name: parthenon-reverb
-    image: ghcr.io/sudoshi/parthenon-php:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -653,7 +657,7 @@ services:
 
   ohif-build:
     container_name: parthenon-ohif-build
-    image: ghcr.io/sudoshi/parthenon-ohif-build:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-ohif-build:latest
     build:
       context: ./docker/ohif
     entrypoint: ["sh", "-c", "cp -a /dist/. /output/ && cp /config/app-config.js /output/app-config.js"]
@@ -687,7 +691,7 @@ services:
       sh -c "
         mkdir -p /tmp/npm-cache /dist /tmp/docs-build &&
         chown -R node:node /docs/node_modules /tmp/npm-cache /dist /tmp/docs-build &&
-        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
+        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline --ignore-scripts && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
         rm -rf /dist/* &&
         cp -a /tmp/docs-build/. /dist/
       "
@@ -700,7 +704,7 @@ services:
 
   fhir-to-cdm:
     container_name: parthenon-fhir-to-cdm
-    image: ghcr.io/sudoshi/parthenon-fhir-to-cdm:latest
+    image: ghcr.io/acumenus-data-sciences/parthenon-fhir-to-cdm:latest
     build:
       context: .
       dockerfile: docker/fhir-to-cdm/Dockerfile
@@ -1059,7 +1063,7 @@ services:
   # Preloads en_core_sci_md at build time; runs offline thereafter.
   parthenon-scispacy:
     container_name: parthenon-scispacy
-    image: ghcr.io/sudoshi/parthenon-scispacy:v0.1.0
+    image: ghcr.io/acumenus-data-sciences/parthenon-scispacy:v0.1.0
     build:
       context: ./docker/parthenon-scispacy
       dockerfile: Dockerfile
@@ -1077,7 +1081,7 @@ services:
 
   parthenon-anonymizer:
     container_name: parthenon-anonymizer
-    image: ghcr.io/sudoshi/parthenon-fhir-anonymizer:v3.1.1
+    image: ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer:v3.1.1
     build:
       context: ./docker/parthenon-anonymizer
       dockerfile: Dockerfile
@@ -1106,11 +1110,22 @@ services:
       context: .
       dockerfile: templates/Dockerfile
     restart: unless-stopped
+    # Inherit DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE from
+    # backend/.env so the templates runtime targets the same Postgres as
+    # Laravel (host PG17 via host.docker.internal, not the unused docker
+    # postgres container). The entrypoint constructs DATABASE_URL from
+    # these if not set explicitly via TEMPLATES_DATABASE_URL.
+    env_file:
+      - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - PARTHENON_INTERNAL_TOKEN=${PARTHENON_INTERNAL_TOKEN:?PARTHENON_INTERNAL_TOKEN must be set}
       - PARTHENON_ORCHESTRATION_BACKEND=${PARTHENON_ORCHESTRATION_BACKEND:-prefect}
       - PARTHENON_STORAGE_ROOT=/var/parthenon/storage/templates
-      - DATABASE_URL=${TEMPLATES_DATABASE_URL:-postgresql+psycopg://parthenon_app@postgres:5432/parthenon}
+      # If TEMPLATES_DATABASE_URL is set in host .env, it wins; otherwise the
+      # entrypoint derives DATABASE_URL from DB_* vars in backend/.env.
+      - DATABASE_URL=${TEMPLATES_DATABASE_URL:-}
       - PREFECT_API_URL=http://127.0.0.1:4200/api
     volumes:
       - templates_storage:/var/parthenon/storage/templates

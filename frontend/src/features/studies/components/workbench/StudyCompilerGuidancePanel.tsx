@@ -1,18 +1,19 @@
 import { AlertTriangle, CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StudyCompilerGuidance, StudyCompilerStageStatus } from "../../types/study";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function StudyCompilerGuidancePanel({ guidance }: { guidance: StudyCompilerGuidance }) {
   const blockers = guidance.blockers.slice(0, 3);
   const warnings = guidance.warnings.slice(0, 2);
 
   return (
-    <div className="rounded-lg border border-success/30 bg-success/5 p-4" role="region" aria-label="Abby guidance">
+    <div className="rounded-lg border border-success/30 bg-success/5 p-4" role="region" aria-label={tAuto("abbyGuidance_aeb28be5")}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Sparkles size={16} className="text-success" />
-            <p className="text-sm font-semibold text-text-secondary">Abby guidance</p>
+            <p className="text-sm font-semibold text-text-secondary">{tAuto("abbyGuidance_aeb28be5")}</p>
           </div>
           <p className="mt-1 text-sm text-text-secondary">
             {guidance.nextAction.label}

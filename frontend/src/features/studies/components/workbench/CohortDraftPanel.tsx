@@ -17,6 +17,7 @@ import {
   textValue,
   verificationCheckRows,
 } from "./studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function CohortDraftPanel({
   assets,
@@ -121,7 +122,7 @@ export function CohortDraftPanel({
     if (action.type === "link_materialized_cohort") {
       return (
         <span className="text-[10px] text-text-ghost">
-          Select a role on a materialized cohort below.
+          {tAuto("selectARoleOnAMaterializedCohortBelow_7af9ef57")}
         </span>
       );
     }
@@ -203,7 +204,7 @@ export function CohortDraftPanel({
         )}
         {missingRoles.length > 0 && (
           <p className="mt-2 text-[11px] text-warning">
-            Missing roles: {missingRoles.join(", ")}
+            {tAuto("missingRoles_6c99e6df")} {missingRoles.join(", ")}
           </p>
         )}
         {issueRows.length > 0 && (
@@ -345,7 +346,7 @@ function CohortDraftCard({
           {blockers.length === 0 && warnings.length > 0 && <p className="mt-2 text-xs text-warning">{warnings[0]}</p>}
           {repairSuggestions.length > 0 && canEdit && (
             <div className="mt-3 space-y-2 rounded-md border border-warning/30 bg-warning/5 p-2">
-              <p className="text-[10px] uppercase tracking-wider text-warning">Abby cohort repair suggestions</p>
+              <p className="text-[10px] uppercase tracking-wider text-warning">{tAuto("abbyCohortRepairSuggestions_4d124709")}</p>
               {repairSuggestions.map((suggestion, index) => {
                 const patch = isRecord(suggestion.patch) ? suggestion.patch : null;
 
@@ -362,7 +363,7 @@ function CohortDraftCard({
                         disabled={isUpdating}
                         className="btn btn-ghost btn-sm shrink-0"
                       >
-                        Apply Abby cohort patch
+                        {tAuto("applyAbbyCohortPatch_bde8b576")}
                       </button>
                     )}
                   </div>
@@ -410,7 +411,7 @@ function CohortDraftCard({
             <>
               {studyCohortId == null && (
                 <div className="flex items-center gap-1">
-                  <label htmlFor={`cohort-role-${asset.id}`} className="sr-only">Cohort role</label>
+                  <label htmlFor={`cohort-role-${asset.id}`} className="sr-only">{tAuto("cohortRole_7d892948")}</label>
                   <select
                     id={`cohort-role-${asset.id}`}
                     aria-label={`Cohort role for ${title}`}

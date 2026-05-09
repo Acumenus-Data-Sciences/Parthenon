@@ -16,6 +16,7 @@ import {
   type IntentReviewEvidenceSpan,
   type IntentReviewSuggestion,
 } from "../studyDesignIntentAssistance";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function IntentReviewPanel({
   version,
@@ -172,10 +173,10 @@ function IntentReviewAssistancePanel({
   const suggestions = assistance.suggestions.slice(0, 7);
   const evidenceSpans = assistance.evidenceSpans.slice(0, 4);
   const noteGroups = [
-    { label: "Open questions", notes: assistance.openQuestions },
-    { label: "Risk notes", notes: assistance.riskNotes },
-    { label: "Uncertainty", notes: assistance.uncertaintyNotes },
-    { label: "Design assumptions", notes: assistance.designAssumptions },
+    { label: tAuto("openQuestions_f30a3eb5"), notes: assistance.openQuestions },
+    { label: tAuto("riskNotes_acfa7652"), notes: assistance.riskNotes },
+    { label: tAuto("uncertainty_88b2df24"), notes: assistance.uncertaintyNotes },
+    { label: tAuto("designAssumptions_a0883c14"), notes: assistance.designAssumptions },
   ].filter((group) => group.notes.length > 0);
 
   return (
@@ -193,7 +194,7 @@ function IntentReviewAssistancePanel({
           : <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-text-secondary">Abby Review</p>
+            <p className="text-sm font-semibold text-text-secondary">{tAuto("abbyReview_93c298b7")}</p>
             <span className={cn(
               "rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider",
               assistance.status === "ready"
@@ -234,7 +235,7 @@ function IntentReviewAssistancePanel({
       {assistance.protocolSource?.truncated && (
         <p className="mt-3 flex gap-2 text-xs text-warning">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" />
-          <span>Protocol text was shortened for evaluation. Verify late-document eligibility, outcomes, and safety sections before accepting.</span>
+          <span>{tAuto("protocolTextWasShortenedForEvaluationVerifyLate_3a0d5ece")}</span>
         </p>
       )}
 
@@ -276,7 +277,7 @@ function IntentReviewAssistancePanel({
                     className="btn btn-ghost btn-sm shrink-0"
                   >
                     <Sparkles size={12} />
-                    Use wording
+                    {tAuto("useWording_6d77ef43")}
                   </button>
                 )}
               </div>
@@ -300,7 +301,7 @@ function IntentReviewEvidenceSummary({
   return (
     <div className="mt-3 rounded-md border border-border-default bg-surface-base px-3 py-2">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-xs font-semibold text-text-secondary">Evidence and confidence</p>
+        <p className="text-xs font-semibold text-text-secondary">{tAuto("evidenceAndConfidence_1d48b201")}</p>
         {confidence.overall !== undefined && (
           <span className={cn(
             "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
@@ -310,7 +311,7 @@ function IntentReviewEvidenceSummary({
                 ? "border-warning/50 text-warning"
                 : "border-critical/40 text-critical",
           )}>
-            Overall {formatConfidence(confidence.overall)}
+            {tAuto("overall_8a528519")} {formatConfidence(confidence.overall)}
           </span>
         )}
       </div>

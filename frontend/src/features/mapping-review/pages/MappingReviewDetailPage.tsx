@@ -12,6 +12,7 @@ import { KeyboardHelpOverlay } from "../components/KeyboardHelpOverlay";
 import { RejectModal } from "../components/RejectModal";
 import { StatusPill } from "../components/StatusPill";
 import { useReviewerKeyboardShortcuts } from "../hooks/useReviewerKeyboardShortcuts";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 function formatTimestamp(iso: string | null): string {
   if (!iso) return "—";
@@ -42,19 +43,14 @@ function MappingReviewDetailPage() {
 
   const detail = detailQuery.data;
   const candidates = detail?.candidates ?? [];
-
-  // Clamp focused card to candidate range whenever the list changes.
-  useEffect(() => {
-    if (focusedCard >= candidates.length && candidates.length > 0) {
-      setFocusedCard(0);
-    }
-  }, [candidates.length, focusedCard]);
+  const focusedCandidateIndex =
+    candidates.length === 0 ? 0 : Math.min(focusedCard, candidates.length - 1);
 
   // Keep focus visible.
   useEffect(() => {
     if (helpOpen || rejectOpen || escalateOpen) return;
-    cardRefs.current[focusedCard]?.focus();
-  }, [focusedCard, helpOpen, rejectOpen, escalateOpen]);
+    cardRefs.current[focusedCandidateIndex]?.focus();
+  }, [focusedCandidateIndex, helpOpen, rejectOpen, escalateOpen]);
 
   function handleApprove(conceptId: number) {
     approveMutation.mutate(
@@ -91,10 +87,10 @@ function MappingReviewDetailPage() {
 
   useReviewerKeyboardShortcuts({
     onNext: () =>
-      setFocusedCard((i) => Math.min(candidates.length - 1, i + 1)),
+      setFocusedCard((i) => Math.min(Math.max(candidates.length - 1, 0), i + 1)),
     onPrev: () => setFocusedCard((i) => Math.max(0, i - 1)),
     onApprove: () => {
-      const c = candidates[focusedCard];
+      const c = candidates[focusedCandidateIndex];
       if (c && c.concept_still_valid && !anyMutationBusy) {
         handleApprove(c.concept_id);
       }
@@ -117,7 +113,7 @@ function MappingReviewDetailPage() {
           className="h-96 animate-pulse rounded-xl bg-zinc-900"
           aria-busy="true"
         >
-          <span className="sr-only">Loading…</span>
+          <span className="sr-only">{tAuto("loading_33ce4174")}</span>
         </div>
       </div>
     );
@@ -138,7 +134,7 @@ function MappingReviewDetailPage() {
           to="/admin/mapping-review"
           className="mt-3 inline-block text-sm underline"
         >
-          Back to queue
+          {tAuto("backToQueue_ea06173f")}
         </Link>
       </div>
     );
@@ -153,9 +149,9 @@ function MappingReviewDetailPage() {
           to="/admin/mapping-review"
           className="text-sm text-zinc-400 hover:text-zinc-200"
         >
-          ← Back to queue{" "}
+          {tAuto("backToQueue_53d7c80f")}{" "}
           <kbd className="ml-1 rounded border border-zinc-700 px-1 py-0.5 font-mono text-[10px]">
-            Esc
+            {tAuto("esc_1f7a4f9e")}
           </kbd>
         </Link>
         <button
@@ -164,7 +160,7 @@ function MappingReviewDetailPage() {
           className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800"
           aria-keyshortcuts="?"
         >
-          <kbd className="font-mono text-xs">?</kbd> Keyboard
+          <kbd className="font-mono text-xs">?</kbd> {tAuto("keyboard_6662c40b")}
         </button>
       </div>
 
@@ -172,7 +168,7 @@ function MappingReviewDetailPage() {
         <aside className="space-y-4 lg:col-span-4">
           <section className="rounded-xl border border-zinc-800 bg-[#0E0E11]/60 p-5">
             <div className="text-xs uppercase tracking-wide text-zinc-500">
-              Source code
+              {tAuto("sourceCode_22a35fbe")}
             </div>
             <div className="mt-1 break-all font-mono text-xl text-zinc-100">
               {detail.source_code}
@@ -205,7 +201,7 @@ function MappingReviewDetailPage() {
 
           <section className="rounded-xl border border-zinc-800 bg-[#0E0E11]/60 p-5">
             <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
-              Status
+              {tAuto("status_bae7d5be")}
             </div>
             <StatusPill status={detail.status} />
             {detail.rejection_reason && (
@@ -215,7 +211,7 @@ function MappingReviewDetailPage() {
             )}
             {detail.approved_concept_id && (
               <div className="mt-3 text-sm text-zinc-300">
-                Approved concept_id{" "}
+                {tAuto("approvedConceptId_af8401db")}{" "}
                 <span className="font-mono text-[#2DD4BF]">
                   {detail.approved_concept_id}
                 </span>
@@ -227,7 +223,7 @@ function MappingReviewDetailPage() {
         <main className="space-y-4 lg:col-span-8">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-zinc-100">
-              Top {candidates.length} candidates
+              {tAuto("top_cae0435c")} {candidates.length} candidates
             </h2>
             <div className="flex gap-2">
               <button
@@ -237,7 +233,7 @@ function MappingReviewDetailPage() {
                 className="rounded-lg border border-[#9B1B30]/50 bg-[#9B1B30]/10 px-3 py-1.5 text-sm text-[#FCA5A5] hover:bg-[#9B1B30]/20 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-keyshortcuts="R"
               >
-                <kbd className="mr-1 font-mono text-xs">R</kbd>Reject
+                <kbd className="mr-1 font-mono text-xs">{tAuto("r_06576556")}</kbd>{tAuto("reject_2b03b592")}
               </button>
               <button
                 type="button"
@@ -246,16 +242,14 @@ function MappingReviewDetailPage() {
                 className="rounded-lg border border-[#C9A227]/50 bg-[#C9A227]/10 px-3 py-1.5 text-sm text-[#FBE187] hover:bg-[#C9A227]/20 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-keyshortcuts="E"
               >
-                <kbd className="mr-1 font-mono text-xs">E</kbd>Escalate
+                <kbd className="mr-1 font-mono text-xs">{tAuto("e_e0184ade")}</kbd>{tAuto("escalate_012bb11a")}
               </button>
             </div>
           </div>
 
           {candidates.length === 0 && (
             <div className="rounded-xl border border-zinc-800 bg-[#0E0E11]/60 p-8 text-center text-zinc-400">
-              No candidates were generated by the rerank pipeline. This typically
-              means the source code didn't have enough text context. Reject or
-              escalate.
+              {tAuto("noCandidatesWereGeneratedByTheRerankPipeline_b77fb641")}
             </div>
           )}
 
@@ -268,7 +262,7 @@ function MappingReviewDetailPage() {
                 }}
                 candidate={c}
                 rank={i + 1}
-                isFocused={i === focusedCard}
+                isFocused={i === focusedCandidateIndex}
                 busy={anyMutationBusy || isResolved}
                 onApprove={(cid) => handleApprove(cid)}
                 onClick={() => setFocusedCard(i)}

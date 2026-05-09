@@ -89,7 +89,7 @@ equivalence integration test runs in CI when the sidecar is up.
 
 The `parthenon-anonymizer` sidecar is built from MS
 Tools-for-Health-Data-Anonymization v3.2.1 and **mirrored** to
-`ghcr.io/sudoshi/parthenon-fhir-anonymizer` (per spec decision Q1).
+`ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer` (per spec decision Q1).
 Air-gap-friendly; no `mcr.microsoft.com` runtime dependency.
 
 Container security: non-root user (uid 10101), read-only root filesystem,

@@ -3,6 +3,8 @@ name = "parthenon-ai"
 version = "0.1.0"
 description = "AI/ML service for Parthenon - concept mapping, embeddings, and clinical NLP"
 requires-python = ">=3.12"
+license = { text = "AGPL-3.0-only" }
+authors = [{ name = "Acumenus Data Sciences, Inc." }]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

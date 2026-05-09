@@ -12,6 +12,7 @@ import { useFinnGenRunStatus } from "../hooks/useFinnGenRunStatus";
 import { usePromoteMatchedCohort } from "../hooks/usePromoteMatchedCohort";
 import type { MatchedCohortPromotion } from "../types";
 import { Panel, Shell, StatusStrip } from "@/components/workbench/primitives";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface MatchingResultsProps {
   runId: string | null;
@@ -78,7 +79,7 @@ export function MatchingResults({
       <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
         <div className="flex items-center gap-2 p-4 text-xs text-text-secondary">
           <Loader2 size={14} className="animate-spin" />
-          Loading run…
+          {tAuto("loadingRun_f91e59ee")}
         </div>
       </Shell>
     );
@@ -88,7 +89,7 @@ export function MatchingResults({
     return (
       <Shell title={SHELL_TITLE} subtitle={SHELL_SUBTITLE}>
         <div className="flex items-center gap-2 p-4 text-xs text-error">
-          <AlertCircle size={14} /> Could not load run status.
+          <AlertCircle size={14} /> {tAuto("couldNotLoadRunStatus_2b4f7022")}
         </div>
       </Shell>
     );
@@ -126,7 +127,7 @@ export function MatchingResults({
 
       {isRunning && (
         <div className="px-4 pb-4 text-xs text-text-ghost">
-          Matching in progress. Results appear here once complete.
+          {tAuto("matchingInProgressResultsAppearHereOnceComplete_07fc23a4")}
         </div>
       )}
 
@@ -147,7 +148,7 @@ export function MatchingResults({
 
           {counts.length === 0 && (
             <p className="text-xs text-text-ghost">
-              Match completed but no count rows were emitted.
+              {tAuto("matchCompletedButNoCountRowsWereEmitted_bd864c05")}
             </p>
           )}
 
@@ -180,9 +181,9 @@ function EmptyState() {
       <div className="rounded-full border border-dashed border-border-default p-3 text-text-ghost">
         <Clock size={18} />
       </div>
-      <p className="text-xs text-text-secondary">No run yet.</p>
+      <p className="text-xs text-text-secondary">{tAuto("noRunYet_21116a0e")}</p>
       <p className="text-[10px] text-text-ghost">
-        Configure matching on the left and press <span className="font-mono">Run matching</span>.
+        {tAuto("configureMatchingOnTheLeftAndPress_831d48cc")} <span className="font-mono">{tAuto("runMatching_a3ca7f25")}</span>.
       </p>
     </div>
   );
@@ -268,10 +269,10 @@ function CountsTable({
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-border-default text-left text-text-ghost">
-            <th className="px-2 py-1.5">Cohort</th>
-            <th className="px-2 py-1.5">Name</th>
-            <th className="px-2 py-1.5 text-right">Entries</th>
-            <th className="px-2 py-1.5 text-right">Subjects</th>
+            <th className="px-2 py-1.5">{tAuto("cohort_1b02f699")}</th>
+            <th className="px-2 py-1.5">{tAuto("name_709a2322")}</th>
+            <th className="px-2 py-1.5 text-right">{tAuto("entries_f056d0d5")}</th>
+            <th className="px-2 py-1.5 text-right">{tAuto("subjects_278947de")}</th>
           </tr>
         </thead>
         <tbody>
@@ -341,13 +342,13 @@ function SmdTable({ rows }: { rows: SmdRow[] }) {
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border-default text-left text-text-ghost">
-              <th className="px-2 py-1.5">Covariate</th>
-              <th className="px-2 py-1.5 text-right">Comparator #</th>
-              <th className="px-2 py-1.5 text-right">Primary</th>
-              <th className="px-2 py-1.5 text-right">Cmp (pre)</th>
-              <th className="px-2 py-1.5 text-right">Cmp (post)</th>
-              <th className="px-2 py-1.5 text-right">SMD pre</th>
-              <th className="px-2 py-1.5 text-right">SMD post</th>
+              <th className="px-2 py-1.5">{tAuto("covariate_aa867406")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("comparator_45c4d18b")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("primary_a9a96ec0")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("cmpPre_3aef176d")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("cmpPost_b8376278")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("smdPre_29d6e0da")}</th>
+              <th className="px-2 py-1.5 text-right">{tAuto("smdPost_5adc068b")}</th>
             </tr>
           </thead>
           <tbody>
@@ -378,8 +379,8 @@ function SmdTable({ rows }: { rows: SmdRow[] }) {
         </table>
       </div>
       <p className="text-[10px] text-text-ghost">
-        SMD color: <span className="text-success">green</span> &lt; 0.10 ·{" "}
-        <span className="text-warning">amber</span> &lt; 0.25 ·{" "}
+        {tAuto("smdColor_fdf2a690")} <span className="text-success">green</span> {tAuto("lt010_c8cc63de")}{" "}
+        <span className="text-warning">amber</span> {tAuto("lt025_662e5700")}{" "}
         <span className="text-error">red</span> ≥ 0.25.
       </p>
     </div>
@@ -408,7 +409,7 @@ function PromoteCta({
       <div className="flex items-center gap-2 rounded border border-success/40 bg-success/5 px-3 py-2 text-xs text-success">
         <CheckCheck size={14} className="flex-shrink-0" />
         <span>
-          Promoted as cohort{" "}
+          {tAuto("promotedAsCohort_d24fa202")}{" "}
           <span className="font-mono">#{promotion.cohort_definition_id}</span>
           {" · "}
           <span className="text-text-secondary">{promotion.name}</span>
@@ -444,10 +445,10 @@ function PromoteCta({
     <div className="flex flex-wrap items-center gap-3 rounded border border-border-default bg-surface-overlay/40 px-3 py-2">
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-text-primary">
-          Save matched controls as a first-class cohort
+          {tAuto("saveMatchedControlsAsAFirstClassCohort_14a5d1a9")}
         </p>
         <p className="text-[10px] text-text-ghost">
-          Makes this match available to downstream analyses (incidence rate, estimation, prediction…).
+          {tAuto("makesThisMatchAvailableToDownstreamAnalysesIncidence_8748de13")}
         </p>
       </div>
       <button
@@ -470,7 +471,7 @@ function PromoteCta({
       </button>
       {mutation.isError && (
         <p className="w-full text-[10px] text-error">
-          Promotion failed: {mutation.error.message}
+          {tAuto("promotionFailed_4d6353e6")} {mutation.error.message}
         </p>
       )}
     </div>

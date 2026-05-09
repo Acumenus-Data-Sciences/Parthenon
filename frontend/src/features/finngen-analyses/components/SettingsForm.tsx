@@ -7,6 +7,7 @@ import { CohortPicker } from "./widgets/CohortPicker";
 import { TemporalWindowBuilder } from "./widgets/TemporalWindowBuilder";
 import { CovariateSelector } from "./widgets/CovariateSelector";
 import type { CO2ModuleKey } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const CUSTOM_WIDGETS: RegistryWidgetsType = {
   CohortPicker: CohortPicker as unknown as React.ComponentType<WidgetProps>,
@@ -91,7 +92,7 @@ export function SettingsForm({
             }}
             className="rounded border border-border-default px-3 py-2 text-xs text-text-muted hover:text-text-secondary transition-colors"
           >
-            Reset
+            {tAuto("reset_44c57abd")}
           </button>
         </div>
       </Form>

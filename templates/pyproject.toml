@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Parthenon ingestion templates runtime: node SDK, orchestration adapter, manifest registry."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "Apache-2.0" }
+license = { text = "AGPL-3.0-only" }
 authors = [{ name = "Acumenus Data Sciences" }]
 dependencies = [
     "fastapi==0.115.6",

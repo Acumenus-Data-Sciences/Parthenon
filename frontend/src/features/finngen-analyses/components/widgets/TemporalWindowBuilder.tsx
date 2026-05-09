@@ -1,6 +1,7 @@
 // frontend/src/features/finngen-analyses/components/widgets/TemporalWindowBuilder.tsx
 import type { WidgetProps } from "@rjsf/utils";
 import { Plus, Trash2 } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type TimeWindow = { start_day: number; end_day: number };
 
@@ -30,7 +31,7 @@ export function TemporalWindowBuilder(props: WidgetProps) {
         <div key={idx} className="flex items-center gap-2">
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <label className="text-[10px] text-text-ghost w-12">From</label>
+              <label className="text-[10px] text-text-ghost w-12">{tAuto("from_3f66052a")}</label>
               <input
                 type="number"
                 value={w.start_day}
@@ -39,7 +40,7 @@ export function TemporalWindowBuilder(props: WidgetProps) {
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-[10px] text-text-ghost w-12">To</label>
+              <label className="text-[10px] text-text-ghost w-12">{tAuto("to_ae79ea1e")}</label>
               <input
                 type="number"
                 value={w.end_day}
@@ -52,7 +53,7 @@ export function TemporalWindowBuilder(props: WidgetProps) {
             type="button"
             onClick={() => handleRemove(idx)}
             className="text-text-ghost hover:text-critical transition-colors"
-            aria-label="Remove window"
+            aria-label={tAuto("removeWindow_a868f5b2")}
           >
             <Trash2 size={14} />
           </button>
@@ -64,7 +65,7 @@ export function TemporalWindowBuilder(props: WidgetProps) {
         className="flex items-center gap-1 text-xs text-success hover:text-success/80 transition-colors"
       >
         <Plus size={12} />
-        Add window
+        {tAuto("addWindow_840e8f46")}
       </button>
     </div>
   );

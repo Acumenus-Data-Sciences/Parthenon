@@ -1,25 +1,26 @@
 import type { QueueStatus } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const STATUS_STYLES: Record<QueueStatus, { bg: string; fg: string; label: string }> = {
   pending: {
     bg: "bg-[#9B1B30]/15",
     fg: "text-[#FCA5A5]",
-    label: "Pending",
+    label: tAuto("pending_96f608c1"),
   },
   approved: {
     bg: "bg-[#2DD4BF]/15",
     fg: "text-[#5EEAD4]",
-    label: "Approved",
+    label: tAuto("approved_41b81eb8"),
   },
   rejected: {
     bg: "bg-zinc-700/30",
     fg: "text-zinc-300",
-    label: "Rejected",
+    label: tAuto("rejected_27eeb7a2"),
   },
   escalated: {
     bg: "bg-[#C9A227]/15",
     fg: "text-[#FBE187]",
-    label: "Escalated",
+    label: tAuto("escalated_aff666f4"),
   },
 };
 

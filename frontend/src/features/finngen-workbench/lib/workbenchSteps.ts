@@ -1,3 +1,4 @@
+import { tAuto } from "@/i18n/autoUserFacing";
 // frontend/src/features/finngen-workbench/lib/workbenchSteps.ts
 //
 // Step definitions for the FinnGen Cohort Workbench stepper, extracted into
@@ -17,9 +18,9 @@ export type WorkbenchStepKey =
   | "handoff";
 
 export const WORKBENCH_STEPS: { key: WorkbenchStepKey; label: string }[] = [
-  { key: "import-cohorts", label: "Import cohorts" },
-  { key: "operate", label: "Operate" },
-  { key: "match", label: "Match" },
-  { key: "materialize", label: "Materialize" },
-  { key: "handoff", label: "Handoff" },
+  { key: "import-cohorts", label: tAuto("importCohorts_338b6729") },
+  { key: "operate", label: tAuto("operate_3c1a1d23") },
+  { key: "match", label: tAuto("match_0335207f") },
+  { key: "materialize", label: tAuto("materialize_8e5c1300") },
+  { key: "handoff", label: tAuto("handoff_09496b01") },
 ];

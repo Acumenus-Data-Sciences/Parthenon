@@ -89,8 +89,8 @@ def test_community_runtime_compose_avoids_app_source_mounts() -> None:
     assert "./backend:/var/www/html" not in compose
     assert "./frontend" not in compose
     assert "./solr/configsets" not in compose
-    assert "ghcr.io/sudoshi/parthenon-nginx:${PARTHENON_IMAGE_TAG:-latest}" in compose
-    assert "ghcr.io/sudoshi/parthenon-solr:${PARTHENON_IMAGE_TAG:-latest}" in compose
+    assert "ghcr.io/acumenus-data-sciences/parthenon-nginx:${PARTHENON_IMAGE_TAG:-latest}" in compose
+    assert "ghcr.io/acumenus-data-sciences/parthenon-solr:${PARTHENON_IMAGE_TAG:-latest}" in compose
 
 
 def test_community_runtime_compose_covers_installer_services() -> None:
@@ -118,6 +118,6 @@ def test_jupyterhub_uses_registry_user_image_by_default() -> None:
     compose = COMPOSE.read_text(encoding="utf-8")
     config = JUPYTER_CONFIG.read_text(encoding="utf-8")
 
-    assert "ghcr.io/sudoshi/parthenon-jupyter-user:latest" in compose
-    assert "ghcr.io/sudoshi/parthenon-jupyter-user:latest" in config
+    assert "ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest" in compose
+    assert "ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest" in config
     assert 'pull_policy = "never"' not in config

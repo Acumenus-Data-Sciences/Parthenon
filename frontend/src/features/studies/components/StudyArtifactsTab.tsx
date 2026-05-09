@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2, Plus, FileText, Trash2, File, FileCode, FileImage, Edit3, Save, X, Link } from "lucide-react";
+import { Loader2, Plus, FileText, Trash2, File, FileCode, FileImage, Edit3, Save, X, Link, Play, ExternalLink, AlertTriangle } from "lucide-react";
 import { formatDate, formatNumber } from "@/i18n/format";
 import {
   useStudyArtifacts,
   useCreateStudyArtifact,
   useUpdateStudyArtifact,
   useDeleteStudyArtifact,
+  useLaunchStudyArtifactShinyApp,
 } from "../hooks/useStudies";
-import type { StudyArtifact } from "../types/study";
+import type { ManagedShinyLaunch, StudyArtifact } from "../types/study";
 
 const ARTIFACT_TYPES = [
   "protocol",
@@ -52,6 +53,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
   const createMutation = useCreateStudyArtifact();
   const updateMutation = useUpdateStudyArtifact();
   const deleteMutation = useDeleteStudyArtifact();
+  const launchMutation = useLaunchStudyArtifactShinyApp();
 
   // Add form state
   const [showAdd, setShowAdd] = useState(false);
@@ -64,6 +66,9 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
   // Edit state
   const [editId, setEditId] = useState<number | null>(null);
   const [editPayload, setEditPayload] = useState<Partial<StudyArtifact>>({});
+  const [launchingArtifactId, setLaunchingArtifactId] = useState<number | null>(null);
+  const [activeLaunch, setActiveLaunch] = useState<ManagedShinyLaunch | null>(null);
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   const handleCreate = () => {
     if (!newTitle.trim()) return;
@@ -112,6 +117,27 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
 
   const artifactTypeLabel = (type: string) =>
     t(`studies.artifacts.types.${type}`, { defaultValue: type.replace(/_/g, " ") });
+
+  const launchManagedShiny = (artifact: StudyArtifact) => {
+    const app = artifact.managed_shiny_apps?.[0];
+    if (!app) return;
+
+    setLaunchingArtifactId(artifact.id);
+    setLaunchError(null);
+
+    launchMutation.mutate(
+      {
+        slug,
+        artifactId: artifact.id,
+        payload: { app_key: app.key, mode: "embedded" },
+      },
+      {
+        onSuccess: (launch) => setActiveLaunch(launch),
+        onError: (error) => setLaunchError(extractLaunchError(error)),
+        onSettled: () => setLaunchingArtifactId(null),
+      },
+    );
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
@@ -215,6 +241,52 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
         </div>
       )}
 
+      {launchError && (
+        <div className="rounded-lg border border-critical/30 bg-critical/10 p-3 text-sm text-critical">
+          {launchError}
+        </div>
+      )}
+
+      {activeLaunch && (
+        <div className="panel overflow-hidden p-0">
+          <div className="flex items-center justify-between gap-3 border-b border-border-muted px-4 py-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-text-primary">{activeLaunch.app.label}</p>
+              <p className="truncate text-xs text-text-muted">{activeLaunch.artifact.title}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {activeLaunch.launch_url && (
+                <a
+                  href={activeLaunch.launch_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary btn-sm"
+                >
+                  <ExternalLink size={14} />
+                  {t("studies.artifacts.actions.openLink")}
+                </a>
+              )}
+              <button type="button" onClick={() => setActiveLaunch(null)} className="btn btn-ghost btn-sm" aria-label="Close managed Shiny viewer">
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+          {activeLaunch.launch_url && activeLaunch.embedding.allowed ? (
+            <iframe
+              src={activeLaunch.launch_url}
+              title={activeLaunch.app.label}
+              className="h-[640px] w-full border-0 bg-surface"
+              sandbox={activeLaunch.embedding.sandbox.join(" ")}
+            />
+          ) : (
+            <div className="flex items-start gap-3 px-4 py-6 text-sm text-text-muted">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
+              <span>{activeLaunch.setup.message}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {visibleArtifacts.length === 0 ? (
         <div className="empty-state">
           <FileText size={24} className="text-text-ghost mb-2" />
@@ -314,6 +386,18 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                       <Link size={10} /> {t("studies.artifacts.actions.openLink")}
                     </a>
                   )}
+                  {a.managed_shiny_apps?.[0] && (
+                    <button
+                      type="button"
+                      onClick={() => launchManagedShiny(a)}
+                      disabled={launchMutation.isPending}
+                      className="mt-2 inline-flex max-w-full items-center gap-1 rounded border border-success/30 bg-success/10 px-2 py-1 text-xs text-success hover:bg-success/15 disabled:cursor-not-allowed disabled:opacity-60"
+                      title={`Open ${a.managed_shiny_apps[0].label}`}
+                    >
+                      {launchingArtifactId === a.id ? <Loader2 size={10} className="animate-spin" /> : <Play size={10} />}
+                      <span className="truncate">{a.managed_shiny_apps[0].label}</span>
+                    </button>
+                  )}
                   <p className="text-[10px] text-text-ghost mt-1">
                     {t("studies.artifacts.messages.uploadedBy", {
                       name: a.uploaded_by_user?.name ?? t("studies.artifacts.messages.unknown"),
@@ -341,4 +425,11 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
       )}
     </div>
   );
+}
+
+function extractLaunchError(error: unknown): string {
+  const response = (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }).response;
+  const validationMessage = response?.data?.errors ? Object.values(response.data.errors)[0]?.[0] : null;
+
+  return validationMessage ?? response?.data?.message ?? (error instanceof Error ? error.message : "Managed Shiny launch failed.");
 }

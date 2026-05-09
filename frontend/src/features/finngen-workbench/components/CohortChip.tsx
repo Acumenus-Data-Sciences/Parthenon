@@ -1,6 +1,7 @@
 // frontend/src/features/finngen-workbench/components/CohortChip.tsx
 import { X } from "lucide-react";
 import type { CohortNode } from "../lib/operationTree";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface CohortChipProps {
   node: CohortNode;
@@ -19,7 +20,7 @@ export function CohortChip({ node, cohortName, onRemove }: CohortChipProps) {
         type="button"
         onClick={() => onRemove(node.id)}
         className="ml-1 text-text-ghost hover:text-error transition-colors"
-        aria-label="Remove cohort"
+        aria-label={tAuto("removeCohort_adea87d6")}
       >
         <X size={12} />
       </button>

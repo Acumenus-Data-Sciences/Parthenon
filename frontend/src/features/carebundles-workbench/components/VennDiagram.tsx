@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { ConditionBundle, UpsetCell } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   cells: UpsetCell[];
@@ -33,14 +34,14 @@ export function VennDiagram({
   if (bundles.length < 2) {
     return (
       <p className="p-4 text-sm text-text-ghost">
-        Select at least two bundles to see a Venn diagram.
+        {tAuto("selectAtLeastTwoBundlesToSeeA_508e5dd0")}
       </p>
     );
   }
   if (bundles.length > 3) {
     return (
       <p className="p-4 text-sm text-text-ghost">
-        Venn diagram supports 2–3 sets. Switch to the UpSet plot for {bundles.length} bundles.
+        {tAuto("vennDiagramSupports23SetsSwitchTo_f4cd58e2")} {bundles.length} bundles.
       </p>
     );
   }

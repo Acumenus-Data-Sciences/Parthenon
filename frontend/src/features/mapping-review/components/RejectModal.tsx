@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface RejectModalProps {
   open: boolean;
@@ -13,9 +14,11 @@ export function RejectModal({ open, busy = false, onClose, onSubmit }: RejectMod
 
   useEffect(() => {
     if (open) {
-      setReason("");
       // Defer focus until after the dialog mounts.
-      const t = window.setTimeout(() => ref.current?.focus(), 50);
+      const t = window.setTimeout(() => {
+        setReason("");
+        ref.current?.focus();
+      }, 50);
       return () => window.clearTimeout(t);
     }
     return undefined;
@@ -38,16 +41,16 @@ export function RejectModal({ open, busy = false, onClose, onSubmit }: RejectMod
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="reject-title" className="mb-3 text-lg font-semibold text-zinc-100">
-          Reject mapping
+          {tAuto("rejectMapping_78cb5faa")}
         </h2>
         <p className="mb-4 text-sm text-zinc-400">
-          Captures intent for the audit trail. The queue row stays in place and can be re-opened later.
+          {tAuto("capturesIntentForTheAuditTrailTheQueue_91a553b1")}
         </p>
         <label
           htmlFor="reject-reason"
           className="mb-2 block text-sm font-medium text-zinc-300"
         >
-          Rejection reason
+          {tAuto("rejectionReason_ee59042a")}
         </label>
         <textarea
           id="reject-reason"
@@ -57,7 +60,7 @@ export function RejectModal({ open, busy = false, onClose, onSubmit }: RejectMod
           rows={4}
           maxLength={2000}
           className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-2 font-mono text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-[#9B1B30] focus:outline-none focus:ring-2 focus:ring-[#9B1B30]/40"
-          placeholder="None of the candidates clinically match the source code…"
+          placeholder={tAuto("noneOfTheCandidatesClinicallyMatchTheSource_e56706c7")}
           disabled={busy}
         />
         <div className="mt-1 text-right font-mono text-xs text-zinc-500">
@@ -70,7 +73,7 @@ export function RejectModal({ open, busy = false, onClose, onSubmit }: RejectMod
             disabled={busy}
             className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-800"
           >
-            Cancel
+            {tAuto("cancel_77dfd213")}
           </button>
           <button
             type="button"
@@ -78,7 +81,7 @@ export function RejectModal({ open, busy = false, onClose, onSubmit }: RejectMod
             disabled={tooShort || busy}
             className="rounded-lg bg-[#9B1B30] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#B71F38] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {busy ? "Rejecting…" : "Reject"}
+            {busy ? tAuto("rejecting_5772ab74") : tAuto("reject_2b03b592")}
           </button>
         </div>
       </div>

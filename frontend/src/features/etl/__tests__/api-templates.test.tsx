@@ -22,6 +22,7 @@ import {
   useTemplateRunArtifacts,
   useSubmitTemplateRun,
   useCancelTemplateRun,
+  useTemplateRunHistory,
   templateRunRefetchInterval,
 } from "../api/templates";
 import type { TemplateRun } from "../types/templates";
@@ -44,9 +45,9 @@ beforeEach(() => {
 });
 
 describe("useTemplates", () => {
-  it("fetches catalog and unwraps data envelope", async () => {
+  it("fetches catalog as a bare array", async () => {
     mockedGet.mockResolvedValueOnce({
-      data: { data: [{ id: "hello_cdm", name: "Hello CDM" }] },
+      data: [{ id: "hello_cdm", name: "Hello CDM" }],
     });
     const { result } = renderHook(() => useTemplates(), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -56,10 +57,17 @@ describe("useTemplates", () => {
 });
 
 describe("useSubmitTemplateRun", () => {
-  it("POSTs to the template runs endpoint", async () => {
-    mockedPost.mockResolvedValueOnce({ data: { data: { id: 42 } } });
+  it("POSTs to the template runs endpoint and returns the flat response", async () => {
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        id: 42,
+        template_run_id: 42,
+        ingestion_job_id: null,
+        status: "queued",
+      },
+    });
     const { result } = renderHook(() => useSubmitTemplateRun(), { wrapper });
-    await result.current.mutateAsync({
+    const resp = await result.current.mutateAsync({
       templateId: "hello_cdm",
       version: "0.1.0",
       parameters: { target_schema: "demo" },
@@ -68,15 +76,19 @@ describe("useSubmitTemplateRun", () => {
       "/ingestion/templates/hello_cdm/runs",
       { version: "0.1.0", parameters: { target_schema: "demo" } },
     );
+    expect(resp.id).toBe(42);
   });
 });
 
 describe("useCancelTemplateRun", () => {
-  it("DELETEs the run", async () => {
-    mockedDel.mockResolvedValueOnce({ data: { data: { ok: true } } });
+  it("DELETEs the run and returns {ok:true}", async () => {
+    mockedDel.mockResolvedValueOnce({
+      data: { ok: true, id: 7, status: "cancelled" },
+    });
     const { result } = renderHook(() => useCancelTemplateRun(7), { wrapper });
-    await result.current.mutateAsync();
+    const resp = await result.current.mutateAsync();
     expect(mockedDel).toHaveBeenCalledWith("/ingestion/templates/runs/7");
+    expect(resp.ok).toBe(true);
   });
 });
 
@@ -107,32 +119,52 @@ describe("templateRunRefetchInterval", () => {
 });
 
 describe("useTemplate / useTemplateRun / logs / artifacts URL shape", () => {
-  it("useTemplate hits /ingestion/templates/:id", async () => {
+  it("useTemplate hits /ingestion/templates/:id and returns flat manifest", async () => {
     mockedGet.mockResolvedValueOnce({
-      data: { data: { id: "hello_cdm", nodes: [], post_conditions: [] } },
+      data: { id: "hello_cdm", nodes: [], post_conditions: [] },
     });
     const { result } = renderHook(() => useTemplate("hello_cdm"), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedGet).toHaveBeenCalledWith("/ingestion/templates/hello_cdm");
+    expect(result.current.data?.id).toBe("hello_cdm");
   });
-  it("useTemplateRun hits /ingestion/templates/runs/:id", async () => {
+  it("useTemplateRun hits /ingestion/templates/runs/:id and returns flat run", async () => {
     mockedGet.mockResolvedValueOnce({
-      data: { data: { id: 7, status: "completed" } },
+      data: { id: 7, status: "completed" },
     });
     const { result } = renderHook(() => useTemplateRun(7), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedGet).toHaveBeenCalledWith("/ingestion/templates/runs/7");
+    expect(result.current.data?.id).toBe(7);
   });
-  it("useTemplateRunLogs hits /ingestion/templates/runs/:id/logs", async () => {
-    mockedGet.mockResolvedValueOnce({ data: { data: [] } });
+  it("useTemplateRunLogs unwraps {lines:[…]}", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        lines: [
+          { timestamp: "t", level: "info", message: "started", node_id: null },
+        ],
+      },
+    });
     const { result } = renderHook(() => useTemplateRunLogs(7, "completed"), {
       wrapper,
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockedGet).toHaveBeenCalledWith("/ingestion/templates/runs/7/logs");
+    expect(result.current.data?.[0].message).toBe("started");
   });
-  it("useTemplateRunArtifacts hits /ingestion/templates/runs/:id/artifacts", async () => {
-    mockedGet.mockResolvedValueOnce({ data: { data: [] } });
+  it("useTemplateRunArtifacts unwraps {artifacts:[…]}", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        artifacts: [
+          {
+            name: "summary.json",
+            size_bytes: 100,
+            signed_url: "",
+            content_type: "application/json",
+          },
+        ],
+      },
+    });
     const { result } = renderHook(
       () => useTemplateRunArtifacts(7, "completed"),
       { wrapper },
@@ -141,5 +173,55 @@ describe("useTemplate / useTemplateRun / logs / artifacts URL shape", () => {
     expect(mockedGet).toHaveBeenCalledWith(
       "/ingestion/templates/runs/7/artifacts",
     );
+    expect(result.current.data?.[0].name).toBe("summary.json");
+  });
+});
+
+describe("useTemplateRunHistory", () => {
+  it("hits /ingestion/templates/runs?page=...&per_page=... and preserves the {data, meta} envelope", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: 1,
+            template_id: "hello_cdm",
+            template_version: "0.1.0",
+            status: "completed",
+          },
+        ],
+        meta: { total: 1, page: 1, per_page: 20 },
+      },
+    });
+    const { result } = renderHook(
+      () => useTemplateRunHistory({ page: 1, pageSize: 20 }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const url = mockedGet.mock.calls[0]?.[0] as string;
+    expect(url).toMatch(/^\/ingestion\/templates\/runs\?/);
+    expect(url).toContain("page=1");
+    expect(url).toContain("per_page=20");
+    expect(result.current.data?.data[0].id).toBe(1);
+    expect(result.current.data?.meta.total).toBe(1);
+  });
+
+  it("appends status[]=… for each requested status filter", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: { data: [], meta: { total: 0, page: 1, per_page: 20 } },
+    });
+    const { result } = renderHook(
+      () =>
+        useTemplateRunHistory({
+          page: 1,
+          pageSize: 20,
+          statuses: ["failed", "cancelled"],
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const url = mockedGet.mock.calls[0]?.[0] as string;
+    // URLSearchParams encodes "[" and "]" as %5B / %5D
+    expect(url).toContain("status%5B%5D=failed");
+    expect(url).toContain("status%5B%5D=cancelled");
   });
 });

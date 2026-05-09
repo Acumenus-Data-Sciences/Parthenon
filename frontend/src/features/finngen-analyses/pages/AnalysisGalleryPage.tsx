@@ -6,6 +6,7 @@ import { useAllFinnGenRuns } from "../hooks/useModuleRuns";
 import { ModuleCard } from "../components/ModuleCard";
 import { Loader2 } from "lucide-react";
 import { Shell } from "@/components/workbench/primitives";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface AnalysisGalleryPageProps {
   sourceKey: string;
@@ -30,20 +31,20 @@ export function AnalysisGalleryPage({ sourceKey, onSelectModule }: AnalysisGalle
 
   return (
     <Shell
-      title="Analysis modules"
+      title={tAuto("analysisModules_a37c66e0")}
       subtitle="Pick a CO2 module to configure and run a statistical analysis on your cohorts."
     >
       <div className="p-4">
         {modulesLoading && (
           <div className="flex items-center justify-center py-10">
             <Loader2 size={20} className="animate-spin text-text-ghost" />
-            <span className="ml-2 text-sm text-text-ghost">Loading modules…</span>
+            <span className="ml-2 text-sm text-text-ghost">{tAuto("loadingModules_33686612")}</span>
           </div>
         )}
 
         {!modulesLoading && co2Modules.length === 0 && (
           <div className="py-10 text-center text-sm text-text-muted">
-            No analysis modules available.
+            {tAuto("noAnalysisModulesAvailable_7f8656c2")}
           </div>
         )}
 

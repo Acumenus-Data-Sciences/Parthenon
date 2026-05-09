@@ -6,6 +6,7 @@ import {
   type StudyDesignIntent,
   type StudyDesignNormalizedSpec,
 } from "../schemas/studyDesignSchemas";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type IntentReviewFieldKey =
   | "researchQuestion"
@@ -214,7 +215,7 @@ function weakFieldConcerns(fields: Required<IntentReviewFields>): IntentReviewCo
     concerns.push({
       fieldKey: "comparator",
       fieldLabel: FIELD_LABELS.comparator,
-      message: "Comparator wording is too generic for cohort construction.",
+      message: tAuto("comparatorWordingIsTooGenericForCohortConstruction_685747c4"),
     });
   }
 
@@ -222,7 +223,7 @@ function weakFieldConcerns(fields: Required<IntentReviewFields>): IntentReviewCo
     concerns.push({
       fieldKey: "outcome",
       fieldLabel: FIELD_LABELS.outcome,
-      message: "Outcome wording should identify an observable event or cohort endpoint.",
+      message: tAuto("outcomeWordingShouldIdentifyAnObservableEventOr_227e7d5e"),
     });
   }
 
@@ -230,7 +231,7 @@ function weakFieldConcerns(fields: Required<IntentReviewFields>): IntentReviewCo
     concerns.push({
       fieldKey: "time",
       fieldLabel: FIELD_LABELS.time,
-      message: "Time-at-risk wording should include the index anchor, start, end, and censoring logic.",
+      message: tAuto("timeAtRiskWordingShouldIncludeTheIndex_41c7b4ce"),
     });
   }
 

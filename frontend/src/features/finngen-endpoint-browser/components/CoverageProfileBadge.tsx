@@ -5,6 +5,7 @@
 //
 // See CONTEXT D-08 (UX spec) and Plan 07 acceptance criteria.
 import type { CoverageProfile } from "../api";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type CoverageProfileBadgeProps = {
   profile: CoverageProfile | null;
@@ -38,9 +39,9 @@ export function CoverageProfileBadge({
       <span
         data-testid="coverage-profile-badge-finland-only"
         className={`inline-flex items-center rounded border border-amber-500/40 border-l-[3px] border-l-amber-400 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 ${className ?? ""}`}
-        title="This endpoint depends on Finnish source vocabularies (ICD-8, NOMESCO, KELA_REIMB, ICDO3-FI) that are not present in any non-Finnish CDM."
+        title={tAuto("thisEndpointDependsOnFinnishSourceVocabulariesIcd_a501562a")}
       >
-        Requires Finnish CDM
+        {tAuto("requiresFinnishCdm_efd85638")}
       </span>
     );
   }
@@ -49,9 +50,9 @@ export function CoverageProfileBadge({
       <span
         data-testid="coverage-profile-badge-partial"
         className={`inline-flex items-center rounded border border-slate-700 border-l-[3px] border-l-slate-400 bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 ${className ?? ""}`}
-        title="Some qualifying-event branches resolve to standard concepts; others are Finnish-only. The generated cohort may underestimate the true subject count."
+        title={tAuto("someQualifyingEventBranchesResolveToStandardConcepts_1119f705")}
       >
-        Partial coverage
+        {tAuto("partialCoverage_2672ee76")}
       </span>
     );
   }

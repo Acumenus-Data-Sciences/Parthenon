@@ -10,7 +10,7 @@
 
 ## 1. Goal
 
-Fork Parthenon into a free, open-source **Community Edition** and a paid, closed-source **Enterprise Edition** so Acumenus Data Sciences can pursue investor funding and commercial beta engagements without slowing the open research mission. Relicense Community Edition from Apache-2.0 to AGPL-3.0-only as part of the same effort. Move the canonical repo from the founder's personal account (`github.com/sudoshi`) to the company organization (`github.com/acumenus`).
+Fork Parthenon into a free, open-source **Community Edition** and a paid, closed-source **Enterprise Edition** so Acumenus Data Sciences can pursue investor funding and commercial beta engagements without slowing the open research mission. Relicense Community Edition from Apache-2.0 to AGPL-3.0-only as part of the same effort. Move the canonical repo from the founder's personal account (`github.com/sudoshi`) to the company organization (`github.com/Acumenus-Data-Sciences`).
 
 The fork is **investor-grade** (clean IP boundaries, dual-license-capable, separate proprietary repo, distinct commercial license) but **not over-engineered** (no full open-core packaging refactor in this window — that is a v2.5 path).
 
@@ -26,7 +26,7 @@ The fork is **investor-grade** (clean IP boundaries, dual-license-capable, separ
 | CE/EE split | Infrastructure-tier — CE = full Parthenon application + Acropolis community; EE = enterprise infra, scale, and compliance |
 | Technical pattern | **Approach B**: EE merges CE into a `parthenon/` subdirectory via **git subtree** in a single working tree, EE-only code in `enterprise/` overlay, sync script (`git subtree pull`) keeps EE current with CE main. **Approach C** (proper packages) deferred to v2.5. |
 | Timeline | ~10 weeks, phased; clean architecture over speed |
-| Repo ownership | Move `sudoshi/Parthenon` → `acumenus/Parthenon`; create `acumenus/Parthenon-EE` (private) |
+| Repo ownership | Move `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon`; create `Acumenus-Data-Sciences/Parthenon-EE` (private) |
 | CLA | Standard CLA Assistant grant (AGPL distribution + dual-license + patent grant) for all non-Acumenus contributors |
 | EE code rule | EE never patches CE files. EE adds drivers/plugins under `enterprise/` consuming CE extension points. New extension points are CE PRs (public). |
 
@@ -36,8 +36,8 @@ The fork is **investor-grade** (clean IP boundaries, dual-license-capable, separ
 
 ### 3.1 Repos
 
-- **`github.com/acumenus/Parthenon`** (public, AGPL-3.0-only) — Community Edition. Holds the entire Parthenon application: backend, frontend, ai, r-runtime, installer, docs, scripts, **Acropolis community services** (Authentik, Traefik, Portainer, pgAdmin), and CE-only docker-compose files.
-- **`github.com/acumenus/Parthenon-EE`** (private, commercial EULA) — Enterprise Edition. Holds only EE-specific code in an `enterprise/` overlay, plus build/sync tooling.
+- **`github.com/Acumenus-Data-Sciences/Parthenon`** (public, AGPL-3.0-only) — Community Edition. Holds the entire Parthenon application: backend, frontend, ai, r-runtime, installer, docs, scripts, **Acropolis community services** (Authentik, Traefik, Portainer, pgAdmin), and CE-only docker-compose files.
+- **`github.com/Acumenus-Data-Sciences/Parthenon-EE`** (private, commercial EULA) — Enterprise Edition. Holds only EE-specific code in an `enterprise/` overlay, plus build/sync tooling.
 
 ### 3.2 License files
 
@@ -54,7 +54,7 @@ The fork is **investor-grade** (clean IP boundaries, dual-license-capable, separ
 
 ### 3.3 CLA — load-bearing legal foundation
 
-CLA Assistant goes live on `acumenus/Parthenon` **the same week as the AGPLv3 flip**. Standard grant:
+CLA Assistant goes live on `Acumenus-Data-Sciences/Parthenon` **the same week as the AGPLv3 flip**. Standard grant:
 
 1. Right to distribute the contribution under AGPL-3.0-only (CE).
 2. Right to re-license the contribution under any other terms, including commercial (enables EE).
@@ -70,7 +70,7 @@ Bot PRs (Sentinel/Bolt/Palette/Jules) require either bot-specific bypass tokens 
 EE working tree layout:
 
 ```
-Parthenon-EE/                        # private repo, acumenus org
+Parthenon-EE/                        # private repo, Acumenus-Data-Sciences org
 ├── parthenon/                       # CE merged in as git subtree at pinned tag
 ├── enterprise/                      # EE-only overlay, mirrors CE structure
 │   ├── backend/
@@ -187,10 +187,10 @@ Each extension point ships as its own CE PR with:
 ### 6.1 Day-to-day developer flow
 
 **CE-only contributors (community + most internal work):**
-- Same as today. Clone `acumenus/Parthenon`, branch, PR, merge. CLA Assistant gates first PR. Nothing changes about the public OSS workflow.
+- Same as today. Clone `Acumenus-Data-Sciences/Parthenon`, branch, PR, merge. CLA Assistant gates first PR. Nothing changes about the public OSS workflow.
 
 **EE contributors (Acumenus employees + paid contractors only):**
-1. Clone `acumenus/Parthenon-EE`. The `parthenon/` subdirectory is already populated via git subtree at the pinned CE commit — no extra init step.
+1. Clone `Acumenus-Data-Sciences/Parthenon-EE`. The `parthenon/` subdirectory is already populated via git subtree at the pinned CE commit — no extra init step.
 2. Work flow depends on what's touched:
    - **EE-only change** → edit under `enterprise/`, PR to `Parthenon-EE`.
    - **CE extension point change** → branch in `parthenon/`, PR to **public** `Parthenon` first. After merge, sync EE.
@@ -201,9 +201,9 @@ Each extension point ships as its own CE PR with:
 
 A scheduled GitHub Action in `Parthenon-EE` runs **`scripts/sync-from-ce.sh`** daily:
 
-1. `git fetch parthenon-remote main` (where `parthenon-remote` is the named remote pointing at `acumenus/Parthenon`).
+1. `git fetch parthenon-remote main` (where `parthenon-remote` is the named remote pointing at `Acumenus-Data-Sciences/Parthenon`).
 2. `git subtree pull --prefix=parthenon parthenon-remote main --squash` (squash keeps EE history readable; full CE history remains accessible in the public repo).
-3. If conflicts: open auto-PR titled `sync: CE main → EE @ <sha>` and ping `@acumenus/maintainers`.
+3. If conflicts: open auto-PR titled `sync: CE main → EE @ <sha>` and ping `@Acumenus-Data-Sciences/maintainers`.
 4. If clean: commit message tagged `[ce-sync]`, push, run full EE CI, post status.
 5. Bump `CE_VERSION` file with new pinned sha + tag with date.
 
@@ -211,15 +211,15 @@ The "EE never patches CE" rule means most syncs are conflict-free. Conflicts onl
 
 ### 6.3 CI/CD
 
-**CE (`acumenus/Parthenon`) — public CI:**
+**CE (`Acumenus-Data-Sciences/Parthenon`) — public CI:**
 - GitHub Actions free runners.
 - Pint, PHPStan, ESLint, tsc, vitest, Pest, pytest, mypy.
-- Builds public CE container images → `ghcr.io/acumenus/parthenon-{php,nginx,node,...}` (public).
+- Builds public CE container images → `ghcr.io/acumenus-data-sciences/parthenon-{php,nginx,node,...}` (public).
 
-**EE (`acumenus/Parthenon-EE`) — private CI:**
+**EE (`Acumenus-Data-Sciences/Parthenon-EE`) — private CI:**
 - GitHub Actions on **self-hosted private runners** on `beastmode` (or small dedicated host). Decision: self-hosted to start; revisit if local capacity becomes a bottleneck.
 - Runs CE pipeline (against bundled CE source) + EE-specific tests.
-- Builds EE container images → `ghcr.io/acumenus/parthenon-ee-{php,nginx,...}` (private, restricted to EE customer GitHub orgs).
+- Builds EE container images → `ghcr.io/acumenus-data-sciences/parthenon-ee-{php,nginx,...}` (private, restricted to EE customer GitHub orgs).
 - Generates Helm chart artifacts → private OCI registry.
 - Signs containers (cosign) with Acumenus signing key.
 - SBOM generation (syft) for customer compliance review.
@@ -227,12 +227,12 @@ The "EE never patches CE" rule means most syncs are conflict-free. Conflicts onl
 ### 6.4 Release process
 
 **CE releases (public, semver):**
-- Cut `v1.x.y` tags on `acumenus/Parthenon` main.
+- Cut `v1.x.y` tags on `Acumenus-Data-Sciences/Parthenon` main.
 - GitHub Release with auto-generated changelog (conventional commits).
 - Container images tagged `:v1.x.y` and `:latest`.
 
 **EE releases (commercial, separate semver, independent cadence):**
-- Cut `vEE-1.x.y` tags on `acumenus/Parthenon-EE` main.
+- Cut `vEE-1.x.y` tags on `Acumenus-Data-Sciences/Parthenon-EE` main.
 - EE version pins a CE version (`CE_VERSION` file, validated at build time).
 - EE may release more often than CE for customer hotfixes without forcing a CE release.
 - Customer notification via private mailing list / customer portal.
@@ -250,9 +250,9 @@ EE customers receive:
 
 | Repo | Read | Write | Admin |
 |---|---|---|---|
-| `acumenus/Parthenon` (public) | World | Maintainers + contributors via PR (CLA-gated) | `@acumenus/maintainers` (Sanjay + 1 backup) |
-| `acumenus/Parthenon-EE` (private) | `@acumenus/employees`, `@acumenus/ee-team` | `@acumenus/employees`, `@acumenus/ee-team` | `@acumenus/maintainers` |
-| Private GHCR `parthenon-ee-*` | Paid EE customer org PATs | EE CI bot | `@acumenus/maintainers` |
+| `Acumenus-Data-Sciences/Parthenon` (public) | World | Maintainers + contributors via PR (CLA-gated) | `@Acumenus-Data-Sciences/maintainers` (Sanjay + 1 backup) |
+| `Acumenus-Data-Sciences/Parthenon-EE` (private) | `@Acumenus-Data-Sciences/employees`, `@Acumenus-Data-Sciences/ee-team` | `@Acumenus-Data-Sciences/employees`, `@Acumenus-Data-Sciences/ee-team` | `@Acumenus-Data-Sciences/maintainers` |
+| Private GHCR `parthenon-ee-*` | Paid EE customer org PATs | EE CI bot | `@Acumenus-Data-Sciences/maintainers` |
 
 ### 6.7 Branch protection
 
@@ -280,28 +280,28 @@ Phase gates are real. Don't start phase N+1 until phase N's exit criteria pass.
 
 ### Phase 0.5 — Org transfer (Week 0–1, ~2 days, parallel with Phase 0)
 
-Move `sudoshi/Parthenon` → `acumenus/Parthenon` so all later artifacts (CLA, LICENSING.md, package manifests, container images) generate against the new namespace once.
+Move `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon` so all later artifacts (CLA, LICENSING.md, package manifests, container images) generate against the new namespace once.
 
 **Pre-transfer prep:**
 - Audit `sudoshi/Parthenon` and `ghcr.io/sudoshi` references with `grep -r`. Expected hits: `README.md` badges, `docker-compose.community.yml` (image refs), CI workflows, `CONTRIBUTING.md`, scripts using `gh`, `package.json` repository field.
-- Decide org structure on `github.com/acumenus`:
-  - Teams: `@acumenus/maintainers` (Sanjay + 1 backup), `@acumenus/employees` (CE+EE write), `@acumenus/ee-team` (EE-only).
+- Decide org structure on `github.com/Acumenus-Data-Sciences`:
+  - Teams: `@Acumenus-Data-Sciences/maintainers` (Sanjay + 1 backup), `@Acumenus-Data-Sciences/employees` (CE+EE write), `@Acumenus-Data-Sciences/ee-team` (EE-only).
   - Org-level branch protection rulesets.
   - Org-level Actions secrets (signing keys, PATs).
 
 **Transfer day:**
 - GitHub "Transfer ownership" preserves PRs, issues, stars, releases, history. Old URLs auto-redirect.
 - Re-point CLA Assistant to new URL.
-- Update repo description, topics, social preview to acumenus branding.
+- Update repo description, topics, social preview to Acumenus-Data-Sciences org branding.
 - Re-add org-scoped secrets / app installations. Re-link bots (Sentinel/Bolt/Palette/Jules), Codecov.
 
 **Post-transfer cleanup PR:**
-- Bulk replace `sudoshi/Parthenon` → `acumenus/Parthenon` and `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus/parthenon-*` in active source.
+- Bulk replace `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon` and `ghcr.io/sudoshi/parthenon-*` → `ghcr.io/acumenus-data-sciences/parthenon-*` in active source.
 - Submodules (`OHDSI-scraper`, `study-agent`) stay at current URLs — they're separate repos.
 - Keep `ghcr.io/sudoshi/parthenon-*` images live for one minor version with a deprecation notice.
 - Notify any external integrations / partner pipelines.
 
-**Exit:** `acumenus/Parthenon` is canonical, CI green on a no-op PR, container images publish to `ghcr.io/acumenus/parthenon-*`, CLA Assistant gates a test PR, all `sudoshi/Parthenon` references in active source updated.
+**Exit:** `Acumenus-Data-Sciences/Parthenon` is canonical, CI green on a no-op PR, container images publish to `ghcr.io/acumenus-data-sciences/parthenon-*`, CLA Assistant gates a test PR, all `sudoshi/Parthenon` references in active source updated.
 
 ### Phase 1 — AGPLv3 relicense (Weeks 1–2)
 
@@ -317,7 +317,7 @@ Execute the existing handoff (`docs/handoffs/Apache2.0_to_AGPLv3_Conversion.md`)
 - Update `CONTRIBUTING.md` with CLA reference + dual-licensing terms.
 - CI runs full pipeline; smoke-test composer/npm/pip parse the new license metadata.
 
-**Exit:** PR merged into `acumenus/Parthenon`, CI green, CLA gating new external PRs, no production breakage at `parthenon.acumenus.net`.
+**Exit:** PR merged into `Acumenus-Data-Sciences/Parthenon`, CI green, CLA gating new external PRs, no production breakage at `parthenon.acumenus.net`.
 
 ### Phase 2 — CE extension points (Weeks 3–6, ~4 weeks)
 
@@ -338,7 +338,7 @@ PRs are independent; can be parallelized if more contributors are available. Eac
 
 ### Phase 3 — EE repo bootstrap (Week 7)
 
-Stand up `acumenus/Parthenon-EE` (private) and the sync infrastructure.
+Stand up `Acumenus-Data-Sciences/Parthenon-EE` (private) and the sync infrastructure.
 
 - Create the private repo.
 - Add `LICENSE-EE`, `COMMERCIAL.md`, `THIRD_PARTY_LICENSES.md`, private `README.md`.
@@ -348,7 +348,7 @@ Stand up `acumenus/Parthenon-EE` (private) and the sync infrastructure.
 - Write `scripts/build-ee.sh` (CE+EE → container images).
 - Write `scripts/verify-no-ce-patches.sh` (pre-commit + CI gate).
 - Set up self-hosted GH Actions runner on `beastmode`.
-- Create private GHCR namespace (`ghcr.io/acumenus/parthenon-ee-*`); push sample image.
+- Create private GHCR namespace (`ghcr.io/acumenus-data-sciences/parthenon-ee-*`); push sample image.
 - Set up cosign signing for EE artifacts; SBOM generation via syft.
 - Configure repo branch protection + CODEOWNERS (Acumenus-employees-only on EE).
 
@@ -395,7 +395,7 @@ Move actually-EE assets out of public CE and into private EE. Each move is **two
 | Phase | Weeks | Outcome |
 |---|---|---|
 | 0 | Week 0 (3 days) | Legal + CLA scaffolding, EULA placeholder, fork-user notifications |
-| 0.5 | Week 0–1 (2 days) | `sudoshi/Parthenon` → `acumenus/Parthenon`; org teams + branch rulesets |
+| 0.5 | Week 0–1 (2 days) | `sudoshi/Parthenon` → `Acumenus-Data-Sciences/Parthenon`; org teams + branch rulesets |
 | 1 | Weeks 1–2 | AGPLv3 live in CE |
 | 2 | Weeks 3–6 | 8 extension points in CE (all public, AGPL) |
 | 3 | Week 7 | EE repo + sync infra live |
@@ -440,9 +440,9 @@ Move actually-EE assets out of public CE and into private EE. Each move is **two
 
 Once EE has paying customers and revenue funding the refactor, migrate from "EE consumes CE subtree" to "EE consumes CE packages" (Approach C):
 
-- **CE backend** → publish `acumenus/parthenon-backend` to a private Packagist mirror or GitHub Packages composer registry.
-- **CE frontend** → publish `@acumenus/parthenon-frontend` to npm (private).
-- **CE AI service** → publish `acumenus-parthenon-ai` to a private PyPI mirror.
+- **CE backend** → publish `acumenus-data-sciences/parthenon-backend` to a private Packagist mirror or GitHub Packages composer registry.
+- **CE frontend** → publish `@acumenus-data-sciences/parthenon-frontend` to npm (private).
+- **CE AI service** → publish `acumenus-data-sciences-parthenon-ai` to a private PyPI mirror.
 - **CE infra** → split Acropolis community into per-service Helm subcharts.
 
 EE then declares CE packages as dependencies, applies overlays via package extension points, no source check-in of CE in EE. This is what GitLab CE/EE looked like at v8+; expect ~3 months of refactor.
@@ -456,8 +456,8 @@ EE then declares CE packages as dependencies, applies overlays via package exten
 
 ## 11. Definition of Done for This Initiative
 
-- `acumenus/Parthenon` (public, AGPL-3.0-only) is the canonical CE repo; transfer redirects from `sudoshi/Parthenon`.
-- `acumenus/Parthenon-EE` (private, commercial EULA) exists, builds, signs, and pushes to private GHCR.
+- `Acumenus-Data-Sciences/Parthenon` (public, AGPL-3.0-only) is the canonical CE repo; transfer redirects from `sudoshi/Parthenon`.
+- `Acumenus-Data-Sciences/Parthenon-EE` (private, commercial EULA) exists, builds, signs, and pushes to private GHCR.
 - 8 CE extension points are live, documented, tested.
 - EE first-pass migration is complete: enterprise infra, SAML/SCIM/Keycloak drivers, multi-tenancy, FIPS, signed audit, observability shippers all functional in EE.
 - Investor demo path: spin up CE on a workstation; spin up EE on a customer-grade environment; show same UI, more capabilities (multi-tenant switcher, SAML login, FIPS mode, Datadog dashboards).
@@ -506,7 +506,7 @@ EE then declares CE packages as dependencies, applies overlays via package exten
 - `ai/pyproject.toml` (license, authors)
 - `templates/pyproject.toml` (license)
 - `ROADMAP.md` (v2.0 enterprise edition status)
-- `docker-compose.community.yml` (`ghcr.io/sudoshi/` → `ghcr.io/acumenus/`)
+- `docker-compose.community.yml` (`ghcr.io/sudoshi/` → `ghcr.io/acumenus-data-sciences/`)
 - All CI workflow files (org rename + tests for extension points)
 
 **Files/dirs to move CE → EE:**

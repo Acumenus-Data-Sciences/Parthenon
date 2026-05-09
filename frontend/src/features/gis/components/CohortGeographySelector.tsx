@@ -12,6 +12,7 @@ import type {
   CohortGeographyMode,
   CohortGeographySelection,
 } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface CohortGeographySelectorProps {
   selection: CohortGeographySelection;
@@ -109,16 +110,16 @@ export function CohortGeographySelector({ selection, onChange }: CohortGeography
           onChange={(event) => updateLevel(event.target.value as CohortGeographyLevel)}
           className="rounded border border-border-default bg-surface-base px-2 py-1 text-[11px] text-text-primary focus:border-accent/50 focus:outline-none"
         >
-          <option value="county">County</option>
-          <option value="tract" disabled={!tractAvailable}>Tract</option>
+          <option value="county">{tAuto("county_60dee389")}</option>
+          <option value="tract" disabled={!tractAvailable}>{tAuto("tract_f2570aa5")}</option>
         </select>
         <select
           value={selection.metric}
           onChange={(event) => updateMetric(event.target.value as CohortGeographyMetric)}
           className="rounded border border-border-default bg-surface-base px-2 py-1 text-[11px] text-text-primary focus:border-accent/50 focus:outline-none"
         >
-          <option value="members">Members</option>
-          <option value="prevalence_per_1000">Per 1K</option>
+          <option value="members">{tAuto("members_1cb449c1")}</option>
+          <option value="prevalence_per_1000">{tAuto("per1k_9f1252c6")}</option>
         </select>
       </div>
 
@@ -146,7 +147,7 @@ export function CohortGeographySelector({ selection, onChange }: CohortGeography
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{item.name}</span>
                 <span className="block text-[10px] text-text-ghost">
-                  {item.geocoded_count.toLocaleString()} mapped / {item.subject_count.toLocaleString()}
+                  {item.geocoded_count.toLocaleString()} {tAuto("mapped_5ec5b5cc")} {item.subject_count.toLocaleString()}
                 </span>
               </span>
             </button>

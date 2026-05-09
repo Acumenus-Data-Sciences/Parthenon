@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Search, X, Loader2 } from "lucide-react";
 import { useCohortById, useCohortSearch } from "../hooks/useCohortSearch";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface CohortPickerProps {
   value: number | null;
@@ -71,7 +72,7 @@ export function CohortPicker({
             type="button"
             onClick={() => onChange(null)}
             className="ml-1 text-text-ghost hover:text-error transition-colors"
-            aria-label="Clear cohort"
+            aria-label={tAuto("clearCohort_8c530564")}
           >
             <X size={12} />
           </button>
@@ -102,10 +103,10 @@ export function CohortPicker({
       {open && value === null && (
         <div className="absolute left-0 right-0 z-10 mt-1 max-h-64 overflow-y-auto rounded border border-border-default bg-surface-raised shadow-lg">
           {debouncedQuery.length === 0 && (
-            <p className="px-3 py-2 text-[10px] text-text-ghost">Start typing to search…</p>
+            <p className="px-3 py-2 text-[10px] text-text-ghost">{tAuto("startTypingToSearch_a0adee5e")}</p>
           )}
           {debouncedQuery.length > 0 && results.length === 0 && !search.isPending && (
-            <p className="px-3 py-2 text-[10px] text-text-ghost">No matches.</p>
+            <p className="px-3 py-2 text-[10px] text-text-ghost">{tAuto("noMatches_0be6a257")}</p>
           )}
           {results.map((cohort) => (
             <button

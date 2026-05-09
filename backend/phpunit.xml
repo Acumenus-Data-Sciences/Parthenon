@@ -23,6 +23,15 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array" force="true"/>
         <env name="DB_CONNECTION" value="pgsql_testing" force="true"/>
+        <!--
+            DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD are intentionally NOT
+            force="true". GitHub Actions sets DB_HOST=127.0.0.1 / DB_PORT=5432
+            via the workflow `env:` block, and those must win. Local docker
+            runs are repaired at runtime by tests/Concerns/BootsTestSchemas
+            (it rewrites config when it sees host.docker.internal / OS user
+            leaks). The values below are only the local-dev defaults read
+            when no other source provides them.
+        -->
         <env name="DB_HOST" value="127.0.0.1"/>
         <env name="DB_PORT" value="5480"/>
         <env name="DB_DATABASE" value="parthenon_testing"/>

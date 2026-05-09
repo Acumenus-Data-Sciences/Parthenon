@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
 import type { WidgetProps } from "@rjsf/utils";
 import { Search, X, GitMerge } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 // SP4 Phase D.3 — provenance marker written by promote-match into
 // cohort_definitions.expression_json.finngen_match_promotion. Surface it as
@@ -59,13 +60,17 @@ function useCohortDefinitions(search: string) {
 }
 
 export function CohortPicker(props: WidgetProps) {
-  const { value, onChange, label, required, schema } = props;
+  const { value, onChange, schema } = props;
   const isMulti = schema.type === "array";
-  const selectedIds: number[] = isMulti
-    ? (Array.isArray(value) ? value : [])
-    : value != null
-      ? [value as number]
-      : [];
+  const selectedIds = useMemo<number[]>(
+    () =>
+      isMulti
+        ? (Array.isArray(value) ? value : [])
+        : value != null
+          ? [value as number]
+          : [],
+    [isMulti, value],
+  );
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -133,7 +138,7 @@ export function CohortPicker(props: WidgetProps) {
                   <GitMerge
                     size={10}
                     className="text-info"
-                    aria-label="Matched cohort"
+                    aria-label={tAuto("matchedCohort_e446b8ef")}
                     titleAccess={matchedTitle(prov)}
                   />
                 )}
@@ -163,7 +168,7 @@ export function CohortPicker(props: WidgetProps) {
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Search cohorts..."
+          placeholder={tAuto("searchCohorts_1f228e16")}
           className="w-full rounded border border-border-default bg-surface-base py-2 pl-8 pr-3 text-xs text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
         />
       </div>
@@ -172,10 +177,10 @@ export function CohortPicker(props: WidgetProps) {
       {open && (
         <div className="max-h-48 overflow-y-auto rounded border border-border-default bg-surface-raised shadow-lg">
           {isLoading && (
-            <div className="px-3 py-2 text-xs text-text-ghost">Loading...</div>
+            <div className="px-3 py-2 text-xs text-text-ghost">{tAuto("loading_b04ba49f")}</div>
           )}
           {!isLoading && cohorts.length === 0 && (
-            <div className="px-3 py-2 text-xs text-text-ghost">No cohorts found.</div>
+            <div className="px-3 py-2 text-xs text-text-ghost">{tAuto("noCohortsFound_b26a621f")}</div>
           )}
           {cohorts.map((cohort) => {
             const isSelected = selectedIds.includes(cohort.id);
@@ -206,7 +211,7 @@ export function CohortPicker(props: WidgetProps) {
                 <span className="truncate">{cohort.name}</span>
                 {prov !== null && (
                   <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-info/10 px-1 py-0.5 text-[9px] font-medium text-info">
-                    <GitMerge size={8} /> Matched 1:{prov.ratio}
+                    <GitMerge size={8} /> {tAuto("matched1_cdb56de2")}{prov.ratio}
                   </span>
                 )}
                 <span className="ml-auto text-text-ghost">#{cohort.id}</span>

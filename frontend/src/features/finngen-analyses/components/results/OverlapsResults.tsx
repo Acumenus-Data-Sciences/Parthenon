@@ -4,6 +4,7 @@
 import { useMemo } from "react";
 import { UpSetJS, extractSets, extractCombinations } from "@upsetjs/react";
 import type { OverlapsDisplay } from "../../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface OverlapsResultsProps {
   display: OverlapsDisplay;
@@ -59,12 +60,12 @@ export function OverlapsResults({ display }: OverlapsResultsProps) {
     <div className="space-y-6">
       {/* Summary */}
       <div className="text-xs text-text-muted">
-        Max overlap: {display.summary.max_overlap_pct}%
+        {tAuto("maxOverlap_6c8525cb")} {display.summary.max_overlap_pct}%
       </div>
 
       {/* UpSet plot */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-        <h3 className="text-xs font-semibold text-text-secondary mb-3">UpSet Plot</h3>
+        <h3 className="text-xs font-semibold text-text-secondary mb-3">{tAuto("upsetPlot_407a1ce4")}</h3>
         <div style={{ height: 400 }}>
           <UpSetJS
             sets={sets}
@@ -81,15 +82,15 @@ export function OverlapsResults({ display }: OverlapsResultsProps) {
       {/* Intersection table */}
       <div className="rounded-lg border border-border-default bg-surface-raised">
         <div className="px-4 py-3 border-b border-border-default">
-          <h3 className="text-xs font-semibold text-text-secondary">Intersections</h3>
+          <h3 className="text-xs font-semibold text-text-secondary">{tAuto("intersections_564a9241")}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border-default text-text-ghost">
-                <th className="px-3 py-2 text-left font-medium">Members</th>
-                <th className="px-3 py-2 text-left font-medium">Size</th>
-                <th className="px-3 py-2 text-left font-medium">% of smallest</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("members_1cb449c1")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("size_b7152342")}</th>
+                <th className="px-3 py-2 text-left font-medium">{tAuto("ofSmallest_1e4611a7")}</th>
               </tr>
             </thead>
             <tbody>

@@ -1,6 +1,7 @@
 // FinnGen Endpoint Browser — API types + queries.
 // Consumes /api/v1/finngen/endpoints from EndpointBrowserController.
 import apiClient from "@/lib/api-client";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type CoverageBucket =
   | "FULLY_MAPPED"
@@ -520,7 +521,7 @@ export async function fetchCovariateSets(): Promise<CovariateSetSummary[]> {
         return [
           {
             id: 0,
-            name: "Default: age + sex + 10 PCs",
+            name: tAuto("defaultAgeSex10Pcs_996ce514"),
             is_default: true,
             description: null,
           },

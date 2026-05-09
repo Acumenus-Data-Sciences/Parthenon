@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 // ---------------------------------------------------------------------------
 // Shared covariate settings type used across estimation, prediction, SCCS
@@ -210,8 +211,8 @@ export function CovariateSettingsPanel({
                   type="button"
                   onClick={() => removeWindow(idx)}
                   className="text-text-muted hover:text-critical transition-colors"
-                  aria-label="Remove time window"
-                  title="Remove time window"
+                  aria-label={tAuto("removeTimeWindow_543ce729")}
+                  title={tAuto("removeTimeWindow_543ce729")}
                 >
                   <X size={14} />
                 </button>

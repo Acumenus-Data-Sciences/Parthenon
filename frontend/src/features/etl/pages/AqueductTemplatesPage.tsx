@@ -43,10 +43,22 @@ export function AqueductTemplatesPage() {
   // Effective manifest: prefer the fetched manifest (full nodes + post_conditions),
   // otherwise synthesize a minimal manifest from the cached catalog entry so the
   // ParameterForm can render synchronously and the user is not blocked by a fetch.
+  // Catalog summaries lack `description` and `parameters_schema`; supply safe
+  // defaults so the synthesized object satisfies the TemplateManifest contract.
   const effectiveManifest: TemplateManifest | null = useMemo(() => {
     if (manifestQ.data) return manifestQ.data;
-    if (selectedTemplate)
-      return { ...selectedTemplate, nodes: [], post_conditions: [] };
+    if (selectedTemplate) {
+      return {
+        ...selectedTemplate,
+        description: selectedTemplate.description ?? "",
+        parameters_schema: selectedTemplate.parameters_schema ?? {
+          type: "object",
+          properties: {},
+        },
+        nodes: [],
+        post_conditions: [],
+      };
+    }
     return null;
   }, [manifestQ.data, selectedTemplate]);
 
@@ -61,7 +73,7 @@ export function AqueductTemplatesPage() {
       {
         onSuccess: (resp) => {
           setSelectedId(null);
-          navigate(`/data-ingestion?tab=aqueduct&subtab=runs&run=${resp.id}`);
+          navigate(`/ingestion?tab=aqueduct&subtab=runs&run=${resp.id}`);
         },
       },
     );

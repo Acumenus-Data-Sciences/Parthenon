@@ -45,25 +45,56 @@ class TemplatesControllerListShowTest extends TestCase
 
         $registry = Mockery::mock(TemplateRegistryClient::class);
         $registry->shouldReceive('listTemplates')->andReturn([
-            ['id' => 'hello_cdm', 'version' => '0.1.0', 'name' => 'Hello CDM'],
+            [
+                'id' => 'hello_cdm',
+                'version' => '0.1.0',
+                'name' => 'Hello CDM',
+                'category' => 'ingestion',
+                'tags' => ['demo'],
+                'cdm_versions' => ['5.4'],
+                'singleton' => false,
+            ],
         ]);
         $this->app->instance(TemplateRegistryClient::class, $registry);
 
         $this->actingAs($user)
             ->getJson('/api/v1/ingestion/templates')
             ->assertOk()
-            ->assertJsonFragment(['id' => 'hello_cdm']);
+            ->assertJsonFragment(['id' => 'hello_cdm'])
+            ->assertJsonPath('0.category', 'ingestion');
     }
 
-    public function test_show_proxies_single_template(): void
+    public function test_show_flattens_kubernetes_style_manifest(): void
     {
         $user = User::factory()->create();
         $user->givePermissionTo('ingestion.view');
 
+        // Upstream registry returns Kubernetes-style {apiVersion, kind, metadata, spec}.
         $registry = Mockery::mock(TemplateRegistryClient::class);
         $registry->shouldReceive('getTemplate')->with('hello_cdm')->andReturn([
-            'id' => 'hello_cdm',
-            'manifest' => ['singleton' => false],
+            'apiVersion' => 'parthenon.acumenus.net/v1',
+            'kind' => 'Template',
+            'metadata' => [
+                'id' => 'hello_cdm',
+                'name' => 'Hello CDM',
+                'version' => '0.1.0',
+                'category' => 'ingestion',
+                'cdm_versions' => ['5.4'],
+                'tags' => ['demo'],
+                'singleton' => false,
+            ],
+            'spec' => [
+                'parameters' => [
+                    'type' => 'object',
+                    'required' => ['target_schema'],
+                    'properties' => [
+                        'target_schema' => ['type' => 'string'],
+                    ],
+                ],
+                'nodes' => [
+                    ['node_id' => 'bootstrap', 'type' => 'python'],
+                ],
+            ],
         ]);
         $this->app->instance(TemplateRegistryClient::class, $registry);
 
@@ -71,6 +102,10 @@ class TemplatesControllerListShowTest extends TestCase
             ->getJson('/api/v1/ingestion/templates/hello_cdm')
             ->assertOk()
             ->assertJsonPath('id', 'hello_cdm')
-            ->assertJsonPath('manifest.singleton', false);
+            ->assertJsonPath('singleton', false)
+            ->assertJsonPath('parameters_schema.type', 'object')
+            ->assertJsonPath('parameters_schema.required.0', 'target_schema')
+            ->assertJsonPath('nodes.0.id', 'bootstrap')
+            ->assertJsonPath('nodes.0.kind', 'python');
     }
 }

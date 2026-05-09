@@ -2,6 +2,7 @@
 import { useState, type ReactNode } from "react";
 import { X, RotateCw, ChevronDown, ChevronRight } from "lucide-react";
 import type { OpKind, OpNode } from "../lib/operationTree";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const OP_COLORS: Record<OpKind, string> = {
   UNION: "border-success/40 bg-success/5",
@@ -64,7 +65,7 @@ export function OpContainer({
             "border border-border-default bg-surface-overlay hover:bg-surface-raised transition-colors",
             labelColor,
           ].join(" ")}
-          title="Click to cycle UNION → INTERSECT → MINUS"
+          title={tAuto("clickToCycleUnionIntersectMinus_5abae17b")}
         >
           {node.op}
           <RotateCw size={10} />
@@ -79,7 +80,7 @@ export function OpContainer({
               type="button"
               onClick={() => onRemove(node.id)}
               className="text-text-ghost hover:text-error transition-colors"
-              aria-label="Remove op"
+              aria-label={tAuto("removeOp_51619435")}
             >
               <X size={12} />
             </button>

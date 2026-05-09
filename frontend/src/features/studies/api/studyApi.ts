@@ -23,6 +23,7 @@ import type {
   StudyDesignVersion,
   StudyDesignProtocolImportResult,
   StudyProtocolImportResult,
+  ManagedShinyLaunch,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
@@ -663,6 +664,18 @@ export async function deleteStudyArtifact(
   artifactId: number,
 ): Promise<void> {
   await apiClient.delete(`${BASE}/${slug}/artifacts/${artifactId}`);
+}
+
+export async function launchStudyArtifactShinyApp(
+  slug: string,
+  artifactId: number,
+  payload: { app_key?: string; mode?: "embedded" | "full_page" },
+): Promise<ManagedShinyLaunch> {
+  const { data } = await apiClient.post(
+    `${BASE}/${slug}/artifacts/${artifactId}/shiny-launch`,
+    payload,
+  );
+  return data.data ?? data;
 }
 
 // ---------------------------------------------------------------------------

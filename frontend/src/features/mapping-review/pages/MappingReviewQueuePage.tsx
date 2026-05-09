@@ -15,13 +15,14 @@ import { SimilarityBar } from "../components/SimilarityBar";
 import { StatusPill } from "../components/StatusPill";
 import { KeyboardHelpOverlay } from "../components/KeyboardHelpOverlay";
 import { useReviewerKeyboardShortcuts } from "../hooks/useReviewerKeyboardShortcuts";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
-  { value: "confidence_asc", label: "Lowest confidence first" },
-  { value: "confidence_desc", label: "Highest confidence first" },
-  { value: "age_asc", label: "Oldest first" },
-  { value: "age_desc", label: "Newest first" },
-  { value: "seen_count_desc", label: "Most-seen first" },
+  { value: "confidence_asc", label: tAuto("lowestConfidenceFirst_5d95b861") },
+  { value: "confidence_desc", label: tAuto("highestConfidenceFirst_7d10f3a3") },
+  { value: "age_asc", label: tAuto("oldestFirst_6a99c65c") },
+  { value: "age_desc", label: tAuto("newestFirst_f5ec7772") },
+  { value: "seen_count_desc", label: tAuto("mostSeenFirst_36d206e7") },
 ];
 
 function useDebouncedValue<T>(value: T, delayMs: number): T {
@@ -91,19 +92,15 @@ function MappingReviewQueuePage() {
   const rows = queueQuery.data?.data ?? [];
   const totalPages = queueQuery.data?.meta.last_page ?? 1;
   const total = queueQuery.data?.meta.total ?? 0;
-
-  // Keep focused row in bounds when rows change.
-  useEffect(() => {
-    if (focusedRow >= rows.length) {
-      setFocusedRow(rows.length === 0 ? 0 : rows.length - 1);
-    }
-  }, [rows.length, focusedRow]);
+  const focusedRowIndex =
+    rows.length === 0 ? 0 : Math.min(focusedRow, rows.length - 1);
 
   useReviewerKeyboardShortcuts({
-    onNext: () => setFocusedRow((i) => Math.min(rows.length - 1, i + 1)),
+    onNext: () =>
+      setFocusedRow((i) => Math.min(Math.max(rows.length - 1, 0), i + 1)),
     onPrev: () => setFocusedRow((i) => Math.max(0, i - 1)),
     onApprove: () => {
-      const r = rows[focusedRow];
+      const r = rows[focusedRowIndex];
       if (r) navigate(`/admin/mapping-review/${r.queue_id}`);
     },
     onSearch: (e) => {
@@ -128,22 +125,21 @@ function MappingReviewQueuePage() {
         <div className="flex items-baseline justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Concept-Mapping Review
+              {tAuto("conceptMappingReview_7ba8b47a")}
             </h1>
             <p className="text-sm text-zinc-400">
-              Harmonia harmonizes the rerank queue. Review pending suggestions and
-              approve, reject, or escalate.
+              {tAuto("harmoniaHarmonizesTheRerankQueueReviewPendingSuggestions_9e9cee97")}
             </p>
           </div>
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
             className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800"
-            aria-label="Show keyboard shortcuts"
+            aria-label={tAuto("showKeyboardShortcuts_9855e663")}
             aria-keyshortcuts="?"
           >
             <kbd className="font-mono text-xs">?</kbd>{" "}
-            <span className="ml-1">Keyboard</span>
+            <span className="ml-1">{tAuto("keyboard_6662c40b")}</span>
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -157,27 +153,27 @@ function MappingReviewQueuePage() {
       <div className="rounded-xl border border-zinc-800 bg-[#0E0E11]/60 p-4">
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col text-xs text-zinc-400">
-            <span className="mb-1 uppercase tracking-wide">Status</span>
+            <span className="mb-1 uppercase tracking-wide">{tAuto("status_bae7d5be")}</span>
             <select
               value={status}
               onChange={(e) => setFilter("status", e.target.value)}
               className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100 focus:border-[#2DD4BF] focus:outline-none"
             >
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="escalated">Escalated</option>
-              <option value="all">All</option>
+              <option value="pending">{tAuto("pending_96f608c1")}</option>
+              <option value="approved">{tAuto("approved_41b81eb8")}</option>
+              <option value="rejected">{tAuto("rejected_27eeb7a2")}</option>
+              <option value="escalated">{tAuto("escalated_aff666f4")}</option>
+              <option value="all">{tAuto("all_6a720856")}</option>
             </select>
           </label>
           <label className="flex flex-col text-xs text-zinc-400">
-            <span className="mb-1 uppercase tracking-wide">Source vocab</span>
+            <span className="mb-1 uppercase tracking-wide">{tAuto("sourceVocab_47f9ac74")}</span>
             <select
               value={sourceVocab}
               onChange={(e) => setFilter("source_vocab", e.target.value)}
               className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100 focus:border-[#2DD4BF] focus:outline-none"
             >
-              <option value="">All</option>
+              <option value="">{tAuto("all_6a720856")}</option>
               {COMMON_SOURCE_VOCABS.map((v) => (
                 <option key={v} value={v}>
                   {v}
@@ -186,7 +182,7 @@ function MappingReviewQueuePage() {
             </select>
           </label>
           <label className="flex flex-col text-xs text-zinc-400">
-            <span className="mb-1 uppercase tracking-wide">Sort</span>
+            <span className="mb-1 uppercase tracking-wide">{tAuto("sort_adc4e96a")}</span>
             <select
               value={sortBy}
               onChange={(e) => setFilter("sort_by", e.target.value)}
@@ -201,14 +197,14 @@ function MappingReviewQueuePage() {
           </label>
           <label className="flex flex-1 flex-col text-xs text-zinc-400">
             <span className="mb-1 uppercase tracking-wide">
-              Search code or text
+              {tAuto("searchCodeOrText_e048a7c5")}
             </span>
             <input
               ref={searchRef}
               type="search"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="GLUC-FASTING, hypertension…"
+              placeholder={tAuto("glucFastingHypertension_2bed3f8e")}
               className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-[#2DD4BF] focus:outline-none"
               aria-keyshortcuts="/"
             />
@@ -218,7 +214,7 @@ function MappingReviewQueuePage() {
 
       <QueueTable
         rows={rows}
-        focusedRow={focusedRow}
+        focusedRow={focusedRowIndex}
         onFocusRow={setFocusedRow}
         loading={queueQuery.isLoading}
         error={queueQuery.error}
@@ -272,7 +268,7 @@ function QueueTable({
           onClick={onRetry}
           className="mt-3 rounded-lg bg-[#9B1B30] px-3 py-1.5 text-sm font-medium text-white"
         >
-          Retry
+          {tAuto("retry_9f5cd8a2")}
         </button>
       </div>
     );
@@ -290,7 +286,7 @@ function QueueTable({
             />
           ))}
         </div>
-        <span className="sr-only">Loading queue…</span>
+        <span className="sr-only">{tAuto("loadingQueue_a1e2a39a")}</span>
       </div>
     );
   }
@@ -298,9 +294,9 @@ function QueueTable({
   if (rows.length === 0) {
     return (
       <div className="rounded-xl border border-zinc-800 bg-[#0E0E11]/60 p-12 text-center">
-        <p className="text-base text-zinc-300">No items match these filters.</p>
+        <p className="text-base text-zinc-300">{tAuto("noItemsMatchTheseFilters_a6276bfd")}</p>
         <p className="mt-2 text-sm italic text-zinc-500">
-          Hecate searches the crossroads. Harmonia harmonizes. Ariadne records the thread.
+          {tAuto("hecateSearchesTheCrossroadsHarmoniaHarmonizesAriadneRecords_ed880a76")}
         </p>
       </div>
     );
@@ -311,14 +307,14 @@ function QueueTable({
       <table className="min-w-full divide-y divide-zinc-800 text-sm">
         <thead className="bg-zinc-900/60 text-xs uppercase tracking-wide text-zinc-400">
           <tr>
-            <th scope="col" className="px-3 py-2 text-left">Source code</th>
-            <th scope="col" className="px-3 py-2 text-left">Vocab</th>
-            <th scope="col" className="px-3 py-2 text-left">Source text</th>
-            <th scope="col" className="px-3 py-2 text-left">Top suggestion</th>
-            <th scope="col" className="px-3 py-2 text-left">Confidence</th>
-            <th scope="col" className="px-3 py-2 text-right">Seen</th>
-            <th scope="col" className="px-3 py-2 text-left">Age</th>
-            <th scope="col" className="px-3 py-2 text-left">Status</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("sourceCode_22a35fbe")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("vocab_239c2f13")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("sourceText_6f377d27")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("topSuggestion_22a1f2ed")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("confidence_82fa7d52")}</th>
+            <th scope="col" className="px-3 py-2 text-right">{tAuto("seen_56564dcb")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("age_ff9f1ff3")}</th>
+            <th scope="col" className="px-3 py-2 text-left">{tAuto("status_bae7d5be")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-900 bg-[#0E0E11]/40">
@@ -377,7 +373,7 @@ function Pagination({ page, totalPages, total, onChange }: PaginationProps) {
   return (
     <div className="flex items-center justify-between text-sm text-zinc-400">
       <span className="tabular-nums">
-        Page {page} of {totalPages} ({total} items)
+        {tAuto("page_fb06270f")} {page} of {totalPages} ({total} {tAuto("items_91a9f843")}
       </span>
       <div className="flex gap-2">
         <button
@@ -386,7 +382,7 @@ function Pagination({ page, totalPages, total, onChange }: PaginationProps) {
           disabled={page <= 1}
           className="rounded-md border border-zinc-700 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-zinc-800"
         >
-          Previous
+          {tAuto("previous_50f94286")}
         </button>
         <button
           type="button"
@@ -394,7 +390,7 @@ function Pagination({ page, totalPages, total, onChange }: PaginationProps) {
           disabled={page >= totalPages}
           className="rounded-md border border-zinc-700 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-zinc-800"
         >
-          Next
+          {tAuto("next_bc981983")}
         </button>
       </div>
     </div>

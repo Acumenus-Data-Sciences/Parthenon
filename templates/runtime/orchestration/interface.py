@@ -50,6 +50,23 @@ class ArtifactRef:
     media_type: str
 
 
+@dataclass(frozen=True)
+class RunDetails:
+    """Rich run state surfaced by ``get_run_details``.
+
+    Fields beyond ``status`` are best-effort and may be ``None`` when the
+    backend cannot determine them. Laravel ``TemplateRunService::pollAndUpdate``
+    only writes non-null values, so missing fields preserve the prior state.
+    """
+
+    status: RunStatus
+    progress: float = 0.0
+    current_node: str | None = None
+    started_at: str | None = None  # ISO-8601 UTC
+    finished_at: str | None = None  # ISO-8601 UTC
+    error_message: str | None = None
+
+
 class OrchestrationBackend(ABC):
     """Backend-agnostic execution surface."""
 
@@ -60,6 +77,14 @@ class OrchestrationBackend(ABC):
     @abstractmethod
     def get_status(self, handle: RunHandle) -> RunStatus:
         """Return the current run status."""
+
+    def get_run_details(self, handle: RunHandle) -> RunDetails:
+        """Return rich run state. Default implementation falls back to status only.
+
+        Backends that track per-node execution and timing should override this
+        so the SPA can render progress, current node, and timestamps.
+        """
+        return RunDetails(status=self.get_status(handle))
 
     @abstractmethod
     def get_logs(self, handle: RunHandle, *, limit: int = 1000) -> list[LogLine]:

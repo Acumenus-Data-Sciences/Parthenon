@@ -68,7 +68,7 @@ SYNC_DB_DSN = os.environ.get(
     "dbname=parthenon user=claude_dev host=localhost",
 )
 
-GH_REPO = os.environ.get("GH_REPO", "sudoshi/Parthenon")
+GH_REPO = os.environ.get("GH_REPO", "Acumenus-Data-Sciences/Parthenon")
 
 # All backfilled entities are "Closed" (all work is done)
 BACKFILL_STATUS_ID = OP_STATUS_CLOSED  # 12

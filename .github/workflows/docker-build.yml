@@ -72,7 +72,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/sudoshi/parthenon
+  IMAGE_PREFIX: ghcr.io/acumenus-data-sciences/parthenon
 
 permissions:
   contents: read
@@ -225,7 +225,12 @@ jobs:
     needs: changes
     if: ${{ fromJson(needs.changes.outputs.matrix).include[0] != null }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Bumped from 60 → 120 min: the darkstar (R + HADES + regenie + plink2)
+    # build compiles many R packages from source and pulls a Rust toolchain
+    # for waysign — repeatedly hit the 60min wall on hosted runners. Other
+    # images in the matrix (nginx/node/php/etc.) finish well under 30min so
+    # the higher cap doesn't change their cost meaningfully.
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.changes.outputs.matrix) }}
@@ -297,5 +302,5 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           labels: |
-            org.opencontainers.image.source=https://github.com/sudoshi/Parthenon
+            org.opencontainers.image.source=https://github.com/Acumenus-Data-Sciences/Parthenon
             org.opencontainers.image.revision=${{ github.sha }}

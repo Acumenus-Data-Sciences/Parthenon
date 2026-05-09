@@ -3,7 +3,6 @@ import { initReactI18next } from "react-i18next";
 import {
   applyDocumentLocale,
   DEFAULT_LOCALE,
-  getBrowserLocale,
   getQueryLocale,
   getStoredLocalePreference,
   normalizeLocale,
@@ -24,7 +23,6 @@ export function resolveInitialLocale(
   return (
     getQueryLocale() ??
     getStoredLocalePreference() ??
-    getBrowserLocale() ??
     DEFAULT_LOCALE
   );
 }

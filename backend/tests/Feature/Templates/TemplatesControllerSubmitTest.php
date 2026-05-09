@@ -77,10 +77,11 @@ class TemplatesControllerSubmitTest extends TestCase
                 'parameters' => ['target_schema' => 'eunomia'],
             ])
             ->assertStatus(201)
-            ->assertJsonStructure(['template_run_id', 'ingestion_job_id', 'status']);
+            ->assertJsonStructure(['id', 'template_run_id', 'ingestion_job_id', 'status']);
 
         $this->assertSame(1, TemplateRun::count());
         $run = TemplateRun::firstOrFail();
+        $this->assertSame((string) $run->id, (string) $resp->json('id'));
         $this->assertSame((string) $run->id, (string) $resp->json('template_run_id'));
         $this->assertSame('queued', $resp->json('status'));
     }

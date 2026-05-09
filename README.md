@@ -4,11 +4,11 @@
 
 ![Parthenon](https://github.com/user-attachments/assets/ff7dd041-d489-4340-ae4e-4e3c56b56ded)
 
-[![CI](https://github.com/sudoshi/Parthenon/actions/workflows/ci.yml/badge.svg)](https://github.com/sudoshi/Parthenon/actions/workflows/ci.yml)
+[![CI](https://github.com/Acumenus-Data-Sciences/Parthenon/actions/workflows/ci.yml/badge.svg)](https://github.com/Acumenus-Data-Sciences/Parthenon/actions/workflows/ci.yml)
 [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)](https://php.net)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![OMOP CDM v5.4](https://img.shields.io/badge/OMOP_CDM-v5.4-0078D4)](https://ohdsi.github.io/CommonDataModel/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
 
 **Live demo:** [parthenon.acumenus.net](https://parthenon.acumenus.net)
 **User manual:** [parthenon.acumenus.net/docs](https://parthenon.acumenus.net/docs)
@@ -110,7 +110,7 @@ installers are paused until signed packages pass install smoke tests.
 The full production deployment includes Parthenon plus the Acropolis infrastructure layer: automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin. The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, Authentik SSO, and Wazuh security monitoring.
 
 ```bash
-git clone https://github.com/sudoshi/Parthenon.git
+git clone https://github.com/Acumenus-Data-Sciences/Parthenon.git
 cd Parthenon
 python3 install.py --with-infrastructure
 ```
@@ -122,7 +122,7 @@ This runs both the Parthenon application installer and the Acropolis infrastruct
 For local development or environments where you manage your own reverse proxy:
 
 ```bash
-git clone https://github.com/sudoshi/Parthenon.git
+git clone https://github.com/Acumenus-Data-Sciences/Parthenon.git
 cd Parthenon
 python3 install.py
 ```
@@ -152,7 +152,7 @@ The guided installer and browser launcher now also require:
 If you prefer manual setup over the interactive installer:
 
 ```bash
-git clone https://github.com/sudoshi/Parthenon.git
+git clone https://github.com/Acumenus-Data-Sciences/Parthenon.git
 cd Parthenon
 
 # Configure environment
@@ -291,6 +291,10 @@ The original OHDSI Atlas codebase is archived at the `archive/legacy` branch.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) for details.
+Parthenon Community Edition is licensed under **GNU AGPL-3.0-only** — see [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md) for details.
+
+A commercial **Enterprise Edition** is available with additional features (SSO with SAML/SCIM, multi-tenancy, FIPS crypto, signed audit retention, Kubernetes operator, premium support). Contact `licensing@acumenus.net` for inquiries.
 
 Built on the [OMOP Common Data Model](https://ohdsi.github.io/CommonDataModel/). OMOP CDM and the OHDSI vocabulary are governed by their respective licenses — see [ohdsi.org](https://ohdsi.org).
+
+"Parthenon", "Acumenus", and "Wellstack.ai" are trademarks of Acumenus Data Sciences, Inc. — see [TRADEMARKS.md](TRADEMARKS.md).

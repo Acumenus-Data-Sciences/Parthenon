@@ -5,6 +5,7 @@ import { Shell } from "@/components/workbench/primitives";
 import { HelpButton } from "@/features/help";
 import { useVsacValueSets } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const CODE_SYSTEMS = [
   "", "SNOMEDCT", "ICD10CM", "ICD10PCS", "LOINC", "RXNORM", "CPT", "HCPCS Level II",
@@ -37,9 +38,9 @@ export default function CareBundleVsacValueSetsPage() {
             <List className="h-5 w-5 text-text-secondary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">VSAC Value Sets</h1>
+            <h1 className="text-2xl font-bold text-text-primary">{tAuto("vsacValueSets_86fc113e")}</h1>
             <p className="text-sm text-text-ghost">
-              CMS Value Set Authority Center library — {meta?.total?.toLocaleString() ?? "…"} value sets indexed.
+              {tAuto("cmsValueSetAuthorityCenterLibrary_1a14320b")} {meta?.total?.toLocaleString() ?? "…"} {tAuto("valueSetsIndexed_e8fdafd6")}
             </p>
           </div>
         </div>
@@ -58,7 +59,7 @@ export default function CareBundleVsacValueSetsPage() {
               setQ(e.target.value);
               setPage(1);
             }}
-            placeholder="Search by name or paste an OID…"
+            placeholder={tAuto("searchByNameOrPasteAnOid_6878939b")}
             className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
           />
         </div>
@@ -70,30 +71,30 @@ export default function CareBundleVsacValueSetsPage() {
           }}
           className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All code systems</option>
+          <option value="">{tAuto("allCodeSystems_1f43e725")}</option>
           {CODE_SYSTEMS.filter(Boolean).map((cs) => (
             <option key={cs} value={cs}>{cs}</option>
           ))}
         </select>
       </div>
 
-      <Shell title="Value sets" subtitle={`Page ${meta?.page ?? 1} of ${meta?.last_page ?? "?"}`}>
+      <Shell title={tAuto("valueSets_0992621f")} subtitle={`Page ${meta?.page ?? 1} of ${meta?.last_page ?? "?"}`}>
         <div className="overflow-x-auto">
           {query.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loading_33ce4174")}
             </div>
           ) : rows.length === 0 ? (
-            <p className="p-6 text-sm text-text-ghost">No value sets match.</p>
+            <p className="p-6 text-sm text-text-ghost">{tAuto("noValueSetsMatch_23e12a32")}</p>
           ) : (
             <table className="min-w-full text-sm">
               <thead className="border-b border-border-default">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Name</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("name_709a2322")}</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">OID</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Category</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">Codes</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">OMOP concepts</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("category_a3c686e7")}</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("codes_199993be")}</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("omopConcepts_01eb6476")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,7 +147,7 @@ export default function CareBundleVsacValueSetsPage() {
                 disabled={page <= 1}
                 className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
               >
-                Prev
+                {tAuto("prev_e96fea52")}
               </button>
               <span>
                 {page} / {meta.last_page}
@@ -156,7 +157,7 @@ export default function CareBundleVsacValueSetsPage() {
                 disabled={meta.last_page != null && page >= meta.last_page}
                 className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
               >
-                Next
+                {tAuto("next_bc981983")}
               </button>
             </div>
           </div>

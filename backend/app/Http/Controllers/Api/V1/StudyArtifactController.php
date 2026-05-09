@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
+use App\Models\User;
+use App\Services\Shiny\ManagedShinyAppRegistry;
+use App\Services\Shiny\ManagedShinyLaunchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +22,11 @@ class StudyArtifactController extends Controller
     /** @var list<string> */
     private const PROHIBITED_ARTIFACT_TYPES = ['shiny_app_url'];
 
+    public function __construct(
+        private readonly ManagedShinyAppRegistry $shinyAppRegistry,
+        private readonly ManagedShinyLaunchService $shinyLaunches,
+    ) {}
+
     /**
      * GET /v1/studies/{study}/artifacts
      *
@@ -31,7 +39,8 @@ class StudyArtifactController extends Controller
                 ->whereNotIn('artifact_type', self::PROHIBITED_ARTIFACT_TYPES)
                 ->with('uploadedBy:id,name,email')
                 ->orderByDesc('created_at')
-                ->get();
+                ->get()
+                ->map(fn (StudyArtifact $artifact): array => $this->presentArtifact($artifact));
 
             return response()->json([
                 'data' => $artifacts,
@@ -71,7 +80,7 @@ class StudyArtifactController extends Controller
             $artifact->load('uploadedBy:id,name,email');
 
             return response()->json([
-                'data' => $artifact,
+                'data' => $this->presentArtifact($artifact),
                 'message' => 'Study artifact added.',
             ], 201);
         } catch (\Throwable $e) {
@@ -110,8 +119,10 @@ class StudyArtifactController extends Controller
         try {
             $studyArtifact->update($validated);
 
+            $studyArtifact->refresh()->load('uploadedBy:id,name,email');
+
             return response()->json([
-                'data' => $studyArtifact->fresh('uploadedBy:id,name,email'),
+                'data' => $this->presentArtifact($studyArtifact),
                 'message' => 'Study artifact updated.',
             ]);
         } catch (\Throwable $e) {
@@ -153,6 +164,40 @@ class StudyArtifactController extends Controller
     }
 
     /**
+     * POST /v1/studies/{study}/artifacts/{studyArtifact}/shiny-launch
+     *
+     * Create a short-lived launch envelope for a vetted OHDSI Shiny app.
+     */
+    public function launchShiny(Request $request, Study $study, StudyArtifact $studyArtifact): JsonResponse
+    {
+        if ((int) $studyArtifact->study_id !== (int) $study->id) {
+            return response()->json(['message' => 'Artifact does not belong to this study.'], 404);
+        }
+
+        if (in_array($studyArtifact->artifact_type, self::PROHIBITED_ARTIFACT_TYPES, true)) {
+            return response()->json(['message' => 'Legacy Shiny artifacts are not exposed.'], 404);
+        }
+
+        $validated = $request->validate([
+            'app_key' => ['nullable', 'string', 'max:120'],
+            'mode' => ['nullable', 'string', Rule::in(['embedded', 'full_page'])],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        return response()->json([
+            'data' => $this->shinyLaunches->create(
+                $study,
+                $studyArtifact,
+                $user,
+                $validated['app_key'] ?? null,
+                $validated['mode'] ?? 'embedded',
+            ),
+        ]);
+    }
+
+    /**
      * DELETE /v1/studies/{study}/artifacts/{studyArtifact}
      *
      * Remove an artifact from a study.
@@ -189,5 +234,20 @@ class StudyArtifactController extends Controller
         }
 
         return response()->json($response, 500);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function presentArtifact(StudyArtifact $artifact): array
+    {
+        $payload = $artifact->toArray();
+        $payload['managed_shiny_apps'] = $this->shinyAppRegistry->appsForArtifact($artifact);
+
+        if ($artifact->relationLoaded('uploadedBy')) {
+            $payload['uploaded_by_user'] = $artifact->uploadedBy?->only(['id', 'name', 'email']);
+        }
+
+        return $payload;
     }
 }

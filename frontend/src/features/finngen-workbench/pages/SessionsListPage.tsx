@@ -16,6 +16,7 @@ import {
 import type { WorkbenchSession, WorkbenchSessionStateV1 } from "../types";
 import { Shell } from "@/components/workbench/primitives";
 import { HelpButton } from "@/features/help";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function SessionsListPage() {
   const navigate = useNavigate();
@@ -87,32 +88,32 @@ export default function SessionsListPage() {
     <div className="mx-auto max-w-5xl space-y-4 p-4">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-lg font-semibold text-text-primary">Cohort Workbench</h1>
+          <h1 className="text-lg font-semibold text-text-primary">{tAuto("cohortWorkbench_63aa8a7d")}</h1>
           <p className="text-xs text-text-ghost">
-            Compose, match, and materialize cohorts. Hand off to the Analysis Gallery when ready.
+            {tAuto("composeMatchAndMaterializeCohortsHandOffTo_4fbedc93")}
           </p>
         </div>
         <HelpButton helpKey="finngen.workbench-sessions" />
       </header>
 
       <Shell
-        title="New session"
+        title={tAuto("newSession_5c881d23")}
         subtitle="Pick a source; give the session a name (or leave blank — we'll call it Untitled)."
       >
         <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-[1fr,1fr,auto] md:items-end">
           <label className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wide text-text-ghost">Name</span>
+            <span className="text-[10px] uppercase tracking-wide text-text-ghost">{tAuto("name_709a2322")}</span>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Untitled session"
+              placeholder={tAuto("untitledSession_55c4f845")}
               maxLength={255}
               className="w-full rounded border border-border-default bg-surface-overlay px-2 py-1 text-xs"
             />
           </label>
           <label className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wide text-text-ghost">Source</span>
+            <span className="text-[10px] uppercase tracking-wide text-text-ghost">{tAuto("source_6da13add")}</span>
             <select
               value={newSourceKey}
               onChange={(e) => setNewSourceKey(e.target.value)}
@@ -145,13 +146,13 @@ export default function SessionsListPage() {
             ) : (
               <Plus size={12} />
             )}
-            Create session
+            {tAuto("createSession_d1df0889")}
           </button>
         </div>
       </Shell>
 
       <Shell
-        title="Your sessions"
+        title={tAuto("yourSessions_b3ddc08d")}
         subtitle={
           sessions.data && sessions.data.length > 0
             ? `${sessions.data.length} session${sessions.data.length === 1 ? "" : "s"} — most recent first.`
@@ -160,22 +161,20 @@ export default function SessionsListPage() {
       >
         {sessions.isPending && (
           <div className="flex items-center gap-2 p-4 text-xs text-text-ghost">
-            <Loader2 size={12} className="animate-spin" /> Loading…
+            <Loader2 size={12} className="animate-spin" /> {tAuto("loading_33ce4174")}
           </div>
         )}
         {sessions.isError && (
-          <p className="p-4 text-xs text-error">Failed to load sessions.</p>
+          <p className="p-4 text-xs text-error">{tAuto("failedToLoadSessions_53283b42")}</p>
         )}
         {sessions.data?.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center">
             <div className="rounded-full border border-dashed border-border-default p-3 text-text-ghost">
               <GitMerge size={20} />
             </div>
-            <p className="text-sm font-medium text-text-secondary">No sessions yet</p>
+            <p className="text-sm font-medium text-text-secondary">{tAuto("noSessionsYet_9d7789c9")}</p>
             <p className="max-w-md text-[10px] text-text-ghost">
-              A session captures one cohort-composition workflow: import → operate
-              (UNION/INTERSECT/MINUS) → preview counts → match → materialize → hand off. Start one
-              above.
+              {tAuto("aSessionCapturesOneCohortCompositionWorkflowImport_fd0576a9")}
             </p>
           </div>
         )}
@@ -214,14 +213,14 @@ export default function SessionsListPage() {
                     to={`/workbench/cohorts/${s.id}`}
                     className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-1 text-[11px] font-medium text-success hover:bg-success/20"
                   >
-                    Resume <ArrowRight size={10} />
+                    {tAuto("resume_b3bd0b5a")} <ArrowRight size={10} />
                   </Link>
                   <button
                     type="button"
                     onClick={() => handleDuplicate(s)}
                     className="text-text-ghost transition-colors hover:text-text-secondary"
-                    aria-label="Duplicate session"
-                    title="Duplicate session"
+                    aria-label={tAuto("duplicateSession_5fd4ea3f")}
+                    title={tAuto("duplicateSession_5fd4ea3f")}
                   >
                     <Copy size={12} />
                   </button>
@@ -233,8 +232,8 @@ export default function SessionsListPage() {
                       }
                     }}
                     className="text-text-ghost transition-colors hover:text-error"
-                    aria-label="Delete session"
-                    title="Delete session"
+                    aria-label={tAuto("deleteSession_ca574702")}
+                    title={tAuto("deleteSession_ca574702")}
                   >
                     <Trash2 size={12} />
                   </button>

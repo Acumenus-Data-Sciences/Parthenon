@@ -1,13 +1,15 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  DEFAULT_LOCALE,
   getLocaleMetadata,
   getLocaleDirection,
+  LOCALE_STORAGE_KEY,
   normalizeLocale,
   PUBLIC_SELECTABLE_LOCALES,
   SUPPORTED_LOCALES,
   USER_SELECTABLE_LOCALES,
 } from "../locales";
-import i18n, { setActiveLocale } from "../i18n";
+import i18n, { resolveInitialLocale, setActiveLocale } from "../i18n";
 import { formatNumber } from "../format";
 import { resources } from "../resources";
 
@@ -21,7 +23,10 @@ function flattenKeys(value: unknown, prefix = ""): string[] {
 
 describe("i18n locale support", () => {
   afterEach(async () => {
+    window.history.replaceState(null, "", "/");
+    window.localStorage.clear();
     await setActiveLocale("en-US");
+    window.localStorage.clear();
   });
 
   it("normalizes exact, case-insensitive, and language-only locale values", () => {
@@ -118,5 +123,34 @@ describe("i18n locale support", () => {
     await setActiveLocale("de-DE");
 
     expect(formatNumber(1234.5)).toBe("1.234,5");
+  });
+
+  it("defaults to English instead of inferring the browser language", () => {
+    const originalLanguages = navigator.languages;
+    Object.defineProperty(window.navigator, "languages", {
+      configurable: true,
+      value: ["es-ES", "en-US"],
+    });
+    window.localStorage.removeItem(LOCALE_STORAGE_KEY);
+
+    try {
+      expect(resolveInitialLocale()).toBe(DEFAULT_LOCALE);
+    } finally {
+      Object.defineProperty(window.navigator, "languages", {
+        configurable: true,
+        value: originalLanguages,
+      });
+    }
+  });
+
+  it("honors explicit locale sources before the English default", () => {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, "fr-FR");
+
+    expect(resolveInitialLocale()).toBe("fr-FR");
+
+    window.history.replaceState(null, "", "/?lng=de-DE");
+
+    expect(resolveInitialLocale()).toBe("de-DE");
+    expect(resolveInitialLocale("ko")).toBe("ko-KR");
   });
 });

@@ -22,10 +22,20 @@ class TemplateRunService
     public function submit(string $templateId, string $version, array $parameters, User $user): TemplateRun
     {
         $manifest = $this->registry->getTemplate($templateId);
-        $manifestBody = $this->extractManifestBody($manifest);
-        $singleton = (bool) ($manifestBody['singleton'] ?? false);
-        $emitsCdm = (bool) (data_get($manifestBody, 'meta.emits_cdm') ?? false);
-        $requiresCdm = (bool) (data_get($manifestBody, 'requires.cdm_initialized') ?? false);
+        // Live upstream returns {apiVersion, kind, metadata, spec}; the legacy
+        // controller-test mock returns {id, manifest: {...}}. Look in both.
+        $singleton = (bool) (data_get($manifest, 'metadata.singleton')
+            ?? data_get($manifest, 'manifest.singleton')
+            ?? data_get($manifest, 'singleton')
+            ?? false);
+        $emitsCdm = (bool) (data_get($manifest, 'spec.meta.emits_cdm')
+            ?? data_get($manifest, 'manifest.meta.emits_cdm')
+            ?? data_get($manifest, 'meta.emits_cdm')
+            ?? false);
+        $requiresCdm = (bool) (data_get($manifest, 'spec.requires.cdm_initialized')
+            ?? data_get($manifest, 'manifest.requires.cdm_initialized')
+            ?? data_get($manifest, 'requires.cdm_initialized')
+            ?? false);
 
         return DB::transaction(function () use ($templateId, $version, $parameters, $user, $singleton, $emitsCdm, $requiresCdm): TemplateRun {
             if ($singleton) {
@@ -54,9 +64,11 @@ class TemplateRunService
 
             $response = $this->registry->submitRun($templateId, $version, $parameters, $correlationId);
 
-            $prefectRunId = (string) ($response['prefect_run_id'] ?? '');
+            // Live upstream RunSubmitResponse uses `run_id`; older mocks/tests
+            // use `prefect_run_id`. Accept either so the run is correctly linked.
+            $prefectRunId = (string) ($response['prefect_run_id'] ?? $response['run_id'] ?? '');
             if ($prefectRunId === '') {
-                throw new TemplateRegistryException('Template registry returned empty prefect_run_id', 502);
+                throw new TemplateRegistryException('Template registry returned empty run_id/prefect_run_id', 502);
             }
 
             $run->update([
@@ -93,8 +105,10 @@ class TemplateRunService
         if (isset($payload['post_conditions']) && is_array($payload['post_conditions'])) {
             $update['post_conditions'] = $payload['post_conditions'];
         }
-        if (isset($payload['error'])) {
-            $update['error_message'] = (string) $payload['error'];
+        // Upstream emits `error_message`; older mocks/tests use `error`.
+        $upstreamError = $payload['error_message'] ?? $payload['error'] ?? null;
+        if ($upstreamError !== null) {
+            $update['error_message'] = (string) $upstreamError;
         }
 
         DB::transaction(function () use ($run, $update, $newStatus): void {
@@ -112,11 +126,39 @@ class TemplateRunService
         if ($run->isTerminal()) {
             return;
         }
+
+        // Phase 1: ask upstream to cancel. We tolerate a missing run (409/404)
+        // because the run may have completed between the SPA fetching status
+        // and the user clicking cancel — that's a benign race.
         if ($run->prefect_run_id !== null) {
-            $this->registry->cancelRun((string) $run->prefect_run_id);
+            try {
+                $this->registry->cancelRun((string) $run->prefect_run_id);
+            } catch (TemplateRegistryException $e) {
+                // Don't bubble — proceed to phase 2 and let upstream's
+                // current status drive the local update.
+            }
         }
+
+        // Phase 2: reflect upstream's actual current status if available.
+        // If upstream now reports `completed` or `failed`, do not blindly
+        // overwrite to `cancelled` — the run finished before our cancel
+        // arrived. If upstream is gone (no prefect_run_id, or unreachable),
+        // fall back to optimistic-cancel.
+        $finalStatus = TemplateRun::STATUS_CANCELLED;
+        if ($run->prefect_run_id !== null) {
+            try {
+                $payload = $this->registry->getRun((string) $run->prefect_run_id);
+                $upstreamStatus = (string) ($payload['status'] ?? '');
+                if (in_array($upstreamStatus, TemplateRun::TERMINAL_STATUSES, true)) {
+                    $finalStatus = $upstreamStatus;
+                }
+            } catch (TemplateRegistryException $e) {
+                // Upstream unreachable — keep optimistic cancellation.
+            }
+        }
+
         $run->update([
-            'status' => TemplateRun::STATUS_CANCELLED,
+            'status' => $finalStatus,
             'finished_at' => now(),
         ]);
     }

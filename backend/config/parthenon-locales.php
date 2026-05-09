@@ -73,7 +73,7 @@ return [
         ],
         'fi-FI' => [
             'label' => 'Finnish (Finland)',
-            'native_label' => 'Suomi(Finnish)',
+            'native_label' => 'Suomi (Suomi)',
             'direction' => 'ltr',
             'laravel' => 'fi',
             'docusaurus' => 'fi',

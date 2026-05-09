@@ -20,6 +20,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import type { TopVariantRow } from "../../api/gwas-results";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const columnHelper = createColumnHelper<TopVariantRow>();
 
@@ -65,6 +66,7 @@ export function TopVariantsTable({
     { id: "p_value", desc: false },
   ]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table exposes non-memoizable handlers by design.
   const table = useReactTable({
     data: rows,
     columns,
@@ -80,7 +82,7 @@ export function TopVariantsTable({
         className="py-6 text-center text-sm text-text-muted"
         data-testid="top-variants-empty"
       >
-        No variants to display
+        {tAuto("noVariantsToDisplay_53242a63")}
       </div>
     );
   }

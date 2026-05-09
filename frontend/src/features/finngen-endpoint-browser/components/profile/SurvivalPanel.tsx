@@ -20,6 +20,7 @@ import type {
   EndpointProfileSummary,
 } from "../../api";
 import { useEndpointProfileKmData } from "../../hooks/useEndpointProfileKmData";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type SurvivalPanelProps = {
   summary: EndpointProfileSummary;
@@ -83,14 +84,13 @@ export function SurvivalPanel({
           id="survival-heading"
           className="text-xs font-semibold uppercase tracking-wider text-slate-500"
         >
-          Survival
+          {tAuto("survival_fe88ea8d")}
         </p>
         <div
           role="alert"
           className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200"
         >
-          No death data in this source — survival panel disabled. Comorbidity
-          + drug panels still render below.
+          {tAuto("noDeathDataInThisSourceSurvivalPanel_d3bcd983")}
         </div>
       </section>
     );
@@ -102,7 +102,7 @@ export function SurvivalPanel({
         id="survival-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        Survival
+        {tAuto("survival_fe88ea8d")}
       </p>
 
       <div className="flex gap-3">
@@ -142,7 +142,7 @@ export function SurvivalPanel({
       {summary.death_count > 0 && summary.age_at_death_bins.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Age at death (5-year bins)
+            {tAuto("ageAtDeath5YearBins_faf33d67")}
           </p>
           <div className="rounded border border-slate-800 bg-slate-950/60 p-4">
             <ResponsiveContainer width="100%" height={180}>

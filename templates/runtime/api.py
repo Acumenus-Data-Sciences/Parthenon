@@ -64,12 +64,22 @@ class RunSubmitResponse(BaseModel):
 
 
 class RunStatusResponse(BaseModel):
-    """Response body for ``GET /runs/{run_id}``."""
+    """Response body for ``GET /runs/{run_id}``.
+
+    Beyond ``status``, fields are best-effort: backends that don't track per-node
+    state may return defaults. Laravel ``TemplateRunService::pollAndUpdate``
+    treats null/zero as "no change" so the run row keeps prior state.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
     status: str
+    progress: float = 0.0
+    current_node: str | None = None
+    started_at: str | None = None
+    finished_at: str | None = None
+    error_message: str | None = None
 
 
 class RunLogsResponse(BaseModel):
@@ -186,9 +196,18 @@ def run_status(
     run_id: str,
     backend: OrchestrationBackend = Depends(get_backend),
 ) -> RunStatusResponse:
-    """Return current status for a run."""
+    """Return current status for a run, including progress and timing."""
     handle = _resolve_handle(run_id)
-    return RunStatusResponse(run_id=run_id, status=backend.get_status(handle).value)
+    details = backend.get_run_details(handle)
+    return RunStatusResponse(
+        run_id=run_id,
+        status=details.status.value,
+        progress=details.progress,
+        current_node=details.current_node,
+        started_at=details.started_at,
+        finished_at=details.finished_at,
+        error_message=details.error_message,
+    )
 
 
 @app.get("/runs/{run_id}/logs", response_model=RunLogsResponse, tags=["runs"])

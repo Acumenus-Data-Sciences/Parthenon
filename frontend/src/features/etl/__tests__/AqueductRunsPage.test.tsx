@@ -81,8 +81,10 @@ describe("AqueductRunsPage", () => {
   });
 
   it("opens the inspector when a row is clicked", async () => {
+    // useTemplateRunHistory returns the raw axios body so the mock keeps the
+    // {data, meta} envelope. All other endpoints return their bare flat shape.
     mockedGet.mockImplementation((url?: string) => {
-      if (!url) return Promise.resolve({ data: { data: [] } });
+      if (!url) return Promise.resolve({ data: [] });
       if (url.startsWith("/ingestion/templates/runs?"))
         return Promise.resolve({
           data: {
@@ -91,17 +93,15 @@ describe("AqueductRunsPage", () => {
           },
         });
       if (url === "/ingestion/templates/runs/42")
-        return Promise.resolve({ data: { data: RUN } });
+        return Promise.resolve({ data: RUN });
       if (url === "/ingestion/templates/hello_cdm")
         return Promise.resolve({
-          data: {
-            data: { ...RUN, name: "Hello CDM", nodes: [], post_conditions: [] },
-          },
+          data: { ...RUN, name: "Hello CDM", nodes: [], post_conditions: [] },
         });
       if (url === "/ingestion/templates/runs/42/logs")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { lines: [] } });
       if (url === "/ingestion/templates/runs/42/artifacts")
-        return Promise.resolve({ data: { data: [] } });
+        return Promise.resolve({ data: { artifacts: [] } });
       return Promise.reject(new Error(`unexpected ${url}`));
     });
     render(<AqueductRunsPage />, { wrapper });

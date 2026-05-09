@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { finngenWorkbenchApi, type PreviewCountsResponse, type PreviewCountsValidationError } from "../api";
 import type { OperationNode } from "../lib/operationTree";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type PreviewError = {
   kind: "validation" | "network" | "darkstar" | "unknown";
@@ -36,10 +37,10 @@ export function usePreviewCounts(sourceKey: string) {
             } satisfies PreviewError;
           }
           if (status === 504) {
-            throw { kind: "darkstar", message: "Preview timed out", status } satisfies PreviewError;
+            throw { kind: "darkstar", message: tAuto("previewTimedOut_db683641"), status } satisfies PreviewError;
           }
           if (status === 502) {
-            throw { kind: "darkstar", message: "Darkstar unreachable", status } satisfies PreviewError;
+            throw { kind: "darkstar", message: tAuto("darkstarUnreachable_520ddf17"), status } satisfies PreviewError;
           }
           throw {
             kind: "network",

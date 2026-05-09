@@ -24,7 +24,7 @@ def test_anonymizer_image_uses_parthenon_ghcr_mirror() -> None:
     compose = _load_compose()
     svc = compose["services"]["parthenon-anonymizer"]
     image = svc.get("image") or ""
-    assert image.startswith("ghcr.io/sudoshi/parthenon-fhir-anonymizer"), image
+    assert image.startswith("ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer"), image
 
 
 def test_anonymizer_runs_non_root() -> None:

@@ -298,15 +298,13 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:ingestion.view');
 
         // Ingestion Templates (Phase 0)
+        // NOTE: /runs* routes MUST be registered BEFORE /{id} or Laravel
+        // matches the wildcard first and sends "runs" to TemplatesController::show().
         Route::prefix('ingestion/templates')->group(function () {
             Route::get('/', [TemplatesController::class, 'index'])
                 ->middleware('permission:ingestion.view');
-            Route::get('/{id}', [TemplatesController::class, 'show'])
-                ->where('id', '[A-Za-z0-9_\-]+')
+            Route::get('/runs', [TemplatesController::class, 'listRuns'])
                 ->middleware('permission:ingestion.view');
-            Route::post('/{id}/runs', [TemplatesController::class, 'submitRun'])
-                ->where('id', '[A-Za-z0-9_\-]+')
-                ->middleware('permission:ingestion.run');
             Route::get('/runs/{run}', [TemplatesController::class, 'showRun'])
                 ->middleware('permission:ingestion.view');
             Route::get('/runs/{run}/logs', [TemplatesController::class, 'runLogs'])
@@ -315,6 +313,12 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:ingestion.view');
             Route::delete('/runs/{run}', [TemplatesController::class, 'cancelRun'])
                 ->middleware('permission:ingestion.delete');
+            Route::post('/{id}/runs', [TemplatesController::class, 'submitRun'])
+                ->where('id', '[A-Za-z0-9_\-]+')
+                ->middleware('permission:ingestion.run');
+            Route::get('/{id}', [TemplatesController::class, 'show'])
+                ->where('id', '[A-Za-z0-9_\-]+')
+                ->middleware('permission:ingestion.view');
         });
 
         // Ingestion Projects (multi-file)
@@ -831,6 +835,8 @@ Route::prefix('v1')->group(function () {
             Route::get('artifacts', [StudyArtifactController::class, 'index']);
             Route::post('artifacts', [StudyArtifactController::class, 'store']);
             Route::put('artifacts/{studyArtifact}', [StudyArtifactController::class, 'update']);
+            Route::post('artifacts/{studyArtifact}/shiny-launch', [StudyArtifactController::class, 'launchShiny'])
+                ->middleware('permission:studies.view');
             Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
             Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
 

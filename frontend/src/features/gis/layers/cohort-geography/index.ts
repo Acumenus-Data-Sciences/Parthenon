@@ -5,6 +5,7 @@ import { CohortGeographyAnalysisPanel } from "./CohortGeographyAnalysisPanel";
 import { CohortGeographyDetailPanel } from "./CohortGeographyDetailPanel";
 import { CohortGeographyMapOverlay } from "./CohortGeographyMapOverlay";
 import { useCohortGeographyData } from "./useCohortGeographyData";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const cohortGeographyLayer: GisLayer = {
   id: "cohort-geography",
@@ -15,13 +16,13 @@ const cohortGeographyLayer: GisLayer = {
   requiresCohortGeography: true,
   mapOverlay: CohortGeographyMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Low", color: "#08768C40", type: "gradient" },
-    { label: "High", color: "#06B6D4", type: "gradient" },
+    { label: tAuto("low_a124947c"), color: "#08768C40", type: "gradient" },
+    { label: tAuto("high_b1a5954a"), color: "#06B6D4", type: "gradient" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
     {
       layerId: "cohort-geography",
-      label: "Cohort",
+      label: tAuto("cohort_1b02f699"),
       value: Number(feature.value).toLocaleString(),
       color: "#06B6D4",
     },

@@ -31,6 +31,7 @@ WORKDIR /app
 # Copy project metadata first to maximize layer cache hits.
 COPY --chown=templates:templates templates/pyproject.toml templates/README.md /app/templates/
 COPY --chown=templates:templates templates/runtime /app/templates/runtime
+COPY --chown=templates:templates templates/manifests /app/templates/manifests
 COPY --chown=templates:templates docker/templates/honcho.cfg /app/honcho.cfg
 COPY --chown=templates:templates docker/templates/entrypoint.sh /app/entrypoint.sh
 

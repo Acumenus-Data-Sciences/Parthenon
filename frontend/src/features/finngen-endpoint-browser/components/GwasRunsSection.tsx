@@ -17,6 +17,7 @@ import { formatDistanceToNow } from "date-fns";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RunStatusBadge } from "@/features/_finngen-foundation/components/RunStatusBadge";
 import type { EndpointGwasRun } from "../api";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type GwasRunsSectionProps = {
   endpointName: string;
@@ -51,10 +52,10 @@ export function GwasRunsSection({
           id="gwas-runs-heading"
           className="text-xs font-semibold uppercase tracking-wider text-slate-500"
         >
-          GWAS runs
+          {tAuto("gwasRuns_67b7d4dd")}
         </p>
         <div className="mt-2">
-          <EmptyState title="No GWAS runs yet — dispatch one below." />
+          <EmptyState title={tAuto("noGwasRunsYetDispatchOneBelow_a212ea4a")} />
         </div>
       </section>
     );
@@ -73,7 +74,7 @@ export function GwasRunsSection({
         id="gwas-runs-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        GWAS runs
+        {tAuto("gwasRuns_67b7d4dd")}
       </p>
       <div className="mt-2 space-y-2" role="list" aria-live="polite">
         {runs.map((run) => {
@@ -111,7 +112,7 @@ export function GwasRunsSection({
                   <div className="flex flex-shrink-0 items-center gap-3">
                     {run.top_hit_p_value !== null && (
                       <span className="font-mono text-[10px] text-slate-300">
-                        top hit: p={formatPValue(run.top_hit_p_value)}
+                        {tAuto("topHitP_0887e389")}{formatPValue(run.top_hit_p_value)}
                       </span>
                     )}
                     <span className="font-mono text-[10px] text-slate-600">
@@ -133,7 +134,7 @@ export function GwasRunsSection({
                       className="text-teal-400 hover:text-teal-300"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      replaced by run #{supersededBy}
+                      {tAuto("replacedByRun_5f58ed32")}{supersededBy}
                     </Link>
                   ) : (
                     <Link
@@ -141,7 +142,7 @@ export function GwasRunsSection({
                       className="text-teal-400 hover:text-teal-300"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      replaced by run #{supersededBy}
+                      {tAuto("replacedByRun_5f58ed32")}{supersededBy}
                     </Link>
                   )}
                 </div>
@@ -157,7 +158,7 @@ export function GwasRunsSection({
           )}&kind=gwas`}
           className="block w-full py-2 text-center text-[11px] text-slate-500 hover:text-teal-300"
         >
-          Show older GWAS runs (showing {runs.length} of {totalCount}) →
+          {tAuto("showOlderGwasRunsShowing_52fc4628")} {runs.length} of {totalCount}) →
         </Link>
       )}
     </section>

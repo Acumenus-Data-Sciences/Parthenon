@@ -3,6 +3,7 @@ import { Loader2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCreateCohortFromIntersection } from "../hooks";
 import type { ConditionBundle, IntersectionMode } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   isOpen: boolean;
@@ -71,17 +72,16 @@ export function IntersectionCohortDialog({
         <div className="flex items-start justify-between">
           <div>
             <h2 id="intersection-dialog-title" className="text-lg font-semibold text-text-primary">
-              Save intersection as cohort
+              {tAuto("saveIntersectionAsCohort_aa5896ec")}
             </h2>
             <p className="mt-1 text-xs text-text-ghost">
-              {intersectionCount.toLocaleString()} qualified persons will be
-              materialized into a new cohort definition.
+              {intersectionCount.toLocaleString()} {tAuto("qualifiedPersonsWillBeMaterializedIntoANew_91f61382")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={tAuto("closeDialog_7b290202")}
             className="rounded-lg p-1 text-text-ghost hover:bg-surface-overlay"
           >
             <X className="h-4 w-4" />
@@ -90,7 +90,7 @@ export function IntersectionCohortDialog({
 
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-            Name
+            {tAuto("name_709a2322")}
           </span>
           <input
             required
@@ -101,14 +101,14 @@ export function IntersectionCohortDialog({
           />
           {name.length >= 240 && (
             <span className="mt-1 block text-[10px] text-amber-300">
-              {255 - name.length} characters remaining (max 255).
+              {255 - name.length} {tAuto("charactersRemainingMax255_01ded77e")}
             </span>
           )}
         </label>
 
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-text-ghost">
-            Description (optional)
+            {tAuto("descriptionOptional_388de6fa")}
           </span>
           <textarea
             value={description}
@@ -130,7 +130,7 @@ export function IntersectionCohortDialog({
             onClick={onClose}
             className="rounded-lg border border-border-default px-3 py-2 text-sm text-text-muted hover:bg-surface-overlay"
           >
-            Cancel
+            {tAuto("cancel_77dfd213")}
           </button>
           <button
             type="submit"
@@ -141,7 +141,7 @@ export function IntersectionCohortDialog({
             {mutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : null}
-            Create cohort
+            {tAuto("createCohort_dd680bd0")}
           </button>
         </div>
       </form>

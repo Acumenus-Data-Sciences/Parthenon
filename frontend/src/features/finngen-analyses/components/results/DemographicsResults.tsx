@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import type { DemographicsDisplay } from "../../types";
 import { Users, BarChart3 } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface DemographicsResultsProps {
   display: DemographicsDisplay;
@@ -38,7 +39,7 @@ export function DemographicsResults({ display }: DemographicsResultsProps) {
   if (display.cohorts.length === 0 || !cohort) {
     return (
       <div className="py-12 text-center text-sm text-text-ghost">
-        No demographic data available.
+        {tAuto("noDemographicDataAvailable_33ebe350")}
       </div>
     );
   }
@@ -80,7 +81,7 @@ export function DemographicsResults({ display }: DemographicsResultsProps) {
 
       {/* Age pyramid */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-        <h3 className="text-xs font-semibold text-text-secondary mb-3">Age-Gender Pyramid</h3>
+        <h3 className="text-xs font-semibold text-text-secondary mb-3">{tAuto("ageGenderPyramid_f7d748e7")}</h3>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={pyramidData} layout="vertical" margin={{ top: 5, right: 30, left: 60, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />

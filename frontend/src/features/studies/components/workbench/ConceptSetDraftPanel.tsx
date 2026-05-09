@@ -17,6 +17,7 @@ import {
   textAt,
   textValue,
 } from "./studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function ConceptSetDraftPanel({
   assets,
@@ -81,7 +82,7 @@ export function ConceptSetDraftPanel({
             className="btn btn-ghost btn-sm"
           >
             {isVerifying ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-            Verify All
+            {tAuto("verifyAll_bd8f913c")}
           </button>
           <button
             type="button"
@@ -245,7 +246,7 @@ function ConceptSetDraftCard({
           {blockers.length === 0 && warnings.length > 0 && <p className="mt-2 text-xs text-warning">{warnings[0]}</p>}
           {repairSuggestions.length > 0 && canEdit && (
             <div className="mt-3 space-y-2 rounded-md border border-warning/30 bg-warning/5 p-2">
-              <p className="text-[10px] uppercase tracking-wider text-warning">Abby repair suggestions</p>
+              <p className="text-[10px] uppercase tracking-wider text-warning">{tAuto("abbyRepairSuggestions_b3bb423e")}</p>
               {repairSuggestions.map((suggestion, index) => {
                 const patch = isRecord(suggestion.patch) ? suggestion.patch : null;
                 const canApply = Array.isArray(patch?.concepts);
@@ -263,7 +264,7 @@ function ConceptSetDraftCard({
                         disabled={isUpdating}
                         className="btn btn-ghost btn-sm shrink-0"
                       >
-                        Apply Abby patch
+                        {tAuto("applyAbbyPatch_7f2b0269")}
                       </button>
                     )}
                   </div>
