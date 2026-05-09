@@ -51,7 +51,7 @@ Use the `mirai` package (by ShColumn Zero) to create a pool of 3 pre-forked R wo
 - **Port:** 8787
 - **Memory allocation:** 32GB (configurable via Docker resource limits)
 - **Multi-stage Dockerfile:** Stage 1 compiles HADES dependencies (cached layer), Stage 2 adds application code and s6 configuration
-- **GHCR image:** `ghcr.io/sudoshi/parthenon-darkstar:latest` (pre-built to avoid 30+ minute local compilation)
+- **GHCR image:** `ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest` (pre-built to avoid 30+ minute local compilation)
 
 ### Package installation strategy
 

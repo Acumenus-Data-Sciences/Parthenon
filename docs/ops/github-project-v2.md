@@ -11,7 +11,7 @@ This repository includes a checked-in Project V2 seed for the roadmap in [ROADMA
 ## What It Creates
 
 - Project title, description, visibility, and README
-- Repository link to `sudoshi/Parthenon`
+- Repository link to `Acumenus-Data-Sciences/Parthenon`
 - Custom fields:
   - `Release`
   - `Category`

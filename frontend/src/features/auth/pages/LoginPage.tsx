@@ -269,7 +269,7 @@ export function LoginPage() {
           >
             {t("hero.openSourcePrefix")}{" "}
             <a
-              href="https://github.com/sudoshi/Parthenon"
+              href="https://github.com/Acumenus-Data-Sciences/Parthenon"
               target="_blank"
               rel="noopener noreferrer"
               style={{

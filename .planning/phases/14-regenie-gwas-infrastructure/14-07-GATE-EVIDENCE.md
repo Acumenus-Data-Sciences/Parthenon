@@ -12,7 +12,7 @@ signed_off_by: smudoshi
 
 - Host: beastmode (Ubuntu 24.04 LTS, PG17 on host)
 - Git HEAD at sign-off: `b656944fa` (fix(14-07): unblock Checkpoint 3 smoke — PC merge, bulk load, psql binary)
-- Darkstar image: `ghcr.io/sudoshi/parthenon-darkstar:latest` id `b17e27e4e529`
+- Darkstar image: `ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest` id `b17e27e4e529`
 - regenie: v4.1.gz
 - PLINK2: v2.0.0-a.6.33LM AVX2 Intel (28 Feb 2026)
 - PostgreSQL client (host): 17.9; server: 17

@@ -16,7 +16,7 @@ import tarfile
 import urllib.request
 from pathlib import Path
 
-GITHUB_REPO = "sudoshi/Parthenon"
+GITHUB_REPO = "Acumenus-Data-Sciences/Parthenon"
 GITHUB_CLONE_URL = f"https://github.com/{GITHUB_REPO}.git"
 TARBALL_URL = f"https://github.com/{GITHUB_REPO}/archive/refs/heads/main.tar.gz"
 DEFAULT_TARGET = Path.home() / "Parthenon"

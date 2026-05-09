@@ -3,7 +3,7 @@
 #   curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 set -eu
 
-REPO="sudoshi/Parthenon"
+REPO="Acumenus-Data-Sciences/Parthenon"
 CLONE_URL="https://github.com/${REPO}.git"
 DEFAULT_INSTALL_DIR="${HOME}/Parthenon"
 

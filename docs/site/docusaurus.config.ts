@@ -113,7 +113,7 @@ const config: Config = {
           routeBasePath: "/",
           docItemComponent: "@theme/ApiItem",
           editUrl:
-            "https://github.com/sudoshi/Parthenon/edit/main/docs/site/",
+            "https://github.com/Acumenus-Data-Sciences/Parthenon/edit/main/docs/site/",
           // Versioning: uncomment the next line when cutting the first release
           // lastVersion: "current",
         },
@@ -197,7 +197,7 @@ const config: Config = {
           position: "left",
         },
         {
-          href: "https://github.com/sudoshi/Parthenon",
+          href: "https://github.com/Acumenus-Data-Sciences/Parthenon",
           label: "GitHub",
           position: "right",
         },

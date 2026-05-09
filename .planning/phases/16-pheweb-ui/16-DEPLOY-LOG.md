@@ -262,7 +262,7 @@ docker compose ps hecate
 # → Restarting (101) 18 seconds ago
 ```
 
-Hecate (`ghcr.io/sudoshi/parthenon-hecate:latest`) has been in crash loop since
+Hecate (`ghcr.io/acumenus-data-sciences/parthenon-hecate:latest`) has been in crash loop since
 before Phase 16 executor started. Unrelated to any Phase 16 plan artifact.
 **Action:** Out of scope for this cutover. Tracked as separate follow-up ticket
 (Hecate-restart investigation — not blocking Phase 16 closure).

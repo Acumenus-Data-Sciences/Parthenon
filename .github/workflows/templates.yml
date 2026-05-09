@@ -191,7 +191,7 @@ jobs:
       # issue is investigated as a Phase 2 follow-up.
       - name: Build parthenon-anonymizer sidecar image
         continue-on-error: true
-        # The compose service references ghcr.io/sudoshi/parthenon-fhir-anonymizer
+        # The compose service references ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer
         # which is not accessible to the CI runner without registry auth. Build
         # the image locally from docker/parthenon-anonymizer/Dockerfile so that
         # `up -d` finds it cached and skips the pull.

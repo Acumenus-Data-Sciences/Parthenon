@@ -1,0 +1,43 @@
+name: License & Org Reference Guard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  org-references:
+    name: Verify no stale sudoshi/Parthenon references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for stale org references
+        run: |
+          set -e
+          STALE=$(grep -rn 'sudoshi/Parthenon\|ghcr\.io/sudoshi/parthenon' \
+            --include='*.md' --include='*.yml' --include='*.yaml' \
+            --include='*.json' --include='*.toml' --include='*.sh' \
+            --include='*.py' --include='*.php' --include='*.ts' --include='*.tsx' \
+            --include='.env.example' --include='Dockerfile*' \
+            --exclude-dir=node_modules --exclude-dir=vendor \
+            --exclude-dir=graphify-out --exclude-dir=.git \
+            --exclude-dir=.venv --exclude-dir=backups \
+            . 2>/dev/null \
+            | grep -v 'docs/handoffs/' \
+            | grep -v 'docs/devlog/' \
+            | grep -v 'docs/superpowers/' \
+            | grep -v 'docs/blog/' \
+            | grep -v '.github/workflows/license-guard.yml' \
+            || true)
+          if [ -n "$STALE" ]; then
+            echo "Found stale sudoshi/Parthenon references in active source:"
+            echo "$STALE"
+            echo ""
+            echo "Update these to Acumenus-Data-Sciences/Parthenon (URLs)"
+            echo "or ghcr.io/acumenus-data-sciences/parthenon (image refs)."
+            echo "Historical references in docs/handoffs/, docs/devlog/,"
+            echo "docs/superpowers/, and docs/blog/ are excluded."
+            exit 1
+          fi
+          echo "OK: no stale sudoshi/Parthenon references in active source."

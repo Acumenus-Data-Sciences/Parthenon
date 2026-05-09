@@ -138,7 +138,7 @@ The Done page footer includes a passive link to GitHub Discussions. This is the 
 
 ### Reporting security issues
 
-Don't open public issues for suspected vulnerabilities. Use GitHub's [security advisory](https://github.com/sudoshi/Parthenon/security/advisories/new) flow instead. We acknowledge within 48 hours.
+Don't open public issues for suspected vulnerabilities. Use GitHub's [security advisory](https://github.com/Acumenus-Data-Sciences/Parthenon/security/advisories/new) flow instead. We acknowledge within 48 hours.
 
 ### Documentation
 

@@ -40,7 +40,7 @@ from dockerspawner import DockerSpawner
 c.JupyterHub.spawner_class = DockerSpawner
 c.DockerSpawner.image = os.environ.get(
     "JUPYTER_IMAGE",
-    "ghcr.io/sudoshi/parthenon-jupyter-user:latest",
+    "ghcr.io/acumenus-data-sciences/parthenon-jupyter-user:latest",
 )
 c.DockerSpawner.pull_policy = os.environ.get("JUPYTER_PULL_POLICY", "ifnotpresent")
 c.DockerSpawner.network_name = os.environ.get(

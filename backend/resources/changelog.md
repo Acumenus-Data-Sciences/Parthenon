@@ -46,7 +46,7 @@ All notable changes to Parthenon are documented here.
 ### Added
 - **Acropolis installer** — universal 9-phase Python TUI for one-command Parthenon deployment (Docker, bare metal, Kubernetes)
 - **Dataset Acquisition TUI** — post-install utility for downloading public datasets (OMOP Vocabulary, Eunomia, SynPUF, SyntheA, GIAB, ClinVar, DICOM, GIS boundaries) with recommended bundles
-- **GHCR container registry** — all 16 Docker images published to `ghcr.io/sudoshi/parthenon-*` with dependency-aware CI builds
+- **GHCR container registry** — all 16 Docker images published to `ghcr.io/acumenus-data-sciences/parthenon-*` with dependency-aware CI builds
 - `--defaults-file` flag for fully non-interactive pre-seeded installs
 
 ### Changed

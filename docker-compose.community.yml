@@ -1,7 +1,7 @@
 services:
   nginx:
     container_name: parthenon-nginx
-    image: ghcr.io/sudoshi/parthenon-nginx:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-nginx:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${NGINX_PORT:-8082}:80"
     volumes:
@@ -25,7 +25,7 @@ services:
 
   php:
     container_name: parthenon-php
-    image: ghcr.io/sudoshi/parthenon-php:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-php:${PARTHENON_IMAGE_TAG:-latest}
     volumes:
       - parthenon-storage:/var/www/html/storage
       - finngen-artifacts:/opt/finngen-artifacts
@@ -57,7 +57,7 @@ services:
 
   postgres:
     container_name: parthenon-postgres
-    image: ghcr.io/sudoshi/parthenon-postgres:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-postgres:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${POSTGRES_PORT:-5480}:5432"
     environment:
@@ -102,7 +102,7 @@ services:
 
   horizon:
     container_name: parthenon-horizon
-    image: ghcr.io/sudoshi/parthenon-php:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-php:${PARTHENON_IMAGE_TAG:-latest}
     command: php artisan horizon
     volumes:
       - parthenon-storage:/var/www/html/storage
@@ -134,7 +134,7 @@ services:
 
   solr:
     container_name: parthenon-solr
-    image: ghcr.io/sudoshi/parthenon-solr:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-solr:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${SOLR_PORT:-8983}:8983"
     volumes:
@@ -182,7 +182,7 @@ services:
 
   hecate:
     container_name: parthenon-hecate
-    image: ghcr.io/sudoshi/parthenon-hecate:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-hecate:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${HECATE_PORT:-8088}:8080"
     volumes:
@@ -229,7 +229,7 @@ services:
 
   darkstar:
     container_name: parthenon-darkstar
-    image: ghcr.io/sudoshi/parthenon-darkstar:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-darkstar:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${R_PORT:-8787}:8787"
     volumes:
@@ -255,7 +255,7 @@ services:
 
   study-agent:
     container_name: parthenon-study-agent
-    image: ghcr.io/sudoshi/parthenon-study-agent:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-study-agent:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${STUDY_AGENT_PORT:-8765}:8765"
     volumes:
@@ -296,7 +296,7 @@ services:
 
   blackrabbit:
     container_name: parthenon-blackrabbit
-    image: ghcr.io/sudoshi/parthenon-blackrabbit:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-blackrabbit:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${BLACKRABBIT_PORT:-8090}:8090"
     extra_hosts:
@@ -318,7 +318,7 @@ services:
 
   fhir-to-cdm:
     container_name: parthenon-fhir-to-cdm
-    image: ghcr.io/sudoshi/parthenon-fhir-to-cdm:${PARTHENON_IMAGE_TAG:-latest}
+    image: ghcr.io/acumenus-data-sciences/parthenon-fhir-to-cdm:${PARTHENON_IMAGE_TAG:-latest}
     ports:
       - "${FHIR_TO_CDM_PORT:-8091}:8091"
     environment:
