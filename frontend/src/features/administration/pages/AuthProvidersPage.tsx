@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { EnterpriseGate } from "@/components/EnterpriseGate";
 import { HelpButton } from "@/features/help";
 import { Panel, Badge, Button } from "@/components/ui";
 import { useAuthProviders, useToggleAuthProvider, useUpdateAuthProvider, useTestAuthProvider } from "../hooks/useAuthProviders";
@@ -246,6 +247,25 @@ export default function AuthProvidersPage() {
           {ordered.map((p) => <ProviderCard key={p.provider_type} provider={p} />)}
         </div>
       )}
+
+      {/* Plan 02-06 — EE smoke gate. CE renders this card dimmed with an
+          Enterprise badge so users know SAML SSO is part of the EE overlay. */}
+      <EnterpriseGate flag="auth.saml" showAsLocked>
+        <Panel>
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-amber-500">
+              <FileKey className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-foreground">SAML 2.0 Single Sign-On</p>
+              <p className="text-xs text-muted-foreground">
+                Configure SAML 2.0 IdP integration for your organization.
+              </p>
+            </div>
+            <Button variant="default" disabled>Configure</Button>
+          </div>
+        </Panel>
+      </EnterpriseGate>
     </div>
   );
 }

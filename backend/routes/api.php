@@ -145,6 +145,7 @@ use App\Http\Controllers\Api\V1\SurveyConductController;
 use App\Http\Controllers\Api\V1\SurveyHonestBrokerController;
 use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
+use App\Http\Controllers\Api\V1\System\FeatureFlagsController;
 use App\Http\Controllers\Api\V1\TemplatesController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
@@ -189,6 +190,9 @@ Route::prefix('v1')->group(function () {
 
     // §9.2 — Public shared cohort link (no auth required)
     Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);
+
+    // Plan 02-06 — Deployment-level feature flags (public; describes capability presence only).
+    Route::get('/system/feature-flags', [FeatureFlagsController::class, 'index']);
 
     // Poseidon webhook (Dagster → Laravel, secret-authenticated, no Sanctum)
     Route::post('/poseidon/webhooks/run-status', [PoseidonController::class, 'webhook'])
