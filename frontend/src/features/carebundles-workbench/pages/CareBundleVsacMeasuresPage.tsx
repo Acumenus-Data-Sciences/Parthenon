@@ -65,6 +65,7 @@ export default function CareBundleVsacMeasuresPage() {
               <thead className="border-b border-border-default">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("cmsId_e0933eee")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Measure</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("cbe_d361282b")}</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("program_9d68007b")}</th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("valueSets_0992621f")}</th>
@@ -83,6 +84,19 @@ export default function CareBundleVsacMeasuresPage() {
                       >
                         {m.cms_id}
                       </Link>
+                    </td>
+                    <td className="max-w-[28rem] px-4 py-2 text-sm text-text-primary">
+                      {m.title ? (
+                        <Link
+                          to={`/workbench/care-bundles/measures/${m.cms_id}`}
+                          title={m.title}
+                          className="block truncate hover:underline"
+                        >
+                          {m.title}
+                        </Link>
+                      ) : (
+                        <span className="text-text-ghost">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-2 text-xs text-text-muted">{m.cbe_number ?? "—"}</td>
                     <td className="px-4 py-2 text-xs text-text-muted">{m.program_candidate ?? "—"}</td>
