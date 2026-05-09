@@ -1,4 +1,4 @@
-ARG PARTHENON_DARKSTAR_IMAGE=ghcr.io/sudoshi/parthenon-darkstar:latest
+ARG PARTHENON_DARKSTAR_IMAGE=ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest
 FROM ${PARTHENON_DARKSTAR_IMAGE}
 
 USER root

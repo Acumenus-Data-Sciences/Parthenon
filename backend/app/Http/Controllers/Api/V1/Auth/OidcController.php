@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Auth\AuthDriverRegistry;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\Oidc\Exceptions\OidcAccessDeniedException;
@@ -9,7 +10,6 @@ use App\Services\Auth\Oidc\Exceptions\OidcException;
 use App\Services\Auth\Oidc\Exceptions\OidcTokenInvalidException;
 use App\Services\Auth\Oidc\OidcDiscoveryService;
 use App\Services\Auth\Oidc\OidcHandshakeStore;
-use App\Services\Auth\Oidc\OidcReconciliationService;
 use App\Services\Auth\Oidc\OidcTokenValidator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +68,7 @@ class OidcController extends Controller
         OidcHandshakeStore $store,
         OidcDiscoveryService $discovery,
         OidcTokenValidator $validator,
-        OidcReconciliationService $reconciler,
+        AuthDriverRegistry $registry,
     ): RedirectResponse|JsonResponse {
         $this->ensureEnabled();
 
@@ -112,13 +112,20 @@ class OidcController extends Controller
             return $this->oidcError($e->reason, $e, 401);
         }
 
+        // Identity resolution is now delegated to the AuthDriver registry
+        // (Plan 02-01). The driver wraps OidcReconciliationService and returns
+        // an AuthDriverResult. OidcAccessDeniedException passes through so
+        // we can map it to a 403 with the OIDC reason claim, preserving the
+        // existing API contract.
         try {
-            $result = $reconciler->reconcile($claims);
+            $authResult = $registry->driver('authentik-oidc')->authenticate([
+                'claims' => $claims,
+            ]);
         } catch (OidcAccessDeniedException $e) {
             return $this->oidcError($e->reason, $e, 403);
         }
 
-        $user = $result['user'];
+        $user = $authResult->user;
 
         // Match the local login behavior: replace any existing auth-token.
         $user->tokens()->where('name', 'auth-token')->delete();

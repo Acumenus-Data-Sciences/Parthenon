@@ -400,7 +400,7 @@ services:
       context: .
       dockerfile: docker/shiny-ohdsi/Dockerfile
       args:
-        PARTHENON_DARKSTAR_IMAGE: ${PARTHENON_DARKSTAR_IMAGE:-ghcr.io/sudoshi/parthenon-darkstar:latest}
+        PARTHENON_DARKSTAR_IMAGE: ${PARTHENON_DARKSTAR_IMAGE:-ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest}
     profiles:
       - build
 
