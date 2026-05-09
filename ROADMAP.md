@@ -12,6 +12,8 @@ Parthenon v1.0.3 launches on March 30, 2026. The platform today spans 39 feature
 
 What follows is our plan to harden, optimize, and evolve Parthenon from a working platform into a production-grade, cloud-deployable research operating system.
 
+> **Editions:** Parthenon is now distributed in two editions. **Community Edition** (this repository, AGPL-3.0-only) is the full research platform — all 39 feature modules, every clinical/research capability. **Enterprise Edition** (commercial license, separate distribution) adds enterprise infrastructure: Keycloak SSO with SAML/SCIM, multi-tenancy, FIPS-validated crypto, signed audit log retention, observability shippers (Datadog/Splunk), Kubernetes operator, premium support. Contact `licensing@acumenus.net` for Enterprise inquiries.
+
 ---
 
 ## Release Philosophy
