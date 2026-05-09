@@ -233,6 +233,21 @@ function priorityWeight(pkg: HadesPackageStatus): number {
   return order[pkg.priority] ?? 9;
 }
 
+function versionStatusVariant(pkg: HadesPackageStatus): BadgeVariant {
+  switch (pkg.version_status) {
+    case "current":
+      return "success";
+    case "behind":
+      return "warning";
+    case "ahead":
+      return "info";
+    case "missing":
+      return "critical";
+    default:
+      return "inactive";
+  }
+}
+
 function HadesPackagePanel() {
   const { t } = useTranslation("app");
   const { data, isLoading, isError, isFetching, refetch } = useHadesPackageInventory();
@@ -244,9 +259,21 @@ function HadesPackagePanel() {
       .sort((a, b) => priorityWeight(a) - priorityWeight(b) || a.package.localeCompare(b.package));
   }, [data]);
 
-  const topMissing = missingPackages.slice(0, 8);
+  const versionIssuePackages = useMemo(() => {
+    if (!data) return [];
+    return data.packages
+      .filter((pkg) => pkg.installed && (pkg.version_status === "behind" || pkg.version_status === "ahead"))
+      .sort((a, b) => priorityWeight(a) - priorityWeight(b) || a.package.localeCompare(b.package));
+  }, [data]);
+
+  const reviewPackages = [
+    ...missingPackages,
+    ...versionIssuePackages.filter((pkg) => !missingPackages.some((missing) => missing.package === pkg.package)),
+  ].slice(0, 8);
   const statusVariant: BadgeVariant = data?.required_missing_count
     ? "critical"
+    : data?.required_outdated_count
+      ? "warning"
     : data?.status === "complete" ? "success" : "warning";
 
   return (
@@ -293,44 +320,87 @@ function HadesPackagePanel() {
                 {t("administration.systemHealth.hades.requiredMissing")} <span className="font-medium text-foreground">{formatNumber(data.required_missing_count)}</span>
               </span>
             )}
+            {typeof data.current_count === "number" && (
+              <span className="text-sm text-muted-foreground">
+                {t("administration.systemHealth.hades.current", { defaultValue: "Current:" })} <span className="font-medium text-foreground">{formatNumber(data.current_count)}</span>
+              </span>
+            )}
+            {typeof data.outdated_count === "number" && (
+              <span className="text-sm text-muted-foreground">
+                {t("administration.systemHealth.hades.outdated", { defaultValue: "Behind:" })} <span className="font-medium text-foreground">{formatNumber(data.outdated_count)}</span>
+              </span>
+            )}
+            {typeof data.ahead_count === "number" && data.ahead_count > 0 && (
+              <span className="text-sm text-muted-foreground">
+                {t("administration.systemHealth.hades.ahead", { defaultValue: "Ahead:" })} <span className="font-medium text-foreground">{formatNumber(data.ahead_count)}</span>
+              </span>
+            )}
           </div>
 
           {data.shiny_policy && (
             <div className="rounded-lg border border-border-default bg-surface-raised p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium text-foreground">{t("administration.systemHealth.hades.shinyPolicy")}</p>
-                <Badge variant="inactive">{t("administration.systemHealth.hades.notExposed")}</Badge>
+                <Badge variant={data.shiny_policy.expose_hosted_surfaces ? "info" : "inactive"}>
+                  {data.shiny_policy.expose_hosted_surfaces
+                    ? t("administration.systemHealth.hades.managedCompatibility", { defaultValue: "managed compatibility" })
+                    : t("administration.systemHealth.hades.notExposed")}
+                </Badge>
+                {data.shiny_policy.default_runtime && (
+                  <Badge variant="inactive">{data.shiny_policy.default_runtime}</Badge>
+                )}
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t("administration.systemHealth.hades.shinyPolicyDescription")}
+                {data.shiny_policy.expose_hosted_surfaces
+                  ? t("administration.systemHealth.hades.shinyCompatibilityDescription", {
+                    defaultValue: "Vetted OHDSI Shiny viewers can be launched through the managed compatibility layer. User-supplied app paths remain disabled.",
+                  })
+                  : t("administration.systemHealth.hades.shinyPolicyDescription")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {t("administration.systemHealth.hades.replacement", {
                   surface: data.shiny_policy.replacement_surface,
                 })}
               </p>
+              {data.shiny_apps && data.shiny_apps.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {data.shiny_apps.slice(0, 6).map((app) => (
+                    <Badge key={app.key} variant="accent">{app.label}</Badge>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {topMissing.length > 0 && (
+          {reviewPackages.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="border-b border-border-default text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.package")}</th>
                     <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.capability")}</th>
+                    <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.installedVersion", { defaultValue: "Installed" })}</th>
+                    <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.targetVersion", { defaultValue: "Target" })}</th>
+                    <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.versionStatus", { defaultValue: "Version" })}</th>
                     <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.priority")}</th>
                     <th className="py-2 pr-4 font-medium">{t("administration.systemHealth.hades.surface")}</th>
                     <th className="py-2 font-medium">{t("administration.systemHealth.hades.source")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {topMissing.map((pkg) => (
+                  {reviewPackages.map((pkg) => (
                     <tr key={pkg.package} className="border-b border-border-default/60">
                       <td className="py-2 pr-4 font-mono text-xs text-foreground">
                         {pkg.package}
                       </td>
                       <td className="py-2 pr-4 text-muted-foreground">{pkg.capability}</td>
+                      <td className="py-2 pr-4 font-mono text-xs text-muted-foreground">{pkg.version ?? "-"}</td>
+                      <td className="py-2 pr-4 font-mono text-xs text-muted-foreground">{pkg.target_version ?? pkg.latest_version ?? "-"}</td>
+                      <td className="py-2 pr-4">
+                        <Badge variant={versionStatusVariant(pkg)}>
+                          {pkg.version_status ?? (pkg.installed ? "unknown" : "missing")}
+                        </Badge>
+                      </td>
                       <td className="py-2 pr-4 text-muted-foreground">{pkg.priority}</td>
                       <td className="py-2 pr-4 text-muted-foreground">{pkg.surface}</td>
                       <td className="py-2 text-muted-foreground">{pkg.install_source ?? t("administration.systemHealth.hades.runtime")}</td>

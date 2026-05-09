@@ -1,59 +1,70 @@
-# OHDSI Shiny Supersession Policy
+# OHDSI Shiny Compatibility Policy
 
 Date: 2026-04-15
+Revised: 2026-05-08
 
 ## Decision
 
-Parthenon does not expose hosted OHDSI Shiny applications.
+Parthenon no longer treats `OhdsiShinyAppBuilder` and `OhdsiShinyModules`
+as suppressed legacy packages. They are managed compatibility surfaces for
+canonical OHDSI result exploration.
 
-`OhdsiShinyAppBuilder` and `OhdsiShinyModules` may remain installed in Darkstar for artifact compatibility, package completeness, and reference semantics, but they are not product surfaces. Parthenon supersedes them with native React, Laravel, and Darkstar workflows.
+Native Parthenon React workflows remain the primary product experience.
+Managed OHDSI Shiny viewers may be surfaced when they help users inspect
+standard OHDSI results, compare Parthenon output to community-standard viewers,
+or cover HADES result modules that Parthenon has not yet fully reimplemented.
 
-## Non-Goals
+## Policy
 
-- Do not add a Shiny hosting route.
-- Do not iframe Shiny sessions into Parthenon.
-- Do not allow user-supplied Shiny app paths or dynamically mounted app directories.
-- Do not treat Shiny package presence as permission to expose Shiny runtime UI.
-- Do not build new workflows whose primary UI dependency is Shiny.
+- Allow vetted OHDSI Shiny viewers launched from Parthenon-owned registry entries.
+- Allow embedded or full-page launch modes only through the managed compatibility
+  runtime.
+- Continue blocking arbitrary user-supplied Shiny app paths.
+- Continue blocking raw `shiny_app_url` study artifacts.
+- Require Parthenon authorization before a Shiny session can see a study,
+  source, result bundle, or artifact.
+- Prefer ShinyProxy for the open-source runtime and Posit Connect for licensed
+  enterprise deployments.
+- Do not expose the Darkstar RStudio process as a Shiny hosting surface.
 
-## Runtime Policy
+## Runtime Contract
 
-The HADES package capability inventory must mark both Shiny packages as:
+The HADES package capability inventory marks both Shiny packages as:
 
-- `surface`: `native_replacement_no_hosting`
-- `priority`: `superseded`
-- `hosted_surface`: `false`
-- `exposure_policy`: `not_exposed`
-- `decision`: `superseded_by_native_parthenon`
+- `surface`: `managed_shiny_compatibility`
+- `priority`: `high`
+- `hosted_surface`: `true`
+- `exposure_policy`: `managed_compatibility_layer`
+- `decision`: `managed_ohdsi_shiny_compatibility`
 
-The inventory response must also include a top-level `shiny_policy` object with:
+The inventory response includes a top-level `shiny_policy` object:
 
-- `expose_hosted_surfaces`: `false`
-- `allow_iframe_embedding`: `false`
+- `expose_hosted_surfaces`: `true`
+- `allow_iframe_embedding`: `true`
 - `allow_user_supplied_app_paths`: `false`
-- `decision`: `superseded_by_native_parthenon`
+- `decision`: `managed_ohdsi_shiny_compatibility`
+- `default_runtime`: `shinyproxy`
+- `supported_runtimes`: `shinyproxy`, `posit_connect`
+- `allowed_scope`: `vetted_ohdsi_modules_only`
 
-Laravel enforces this policy at the API boundary even if Darkstar reports older Shiny metadata.
+The inventory response also includes `shiny_apps`, the managed app registry used
+by Parthenon UI and launch flows.
 
-Study artifacts also enforce the policy:
+## Initial Managed App Registry
 
-- Existing `shiny_app_url` artifacts are not returned by the study artifact listing API.
-- New `shiny_app_url` artifacts are rejected.
-- The study artifact UI does not offer Shiny URL artifacts as a selectable type.
+- PatientLevelPrediction Results
+- CohortMethod, SCCS, and Evidence Synthesis Results
+- Cohort Diagnostics Explorer
+- Characterization and Incidence Results
+- PheValuator Results
+- OHDSI Report Viewer
 
-## Native Replacement Surfaces
-
-Parthenon replaces and enhances Shiny-style OHDSI application workflows through native surfaces:
-
-- Cohort definitions: React cohort builder, Circe validation, SQL rendering, Atlas import/export, Capr/CirceR handoff artifacts.
-- Cohort diagnostics: native diagnostics dashboards, patient lists, patient context, and exportable review evidence.
-- Phenotype validation: PheValuator execution, adjudication sessions, conflict resolution, agreement metrics, and validated-tier governance.
-- Prediction: first-class PLP/deep PLP design surfaces and normalized results.
-- Treatment pathways: native pathway designer, TreatmentPatterns execution options, provenance, Sankey/table drilldowns, and artifact downloads.
-- Publish: report bundle export/import, OHDSI ReportGenerator handoff scripts, OHDSI Sharing bundles, and Parthenon-native publication workflows.
-- System administration: package capability inventory with explicit no-hosting Shiny policy.
-- Study artifacts: native reports, documents, packages, and data dictionaries only; no Shiny URL artifact surface.
+Each registry entry must declare its package, module family, result types,
+launch modes, runtime preference, permission scope, and R entrypoint.
 
 ## Implementation Guardrail
 
-Any future request to add Shiny hosting must be treated as a new architecture decision, not an implementation detail. The default answer remains no hosted Shiny surfaces unless the policy document is intentionally revised.
+This policy allows only managed OHDSI Shiny compatibility. A request to host
+arbitrary Shiny applications, mount user-provided app directories, or store raw
+Shiny URLs as study artifacts remains out of scope unless this policy is revised
+again.

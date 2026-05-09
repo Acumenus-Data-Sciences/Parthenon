@@ -166,17 +166,38 @@ if missing:
     print("required HADES packages missing: " + ", ".join(missing))
     sys.exit(2)
 
+outdated = data.get("required_outdated")
+if outdated is None:
+    outdated = [
+        row.get("package")
+        for row in data.get("packages", [])
+        if row.get("required_for_parity") is True and row.get("version_status") == "behind"
+    ]
+
+outdated = [str(package) for package in outdated if package]
+if outdated and os.environ.get("DEPLOY_HADES_REQUIRE_CURRENT") == "1":
+    print("required HADES packages outdated: " + ", ".join(outdated))
+    sys.exit(3)
+
 required_count = data.get("required_count", "?")
 installed_count = data.get("installed_count", "?")
 total = data.get("total", "?")
 parity_status = data.get("parity_status", "ready")
-print(f"{parity_status}; required={required_count}; installed={installed_count}/{total}")
+freshness_status = data.get("freshness_status", "unknown")
+outdated_count = data.get("outdated_count", 0)
+message = f"{parity_status}; freshness={freshness_status}; required={required_count}; installed={installed_count}/{total}; outdated={outdated_count}"
+if outdated:
+    message += "; required_outdated=" + ", ".join(outdated)
+print(message)
 PY
 )"
   parse_status=$?
 
   if [ $parse_status -eq 0 ]; then
     ok "Smoke: HADES required packages -> ${result}"
+    if printf '%s' "$result" | grep -q 'required_outdated='; then
+      warn "Smoke: HADES package freshness -> required packages are behind; set DEPLOY_HADES_REQUIRE_CURRENT=1 to fail on this"
+    fi
   else
     fail "Smoke: HADES required packages -> ${result}"
     ERRORS=$((ERRORS + 1))

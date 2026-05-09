@@ -54,10 +54,17 @@ function() {
     "SqlRender", "DatabaseConnector", "Andromeda", "Cyclops",
     "FeatureExtraction", "ResultModelManager", "EmpiricalCalibration",
     "ParallelLogger", "CohortMethod", "PatientLevelPrediction",
-    "SelfControlledCaseSeries", "EvidenceSynthesis", "CohortGenerator",
-    "CohortDiagnostics", "DeepPatientLevelPrediction", "CohortIncidence",
-    "Characterization", "Strategus", "ETLSyntheaBuilder",
-    "DataQualityDashboard"
+    "DeepPatientLevelPrediction", "EnsemblePatientLevelPrediction",
+    "SelfControlledCaseSeries", "SelfControlledCohort",
+    "EvidenceSynthesis", "CohortGenerator", "CohortDiagnostics",
+    "CohortIncidence", "Characterization", "Strategus",
+    "DataQualityDashboard", "Achilles", "TreatmentPatterns",
+    "PheValuator", "Keeper", "CohortExplorer", "PhenotypeLibrary",
+    "Capr", "CirceR", "MethodEvaluation", "BigKnn",
+    "BrokenAdaptiveRidge", "IterativeHardThresholding",
+    "OhdsiReportGenerator", "OhdsiSharing", "OhdsiShinyAppBuilder",
+    "OhdsiShinyModules", "ROhdsiWebApi", "Eunomia",
+    "ETLSyntheaBuilder"
   )
 
   # Posit / CRAN infrastructure packages
