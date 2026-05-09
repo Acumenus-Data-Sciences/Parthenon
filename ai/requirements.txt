@@ -38,4 +38,4 @@ spreg>=1.9.0
 redis>=7.4.0
 
 # Genomics — C-backed VCF parser (~100K variants/sec)
-cyvcf2>=0.31.0
+cyvcf2>=0.32.1
