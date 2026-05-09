@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "playwright test",
+    "test:shiny": "PLAYWRIGHT_ENABLE_SHINY_SMOKE=1 playwright test tests/managed-shiny.spec.ts --project=chromium",
     "test:headed": "playwright test --headed",
     "report": "playwright show-report"
   },

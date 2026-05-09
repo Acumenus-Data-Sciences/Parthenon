@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\App\ManagedShinyLaunch;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\User;
@@ -138,6 +139,59 @@ it('resolves managed Shiny launch context tokens for Shiny app containers', func
         ->assertJsonPath('data.study.slug', $study->slug)
         ->assertJsonPath('data.artifact.id', $artifact->id)
         ->assertJsonPath('data.workspace.context_path', "{$launch['workspace']['container_path']}/context.json");
+});
+
+it('persists managed Shiny launch audit records and marks resolved contexts', function () {
+    config()->set('services.shiny_proxy.base_url', '/shiny');
+    config()->set('services.shiny_proxy.workspace_root', storage_path('framework/testing/shiny-workspaces'));
+    config()->set('services.shiny_proxy.container_workspace_root', '/srv/parthenon-shiny');
+
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $study = Study::factory()->create(['created_by' => $user->id]);
+
+    $artifact = StudyArtifact::create([
+        'study_id' => $study->id,
+        'artifact_type' => 'results_report',
+        'title' => 'OHDSI Report Generator Bundle',
+        'version' => '1.0',
+        'metadata' => ['result_type' => 'OhdsiReportGenerator'],
+        'uploaded_by' => $user->id,
+        'is_current' => true,
+    ]);
+
+    $launch = $this->actingAs($user)
+        ->postJson("/api/v1/studies/{$study->slug}/artifacts/{$artifact->id}/shiny-launch", [
+            'app_key' => 'ohdsi-report',
+        ])
+        ->assertOk()
+        ->json('data');
+
+    $audit = ManagedShinyLaunch::query()
+        ->where('workspace_id', $launch['workspace']['id'])
+        ->firstOrFail();
+
+    expect($audit->user_id)->toBe($user->id)
+        ->and($audit->study_id)->toBe($study->id)
+        ->and($audit->study_artifact_id)->toBe($artifact->id)
+        ->and($audit->app_key)->toBe('ohdsi-report')
+        ->and($audit->runtime)->toBe('shinyproxy')
+        ->and($audit->mode)->toBe('embedded')
+        ->and($audit->status)->toBe('issued')
+        ->and($audit->token_hash)->toBeString()->toHaveLength(64)
+        ->and($audit->resolved_at)->toBeNull();
+
+    parse_str((string) parse_url($launch['launch_url'], PHP_URL_QUERY), $query);
+
+    $this->postJson('/api/v1/shiny/launch-context', [
+        'launch_token' => $query['parthenon_launch'],
+    ])->assertOk();
+
+    $audit->refresh();
+
+    expect($audit->status)->toBe('resolved')
+        ->and($audit->resolved_at)->not->toBeNull();
 });
 
 it('uses default managed Shiny workspace roots when environment values are blank', function () {

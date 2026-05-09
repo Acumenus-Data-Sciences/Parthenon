@@ -2,6 +2,7 @@
 
 namespace App\Services\Shiny;
 
+use App\Models\App\ManagedShinyLaunch;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\User;
@@ -56,6 +57,11 @@ class ManagedShinyLaunchService
         $launchPayload = $runtimeConfigured ? $this->buildLaunchPayload($study, $artifact, $user, $app, $expiresAt) : null;
         $workspace = $launchPayload !== null ? $this->prepareWorkspace($study, $artifact, $app, $launchPayload) : null;
         $token = $launchPayload !== null ? $this->encodeToken($launchPayload) : null;
+        $launchUrl = $runtimeConfigured && $token !== null ? $this->buildLaunchUrl($baseUrl, $app, $study, $artifact, $token) : null;
+
+        if ($launchPayload !== null && $workspace !== null && $token !== null && $launchUrl !== null) {
+            $this->recordLaunchIssued($study, $artifact, $user, $app, $launchPayload, $workspace, $runtime, $mode, $token, $expiresAt);
+        }
 
         return [
             'app' => $app,
@@ -68,7 +74,7 @@ class ManagedShinyLaunchService
             'mode' => $mode,
             'runtime' => $runtime,
             'status' => $runtimeConfigured ? 'ready' : 'runtime_unconfigured',
-            'launch_url' => $runtimeConfigured && $token !== null ? $this->buildLaunchUrl($baseUrl, $app, $study, $artifact, $token) : null,
+            'launch_url' => $launchUrl,
             'token_expires_at' => $expiresAt->toIso8601String(),
             'workspace' => $workspace,
             'embedding' => [
@@ -107,6 +113,7 @@ class ManagedShinyLaunchService
         }
 
         $workspace = $this->prepareWorkspace($study, $artifact, $app, $payload);
+        $this->markLaunchResolved($payload, $token);
 
         return [
             'launch' => [
@@ -348,6 +355,61 @@ class ManagedShinyLaunchService
         ]);
 
         return rtrim($baseUrl, '/').'/app/'.$runtimeApp.'?'.$query;
+    }
+
+    /**
+     * @param  array<string, mixed>  $app
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $workspace
+     */
+    private function recordLaunchIssued(
+        Study $study,
+        StudyArtifact $artifact,
+        User $user,
+        array $app,
+        array $payload,
+        array $workspace,
+        string $runtime,
+        string $mode,
+        string $token,
+        Carbon $expiresAt,
+    ): void {
+        ManagedShinyLaunch::create([
+            'workspace_id' => (string) $payload['workspace_id'],
+            'user_id' => $user->id,
+            'study_id' => $study->id,
+            'study_artifact_id' => $artifact->id,
+            'study_slug' => $study->slug,
+            'artifact_type' => $artifact->artifact_type,
+            'app_key' => (string) $app['key'],
+            'runtime' => $runtime,
+            'mode' => $mode,
+            'status' => 'issued',
+            'token_hash' => hash('sha256', $token),
+            'expires_at' => $expiresAt,
+            'metadata' => [
+                'app_label' => $app['label'] ?? null,
+                'artifact_title' => $artifact->title,
+                'container_path' => $workspace['container_path'] ?? null,
+                'context_path' => $workspace['context_path'] ?? null,
+            ],
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function markLaunchResolved(array $payload, string $token): void
+    {
+        ManagedShinyLaunch::query()
+            ->where('workspace_id', (string) ($payload['workspace_id'] ?? ''))
+            ->where('token_hash', hash('sha256', $token))
+            ->latest('id')
+            ->first()
+            ?->update([
+                'status' => 'resolved',
+                'resolved_at' => now(),
+            ]);
     }
 
     private function signingKey(): string

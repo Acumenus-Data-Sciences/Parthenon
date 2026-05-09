@@ -73,6 +73,7 @@ Feature-area deep dives and standalone module documentation.
 |----------|-------------|
 | [ohif-viewer-integration.md](modules/imaging/ohif-viewer-integration.md) | OHIF integration notes, nginx routing fixes, and Orthanc auth gotchas |
 | [HADES parity and managed OHDSI Shiny runtime](modules/analyses/2026-05-09-hades-parity-managed-ohdsi-shiny-runtime.md) | HADES freshness, managed Shiny policy, artifact launches, ShinyProxy runtime, and verification notes |
+| [Managed OHDSI Shiny follow-up devlog](modules/analyses/2026-05-09-managed-ohdsi-shiny-followup-devlog.md) | Follow-up backlog plan, managed launch audit persistence, opt-in ShinyProxy browser smoke coverage, and remaining loader/runtime work |
 | [STUDIES.md](modules/STUDIES.md) | Studies module design — federated outcomes research |
 | [studies-module-s10-s13.md](modules/studies-module-s10-s13.md) | Studies phases S10–S13: Results, Logging, Advanced |
 | [studies-ux-enhancements.md](modules/studies-ux-enhancements.md) | Studies UX enhancements devlog |
