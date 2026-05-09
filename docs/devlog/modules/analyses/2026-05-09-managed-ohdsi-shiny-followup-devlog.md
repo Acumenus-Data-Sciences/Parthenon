@@ -376,6 +376,35 @@ The handoff is intentionally gated. If runtime packages are missing, no SQLite
 database is present, or the bundle is not ready, the app keeps rendering a safe
 status panel instead of trying to start a broken official module.
 
+### 9. SQLite Schema Guards
+
+Updated:
+
+- `docker/shiny-ohdsi/handoffs.R`
+- `docker/shiny-ohdsi/app.R`
+- `docker/shiny-ohdsi/tests/handoff_registry_test.R`
+
+The official handoff now validates candidate SQLite result databases before it
+constructs connection details for an OHDSI module. This prevents an empty,
+wrong-family, or non-result database from being handed to a module that would
+then fail deeper in its server lifecycle.
+
+The guard checks are intentionally coarse but family-specific:
+
+- all official SQLite handoffs require `database_meta_data`;
+- PLP handoffs require at least one `plp_` table;
+- population-estimation handoffs require at least one `cm_`, `sccs_`, or `es_`
+  table;
+- CohortDiagnostics handoffs require at least one `cd_` table;
+- characterization handoffs require at least one `c_` or `ci_` table;
+- PheValuator handoffs require at least one `pv_` table.
+
+`RSQLite` and `DBI` are now included in the official handoff package gate. The
+managed app also shows the validated schema table count in the official module
+handoff panel. The handoff test creates real SQLite fixture databases on both
+host and container runtimes, and includes negative coverage for a PLP handoff
+that has `database_meta_data` but no `plp_` result table.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -445,7 +474,10 @@ Results:
 - R official viewer handoff detection passed on the host runtime.
 - R official viewer handoff detection passed inside the Shiny OHDSI container,
   which exercises the package-present path for `OhdsiShinyModules`,
-  `OhdsiShinyAppBuilder`, `DatabaseConnector`, and `ResultModelManager`.
+  `OhdsiShinyAppBuilder`, `DatabaseConnector`, `ResultModelManager`, `RSQLite`,
+  and `DBI`.
+- SQLite schema guards passed for positive PLP fixtures and negative missing
+  result-table fixtures.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -504,10 +536,10 @@ verification, leaving the ShinyProxy service running.
 This change gives operators a durable audit trail for successful managed Shiny
 launches, scheduled workspace cleanup, System Health metrics, and now a
 deterministic R-side readiness and SQLite handoff contract for materialized
-result bundles. It does not yet expose a dedicated admin UI or validate every
-official OHDSI package viewer against complete package-specific result
-fixtures. Those are intentionally listed as the next follow-up work in the
-execution plan.
+result bundles, including family-level schema guards. It does not yet expose a
+dedicated admin UI or validate every official OHDSI package viewer against
+complete package-specific result fixtures. Those are intentionally listed as
+the next follow-up work in the execution plan.
 
 The audit table is designed to support those next steps without another data
 model rewrite:
@@ -523,9 +555,9 @@ model rewrite:
 
 Immediate next backlog items:
 
-- add complete package-specific OHDSI fixture artifacts and schema guards for
-  PLP, population estimation, cohort diagnostics, characterization, cohort
-  incidence, PheValuator, and report bundles;
+- add complete package-specific OHDSI fixture artifacts and deeper schema
+  guards for PLP, population estimation, cohort diagnostics, characterization,
+  cohort incidence, PheValuator, and report bundles;
 - surface managed launch actions on native result pages where artifacts already
   represent supported result families;
 - automate HADES latest-target and stable-release-lock drift detection.

@@ -5,42 +5,54 @@ managed_shiny_official_viewer_registry <- function() {
       ui_function = "patientLevelPredictionViewer",
       server_function = "patientLevelPredictionServer",
       config_function = "createDefaultPredictionConfig",
-      result_settings = list(plpTablePrefix = "plp_")
+      result_settings = list(plpTablePrefix = "plp_"),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = c("plp_")
     ),
     population_estimation_result_bundle = list(
       module_id = "estimation",
       ui_function = "estimationViewer",
       server_function = "estimationServer",
       config_function = "createDefaultEstimationConfig",
-      result_settings = list(cmTablePrefix = "cm_", sccsTablePrefix = "sccs_", esTablePrefix = "es_")
+      result_settings = list(cmTablePrefix = "cm_", sccsTablePrefix = "sccs_", esTablePrefix = "es_"),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = c("cm_", "sccs_", "es_")
     ),
     cohort_diagnostics_result_bundle = list(
       module_id = "cohortDiagnostics",
       ui_function = "cohortDiagnosticsView",
       server_function = "cohortDiagnosticsServer",
       config_function = "createDefaultCohortDiagnosticsConfig",
-      result_settings = list(cdTablePrefix = "cd_")
+      result_settings = list(cdTablePrefix = "cd_"),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = c("cd_")
     ),
     characterization_result_bundle = list(
       module_id = "characterization",
       ui_function = "characterizationViewer",
       server_function = "characterizationServer",
       config_function = "createDefaultCharacterizationConfig",
-      result_settings = list(cTablePrefix = "c_", incidenceTablePrefix = "ci_")
+      result_settings = list(cTablePrefix = "c_", incidenceTablePrefix = "ci_"),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = c("c_", "ci_")
     ),
     phevaluator_result_bundle = list(
       module_id = "phevaluator",
       ui_function = "phevaluatorViewer",
       server_function = "phevaluatorServer",
       config_function = "createDefaultPhevaluatorConfig",
-      result_settings = list(pvTablePrefix = "pv_")
+      result_settings = list(pvTablePrefix = "pv_"),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = c("pv_")
     ),
     ohdsi_report_bundle = list(
       module_id = "report",
       ui_function = "reportViewer",
       server_function = "reportServer",
       config_function = "createDefaultReportConfig",
-      result_settings = list()
+      result_settings = list(),
+      required_tables = c("database_meta_data"),
+      required_any_prefixes = character()
     )
   )
 }
@@ -59,7 +71,9 @@ managed_shiny_official_viewer_packages <- function() {
     "OhdsiShinyModules",
     "OhdsiShinyAppBuilder",
     "DatabaseConnector",
-    "ResultModelManager"
+    "ResultModelManager",
+    "RSQLite",
+    "DBI"
   )
 }
 
@@ -72,7 +86,8 @@ managed_shiny_official_viewer_result <- function(
   extract_directory = "",
   connection_details = NULL,
   result_database_settings = NULL,
-  packages = list()
+  packages = list(),
+  schema = list()
 ) {
   status_labels <- c(
     ready = "Official OHDSI viewer ready",
@@ -94,7 +109,8 @@ managed_shiny_official_viewer_result <- function(
     extract_directory = extract_directory,
     connection_details = connection_details,
     result_database_settings = result_database_settings,
-    packages = packages
+    packages = packages,
+    schema = schema
   )
 }
 
@@ -182,6 +198,72 @@ managed_shiny_create_result_database_settings <- function(definition) {
   do.call(OhdsiShinyAppBuilder::createDefaultResultDatabaseSettings, args)
 }
 
+managed_shiny_result_database_tables <- function(database_path) {
+  con <- DBI::dbConnect(RSQLite::SQLite(), database_path)
+  on.exit(DBI::dbDisconnect(con), add = TRUE)
+
+  tolower(DBI::dbListTables(con))
+}
+
+managed_shiny_validate_result_database_schema <- function(database_path, definition) {
+  tables <- tryCatch(
+    managed_shiny_result_database_tables(database_path),
+    error = function(err) {
+      structure(list(message = conditionMessage(err)), class = "managed_shiny_schema_error")
+    }
+  )
+
+  if (inherits(tables, "managed_shiny_schema_error")) {
+    return(list(
+      valid = FALSE,
+      messages = c("The SQLite result database could not be inspected."),
+      table_count = 0L,
+      tables_preview = character()
+    ))
+  }
+
+  required_tables <- definition$required_tables %||% character()
+  missing_tables <- setdiff(tolower(required_tables), tables)
+  if (length(missing_tables) > 0) {
+    return(list(
+      valid = FALSE,
+      messages = c(paste("The SQLite result database is missing required tables:", paste(missing_tables, collapse = ", "))),
+      table_count = length(tables),
+      tables_preview = utils::head(tables, 12)
+    ))
+  }
+
+  required_any_prefixes <- definition$required_any_prefixes %||% character()
+  if (length(required_any_prefixes) > 0) {
+    has_prefix <- vapply(required_any_prefixes, function(prefix) {
+      any(startsWith(tables, tolower(prefix)))
+    }, logical(1))
+
+    if (!any(has_prefix)) {
+      return(list(
+        valid = FALSE,
+        messages = c(paste("The SQLite result database does not contain expected result tables for prefixes:", paste(required_any_prefixes, collapse = ", "))),
+        table_count = length(tables),
+        tables_preview = utils::head(tables, 12)
+      ))
+    }
+  } else if (length(tables) == 0) {
+    return(list(
+      valid = FALSE,
+      messages = c("The SQLite result database does not contain any tables."),
+      table_count = 0L,
+      tables_preview = character()
+    ))
+  }
+
+  list(
+    valid = TRUE,
+    messages = c("The SQLite result database matches the registered schema guard."),
+    table_count = length(tables),
+    tables_preview = utils::head(tables, 12)
+  )
+}
+
 managed_shiny_prepare_official_viewer_handoff <- function(readiness, extract_root = NULL) {
   if (is.null(readiness) || !identical(readiness$status, "ready")) {
     return(managed_shiny_official_viewer_result(
@@ -221,6 +303,20 @@ managed_shiny_prepare_official_viewer_handoff <- function(readiness, extract_roo
     ))
   }
 
+  schema <- managed_shiny_validate_result_database_schema(database$path, definition)
+  if (!isTRUE(schema$valid)) {
+    return(managed_shiny_official_viewer_result(
+      status = "incomplete",
+      definition = definition,
+      packages = package_status,
+      database_path = database$path,
+      database_relative_path = database$relative_path,
+      extract_directory = database$extract_directory,
+      schema = schema,
+      messages = schema$messages
+    ))
+  }
+
   connection_details <- DatabaseConnector::createConnectionDetails(
     dbms = "sqlite",
     server = database$path
@@ -235,6 +331,7 @@ managed_shiny_prepare_official_viewer_handoff <- function(readiness, extract_roo
     extract_directory = database$extract_directory,
     connection_details = connection_details,
     result_database_settings = managed_shiny_create_result_database_settings(definition),
+    schema = schema,
     messages = c("A SQLite result database is ready for the official OHDSI Shiny module handoff.")
   )
 }

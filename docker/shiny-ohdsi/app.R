@@ -299,7 +299,9 @@ server <- function(input, output, session) {
         tags$dt("Server"),
         tags$dd(value_or(handoff$server_function)),
         tags$dt("Result database"),
-        tags$dd(code(value_or(handoff$database_relative_path)))
+        tags$dd(code(value_or(handoff$database_relative_path))),
+        tags$dt("Schema tables"),
+        tags$dd(as.character(value_or(handoff$schema$table_count, 0L)))
       ),
       viewer_ui
     )

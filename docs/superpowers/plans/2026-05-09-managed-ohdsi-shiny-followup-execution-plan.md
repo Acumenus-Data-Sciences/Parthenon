@@ -119,6 +119,8 @@ Todo:
 - [x] Detect SQLite result databases from direct files or safe zip entries.
 - [x] Prepare `DatabaseConnector` SQLite connection details for official module
   handoff when runtime packages are present.
+- [x] Add SQLite schema guards for required metadata tables and registered
+  result-family table prefixes.
 - [ ] PLP loader for PatientLevelPrediction result bundles.
 - [ ] Population estimation loader for CohortMethod results.
 - [ ] Population estimation loader for SelfControlledCaseSeries results.
@@ -375,6 +377,30 @@ Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest sh -lc 'Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R && Rscript docker/shiny-ohdsi/tests/loader_registry_test.R && Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R'
 ```
 
+### P2-C: SQLite Schema Guards
+
+- [x] Require `RSQLite` and `DBI` for official SQLite handoff readiness.
+- [x] Inspect candidate SQLite result databases before constructing official
+  module connection details.
+- [x] Require `database_meta_data` for official module handoff.
+- [x] Require at least one registered result-family table prefix:
+  - PLP: `plp_`
+  - population estimation: `cm_`, `sccs_`, or `es_`
+  - CohortDiagnostics: `cd_`
+  - characterization/incidence: `c_` or `ci_`
+  - PheValuator: `pv_`
+- [x] Render schema table counts in the managed Shiny app handoff panel.
+- [x] Extend handoff tests to create real SQLite fixtures on host and container
+  runtimes.
+- [x] Add negative coverage for a SQLite database missing PLP result tables.
+
+Run commands:
+
+```bash
+Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+```
+
 ## Risk Notes
 
 - ShinyProxy tests can be slow because app containers start on demand. The
@@ -399,5 +425,6 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
   - `P1-A Manifest Contract`
   - `P2-A Loader Registry and Bundle Readiness`
   - `P2-B Official SQLite Result Database Handoff`
-- Next implementation slice: `P2-C Complete Package-Specific Fixture
-  Artifacts and Schema Guards`.
+  - `P2-C SQLite Schema Guards`
+- Next implementation slice: `P2-D Complete Package-Specific Fixture
+  Artifacts and Deep Schema Guards`.

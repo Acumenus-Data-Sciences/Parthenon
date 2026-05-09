@@ -4,15 +4,46 @@ source("docker/shiny-ohdsi/handoffs.R")
 
 fixture <- "docker/shiny-ohdsi/tests/fixtures/plp-results-manifest.json"
 
-create_zip_bundle <- function(workspace, relative_path, payload_path) {
+create_sqlite_fixture <- function(path, tables = c("DATABASE_META_DATA", "plp_model")) {
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  statements <- paste(sprintf("CREATE TABLE %s (id INTEGER);", tables), collapse = " ")
+
+  if (requireNamespace("RSQLite", quietly = TRUE) && requireNamespace("DBI", quietly = TRUE)) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), path)
+    on.exit(DBI::dbDisconnect(con), add = TRUE)
+    for (table in tables) {
+      DBI::dbExecute(con, sprintf("CREATE TABLE %s (id INTEGER);", table))
+    }
+    return(invisible(path))
+  }
+
+  sqlite <- Sys.which("sqlite3")
+  if (nzchar(sqlite)) {
+    status <- system2(sqlite, args = path, input = statements, stdout = FALSE, stderr = FALSE)
+    if (!identical(status, 0L)) {
+      stop(sprintf("Could not create SQLite fixture: %s", path))
+    }
+    return(invisible(path))
+  }
+
+  writeLines("fixture", path)
+  invisible(path)
+}
+
+create_zip_bundle <- function(workspace, relative_path, payload_path, sqlite_tables = NULL) {
   target <- file.path(workspace, relative_path)
   dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
 
   oldwd <- setwd(workspace)
   on.exit(setwd(oldwd), add = TRUE)
 
-  dir.create(dirname(payload_path), recursive = TRUE, showWarnings = FALSE)
-  writeLines("fixture", payload_path)
+  if (is.null(sqlite_tables)) {
+    dir.create(dirname(payload_path), recursive = TRUE, showWarnings = FALSE)
+    writeLines("fixture", payload_path)
+  } else {
+    create_sqlite_fixture(payload_path, sqlite_tables)
+  }
+
   zip_status <- system2("zip", args = c("-q", relative_path, payload_path), stdout = FALSE, stderr = FALSE)
   unlink(strsplit(payload_path, "/", fixed = TRUE)[[1]][[1]], recursive = TRUE)
 
@@ -33,7 +64,8 @@ dir.create(workspace, recursive = TRUE)
 create_zip_bundle(
   workspace,
   parsed$manifest$artifact$materialized_file$relative_path,
-  "resultdb/results.sqlite"
+  "resultdb/results.sqlite",
+  sqlite_tables = c("DATABASE_META_DATA", "plp_model")
 )
 
 readiness <- managed_shiny_loader_readiness(parsed, workspace)
@@ -53,7 +85,7 @@ direct <- parsed
 direct$manifest$artifact$materialized_file$relative_path <- "artifact/results.sqlite"
 direct_workspace <- tempfile("managed-shiny-handoff-direct-")
 dir.create(file.path(direct_workspace, "artifact"), recursive = TRUE)
-writeLines("fixture", file.path(direct_workspace, "artifact", "results.sqlite"))
+create_sqlite_fixture(file.path(direct_workspace, "artifact", "results.sqlite"))
 direct_readiness <- managed_shiny_loader_readiness(direct, direct_workspace)
 direct_database <- managed_shiny_extract_result_database(direct_readiness)
 if (!identical(direct_database$path, normalizePath(file.path(direct_workspace, "artifact", "results.sqlite"), winslash = "/", mustWork = FALSE))) {
@@ -87,6 +119,26 @@ if (length(packages_missing) > 0 && any(packages_missing)) {
   }
   if (!identical(handoff$module_id, "prediction") || !identical(handoff$ui_function, "patientLevelPredictionViewer")) {
     stop("Official OHDSI viewer handoff selected the wrong PLP module.")
+  }
+  if (!isTRUE(handoff$schema$valid) || handoff$schema$table_count < 2) {
+    stop("Official OHDSI viewer handoff did not validate the SQLite schema guard.")
+  }
+
+  bad_schema_workspace <- tempfile("managed-shiny-handoff-bad-schema-")
+  dir.create(bad_schema_workspace, recursive = TRUE)
+  create_zip_bundle(
+    bad_schema_workspace,
+    parsed$manifest$artifact$materialized_file$relative_path,
+    "resultdb/results.sqlite",
+    sqlite_tables = c("DATABASE_META_DATA")
+  )
+  bad_schema_readiness <- managed_shiny_loader_readiness(parsed, bad_schema_workspace)
+  bad_schema_handoff <- managed_shiny_prepare_official_viewer_handoff(
+    bad_schema_readiness,
+    tempfile("managed-shiny-handoff-bad-schema-extract-")
+  )
+  if (!identical(bad_schema_handoff$status, "incomplete") || !any(grepl("expected result tables", bad_schema_handoff$messages))) {
+    stop("SQLite database without PLP result tables did not fail the schema guard.")
   }
 }
 
