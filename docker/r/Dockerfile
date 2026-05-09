@@ -71,6 +71,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2-dev \
     libxt-dev \
     libjpeg-dev \
+    libuv1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
@@ -96,6 +97,8 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   install.packages('remotes'); \
+  install.packages('fs'); \
+  if (!requireNamespace('fs', quietly = TRUE)) stop('fs failed'); \
   install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx', 'digest')); \
   remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   install.packages(c('rJava', 'duckdb')); \
