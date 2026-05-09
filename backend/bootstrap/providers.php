@@ -8,6 +8,7 @@ use App\Providers\ClinicalCoherenceServiceProvider;
 use App\Providers\CryptoProviderServiceProvider;
 use App\Providers\DataQualityServiceProvider;
 use App\Providers\NetworkAnalysisServiceProvider;
+use App\Providers\ObservabilityServiceProvider;
 use App\Providers\PopulationCharacterizationServiceProvider;
 use App\Providers\PopulationRiskServiceProvider;
 use App\Providers\SolrServiceProvider;
@@ -20,6 +21,7 @@ return [
     TenancyServiceProvider::class,
     AuthDriverServiceProvider::class,
     AuditServiceProvider::class,
+    ObservabilityServiceProvider::class,
     AchillesServiceProvider::class,
     ClinicalCoherenceServiceProvider::class,
     DataQualityServiceProvider::class,

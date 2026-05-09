@@ -19,7 +19,7 @@ Each extension point ships with:
 | 2 | Tenant resolver | `App\Contracts\TenantResolverInterface` | [tenant-resolver.md](extension-points/tenant-resolver.md) |
 | 3 | Crypto provider | `App\Contracts\CryptoProviderInterface` | [crypto-provider.md](extension-points/crypto-provider.md) |
 | 4 | Audit sink | `App\Contracts\AuditSinkInterface` | [audit-sink.md](extension-points/audit-sink.md) |
-| 5 | Observability shipper | `App\Contracts\ObservabilityShipperInterface` | (Plan 02-05) |
+| 5 | Observability shipper | `App\Contracts\ObservabilityShipperInterface` | [observability-shipper.md](extension-points/observability-shipper.md) |
 | 6 | Frontend feature flags + EnterpriseGate | `frontend/src/contracts/featureFlags.ts` | (Plan 02-06) |
 | 7 | Acropolis installer phase registry | `acropolis/installer/phases/Phase` (Python) | (Plan 02-07) |
 | 8 | Compose composition contract | `docker-compose.yml` override conventions | (Plan 02-08) |
