@@ -3,7 +3,7 @@ managed_shiny_loader_registry <- function() {
     plp_result_bundle = list(
       label = "PatientLevelPrediction result bundle",
       family = "Prediction module",
-      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "rdata", "json"),
       expected_result_types = c("PatientLevelPrediction"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultPredictionConfig"
@@ -11,7 +11,7 @@ managed_shiny_loader_registry <- function() {
     population_estimation_result_bundle = list(
       label = "Population-level estimation result bundle",
       family = "Estimator module",
-      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "rdata", "json"),
       expected_result_types = c("CohortMethod", "SelfControlledCaseSeries", "EvidenceSynthesis"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultEstimationConfig"
@@ -19,7 +19,7 @@ managed_shiny_loader_registry <- function() {
     cohort_diagnostics_result_bundle = list(
       label = "CohortDiagnostics result bundle",
       family = "Cohort Diagnostic module",
-      accepted_extensions = c("zip", "sqlite", "sqlite3", "db"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "rdata", "json"),
       expected_result_types = c("CohortDiagnostics"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultCohortDiagnosticsConfig"
@@ -27,7 +27,7 @@ managed_shiny_loader_registry <- function() {
     characterization_result_bundle = list(
       label = "Characterization or CohortIncidence result bundle",
       family = "Characterization module",
-      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "rdata", "json"),
       expected_result_types = c("Characterization", "CohortIncidence"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultCharacterizationConfig"
@@ -35,7 +35,7 @@ managed_shiny_loader_registry <- function() {
     phevaluator_result_bundle = list(
       label = "PheValuator result bundle",
       family = "PheValuator module",
-      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "rdata", "json"),
       expected_result_types = c("PheValuator"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultPhevaluatorConfig"

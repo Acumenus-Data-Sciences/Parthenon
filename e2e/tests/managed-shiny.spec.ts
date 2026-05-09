@@ -1,3 +1,6 @@
+import { execFileSync } from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { BASE, authHeaders } from "./helpers";
 
@@ -86,18 +89,47 @@ test.describe("managed OHDSI Shiny runtime", () => {
     }
   });
 
-  test("discovers managed viewer actions on native result pages", async ({ page }) => {
+  test("discovers and launches managed viewer actions on native result pages", async ({ page, request }) => {
     test.skip(
       process.env.PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY !== "1",
       "Set PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY=1 when the target environment has launchable study results.",
     );
 
-    await page.goto(resolveUrl("/studies"), {
-      waitUntil: "load",
-      timeout: 120_000,
-    });
+    const seeded = process.env.PLAYWRIGHT_SEED_GOLDEN_RESULT === "1"
+      ? seedGoldenResult()
+      : null;
+    const studySlug = seeded?.study_slug ?? process.env.PLAYWRIGHT_SHINY_RESULT_STUDY_SLUG;
 
-    await expect(page.getByText(/PatientLevelPrediction Results|Cohort Diagnostics Explorer|OHDSI Report Viewer/)).toBeVisible({ timeout: 120_000 });
+    if (!studySlug) {
+      throw new Error("Set PLAYWRIGHT_SHINY_RESULT_STUDY_SLUG or PLAYWRIGHT_SEED_GOLDEN_RESULT=1 for result viewer discovery.");
+    }
+
+    try {
+      await suppressWhatsNewModal(page, request);
+      await page.goto(resolveUrl(`/studies/${studySlug}?tab=results`), {
+        waitUntil: "load",
+        timeout: 120_000,
+      });
+      await closeWhatsNewDialog(page);
+
+      const launchButton = page.getByRole("button", { name: /PatientLevelPrediction Results|Cohort Diagnostics Explorer|OHDSI Report Viewer/ }).first();
+      await expect(launchButton).toBeVisible({ timeout: 120_000 });
+      await launchButton.click();
+
+      const iframeText = await waitForFrameText(page, (text) => {
+        const normalized = text.toLowerCase();
+
+        return normalized.includes("official ohdsi module") &&
+          normalized.includes("schema variant") &&
+          normalized.includes("patientlevelprediction result database");
+      });
+
+      expect(iframeText).toContain("Official OHDSI Module");
+    } finally {
+      if (seeded && process.env.PLAYWRIGHT_KEEP_MANAGED_SHINY_SEED !== "1") {
+        await deleteStudy(request, studySlug);
+      }
+    }
   });
 
   test("blocks direct Shiny app access without a Parthenon launch token", async ({ page }) => {
@@ -135,6 +167,16 @@ interface StudyArtifactRecord {
   artifact_type: string;
 }
 
+interface SeededGoldenResult {
+  study_slug: string;
+  study_id: number;
+  result_id: number;
+  execution_id: number;
+  storage_path: string;
+  app_key: string;
+  hades_result_type: string;
+}
+
 interface ManagedShinyLaunch {
   status: "ready" | "runtime_unconfigured";
   launch_url: string | null;
@@ -143,6 +185,10 @@ interface ManagedShinyLaunch {
     container_path: string;
     context_path: string;
   };
+}
+
+interface ChangelogPayload {
+  entries?: Array<{ version?: string }>;
 }
 
 async function createSmokeStudy(request: APIRequestContext): Promise<StudyRecord> {
@@ -235,10 +281,64 @@ async function createManagedLaunch(
   return unwrap(envelope, "create managed Shiny launch");
 }
 
+function seedGoldenResult(): SeededGoldenResult {
+  const repoRoot = fs.existsSync(path.join(process.cwd(), "docker-compose.yml"))
+    ? process.cwd()
+    : path.resolve(process.cwd(), "..");
+  const goldenSource = path.join(repoRoot, "docker/shiny-ohdsi/tests/golden/plp-results.sqlite");
+  const goldenTarget = path.join(repoRoot, "backend/storage/app/private/testing/golden/plp-results.sqlite");
+
+  fs.mkdirSync(path.dirname(goldenTarget), { recursive: true });
+  fs.copyFileSync(goldenSource, goldenTarget);
+
+  const output = execFileSync(
+    "docker",
+    [
+      "compose",
+      "exec",
+      "-T",
+      "php",
+      "php",
+      "artisan",
+      "shiny:seed-golden-result",
+      "--cleanup",
+      "--json",
+    ],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  const jsonLine = output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .find((line) => line.startsWith("{") && line.endsWith("}"));
+
+  if (!jsonLine) {
+    throw new Error(`Seed command did not return JSON: ${output}`);
+  }
+
+  return JSON.parse(jsonLine) as SeededGoldenResult;
+}
+
 async function deleteStudy(request: APIRequestContext, studySlug: string): Promise<void> {
   await request.delete(`${BASE}/api/v1/studies/${studySlug}`, {
     headers: authHeaders(),
   });
+}
+
+async function suppressWhatsNewModal(page: Page, request: APIRequestContext): Promise<void> {
+  const response = await request.get(`${BASE}/api/v1/changelog`, {
+    headers: authHeaders(),
+  });
+  const body = await response.json().catch(() => ({})) as ChangelogPayload;
+  const latestVersion = body.entries?.[0]?.version ?? "Unreleased";
+
+  await page.addInitScript((version) => {
+    window.localStorage.setItem("parthenon_seen_version", version);
+  }, latestVersion);
 }
 
 async function postJson<T>(
@@ -304,6 +404,15 @@ async function waitForFrameText(
   throw new Error(
     `Timed out waiting for managed Shiny frame text. Last frames: ${JSON.stringify(snapshots, null, 2)}`,
   );
+}
+
+async function closeWhatsNewDialog(page: Page): Promise<void> {
+  const dialog = page.getByRole("dialog", { name: /What's New in Parthenon/i });
+  const closeButton = dialog.getByRole("button", { name: /^Close$/i });
+
+  if (await closeButton.isVisible({ timeout: 1_000 }).catch(() => false)) {
+    await closeButton.click();
+  }
 }
 
 function resolveUrl(pathOrUrl: string | null): string {

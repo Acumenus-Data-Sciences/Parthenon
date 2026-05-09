@@ -91,6 +91,73 @@ create_zip_bundle <- function(workspace, relative_path, payload_path, sqlite_tab
   invisible(target)
 }
 
+create_result_table_data <- function(tables) {
+  result <- lapply(seq_along(tables), function(index) {
+    data.frame(id = index, label = paste0(tables[[index]], "_fixture"), stringsAsFactors = FALSE)
+  })
+  names(result) <- tables
+
+  result
+}
+
+create_table_bundle <- function(workspace, relative_path, tables, format = "rds") {
+  target <- file.path(workspace, relative_path)
+  dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
+  data <- create_result_table_data(tables)
+
+  if (identical(format, "rds")) {
+    saveRDS(data, target)
+    return(invisible(target))
+  }
+
+  if (format %in% c("rda", "rdata")) {
+    env <- new.env(parent = emptyenv())
+    for (table_name in names(data)) {
+      assign(table_name, data[[table_name]], envir = env)
+    }
+    save(list = names(data), file = target, envir = env)
+    return(invisible(target))
+  }
+
+  if (identical(format, "json")) {
+    if (!requireNamespace("jsonlite", quietly = TRUE)) {
+      stop("jsonlite is required for JSON conversion fixture generation.")
+    }
+    jsonlite::write_json(data, target, dataframe = "rows", auto_unbox = TRUE)
+    return(invisible(target))
+  }
+
+  if (identical(format, "html")) {
+    writeLines("<html><body>Rendered managed artifact only</body></html>", target)
+    return(invisible(target))
+  }
+
+  stop(sprintf("Unsupported table bundle fixture format: %s", format))
+}
+
+prepare_table_readiness <- function(case, tables, format = "rds", workspace_prefix = "managed-shiny-handoff-table-") {
+  parsed <- read_managed_shiny_manifest(dirname(case$fixture), case$fixture)
+  if (!isTRUE(parsed$valid)) {
+    stop(sprintf("Fixture manifest must be valid before handoff testing: %s", case$fixture))
+  }
+
+  relative_path <- paste0("artifact/results.", format)
+  parsed$manifest$artifact$materialized_file$relative_path <- relative_path
+  parsed$manifest$artifact$materialized_file$filename <- basename(relative_path)
+  parsed$manifest$artifact$materialized_file$extension <- format
+
+  workspace <- tempfile(workspace_prefix)
+  dir.create(workspace, recursive = TRUE)
+  create_table_bundle(workspace, relative_path, tables, format)
+
+  readiness <- managed_shiny_loader_readiness(parsed, workspace)
+  if (!identical(readiness$status, "ready")) {
+    stop(sprintf("Table bundle readiness failed before handoff testing: %s\n%s", case$fixture, paste(readiness$messages, collapse = "\n")))
+  }
+
+  list(parsed = parsed, workspace = workspace, readiness = readiness)
+}
+
 prepare_readiness <- function(case, tables, workspace_prefix = "managed-shiny-handoff-") {
   parsed <- read_managed_shiny_manifest(dirname(case$fixture), case$fixture)
   if (!isTRUE(parsed$valid)) {
@@ -168,6 +235,48 @@ direct_readiness <- managed_shiny_loader_readiness(direct, direct_workspace)
 direct_database <- managed_shiny_extract_result_database(direct_readiness)
 if (!identical(direct_database$path, normalizePath(file.path(direct_workspace, "artifact", "results.sqlite"), winslash = "/", mustWork = FALSE))) {
   stop("Direct SQLite bundle was not accepted as a result database handoff.")
+}
+
+rds_ready <- prepare_table_readiness(plp_case, plp_case$tables, "rds")
+rds_database <- managed_shiny_extract_result_database(rds_ready$readiness, tempfile("managed-shiny-handoff-rds-"))
+if (!managed_shiny_nonempty_string(rds_database$path) || !file.exists(rds_database$path)) {
+  stop("RDS table bundle was not converted into a SQLite result database.")
+}
+if (!identical(rds_database$conversion$source_extension, "rds")) {
+  stop("RDS conversion metadata did not identify the source extension.")
+}
+rds_schema <- managed_shiny_validate_result_database_schema(
+  rds_database$path,
+  managed_shiny_official_viewer_definition("plp_result_bundle")
+)
+if (!isTRUE(rds_schema$valid) || !identical(rds_schema$matched_variant, plp_case$expected_variant)) {
+  stop("Converted RDS result database did not satisfy the PLP schema guard.")
+}
+
+rdata_ready <- prepare_table_readiness(plp_case, plp_case$tables, "rdata")
+rdata_database <- managed_shiny_extract_result_database(rdata_ready$readiness, tempfile("managed-shiny-handoff-rdata-"))
+if (!managed_shiny_nonempty_string(rdata_database$path) || !file.exists(rdata_database$path)) {
+  stop("RData table bundle was not converted into a SQLite result database.")
+}
+
+report_case <- fixture_cases$ohdsi_report_bundle
+json_ready <- prepare_table_readiness(report_case, report_case$tables, "json")
+json_database <- managed_shiny_extract_result_database(json_ready$readiness, tempfile("managed-shiny-handoff-json-"))
+if (!managed_shiny_nonempty_string(json_database$path) || !file.exists(json_database$path)) {
+  stop("JSON table bundle was not converted into a SQLite result database.")
+}
+json_schema <- managed_shiny_validate_result_database_schema(
+  json_database$path,
+  managed_shiny_official_viewer_definition("ohdsi_report_bundle")
+)
+if (!isTRUE(json_schema$valid) || !identical(json_schema$matched_variant, report_case$expected_variant)) {
+  stop("Converted JSON result database did not satisfy the OHDSI report schema guard.")
+}
+
+html_ready <- prepare_table_readiness(report_case, report_case$tables, "html")
+html_database <- managed_shiny_extract_result_database(html_ready$readiness, tempfile("managed-shiny-handoff-html-"))
+if (managed_shiny_nonempty_string(html_database$path)) {
+  stop("Rendered HTML bundles should remain managed artifacts and not be converted into SQLite.")
 }
 
 no_database_parsed <- read_managed_shiny_manifest(dirname(plp_case$fixture), plp_case$fixture)

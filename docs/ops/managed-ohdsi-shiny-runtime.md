@@ -36,8 +36,8 @@ Rscript docker/shiny-ohdsi/tests/golden/create_golden_result_databases.R
 Rscript docker/shiny-ohdsi/tests/golden_result_database_test.R
 ```
 
-For browser smoke against a deployed backend, copy a golden database into the
-backend local storage disk and point Playwright at the storage-relative path:
+For browser smoke against a deployed backend, the suite can seed a launchable
+native Study Result from the golden PLP database:
 
 ```bash
 mkdir -p backend/storage/app/private/testing/golden
@@ -45,8 +45,30 @@ cp docker/shiny-ohdsi/tests/golden/plp-results.sqlite backend/storage/app/privat
 cd e2e
 PLAYWRIGHT_ENABLE_SHINY_SMOKE=1 \
 PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH=testing/golden/plp-results.sqlite \
+PLAYWRIGHT_ENABLE_RESULT_VIEWER_DISCOVERY=1 \
+PLAYWRIGHT_SEED_GOLDEN_RESULT=1 \
 npm run test:shiny
 ```
+
+The same seed path is available without Playwright:
+
+```bash
+docker compose exec -T php php artisan shiny:seed-golden-result --cleanup --json
+```
+
+## Non-SQLite Bundle Conversion
+
+Official OHDSI modules still receive SQLite result databases. When a managed
+bundle is not already SQLite, the Shiny handoff layer attempts a conservative
+conversion before declaring the bundle incomplete:
+
+- `.rds`, `.rda`, and `.rdata` are accepted when they contain named data frames
+  or named atomic-column lists using OHDSI result table names.
+- `.json` is accepted when it contains named tabular result objects.
+- `.zip` bundles may contain either SQLite databases or one convertible
+  `.rds`, `.rda`, `.rdata`, or `.json` entry with safe archive paths.
+- `.html` report artifacts remain managed artifacts only; they cannot drive an
+  official OHDSI module without a separate result database.
 
 ## Posit Connect Adapter
 

@@ -3,18 +3,18 @@ FROM ${PARTHENON_DARKSTAR_IMAGE}
 
 USER root
 
-RUN mkdir -p /srv/parthenon-shiny/app /srv/parthenon-shiny/launches \
+RUN mkdir -p /opt/parthenon-shiny/app /srv/parthenon-shiny/launches \
     && chown -R ruser:ruser /srv/parthenon-shiny
 
-COPY docker/shiny-ohdsi/app.R /srv/parthenon-shiny/app/app.R
-COPY docker/shiny-ohdsi/manifest.R /srv/parthenon-shiny/app/manifest.R
-COPY docker/shiny-ohdsi/loaders.R /srv/parthenon-shiny/app/loaders.R
-COPY docker/shiny-ohdsi/handoffs.R /srv/parthenon-shiny/app/handoffs.R
-RUN chown ruser:ruser /srv/parthenon-shiny/app/app.R /srv/parthenon-shiny/app/manifest.R /srv/parthenon-shiny/app/loaders.R /srv/parthenon-shiny/app/handoffs.R
+COPY docker/shiny-ohdsi/app.R /opt/parthenon-shiny/app/app.R
+COPY docker/shiny-ohdsi/manifest.R /opt/parthenon-shiny/app/manifest.R
+COPY docker/shiny-ohdsi/loaders.R /opt/parthenon-shiny/app/loaders.R
+COPY docker/shiny-ohdsi/handoffs.R /opt/parthenon-shiny/app/handoffs.R
+RUN chown -R ruser:ruser /opt/parthenon-shiny/app
 
 USER ruser
 
 EXPOSE 3838
 
 ENTRYPOINT []
-CMD ["Rscript", "/srv/parthenon-shiny/app/app.R"]
+CMD ["Rscript", "/opt/parthenon-shiny/app/app.R"]

@@ -102,7 +102,7 @@ Acceptance:
 
 ### Phase 2: Package-Specific Loaders
 
-Status: in progress
+Status: complete for official SQLite handoff and conservative tabular conversion
 
 Rationale: The scaffold must become useful for real OHDSI result exploration.
 Each loader should prefer official OHDSI package APIs and degrade to manifest
@@ -125,17 +125,19 @@ Todo:
   for all official managed loader families.
 - [x] Add positive and negative SQLite fixture coverage for every official
   managed loader family.
-- [ ] PLP loader for PatientLevelPrediction result bundles.
-- [ ] Population estimation loader for CohortMethod results.
-- [ ] Population estimation loader for SelfControlledCaseSeries results.
-- [ ] Population estimation loader for EvidenceSynthesis results.
-- [ ] CohortDiagnostics loader.
-- [ ] Characterization loader.
-- [ ] CohortIncidence loader.
-- [ ] PheValuator loader.
-- [ ] OHDSI report bundle loader.
-- [ ] OHDSI sharing bundle loader.
-- [ ] R-level smoke tests for each package-specific OHDSI viewer handoff with
+- [x] PLP loader for PatientLevelPrediction result bundles.
+- [x] Population estimation loader for CohortMethod results.
+- [x] Population estimation loader for SelfControlledCaseSeries results.
+- [x] Population estimation loader for EvidenceSynthesis results.
+- [x] CohortDiagnostics loader.
+- [x] Characterization loader.
+- [x] CohortIncidence loader.
+- [x] PheValuator loader.
+- [x] OHDSI report bundle loader.
+- [x] OHDSI sharing bundle loader.
+- [x] Add conservative RDS/RData/JSON named-table conversion into SQLite for
+  official module handoff.
+- [x] R-level smoke tests for each package-specific OHDSI viewer handoff with
   complete fixture artifacts.
 
 Acceptance:
@@ -147,23 +149,23 @@ Acceptance:
 
 ### Phase 3: Native Result Page Launch Surfaces
 
-Status: pending
+Status: complete for native Study Results
 
 Rationale: Study artifacts are the first launch surface, but users will also
 expect managed viewers where they inspect analysis outputs.
 
 Todo:
 
-- [ ] Add managed Shiny launch action to PLP result pages.
-- [ ] Add managed Shiny launch action to population-level estimation results.
-- [ ] Add managed Shiny launch action to SCCS results.
-- [ ] Add managed Shiny launch action to Evidence Synthesis results.
-- [ ] Add managed Shiny launch action to Cohort Diagnostics pages.
-- [ ] Add managed Shiny launch action to Characterization pages.
-- [ ] Add managed Shiny launch action to PheValuator pages.
-- [ ] Reuse the same backend launch endpoint or add result-specific launch
+- [x] Add managed Shiny launch action to PLP result pages.
+- [x] Add managed Shiny launch action to population-level estimation results.
+- [x] Add managed Shiny launch action to SCCS results.
+- [x] Add managed Shiny launch action to Evidence Synthesis results.
+- [x] Add managed Shiny launch action to Cohort Diagnostics pages.
+- [x] Add managed Shiny launch action to Characterization pages.
+- [x] Add managed Shiny launch action to PheValuator pages.
+- [x] Reuse the same backend launch endpoint or add result-specific launch
   endpoints only if artifact launches cannot represent the result bundle.
-- [ ] Add frontend integration tests for viewer discovery.
+- [x] Add frontend integration tests for viewer discovery.
 
 Acceptance:
 
@@ -174,7 +176,7 @@ Acceptance:
 
 ### Phase 4: HADES Version Automation
 
-Status: pending
+Status: implemented, pending first hosted workflow proof after merge
 
 Rationale: Manual target-version review will drift. The target inventory needs
 scheduled verification against upstream metadata and the stable HADES release
@@ -182,13 +184,13 @@ lock profile.
 
 Todo:
 
-- [ ] Add a script that refreshes target versions from upstream package metadata.
-- [ ] Add a script that validates installed targets against HADES-wide
+- [x] Add a script that refreshes target versions from upstream package metadata.
+- [x] Add a script that validates installed targets against HADES-wide
   `2026Q1/renv.lock`.
-- [ ] Keep latest-target mode distinct from stable-release-lock mode.
-- [ ] Add a GitHub Actions scheduled workflow.
-- [ ] Open a PR when target versions or lockfile parity changes.
-- [ ] Add a human-readable report artifact for operators.
+- [x] Keep latest-target mode distinct from stable-release-lock mode.
+- [x] Add a GitHub Actions scheduled workflow.
+- [x] Open a PR when target versions or lockfile parity changes.
+- [x] Add a human-readable report artifact for operators.
 
 Acceptance:
 
@@ -199,21 +201,21 @@ Acceptance:
 
 ### Phase 5: Runtime Operations
 
-Status: pending
+Status: complete
 
 Rationale: Managed Shiny is now a runtime surface. It needs the same operational
 discipline as other Parthenon services.
 
 Todo:
 
-- [ ] Persist launch audit records with user, study, artifact, app key, runtime,
+- [x] Persist launch audit records with user, study, artifact, app key, runtime,
   workspace id, expiry, and outcome.
-- [ ] Record token resolution success/failure counts.
-- [ ] Record app start latency and resolver latency.
-- [ ] Add workspace cleanup command and scheduler.
-- [ ] Add admin-visible active session count.
-- [ ] Add Posit Connect adapter configuration for licensed deployments.
-- [ ] Document recovery steps for Docker socket, ShinyProxy, and app-image
+- [x] Record token resolution success/failure counts.
+- [x] Record app start latency and resolver latency.
+- [x] Add workspace cleanup command and scheduler.
+- [x] Add admin-visible active session count.
+- [x] Add Posit Connect adapter configuration for licensed deployments.
+- [x] Document recovery steps for Docker socket, ShinyProxy, and app-image
   failures.
 
 Acceptance:
@@ -224,19 +226,20 @@ Acceptance:
 
 ### Phase 6: Golden Data and End-to-End Quality
 
-Status: pending
+Status: complete for synthetic golden data, PLP browser smoke, and production checklist
 
 Rationale: Result loaders need repeatable data. Eunomia and small synthetic
 fixtures should anchor regression tests.
 
 Todo:
 
-- [ ] Add golden Eunomia result artifacts for supported managed viewer families.
-- [ ] Add Shiny launch manifests for each fixture.
-- [ ] Add R loader smoke tests against those fixtures.
-- [ ] Add Playwright tests for viewer discovery on Study Artifacts and result
+- [x] Add golden synthetic result artifacts for supported managed viewer
+  families.
+- [x] Add Shiny launch manifests for each fixture.
+- [x] Add R loader smoke tests against those fixtures.
+- [x] Add Playwright tests for viewer discovery on Study Artifacts and result
   pages.
-- [ ] Add a production smoke checklist covering `/`, `/login`, `/jobs`,
+- [x] Add a production smoke checklist covering `/`, `/login`, `/jobs`,
   System Health, `/api/v1/hades/packages`, and one managed viewer.
 
 Acceptance:
@@ -532,9 +535,11 @@ PLAYWRIGHT_ENABLE_SHINY_SMOKE=1 PLAYWRIGHT_SHINY_GOLDEN_FILE_PATH=testing/golden
   - `P4-A HADES Version Automation`
   - `P5-A Runtime Operations Closeout`
 - Remaining deepening work:
-  - exercise the golden SQLite browser smoke in a fully configured ShinyProxy or
-    Posit Connect deployment,
-  - add conversion/import paths for non-SQLite RDS/RData, HTML, JSON, and
-    sharing bundle formats,
-  - broaden result-page viewer discovery Playwright coverage once seeded
-    launchable results are available in the target environment.
+  - validate the scheduled HADES drift workflow in GitHub after the local branch
+    is rebased onto the current `origin/main`,
+  - broaden browser coverage from the PLP golden path to every registered
+    viewer family,
+  - test the documented Posit Connect adapter contract in a licensed Connect
+    deployment,
+  - supplement synthetic golden SQLite databases with upstream package-exported
+    Eunomia artifacts when practical.
