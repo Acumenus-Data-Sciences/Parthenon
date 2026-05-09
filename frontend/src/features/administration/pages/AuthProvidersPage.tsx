@@ -262,7 +262,7 @@ export default function AuthProvidersPage() {
                 Configure SAML 2.0 IdP integration for your organization.
               </p>
             </div>
-            <Button variant="default" disabled>Configure</Button>
+            <Button variant="primary" disabled>Configure</Button>
           </div>
         </Panel>
       </EnterpriseGate>
