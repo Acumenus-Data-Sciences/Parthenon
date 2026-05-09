@@ -68,7 +68,7 @@ jobs:
 
       - name: Open drift issue
         if: steps.diff.outputs.open-issue == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const pinned = '${{ steps.pin.outputs.pinned }}';
