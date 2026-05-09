@@ -323,6 +323,59 @@ artifacts into an R runtime:
 - manifest points to a `.zip` file that is not a readable zip archive;
 - manifest points to a readable zip containing unsafe entry paths.
 
+### 8. Official SQLite Result Database Handoff
+
+Added:
+
+- `docker/shiny-ohdsi/handoffs.R`
+- `docker/shiny-ohdsi/tests/handoff_registry_test.R`
+
+Updated:
+
+- `docker/shiny-ohdsi/app.R`
+- `docker/shiny-ohdsi/Dockerfile`
+- `docker/shiny-ohdsi/loaders.R`
+
+The installed `OhdsiShinyAppBuilder` API in the Shiny OHDSI image is oriented
+around a shared result database connection. Its `createShinyApp()` and
+`viewShiny()` functions accept app-builder module configuration plus a database
+connection or connection details. They do not directly consume arbitrary PLP,
+CohortMethod, CohortDiagnostics, Characterization, PheValuator, or report zip
+files as standalone objects.
+
+The new handoff layer therefore treats SQLite result databases as the first
+official viewer boundary:
+
+- direct `.sqlite`, `.sqlite3`, and `.db` artifacts are accepted by the loader
+  registry;
+- zip bundles are inspected using the safe archive-entry list from P2-A;
+- if a safe SQLite result database entry is present, only that entry is
+  extracted to an isolated temporary directory;
+- extracted database paths are normalized and verified to stay inside the
+  extraction directory;
+- symlink database paths are rejected;
+- the handoff builds `DatabaseConnector::createConnectionDetails(dbms =
+  "sqlite")`;
+- result settings are created with
+  `OhdsiShinyAppBuilder::createDefaultResultDatabaseSettings(schema = "main",
+  vocabularyDatabaseSchema = "main")` plus the expected OHDSI table prefixes;
+- the managed Shiny app renders the official module UI and starts the matching
+  `OhdsiShinyModules` server with a
+  `ResultModelManager::ConnectionHandler`.
+
+Registered official module handoffs now cover:
+
+- `patientLevelPredictionViewer` / `patientLevelPredictionServer`;
+- `estimationViewer` / `estimationServer`;
+- `cohortDiagnosticsView` / `cohortDiagnosticsServer`;
+- `characterizationViewer` / `characterizationServer`;
+- `phevaluatorViewer` / `phevaluatorServer`;
+- `reportViewer` / `reportServer`.
+
+The handoff is intentionally gated. If runtime packages are missing, no SQLite
+database is present, or the bundle is not ready, the app keeps rendering a safe
+status panel instead of trying to start a broken official module.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -377,6 +430,9 @@ Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(f
 Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
 Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); cat("R parse ok\n")'
 Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); invisible(parse(file="docker/shiny-ohdsi/handoffs.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest sh -lc 'Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R && Rscript docker/shiny-ohdsi/tests/loader_registry_test.R && Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R'
 ```
 
 Results:
@@ -386,6 +442,10 @@ Results:
   HADES Pest suite passed with 20 tests and 153 assertions.
 - R parser validation passed for 6 managed Shiny fixture manifests.
 - R loader readiness validation passed for 6 managed Shiny fixture manifests.
+- R official viewer handoff detection passed on the host runtime.
+- R official viewer handoff detection passed inside the Shiny OHDSI container,
+  which exercises the package-present path for `OhdsiShinyModules`,
+  `OhdsiShinyAppBuilder`, `DatabaseConnector`, and `ResultModelManager`.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
@@ -443,10 +503,11 @@ verification, leaving the ShinyProxy service running.
 
 This change gives operators a durable audit trail for successful managed Shiny
 launches, scheduled workspace cleanup, System Health metrics, and now a
-deterministic R-side readiness contract for materialized result bundles. It
-does not yet expose a dedicated admin UI or invoke every official OHDSI package
-viewer against complete result artifacts. Those are intentionally listed as the
-next follow-up work in the execution plan.
+deterministic R-side readiness and SQLite handoff contract for materialized
+result bundles. It does not yet expose a dedicated admin UI or validate every
+official OHDSI package viewer against complete package-specific result
+fixtures. Those are intentionally listed as the next follow-up work in the
+execution plan.
 
 The audit table is designed to support those next steps without another data
 model rewrite:
@@ -462,9 +523,9 @@ model rewrite:
 
 Immediate next backlog items:
 
-- add package-specific OHDSI viewer handoffs for PLP, population estimation,
-  cohort diagnostics, characterization, cohort incidence, PheValuator, and
-  report bundles using complete fixtures;
+- add complete package-specific OHDSI fixture artifacts and schema guards for
+  PLP, population estimation, cohort diagnostics, characterization, cohort
+  incidence, PheValuator, and report bundles;
 - surface managed launch actions on native result pages where artifacts already
   represent supported result families;
 - automate HADES latest-target and stable-release-lock drift detection.
@@ -475,9 +536,12 @@ This slice does not attempt to make every OHDSI Shiny app fully functional
 against every result artifact yet. The scaffold now has manifest validation,
 loader registration, bundle readiness checks, and fixture-backed R tests, but
 it still needs package-specific OHDSI viewer handoff tests against complete
-result fixtures. The purpose of this increment is to make the transition from
-manifest to official viewer deterministic and safe before the app surface
-becomes larger.
+result fixtures. The official handoff currently supports the SQLite result
+database path used by `OhdsiShinyAppBuilder`; non-database bundle formats still
+need package-specific import or conversion before they can drive official
+modules. The purpose of this increment is to make the transition from manifest
+to official viewer deterministic and safe before the app surface becomes
+larger.
 
 This slice also does not change the current managed Shiny suppression posture
 for arbitrary apps. It continues the policy of surfacing vetted OHDSI Shiny

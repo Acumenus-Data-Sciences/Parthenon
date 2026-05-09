@@ -9,7 +9,8 @@ RUN mkdir -p /srv/parthenon-shiny/app /srv/parthenon-shiny/launches \
 COPY docker/shiny-ohdsi/app.R /srv/parthenon-shiny/app/app.R
 COPY docker/shiny-ohdsi/manifest.R /srv/parthenon-shiny/app/manifest.R
 COPY docker/shiny-ohdsi/loaders.R /srv/parthenon-shiny/app/loaders.R
-RUN chown ruser:ruser /srv/parthenon-shiny/app/app.R /srv/parthenon-shiny/app/manifest.R /srv/parthenon-shiny/app/loaders.R
+COPY docker/shiny-ohdsi/handoffs.R /srv/parthenon-shiny/app/handoffs.R
+RUN chown ruser:ruser /srv/parthenon-shiny/app/app.R /srv/parthenon-shiny/app/manifest.R /srv/parthenon-shiny/app/loaders.R /srv/parthenon-shiny/app/handoffs.R
 
 USER ruser
 

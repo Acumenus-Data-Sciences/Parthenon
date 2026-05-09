@@ -115,6 +115,10 @@ Todo:
 - [x] Add readable-bundle and safe-entry validation for zip result bundles.
 - [x] Add shared unsupported/incomplete bundle UI.
 - [x] Add R-level readiness tests for fixture manifests.
+- [x] Add official OHDSI module handoff registry for SQLite result databases.
+- [x] Detect SQLite result databases from direct files or safe zip entries.
+- [x] Prepare `DatabaseConnector` SQLite connection details for official module
+  handoff when runtime packages are present.
 - [ ] PLP loader for PatientLevelPrediction result bundles.
 - [ ] Population estimation loader for CohortMethod results.
 - [ ] Population estimation loader for SelfControlledCaseSeries results.
@@ -343,6 +347,34 @@ Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R
 Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
 ```
 
+### P2-B: Official SQLite Result Database Handoff
+
+- [x] Add `docker/shiny-ohdsi/handoffs.R`.
+- [x] Register official `OhdsiShinyModules` UI/server functions for PLP,
+  population estimation, cohort diagnostics, characterization, PheValuator, and
+  OHDSI report result families.
+- [x] Detect direct `.sqlite`, `.sqlite3`, and `.db` result database artifacts.
+- [x] Detect and extract SQLite result databases from already-validated zip
+  bundles using safe zip entry paths.
+- [x] Build `DatabaseConnector::createConnectionDetails(dbms = "sqlite")` and
+  `OhdsiShinyAppBuilder::createDefaultResultDatabaseSettings(schema = "main")`
+  for official viewer handoff.
+- [x] Render the official module UI inside the managed Shiny app when a handoff
+  is ready.
+- [x] Start the corresponding official module server with a
+  `ResultModelManager::ConnectionHandler`.
+- [x] Add `docker/shiny-ohdsi/tests/handoff_registry_test.R`.
+- [x] Validate the handoff test on the host R runtime and inside the Shiny OHDSI
+  container image.
+
+Run commands:
+
+```bash
+Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(file="docker/shiny-ohdsi/manifest.R")); invisible(parse(file="docker/shiny-ohdsi/loaders.R")); invisible(parse(file="docker/shiny-ohdsi/handoffs.R")); cat("R parse ok\n")'
+Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest sh -lc 'Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R && Rscript docker/shiny-ohdsi/tests/loader_registry_test.R && Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R'
+```
+
 ## Risk Notes
 
 - ShinyProxy tests can be slow because app containers start on demand. The
@@ -366,4 +398,6 @@ Rscript docker/shiny-ohdsi/tests/loader_registry_test.R
   - `P0-D Metrics and Launch-Context Abuse Controls`
   - `P1-A Manifest Contract`
   - `P2-A Loader Registry and Bundle Readiness`
-- Next implementation slice: `P2-B Package-Specific OHDSI Viewer Handoffs`.
+  - `P2-B Official SQLite Result Database Handoff`
+- Next implementation slice: `P2-C Complete Package-Specific Fixture
+  Artifacts and Schema Guards`.

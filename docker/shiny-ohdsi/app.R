@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 api_url <- sub("/+$", "", Sys.getenv("PARTHENON_API_URL", "http://nginx:80/api/v1"))
 manifest_helper <- Sys.getenv("PARTHENON_SHINY_MANIFEST_HELPER", "/srv/parthenon-shiny/app/manifest.R")
 loader_helper <- Sys.getenv("PARTHENON_SHINY_LOADER_HELPER", "/srv/parthenon-shiny/app/loaders.R")
+handoff_helper <- Sys.getenv("PARTHENON_SHINY_HANDOFF_HELPER", "/srv/parthenon-shiny/app/handoffs.R")
 
 if (file.exists(manifest_helper)) {
   source(manifest_helper)
@@ -16,6 +17,10 @@ if (file.exists(manifest_helper)) {
 
 if (file.exists(loader_helper)) {
   source(loader_helper)
+}
+
+if (file.exists(handoff_helper)) {
+  source(handoff_helper)
 }
 
 resolve_launch <- function(token) {
@@ -52,12 +57,15 @@ ui <- fluidPage(
   uiOutput("context_summary"),
   uiOutput("artifact_files"),
   uiOutput("manifest_status"),
+  uiOutput("official_viewer"),
   uiOutput("package_status")
 )
 
 server <- function(input, output, session) {
   launch_context <- reactiveVal(NULL)
   launch_error <- reactiveVal(NULL)
+  official_handoff <- reactiveVal(NULL)
+  official_server_started <- reactiveVal("")
 
   observeEvent(session$clientData$url_search, {
     query <- parseQueryString(session$clientData$url_search)
@@ -78,6 +86,32 @@ server <- function(input, output, session) {
       }
     )
   }, ignoreInit = FALSE)
+
+  observeEvent(launch_context(), {
+    context <- launch_context()
+
+    if (!exists("read_managed_shiny_manifest") || !exists("managed_shiny_loader_readiness") || !exists("managed_shiny_prepare_official_viewer_handoff")) {
+      official_handoff(list(
+        status = "unsupported",
+        status_label = "Official OHDSI viewer unavailable",
+        messages = c("The official OHDSI viewer handoff helpers are unavailable.")
+      ))
+      return()
+    }
+
+    parsed <- read_managed_shiny_manifest(
+      value_or(context$workspace$container_path),
+      value_or(context$workspace$manifest_path)
+    )
+
+    readiness <- managed_shiny_loader_readiness(
+      parsed,
+      value_or(context$workspace$container_path),
+      check_packages = TRUE
+    )
+
+    official_handoff(managed_shiny_prepare_official_viewer_handoff(readiness))
+  }, ignoreNULL = TRUE)
 
   output$launch_status <- renderUI({
     err <- launch_error()
@@ -223,6 +257,93 @@ server <- function(input, output, session) {
       )
     )
   })
+
+  output$official_viewer <- renderUI({
+    handoff <- official_handoff()
+
+    if (is.null(handoff)) {
+      return(tags$span())
+    }
+
+    if (!identical(handoff$status, "ready")) {
+      return(div(
+        class = "panel",
+        div(class = "eyebrow", value_or(handoff$status_label, "Official OHDSI Viewer")),
+        tags$ul(lapply(value_or(handoff$messages, character()), tags$li))
+      ))
+    }
+
+    viewer_ui <- tryCatch(
+      {
+        ui_function <- getExportedValue("OhdsiShinyModules", handoff$ui_function)
+        ui_function(handoff$module_id)
+      },
+      error = function(err) {
+        div(
+          class = "panel",
+          div(class = "eyebrow", "Official OHDSI Viewer"),
+          p(paste("The official viewer UI could not be initialized:", conditionMessage(err)))
+        )
+      }
+    )
+
+    div(
+      class = "panel",
+      div(class = "eyebrow", handoff$status_label),
+      h3("Official OHDSI Module"),
+      tags$dl(
+        tags$dt("Module"),
+        tags$dd(value_or(handoff$module_id)),
+        tags$dt("UI"),
+        tags$dd(value_or(handoff$ui_function)),
+        tags$dt("Server"),
+        tags$dd(value_or(handoff$server_function)),
+        tags$dt("Result database"),
+        tags$dd(code(value_or(handoff$database_relative_path)))
+      ),
+      viewer_ui
+    )
+  })
+
+  observeEvent(official_handoff(), {
+    handoff <- official_handoff()
+
+    if (is.null(handoff) || !identical(handoff$status, "ready")) {
+      return()
+    }
+
+    start_key <- paste(handoff$module_id, handoff$database_path, sep = ":")
+    if (identical(official_server_started(), start_key)) {
+      return()
+    }
+
+    tryCatch(
+      {
+        server_function <- getExportedValue("OhdsiShinyModules", handoff$server_function)
+        connection_handler <- ResultModelManager::ConnectionHandler$new(
+          connectionDetails = handoff$connection_details,
+          loadConnection = TRUE
+        )
+        session$onSessionEnded(function() {
+          connection_handler$closeConnection()
+        })
+
+        server_function(
+          id = handoff$module_id,
+          connectionHandler = connection_handler,
+          resultDatabaseSettings = handoff$result_database_settings
+        )
+        official_server_started(start_key)
+      },
+      error = function(err) {
+        official_handoff(modifyList(handoff, list(
+          status = "blocked",
+          status_label = "Official OHDSI viewer blocked",
+          messages = c(paste("The official viewer server could not be initialized:", conditionMessage(err)))
+        )))
+      }
+    )
+  }, ignoreNULL = TRUE)
 
   output$package_status <- renderUI({
     context <- launch_context()

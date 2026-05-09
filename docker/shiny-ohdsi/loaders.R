@@ -3,7 +3,7 @@ managed_shiny_loader_registry <- function() {
     plp_result_bundle = list(
       label = "PatientLevelPrediction result bundle",
       family = "Prediction module",
-      accepted_extensions = c("zip", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
       expected_result_types = c("PatientLevelPrediction"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultPredictionConfig"
@@ -11,7 +11,7 @@ managed_shiny_loader_registry <- function() {
     population_estimation_result_bundle = list(
       label = "Population-level estimation result bundle",
       family = "Estimator module",
-      accepted_extensions = c("zip", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
       expected_result_types = c("CohortMethod", "SelfControlledCaseSeries", "EvidenceSynthesis"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultEstimationConfig"
@@ -19,7 +19,7 @@ managed_shiny_loader_registry <- function() {
     cohort_diagnostics_result_bundle = list(
       label = "CohortDiagnostics result bundle",
       family = "Cohort Diagnostic module",
-      accepted_extensions = c("zip"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db"),
       expected_result_types = c("CohortDiagnostics"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultCohortDiagnosticsConfig"
@@ -27,7 +27,7 @@ managed_shiny_loader_registry <- function() {
     characterization_result_bundle = list(
       label = "Characterization or CohortIncidence result bundle",
       family = "Characterization module",
-      accepted_extensions = c("zip", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
       expected_result_types = c("Characterization", "CohortIncidence"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultCharacterizationConfig"
@@ -35,7 +35,7 @@ managed_shiny_loader_registry <- function() {
     phevaluator_result_bundle = list(
       label = "PheValuator result bundle",
       family = "PheValuator module",
-      accepted_extensions = c("zip", "rds", "rda"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda"),
       expected_result_types = c("PheValuator"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultPhevaluatorConfig"
@@ -43,7 +43,7 @@ managed_shiny_loader_registry <- function() {
     ohdsi_report_bundle = list(
       label = "OHDSI report or sharing bundle",
       family = "Report module",
-      accepted_extensions = c("zip", "html", "htm", "json"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "html", "htm", "json"),
       expected_result_types = c("OhdsiReportGenerator", "OhdsiSharing"),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = "OhdsiShinyAppBuilder::createDefaultReportConfig"
@@ -51,7 +51,7 @@ managed_shiny_loader_registry <- function() {
     managed_shiny_result_bundle = list(
       label = "Managed Shiny result bundle",
       family = "Generic managed result module",
-      accepted_extensions = c("zip", "rds", "rda", "csv", "json", "html", "htm"),
+      accepted_extensions = c("zip", "sqlite", "sqlite3", "db", "rds", "rda", "csv", "json", "html", "htm"),
       expected_result_types = character(),
       expected_packages = c("OhdsiShinyModules", "OhdsiShinyAppBuilder"),
       entrypoint = NULL
@@ -129,7 +129,7 @@ managed_shiny_loader_package_status <- function(packages) {
   packages <- packages[nzchar(packages)]
 
   lapply(packages, function(pkg) {
-    installed <- requireNamespace(pkg, quietly = TRUE)
+    installed <- suppressWarnings(suppressPackageStartupMessages(requireNamespace(pkg, quietly = TRUE)))
     list(
       package = pkg,
       installed = installed,
