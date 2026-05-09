@@ -432,6 +432,26 @@ Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 ```
 
+### P2-E-A: Official Module Entrypoint Smoke
+
+- [x] Add `docker/shiny-ohdsi/tests/module_entrypoint_test.R`.
+- [x] Validate every registered handoff has an exported
+  `OhdsiShinyAppBuilder` config function.
+- [x] Validate each config function still maps to the registered module id,
+  UI function, and server function.
+- [x] Validate every registered `OhdsiShinyModules` UI function instantiates a
+  Shiny UI object.
+- [x] Skip safely on host runtimes that do not have the OHDSI Shiny packages.
+- [x] Pass inside the Shiny OHDSI container image where the official packages
+  are installed.
+
+Run commands:
+
+```bash
+Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
+```
+
 ## Risk Notes
 
 - ShinyProxy tests can be slow because app containers start on demand. The
@@ -458,5 +478,6 @@ docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-
   - `P2-B Official SQLite Result Database Handoff`
   - `P2-C SQLite Schema Guards`
   - `P2-D Package-Specific SQLite Fixtures and Deep Schema Guards`
-- Next implementation slice: `P2-E Golden Package Result Databases and Browser
-  Smoke`.
+  - `P2-E-A Official Module Entrypoint Smoke`
+- Next implementation slice: `P2-E-B Golden Package Result Databases and
+  Browser Smoke`.

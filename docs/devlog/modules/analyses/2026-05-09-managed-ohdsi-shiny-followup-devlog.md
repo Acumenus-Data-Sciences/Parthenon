@@ -435,6 +435,28 @@ schema variants. Host tests still cover the safe blocked path when the full R
 runtime is not installed, while the Shiny OHDSI container test exercises the
 package-present path for every official loader family.
 
+### 11. Official Module Entrypoint Smoke
+
+Added:
+
+- `docker/shiny-ohdsi/tests/module_entrypoint_test.R`
+
+The new entrypoint smoke test validates the contract between Parthenon's
+handoff registry and the installed OHDSI Shiny packages. For every registered
+official handoff, it checks:
+
+- the `OhdsiShinyAppBuilder` config function is exported;
+- the config function still points to the registered module id, UI function,
+  and server function;
+- the `OhdsiShinyModules` UI function is exported;
+- the `OhdsiShinyModules` server function is exported;
+- the UI function can instantiate a Shiny UI object.
+
+The test skips safely on host runtimes where the OHDSI Shiny packages are not
+installed, and it passes inside the Shiny OHDSI container image. This gives us
+a light compatibility check before heavier golden-database and browser tests
+start exercising full module behavior.
+
 ## Implementation Notes
 
 ### Launch Service Behavior
@@ -493,6 +515,8 @@ Rscript -e 'invisible(parse(file="docker/shiny-ohdsi/app.R")); invisible(parse(f
 Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest sh -lc 'Rscript docker/shiny-ohdsi/tests/manifest_parser_test.R && Rscript docker/shiny-ohdsi/tests/loader_registry_test.R && Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R'
 docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/handoff_registry_test.R
+Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
+docker run --rm --user root -v "$PWD:/workspace" -w /workspace ghcr.io/acumenus-data-sciences/parthenon-shiny-ohdsi:latest Rscript docker/shiny-ohdsi/tests/module_entrypoint_test.R
 ```
 
 Results:
@@ -509,6 +533,9 @@ Results:
   and `DBI`.
 - SQLite schema guards passed for positive and negative fixture variants across
   all six official managed loader families.
+- Official module entrypoint smoke passed inside the Shiny OHDSI container for
+  all six managed loader families. The host runtime skipped safely because it
+  does not have the OHDSI Shiny packages installed.
 - Pint passed after formatting.
 - PHPStan passed with no errors.
 
