@@ -2,6 +2,7 @@ import type { Resource } from "i18next";
 import { abbyLegacyResources } from "./abbyLegacyResources";
 import { analysisResources } from "./analysisResources";
 import { appResources } from "./appResources";
+import { autoUserFacingResources } from "./autoUserFacingResources";
 import { cohortDefinitionResources } from "./cohortDefinitionResources";
 import { conceptSetResources } from "./conceptSetResources";
 import { commonsResources } from "./commonsResources";
@@ -7790,6 +7791,7 @@ function appForLocale(locale: string): MessageTree {
     publishCareGapRiskResources,
     smallWorkbenchResources,
     strategusResources,
+    autoUserFacingResources,
   ];
 
   return appWaves.reduce(

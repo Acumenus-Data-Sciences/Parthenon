@@ -20,6 +20,7 @@ import {
   issueAction,
   issueMessage,
 } from "./studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type StudyFeasibilitySource = NonNullable<StudyFeasibilityResult["sources"]>[number];
 type StudyFeasibilityCohort = NonNullable<StudyFeasibilitySource["cohorts"]>[number];
@@ -140,16 +141,16 @@ export function FeasibilityDashboard({
             <div className="space-y-2">
               <div className="flex flex-wrap gap-1">
                 <button type="button" onClick={() => setSelectedSourceIds(sources.map((source) => source.id))} className="btn btn-ghost btn-sm">
-                  All
+                  {tAuto("all_6a720856")}
                 </button>
                 <button type="button" onClick={() => setSelectedSourceIds(defaultSourceIds)} disabled={defaultSourceIds.length === 0} className="btn btn-ghost btn-sm">
-                  Default
+                  {tAuto("default_808d7dca")}
                 </button>
                 <button type="button" onClick={() => setSelectedSourceIds(cdmResultsSourceIds)} disabled={cdmResultsSourceIds.length === 0} className="btn btn-ghost btn-sm">
-                  CDM + results
+                  {tAuto("cdmResults_11959e2b")}
                 </button>
                 <button type="button" onClick={() => setSelectedSourceIds([])} className="btn btn-ghost btn-sm">
-                  Clear
+                  {tAuto("clear_719ea396")}
                 </button>
                 <span className="self-center text-[11px] text-text-ghost">
                   {selectedIds.length}/{sources.length} selected
@@ -211,7 +212,7 @@ export function FeasibilityDashboard({
               </p>
               {previousRun && (
                 <p className="text-[11px] text-text-ghost">
-                  Previous run: {previousRun.ready_source_count}/{previousRun.source_count} ready
+                  {tAuto("previousRun_a96ea2cc")} {previousRun.ready_source_count}/{previousRun.source_count} ready
                   {typeof previousRun.delta_ready_source_count === "number"
                     ? ` · ready source delta ${formatSigned(previousRun.delta_ready_source_count)}`
                     : ""}
@@ -248,11 +249,11 @@ export function FeasibilityDashboard({
                       {message}
                     </p>
                     <p className="mt-1 text-[11px] text-text-muted">
-                      Abby source gate: {feasibilityIssueGuidance(issue)}
+                      {tAuto("abbySourceGate_3ddec426")} {feasibilityIssueGuidance(issue)}
                     </p>
                     {action?.label && (
                       <p className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">
-                        Action target: {action.label}
+                        {tAuto("actionTarget_f419294f")} {action.label}
                       </p>
                     )}
                   </div>

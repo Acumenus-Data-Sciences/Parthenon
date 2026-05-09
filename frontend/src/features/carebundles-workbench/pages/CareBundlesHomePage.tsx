@@ -11,6 +11,7 @@ import {
 } from "../hooks";
 import { formatRelativeTime } from "../lib/formatting";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundlesHomePage() {
   const bundlesQuery = useBundles({ per_page: 100 });
@@ -46,10 +47,10 @@ export default function CareBundlesHomePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              CareBundles Workbench
+              {tAuto("carebundlesWorkbench_f0754a48")}
             </h1>
             <p className="text-sm text-text-ghost">
-              Qualified patient counts per care bundle × data source.
+              {tAuto("qualifiedPatientCountsPerCareBundleDataSource_61c54d83")}
             </p>
           </div>
         </div>
@@ -73,7 +74,7 @@ export default function CareBundlesHomePage() {
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-            Materialize all
+            {tAuto("materializeAll_33cc423f")}
           </button>
         </div>
       </header>
@@ -97,8 +98,7 @@ export default function CareBundlesHomePage() {
       {nonQualifyingCount > 0 && (
         <div className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-xs">
           <span className="text-text-ghost">
-            {nonQualifyingCount} source{nonQualifyingCount === 1 ? "" : "s"} hidden
-            (N &lt; {minPop.toLocaleString()} — not adequate for quality measurement).
+            {nonQualifyingCount} source{nonQualifyingCount === 1 ? "" : "s"} {tAuto("hiddenNLt_ba50f55f")} {minPop.toLocaleString()} {tAuto("notAdequateForQualityMeasurement_fb4fea0d")}
           </span>
           <label className="flex items-center gap-2 text-text-muted">
             <input
@@ -107,31 +107,31 @@ export default function CareBundlesHomePage() {
               onChange={(e) => setShowResearchOnly(e.target.checked)}
               className="h-3.5 w-3.5"
             />
-            Show research-only sources
+            {tAuto("showResearchOnlySources_e51cc08b")}
           </label>
         </div>
       )}
 
       <Shell
-        title="Coverage matrix"
+        title={tAuto("coverageMatrix_3e46ef46")}
         subtitle={`${bundles.length} bundles × ${sources.length} sources`}
       >
         <div className="overflow-x-auto p-0">
           {isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading coverage…
+              {tAuto("loadingCoverage_f9834ca1")}
             </div>
           ) : bundles.length === 0 || sources.length === 0 ? (
             <p className="p-6 text-sm text-text-ghost">
-              No bundles or sources configured yet.
+              {tAuto("noBundlesOrSourcesConfiguredYet_c6dd590a")}
             </p>
           ) : (
             <table className="min-w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border-default">
                   <th className="sticky left-0 z-10 bg-surface-raised px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                    Bundle
+                    {tAuto("bundle_23ed731b")}
                   </th>
                   {sources.map((source) => (
                     <th

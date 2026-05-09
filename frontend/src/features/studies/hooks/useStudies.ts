@@ -42,6 +42,7 @@ import {
   createStudyArtifact,
   updateStudyArtifact,
   deleteStudyArtifact,
+  launchStudyArtifactShinyApp,
   listStudyActivity,
   listStudyResults,
   updateStudyResult,
@@ -948,6 +949,20 @@ export function useDeleteStudyArtifact() {
     onSuccess: (_d, v) => {
       queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "artifacts"] });
     },
+  });
+}
+
+export function useLaunchStudyArtifactShinyApp() {
+  return useMutation({
+    mutationFn: ({
+      slug,
+      artifactId,
+      payload,
+    }: {
+      slug: string;
+      artifactId: number;
+      payload: { app_key?: string; mode?: "embedded" | "full_page" };
+    }) => launchStudyArtifactShinyApp(slug, artifactId, payload),
   });
 }
 

@@ -19,6 +19,7 @@ import { SettingsForm } from "../components/SettingsForm";
 import { ResultViewerSwitch } from "../components/results/ResultViewerSwitch";
 import type { CO2ModuleKey } from "../types";
 import { Shell } from "@/components/workbench/primitives";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface AnalysisDetailPageProps {
   moduleKey: string;
@@ -125,7 +126,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
           className="flex items-center gap-1 text-xs text-text-ghost transition-colors hover:text-text-secondary"
         >
           <ArrowLeft size={14} />
-          Back to gallery
+          {tAuto("backToGallery_af86c3f8")}
         </button>
         <div className="h-4 w-px bg-border-default" />
         <h2 className="text-sm font-semibold text-text-primary">{module.label}</h2>
@@ -136,7 +137,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
         {/* Settings sidebar */}
         <div className="space-y-4">
           <Shell
-            title="Configure"
+            title={tAuto("configure_792c81a4")}
             subtitle={`Parameters for ${module.label}.`}
           >
             <div className="p-4">
@@ -150,7 +151,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
                 />
               ) : (
                 <p className="text-xs text-text-ghost">
-                  No settings schema available for this module.
+                  {tAuto("noSettingsSchemaAvailableForThisModule_51f661a5")}
                 </p>
               )}
             </div>
@@ -158,7 +159,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
 
           {recentRuns.length > 0 && (
             <Shell
-              title="Recent runs"
+              title={tAuto("recentRuns_af7051db")}
               subtitle={`${recentRuns.length} most recent run${recentRuns.length === 1 ? "" : "s"}. Click to inspect.`}
             >
               <ul className="divide-y divide-border-default">
@@ -188,7 +189,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
 
         {/* Results panel */}
         <Shell
-          title="Results"
+          title={tAuto("results_612e12d2")}
           subtitle="Run output appears here once an analysis succeeds."
         >
           {!showRun && (
@@ -196,9 +197,9 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
               <div className="rounded-full border border-dashed border-border-default p-3 text-text-ghost">
                 <Clock size={18} />
               </div>
-              <p className="text-sm text-text-secondary">No run yet.</p>
+              <p className="text-sm text-text-secondary">{tAuto("noRunYet_21116a0e")}</p>
               <p className="text-[10px] text-text-ghost">
-                Configure settings on the left and submit to run an analysis.
+                {tAuto("configureSettingsOnTheLeftAndSubmitTo_759f7543")}
               </p>
             </div>
           )}
@@ -213,13 +214,13 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
             <div className="flex items-start gap-2 p-4 text-xs text-error">
               <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
               <div className="space-y-1">
-                <p className="font-medium">Analysis failed</p>
+                <p className="font-medium">{tAuto("analysisFailed_cfc1e656")}</p>
                 <p className="text-text-muted">
                   {showRun.error?.message ?? "Unknown error"}
                 </p>
                 {showRun.error?.category && (
                   <p className="text-[10px] text-text-ghost">
-                    Category: {showRun.error.category}
+                    {tAuto("category_61b9204f")} {showRun.error.category}
                   </p>
                 )}
               </div>
@@ -238,7 +239,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohort
           {showRun?.status === "succeeded" && !displayData && (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={16} className="animate-spin text-text-ghost" />
-              <span className="ml-2 text-xs text-text-ghost">Loading results…</span>
+              <span className="ml-2 text-xs text-text-ghost">{tAuto("loadingResults_fa518aa2")}</span>
             </div>
           )}
         </Shell>

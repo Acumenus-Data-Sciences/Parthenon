@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useMeasureStrata } from "../hooks";
 import { formatRateWithCI } from "../lib/formatting";
 import type { MeasureStratum } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   bundleId: number | null;
@@ -28,18 +29,18 @@ export function MeasureStrataRow({
       <td colSpan={colSpan} className="px-8 py-4">
         {isLoading && (
           <div className="flex items-center gap-2 text-xs text-text-ghost">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Computing strata…
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {tAuto("computingStrata_1aec05a6")}
           </div>
         )}
 
         {error && (
-          <div className="text-xs text-red-300">Failed to load strata.</div>
+          <div className="text-xs text-red-300">{tAuto("failedToLoadStrata_281cba42")}</div>
         )}
 
         {data && (
           <div className="grid grid-cols-2 gap-4">
-            <StratumGroup title="By age band" rows={data.age_band} />
-            <StratumGroup title="By sex" rows={data.sex} />
+            <StratumGroup title={tAuto("byAgeBand_3cca5372")} rows={data.age_band} />
+            <StratumGroup title={tAuto("bySex_c3d37389")} rows={data.sex} />
           </div>
         )}
       </td>
@@ -60,22 +61,22 @@ function StratumGroup({
         {title}
       </h4>
       {rows.length === 0 ? (
-        <p className="text-xs text-text-ghost">No strata available.</p>
+        <p className="text-xs text-text-ghost">{tAuto("noStrataAvailable_72b0f381")}</p>
       ) : (
         <table className="min-w-full text-xs">
           <thead>
             <tr className="border-b border-border-default/40">
               <th className="px-2 py-1 text-left font-normal text-text-ghost">
-                Stratum
+                {tAuto("stratum_9f064f88")}
               </th>
               <th className="px-2 py-1 text-right font-normal text-text-ghost">
-                Denom
+                {tAuto("denom_b508f064")}
               </th>
               <th className="px-2 py-1 text-right font-normal text-text-ghost">
-                Numer
+                {tAuto("numer_28de832c")}
               </th>
               <th className="px-2 py-1 text-right font-normal text-text-ghost">
-                Rate (95% CI)
+                {tAuto("rate95Ci_50742b90")}
               </th>
             </tr>
           </thead>

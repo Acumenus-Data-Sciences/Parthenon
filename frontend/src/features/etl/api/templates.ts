@@ -15,20 +15,22 @@ import {
   type TemplateRunStatus,
 } from "../types/templates";
 
-interface ApiEnvelope<T> {
-  data: T;
-}
-
 const BASE = "/ingestion/templates";
 
 // ── Catalog ────────────────────────────────────────────────────────────────
+//
+// All `/ingestion/templates/*` endpoints (except run history) return their
+// payload directly — no `{data: ...}` envelope. The Laravel TemplatePresenter
+// flattens upstream Kubernetes-style manifests into the SPA's flat shape.
+// See backend/tests/Feature/Templates/TemplatesController*.php for the
+// authoritative contract.
 
 export function useTemplates(): UseQueryResult<Template[]> {
   return useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<Template[]>>(BASE);
-      return data.data;
+      const { data } = await apiClient.get<Template[]>(BASE);
+      return data;
     },
     staleTime: 60_000,
   });
@@ -41,10 +43,8 @@ export function useTemplate(
     queryKey: ["templates", id],
     enabled: id !== null,
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<TemplateManifest>>(
-        `${BASE}/${id}`,
-      );
-      return data.data;
+      const { data } = await apiClient.get<TemplateManifest>(`${BASE}/${id}`);
+      return data;
     },
   });
 }
@@ -67,6 +67,9 @@ export interface SubmitTemplateRunInput {
 
 export interface SubmitTemplateRunResponse {
   id: number;
+  template_run_id: number;
+  ingestion_job_id: number | null;
+  status: TemplateRunStatus;
 }
 
 export function useSubmitTemplateRun() {
@@ -75,13 +78,14 @@ export function useSubmitTemplateRun() {
     mutationFn: async (
       input: SubmitTemplateRunInput,
     ): Promise<SubmitTemplateRunResponse> => {
-      const { data } = await apiClient.post<
-        ApiEnvelope<SubmitTemplateRunResponse>
-      >(`${BASE}/${input.templateId}/runs`, {
-        version: input.version,
-        parameters: input.parameters,
-      });
-      return data.data;
+      const { data } = await apiClient.post<SubmitTemplateRunResponse>(
+        `${BASE}/${input.templateId}/runs`,
+        {
+          version: input.version,
+          parameters: input.parameters,
+        },
+      );
+      return data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["template-runs"] });
@@ -96,13 +100,21 @@ export function useTemplateRun(
     queryKey: ["template-runs", runId],
     enabled: runId !== null,
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<TemplateRun>>(
+      const { data } = await apiClient.get<TemplateRun>(
         `${BASE}/runs/${runId}`,
       );
-      return data.data;
+      return data;
     },
     refetchInterval: (q) => templateRunRefetchInterval(q.state.data),
   });
+}
+
+interface RunLogsResponse {
+  lines: TemplateRunLog[];
+}
+
+interface RunArtifactsResponse {
+  artifacts: TemplateRunArtifact[];
 }
 
 export function useTemplateRunLogs(
@@ -113,10 +125,10 @@ export function useTemplateRunLogs(
     queryKey: ["template-runs", runId, "logs"],
     enabled: runId !== null,
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<TemplateRunLog[]>>(
+      const { data } = await apiClient.get<RunLogsResponse>(
         `${BASE}/runs/${runId}/logs`,
       );
-      return data.data;
+      return data.lines ?? [];
     },
     refetchInterval: status && !isTerminal(status) ? 2000 : false,
   });
@@ -130,22 +142,28 @@ export function useTemplateRunArtifacts(
     queryKey: ["template-runs", runId, "artifacts"],
     enabled: runId !== null && status !== undefined && isTerminal(status),
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<TemplateRunArtifact[]>>(
+      const { data } = await apiClient.get<RunArtifactsResponse>(
         `${BASE}/runs/${runId}/artifacts`,
       );
-      return data.data;
+      return data.artifacts ?? [];
     },
   });
+}
+
+interface CancelRunResponse {
+  ok: boolean;
+  id: number;
+  status: TemplateRunStatus;
 }
 
 export function useCancelTemplateRun(runId: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (): Promise<{ ok: true }> => {
-      const { data } = await apiClient.delete<ApiEnvelope<{ ok: true }>>(
+    mutationFn: async (): Promise<CancelRunResponse> => {
+      const { data } = await apiClient.delete<CancelRunResponse>(
         `${BASE}/runs/${runId}`,
       );
-      return data.data;
+      return data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["template-runs", runId] });

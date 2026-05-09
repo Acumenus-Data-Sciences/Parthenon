@@ -6,6 +6,7 @@ import type {
   StudyDesignLockReadiness,
   StudyDesignManifestPreview,
 } from "../types/study";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface StudyDesignLockPanelProps {
   readiness: StudyDesignLockReadiness | null;
@@ -86,7 +87,7 @@ export function StudyDesignLockPanel({
           finalReview.status === "ready" ? "border-success/30 bg-success/5" : "border-warning/40 bg-warning/10",
         )}
         >
-          <p className="text-xs font-semibold text-text-secondary">Abby final package review</p>
+          <p className="text-xs font-semibold text-text-secondary">{tAuto("abbyFinalPackageReview_51c5a7fd")}</p>
           {finalReview.summary && <p className="mt-1 text-xs text-text-muted">{finalReview.summary}</p>}
           {finalReview.recommendation && <p className="mt-1 text-[11px] text-text-ghost">{finalReview.recommendation}</p>}
         </div>
@@ -134,7 +135,7 @@ export function StudyDesignLockPanel({
 
       {!isLoading && manifestPreview && (
         <div className="rounded-md border border-border-default bg-surface-base px-3 py-2">
-          <p className="text-xs font-semibold text-text-secondary">Package manifest preview</p>
+          <p className="text-xs font-semibold text-text-secondary">{tAuto("packageManifestPreview_905f51c4")}</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             {lockManifestMetrics(manifestPreview).map((metric) => (
               <LockMetric key={metric.label} label={metric.label} value={metric.value} tone={metric.tone} />
@@ -250,11 +251,11 @@ function lockManifestMetrics(manifestPreview: StudyDesignManifestPreview): Array
   const artifact = isRecord(manifestPreview.artifact) ? manifestPreview.artifact : null;
 
   return [
-    { label: "Concept sets", value: numericMetric(contents.concept_sets), tone: numericMetric(contents.concept_sets) > 0 ? "success" : "warning" },
-    { label: "Cohorts", value: numericMetric(contents.cohorts), tone: numericMetric(contents.cohorts) > 0 ? "success" : "warning" },
-    { label: "Feasibility", value: typeof contents.feasibility === "string" ? contents.feasibility : "pending", tone: contents.feasibility === "ready" ? "success" : "warning" },
-    { label: "Analyses", value: numericMetric(contents.analysis_plans), tone: numericMetric(contents.analysis_plans) > 0 ? "success" : "warning" },
-    { label: "Artifact", value: artifact?.url ? "ready" : "pending", tone: artifact?.url ? "success" : "neutral" },
+    { label: tAuto("conceptSets_cea668f5"), value: numericMetric(contents.concept_sets), tone: numericMetric(contents.concept_sets) > 0 ? "success" : "warning" },
+    { label: tAuto("cohorts_c54a6a4e"), value: numericMetric(contents.cohorts), tone: numericMetric(contents.cohorts) > 0 ? "success" : "warning" },
+    { label: tAuto("feasibility_54565a58"), value: typeof contents.feasibility === "string" ? contents.feasibility : "pending", tone: contents.feasibility === "ready" ? "success" : "warning" },
+    { label: tAuto("analyses_f864c045"), value: numericMetric(contents.analysis_plans), tone: numericMetric(contents.analysis_plans) > 0 ? "success" : "warning" },
+    { label: tAuto("artifact_aa778b50"), value: artifact?.url ? "ready" : "pending", tone: artifact?.url ? "success" : "neutral" },
     { label: "SHA-256", value: typeof artifact?.sha256 === "string" && artifact.sha256 !== "" ? "signed" : "pending", tone: typeof artifact?.sha256 === "string" && artifact.sha256 !== "" ? "success" : "neutral" },
   ];
 }

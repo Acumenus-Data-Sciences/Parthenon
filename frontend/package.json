@@ -1,8 +1,15 @@
 {
-  "name": "frontend",
+  "name": "@acumenus-data-sciences/parthenon-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Acumenus-Data-Sciences/Parthenon.git",
+    "directory": "frontend"
+  },
+  "author": "Acumenus Data Sciences, Inc.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -32,7 +39,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
-    "@livekit/components-react": "^2.9.20",
+    "@livekit/components-react": "^2.9.21",
     "@livekit/components-styles": "^1.2.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
@@ -54,16 +61,16 @@
     "deck.gl": "^9.3.2",
     "dompurify": "^3.4.2",
     "framer-motion": "^12.38.0",
-    "i18next": "^26.0.8",
+    "i18next": "^26.0.10",
     "laravel-echo": "^2.3.4",
-    "livekit-client": "^2.18.8",
+    "livekit-client": "^2.18.9",
     "lucide-react": "^0.577.0",
     "maplibre-gl": "^5.24.0",
     "pusher-js": "^8.5.0",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-hook-form": "^7.72.1",
-    "react-i18next": "^17.0.6",
+    "react-i18next": "^17.0.7",
     "react-joyride": "^3.0.2",
     "react-map-gl": "^8.1.1",
     "react-markdown": "^10.1.0",
@@ -78,7 +85,7 @@
     "three-stdlib": "^2.36.1",
     "umap-js": "^1.4.0",
     "zod": "^4.3.6",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -88,7 +95,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/d3": "^7.4.3",
     "@types/dompurify": "^3.2.0",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.183.1",
@@ -107,7 +114,7 @@
     "prettier": "^3.8.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.10",
+    "vite": "^8.0.11",
     "vitest": "^4.1.2"
   },
   "overrides": {

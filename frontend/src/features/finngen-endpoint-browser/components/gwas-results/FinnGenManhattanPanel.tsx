@@ -30,6 +30,7 @@ import type {
   ManhattanPayload,
   ManhattanVariant,
 } from "../../api/gwas-results";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface AxiosErrorLike {
   response?: { status?: number };
@@ -57,7 +58,7 @@ function renderError(error: unknown): JSX.Element {
   if (status === 410) {
     return (
       <EmptyState
-        title="Run failed"
+        title={tAuto("runFailed_9a731f3d")}
         message="The GWAS run did not complete. Check the run log for details."
       />
     );
@@ -65,14 +66,14 @@ function renderError(error: unknown): JSX.Element {
   if (status === 404) {
     return (
       <EmptyState
-        title="Run not found"
+        title={tAuto("runNotFound_cc343f83")}
         message="This GWAS run does not exist or was removed."
       />
     );
   }
   return (
     <EmptyState
-      title="Unable to load Manhattan plot"
+      title={tAuto("unableToLoadManhattanPlot_d0ee5ff1")}
       message={messageOf(error)}
     />
   );
@@ -81,7 +82,7 @@ function renderError(error: unknown): JSX.Element {
 function renderInFlight(status: "queued" | "running"): JSX.Element {
   return (
     <EmptyState
-      title="GWAS run is still processing"
+      title={tAuto("gwasRunIsStillProcessing_89334b18")}
       message={`Status: ${status}. Polling every 30s.`}
     />
   );
@@ -117,7 +118,7 @@ export function FinnGenManhattanPanel({
   if (isLoading) {
     return (
       <EmptyState
-        title="Loading Manhattan plot…"
+        title={tAuto("loadingManhattanPlot_8b152f6c")}
         message="Fetching thinned summary statistics from the server."
       />
     );
@@ -133,7 +134,7 @@ export function FinnGenManhattanPanel({
 
   if (!isManhattanReady(data)) {
     // Defensive fallback — should not occur given the branches above.
-    return <EmptyState title="No Manhattan data available" />;
+    return <EmptyState title={tAuto("noManhattanDataAvailable_09d3be2d")} />;
   }
 
   const { thinning } = data;
@@ -143,13 +144,13 @@ export function FinnGenManhattanPanel({
     <ErrorBoundary
       fallback={
         <EmptyState
-          title="Chart crashed"
+          title={tAuto("chartCrashed_86776789")}
           message="The Manhattan plot failed to render. Reload to retry."
         />
       }
     >
       <section
-        aria-label="Manhattan plot"
+        aria-label={tAuto("manhattanPlot_31890f2a")}
         className="rounded-lg border border-border-default bg-surface-raised p-4"
       >
         <div className="mb-2 flex items-center justify-between">
@@ -157,9 +158,8 @@ export function FinnGenManhattanPanel({
             data-thinning-banner
             className="text-xs text-text-muted"
           >
-            Displaying {thinning.variant_count_after.toLocaleString()} of{" "}
-            {thinning.variant_count_before.toLocaleString()} variants (threshold
-            p&lt;{thinning.threshold.toExponential(1)})
+            {tAuto("displaying_cd8452d7")} {thinning.variant_count_after.toLocaleString()} of{" "}
+            {thinning.variant_count_before.toLocaleString()} {tAuto("variantsThresholdPLt_6ad35ac2")}{thinning.threshold.toExponential(1)})
           </span>
         </div>
         <ManhattanPlot
@@ -184,7 +184,7 @@ export function FinnGenManhattanPanel({
             style={{ position: "absolute", left: "-9999px" }}
             onClick={() => onPeakClick(firstVariant.chrom, firstVariant.pos)}
           >
-            test-only peak trigger
+            {tAuto("testOnlyPeakTrigger_5a81730f")}
           </button>
         )}
       </section>

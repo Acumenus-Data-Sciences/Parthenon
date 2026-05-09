@@ -166,17 +166,38 @@ if missing:
     print("required HADES packages missing: " + ", ".join(missing))
     sys.exit(2)
 
+outdated = data.get("required_outdated")
+if outdated is None:
+    outdated = [
+        row.get("package")
+        for row in data.get("packages", [])
+        if row.get("required_for_parity") is True and row.get("version_status") == "behind"
+    ]
+
+outdated = [str(package) for package in outdated if package]
+if outdated and os.environ.get("DEPLOY_HADES_REQUIRE_CURRENT") == "1":
+    print("required HADES packages outdated: " + ", ".join(outdated))
+    sys.exit(3)
+
 required_count = data.get("required_count", "?")
 installed_count = data.get("installed_count", "?")
 total = data.get("total", "?")
 parity_status = data.get("parity_status", "ready")
-print(f"{parity_status}; required={required_count}; installed={installed_count}/{total}")
+freshness_status = data.get("freshness_status", "unknown")
+outdated_count = data.get("outdated_count", 0)
+message = f"{parity_status}; freshness={freshness_status}; required={required_count}; installed={installed_count}/{total}; outdated={outdated_count}"
+if outdated:
+    message += "; required_outdated=" + ", ".join(outdated)
+print(message)
 PY
 )"
   parse_status=$?
 
   if [ $parse_status -eq 0 ]; then
     ok "Smoke: HADES required packages -> ${result}"
+    if printf '%s' "$result" | grep -q 'required_outdated='; then
+      warn "Smoke: HADES package freshness -> required packages are behind; set DEPLOY_HADES_REQUIRE_CURRENT=1 to fail on this"
+    fi
   else
     fail "Smoke: HADES required packages -> ${result}"
     ERRORS=$((ERRORS + 1))
@@ -373,7 +394,7 @@ clear_runtime_caches() {
 echo "==> Parthenon deploy"
 
 # ── Pull pre-built images from GHCR ───────────────────────────────────────────
-# Images are built in CI (GitHub Actions) and pushed to ghcr.io/sudoshi/parthenon-*.
+# Images are built in CI (GitHub Actions) and pushed to ghcr.io/acumenus-data-sciences/parthenon-*.
 # Pulling here avoids local rebuilds and speeds up deploys significantly.
 # If GHCR is unreachable or images don't exist yet, fall back to local images.
 # Skip for targeted deploys (--php, --frontend, --db, --docs, --openapi)
@@ -544,15 +565,37 @@ if $DO_DB; then
     fi
     # Tripwire in AppServiceProvider blocks bare `migrate` — must use --path= per migration.
     # Get pending migrations and run each one individually.
-    PENDING=$(docker compose exec -T php php artisan migrate:status --pending 2>/dev/null \
-      | grep -oP '(?<=\s)\d{4}_\d{2}_\d{2}_\d+_\S+(?=\s)' || true)
+    #
+    # Capture: lines that start with whitespace + YYYY_MM_DD_<digits>_<name>.
+    # Awk over column 1 is more robust than a PCRE lookbehind/lookahead — the
+    # earlier `grep -oP '(?<=\s)\d{4}_\d{2}_\d{2}_\d+_\S+(?=\s)'` silently
+    # produced empty output in some artisan output variants, causing new
+    # migrations to be skipped without warning. (2026-05-08 incident.)
+    PENDING_RAW=$(docker compose exec -T php php artisan migrate:status --pending 2>&1)
+    PENDING=$(printf '%s\n' "$PENDING_RAW" \
+      | awk '/^[[:space:]]+[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]+_/ { print $1 }')
     if [ -z "$PENDING" ]; then
-      ok "No pending migrations"
+      # Surface the raw artisan output if it looked like an error so the
+      # operator can tell "nothing pending" from "artisan crashed".
+      if printf '%s' "$PENDING_RAW" | grep -qiE 'error|exception|fatal'; then
+        fail "Could not determine pending migrations:"
+        printf '%s\n' "$PENDING_RAW" | sed 's/^/     /'
+        ERRORS=$((ERRORS + 1))
+      else
+        ok "No pending migrations"
+      fi
     else
+      MIG_COUNT=$(printf '%s\n' "$PENDING" | wc -l | tr -d ' ')
+      echo "   ${MIG_COUNT} pending migration(s):"
       MIG_ERRORS=0
       while IFS= read -r mig; do
+        [ -z "$mig" ] && continue
         echo "   → ${mig}"
-        if ! "${MIGRATE_EXEC[@]}" migrate --path="database/migrations/${mig}.php" --force 2>&1; then
+        # `</dev/null` is critical: artisan + docker-compose-exec read stdin,
+        # which would otherwise consume the rest of the loop's heredoc input
+        # and cause every iteration after the first to be silently skipped.
+        # (2026-05-08 incident.)
+        if ! "${MIGRATE_EXEC[@]}" migrate --path="database/migrations/${mig}.php" --force </dev/null 2>&1; then
           fail "Migration failed: ${mig}"
           MIG_ERRORS=$((MIG_ERRORS + 1))
         fi
@@ -661,8 +704,10 @@ if $DO_DOCS; then
   fi
   echo ""
   echo "── Docs: clearing build cache ──"
-  # Preserve docs/site/build/ directory inode so nginx bind mount stays valid
-  find docs/site/build -mindepth 1 -delete 2>/dev/null || true
+  # Keep the currently served build in place until docs-build has produced a
+  # replacement. The docs-build container writes to a temp dir first, then
+  # refreshes /dist only after a successful Docusaurus build.
+  mkdir -p docs/site/build
   rm -rf docs/site/.docusaurus docs/site/node_modules/.cache
   ok "Docs build cache cleared"
 

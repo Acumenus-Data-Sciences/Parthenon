@@ -157,6 +157,11 @@ export interface HadesPackageStatus {
   install_package: string;
   installed: boolean;
   version: string | null;
+  target_version?: string | null;
+  latest_version?: string | null;
+  version_status?: "current" | "behind" | "ahead" | "missing" | "unknown";
+  target_version_checked_at?: string | null;
+  target_version_source?: string | null;
   capability: string;
   surface: string;
   priority: string;
@@ -175,23 +180,58 @@ export interface HadesShinyPolicy {
   allow_iframe_embedding: boolean;
   allow_user_supplied_app_paths: boolean;
   decision: string;
+  default_runtime?: string;
+  supported_runtimes?: string[];
+  allowed_scope?: string;
   replacement_surface: string;
+}
+
+export interface HadesReleaseProfile {
+  name: string;
+  source: string;
+  lock_url?: string;
+  mode?: string;
+}
+
+export interface HadesManagedShinyApp {
+  key: string;
+  label: string;
+  package: string;
+  module_family: string;
+  result_types: string[];
+  launch_modes: string[];
+  runtime_preference: string;
+  status: string;
+  permission_scope: string;
+  entrypoint: string;
 }
 
 export interface HadesPackageInventory {
   status: "complete" | "partial";
-  parity_status?: "ready" | "degraded";
+  parity_status?: "ready" | "degraded" | "stale";
+  freshness_status?: "current" | "stale" | "unknown";
   generated_at: string;
+  target_version_checked_at?: string;
+  target_version_source?: string;
+  release_profile?: HadesReleaseProfile;
   total: number;
   installed_count: number;
   missing_count: number;
+  current_count?: number;
+  outdated_count?: number;
+  required_outdated_count?: number;
+  ahead_count?: number;
   required_count?: number;
   required_missing_count?: number;
   required_missing?: string[];
+  outdated?: string[];
+  required_outdated?: string[];
+  ahead?: string[];
   installed: string[];
   missing: string[];
   packages: HadesPackageStatus[];
   shiny_policy?: HadesShinyPolicy;
+  shiny_apps?: HadesManagedShinyApp[];
 }
 
 export const fetchHadesPackageInventory = () =>

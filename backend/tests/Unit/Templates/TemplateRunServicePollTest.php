@@ -116,6 +116,10 @@ class TemplateRunServicePollTest extends TestCase
 
         $registry = Mockery::mock(TemplateRegistryClient::class);
         $registry->shouldReceive('cancelRun')->with('44444444-4444-4444-4444-444444444444')->andReturn(['status' => 'cancelled']);
+        // After cancel, the service polls upstream once to reconcile state.
+        // A non-terminal upstream status (or unreachable) means we keep the
+        // optimistic CANCELLED.
+        $registry->shouldReceive('getRun')->with('44444444-4444-4444-4444-444444444444')->andReturn(['status' => 'cancelled']);
 
         $service = $this->app->makeWith(TemplateRunService::class, ['registry' => $registry]);
         $service->cancel($run);

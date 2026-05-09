@@ -23,7 +23,13 @@ export function useAppSettings(): UseQueryResult<AppSettingsPayload> {
       );
       return data.data;
     },
-    staleTime: 60_000,
+    // 10s instead of 60s: app-settings drives the Aqueduct sub-tab gate, and
+    // the backend already caches its templates-service health probe for 30s
+    // server-side. A short SPA staleTime means the UI catches a flag flip
+    // (e.g. templates service goes up/down) within seconds without hammering
+    // the backend.
+    staleTime: 10_000,
+    refetchOnWindowFocus: true,
   });
 }
 

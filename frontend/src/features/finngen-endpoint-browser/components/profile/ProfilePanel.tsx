@@ -20,6 +20,7 @@ import { ComputeProfileCta } from "./ComputeProfileCta";
 import { SurvivalPanel } from "./SurvivalPanel";
 import { ComorbidityMatrixPanel } from "./ComorbidityMatrixPanel";
 import { DrugClassesPanel } from "./DrugClassesPanel";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type ProfilePanelProps = {
   endpointName: string;
@@ -82,7 +83,7 @@ export function ProfilePanel({
 
   return (
     <section
-      aria-label="Endpoint profile"
+      aria-label={tAuto("endpointProfile_4ff1a646")}
       aria-live="polite"
       className="space-y-6"
     >
@@ -101,7 +102,7 @@ export function ProfilePanel({
 
       {profileQuery.isLoading && (
         <div role="status" className="text-xs text-slate-500">
-          Loading profile…
+          {tAuto("loadingProfile_548faadd")}
         </div>
       )}
 
@@ -139,7 +140,7 @@ export function ProfilePanel({
             sourceHasDrugData={envelope.meta.source_has_drug_data}
           />
           <div className="border-t border-slate-800 pt-2 text-right text-xs text-slate-500">
-            Cached {new Date(envelope.summary.computed_at).toLocaleString()}
+            {tAuto("cached_b169be96")} {new Date(envelope.summary.computed_at).toLocaleString()}
           </div>
         </>
       )}

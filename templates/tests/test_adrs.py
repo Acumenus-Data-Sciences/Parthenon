@@ -191,7 +191,7 @@ def test_adr_0004_sidecar_image_path_exists() -> None:
     """ADR 0004 §6 promises a parthenon-anonymizer Dockerfile under docker/."""
     text = _adr_text("0004-phase-1-node-design.md")
     assert "parthenon-anonymizer" in text
-    assert "ghcr.io/sudoshi/parthenon-fhir-anonymizer" in text
+    assert "ghcr.io/acumenus-data-sciences/parthenon-fhir-anonymizer" in text
     dockerfile = REPO / "docker" / "parthenon-anonymizer" / "Dockerfile"
     assert dockerfile.exists()
 

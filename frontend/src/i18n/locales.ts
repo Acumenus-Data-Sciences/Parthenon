@@ -75,7 +75,7 @@ export const SUPPORTED_LOCALES = [
   {
     code: "fi-FI",
     label: "Finnish (Finland)",
-    nativeLabel: "Suomi(Finnish)",
+    nativeLabel: "Suomi (Suomi)",
     direction: "ltr",
     laravelLocale: "fi",
     docusaurusLocale: "fi",

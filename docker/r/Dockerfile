@@ -71,6 +71,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2-dev \
     libxt-dev \
     libjpeg-dev \
+    libuv1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
@@ -96,9 +97,14 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   install.packages('remotes'); \
+  install.packages('fs'); \
+  if (!requireNamespace('fs', quietly = TRUE)) stop('fs failed'); \
   install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx', 'digest')); \
   remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  install.packages(c('rJava', 'duckdb')); \
+  install.packages('rJava'); \
+  Sys.setenv(MAKEFLAGS = '-j8'); \
+  install.packages('duckdb'); \
+  Sys.unsetenv('MAKEFLAGS'); \
   if (!requireNamespace('plumber2', quietly = TRUE)) stop('plumber2 failed'); \
   if (!requireNamespace('mirai',    quietly = TRUE)) stop('mirai failed'); \
   if (!requireNamespace('rJava',    quietly = TRUE)) stop('rJava failed'); \
@@ -153,9 +159,9 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   remotes::install_github(c( \
-    'OHDSI/CohortMethod@v6.0.1', \
+    'OHDSI/CohortMethod@v6.0.2', \
     'OHDSI/PatientLevelPrediction@v6.6.0', \
-    'OHDSI/SelfControlledCaseSeries@v6.1.1', \
+    'OHDSI/SelfControlledCaseSeries@v6.1.5', \
     'OHDSI/EvidenceSynthesis@v1.1.0', \
     'OHDSI/CohortGenerator@v1.1.0' \
   ), upgrade = FALSE); \
@@ -259,7 +265,7 @@ RUN R -e " \
     'OHDSI/MethodEvaluation@v2.4.0', \
     'OHDSI/BigKNN@v1.0.2', \
     'OHDSI/OhdsiShinyModules@v3.5.0', \
-    'OHDSI/Keeper@v2.0.0' \
+    'OHDSI/Keeper@v2.1.0' \
   ), upgrade = FALSE); \
   parity_pkgs <- c( \
     'OhdsiSharing', 'CohortExplorer', 'MethodEvaluation', \

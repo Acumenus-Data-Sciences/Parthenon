@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface EscalateModalProps {
   open: boolean;
@@ -13,8 +14,10 @@ export function EscalateModal({ open, busy = false, onClose, onSubmit }: Escalat
 
   useEffect(() => {
     if (open) {
-      setNote("");
-      const t = window.setTimeout(() => ref.current?.focus(), 50);
+      const t = window.setTimeout(() => {
+        setNote("");
+        ref.current?.focus();
+      }, 50);
       return () => window.clearTimeout(t);
     }
     return undefined;
@@ -37,18 +40,16 @@ export function EscalateModal({ open, busy = false, onClose, onSubmit }: Escalat
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="escalate-title" className="mb-3 text-lg font-semibold text-zinc-100">
-          Escalate to senior reviewer
+          {tAuto("escalateToSeniorReviewer_4670d619")}
         </h2>
         <p className="mb-4 text-sm text-zinc-400">
-          Captures uncertainty without forcing a decision. Provide context for the
-          senior reviewer (typically: ambiguous source text, multiple equally plausible
-          candidates, suspected new vocabulary).
+          {tAuto("capturesUncertaintyWithoutForcingADecisionProvideContext_17365014")}
         </p>
         <label
           htmlFor="escalate-note"
           className="mb-2 block text-sm font-medium text-zinc-300"
         >
-          Note
+          {tAuto("note_2c924e30")}
         </label>
         <textarea
           id="escalate-note"
@@ -58,7 +59,7 @@ export function EscalateModal({ open, busy = false, onClose, onSubmit }: Escalat
           rows={4}
           maxLength={2000}
           className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-2 font-mono text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-[#C9A227] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/40"
-          placeholder="Two LOINC candidates equally plausible; need clinical input…"
+          placeholder={tAuto("twoLoincCandidatesEquallyPlausibleNeedClinicalInput_4c819f72")}
           disabled={busy}
         />
         <div className="mt-1 text-right font-mono text-xs text-zinc-500">
@@ -71,7 +72,7 @@ export function EscalateModal({ open, busy = false, onClose, onSubmit }: Escalat
             disabled={busy}
             className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-800"
           >
-            Cancel
+            {tAuto("cancel_77dfd213")}
           </button>
           <button
             type="button"
@@ -79,7 +80,9 @@ export function EscalateModal({ open, busy = false, onClose, onSubmit }: Escalat
             disabled={tooShort || busy}
             className="rounded-lg bg-[#C9A227] px-3 py-1.5 text-sm font-medium text-zinc-950 hover:bg-[#E0B632] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {busy ? "Escalating…" : "Escalate"}
+            {busy
+              ? tAuto("escalating_b3e21994")
+              : tAuto("escalate_012bb11a")}
           </button>
         </div>
       </div>

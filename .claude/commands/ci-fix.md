@@ -15,16 +15,16 @@ If the conclusion is "failure", get per-job status:
 
 ```bash
 RUN_ID=$(echo "$RUN" | jq -r '.databaseId')
-gh api repos/sudoshi/Parthenon/actions/runs/$RUN_ID/jobs \
+gh api repos/Acumenus-Data-Sciences/Parthenon/actions/runs/$RUN_ID/jobs \
   --jq '.jobs[] | "\(.name): \(.conclusion)"'
 ```
 
 For each failed job, get the error details:
 
 ```bash
-JOB_ID=$(gh api repos/sudoshi/Parthenon/actions/runs/$RUN_ID/jobs \
+JOB_ID=$(gh api repos/Acumenus-Data-Sciences/Parthenon/actions/runs/$RUN_ID/jobs \
   --jq '.jobs[] | select(.conclusion=="failure") | .id')
-gh api repos/sudoshi/Parthenon/actions/jobs/$JOB_ID/logs 2>/dev/null \
+gh api repos/Acumenus-Data-Sciences/Parthenon/actions/jobs/$JOB_ID/logs 2>/dev/null \
   | grep "FAILED\|error TS\|##\[error\]\|SQLSTATE\|Error:" | head -30
 ```
 

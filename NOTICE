@@ -1,0 +1,89 @@
+Parthenon
+Copyright (c) 2024-2026 Acumenus Data Sciences, Inc.
+
+This product is licensed under the GNU Affero General Public License,
+Version 3.0 only (AGPL-3.0-only). See the LICENSE file for the full
+license text. A commercial license is available — see LICENSING.md.
+
+================================================================================
+Project history and heritage attribution
+================================================================================
+
+Parthenon was originally inspired by, and incorporated source code from, the
+OHDSI Atlas project (https://github.com/OHDSI/Atlas), which was licensed under
+the Apache License, Version 2.0. The legacy Atlas integration (the `js/`
+subtree containing Knockout.js code, OMOP CDM viewers, and Circe expression
+helpers) has been removed from the current Parthenon source tree.
+
+Heritage contributors to the now-removed legacy Atlas code include (alphabetical):
+  - anton-abushkevich
+  - Anthony Sena (J&J)
+  - Alex Saltykov (Odysseus)
+  - Chris Knoll (OHDSI / J&J)
+  - Frank DeFalco (OHDSI)
+  - Pavel Grafkin
+  - Sigfried Gold
+  - Vitaly Koulakov
+  - Vlad Belousov
+  - and ~15 additional contributors from Odysseus, FirstLine, J&J, NYP
+
+Their contributions to the legacy `js/` subtree were under Apache 2.0. None of
+that source code is redistributed in the current Parthenon tree.
+
+================================================================================
+Standards and specifications acknowledgments
+================================================================================
+
+Parthenon implements (but does not redistribute the source of) the following
+OHDSI specifications and reference implementations, all originally distributed
+under Apache 2.0:
+
+  - OMOP Common Data Model v5.4
+  - Achilles characterization framework
+  - Circe cohort expression specification
+  - Data Quality Dashboard (DQD) checks
+  - HADES (Health Analytics Data-to-Evidence Suite) — CohortMethod,
+    PatientLevelPrediction, FeatureExtraction, Cyclops, etc.
+
+Parthenon's own implementations of these specifications are original work by
+Acumenus Data Sciences, Inc. and are licensed under AGPL-3.0-only.
+
+================================================================================
+Third-party dependencies
+================================================================================
+
+Parthenon depends on numerous third-party libraries. See the following
+manifests for the complete dependency tree and per-package licenses:
+
+  - PHP: backend/composer.lock
+  - JavaScript/TypeScript: frontend/package-lock.json
+  - Python (AI service): ai/requirements.txt
+  - Python (templates runtime): templates/pyproject.toml
+  - R: r-runtime/renv.lock
+
+================================================================================
+Submodules
+================================================================================
+
+Parthenon includes git submodules pointing at separate repositories. Their
+licenses are governed by their respective repositories and are NOT changed by
+the Parthenon LICENSE:
+
+  - OHDSI-scraper (github.com/sudoshi/OHDSI-scraper)
+  - study-agent (github.com/sudoshi/StudyAgent)
+
+================================================================================
+Trademarks
+================================================================================
+
+"Parthenon", "Acumenus", and "Wellstack.ai" are trademarks of Acumenus Data
+Sciences, Inc. The AGPL-3.0-only license does not grant trademark rights. See
+TRADEMARKS.md for the trademark policy.
+
+================================================================================
+Contact
+================================================================================
+
+  General:        hello@acumenus.net
+  Commercial:     licensing@acumenus.net
+  Security:       security@acumenus.net

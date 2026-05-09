@@ -28,6 +28,7 @@ import { RunGwasPanel } from "../components/RunGwasPanel";
 // Phase 18 Plan 06 — Profile tab (Risteys-style endpoint dashboard).
 import { ProfilePanel } from "../components/profile/ProfilePanel";
 import { HelpButton } from "@/features/help";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 /**
  * Phase 13 — source keys whose CDM carries Finnish source vocabs
@@ -44,46 +45,46 @@ const BUCKET_META: Record<
   { label: string; tone: string; ring: string; bar: string; description: string }
 > = {
   FULLY_MAPPED: {
-    label: "Fully mapped",
+    label: tAuto("fullyMapped_373d7aeb"),
     tone: "text-teal-300",
     ring: "ring-teal-500/40 hover:ring-teal-400/70",
     bar: "bg-teal-500/80",
-    description: "≥95% of source codes resolved",
+    description: tAuto("OfSourceCodesResolved_cac597aa"),
   },
   PARTIAL: {
-    label: "Partial",
+    label: tAuto("partial_65de2e2a"),
     tone: "text-amber-300",
     ring: "ring-amber-500/40 hover:ring-amber-400/70",
     bar: "bg-amber-500/80",
-    description: "50–94% codes resolved",
+    description: tAuto("CodesResolved_e372db79"),
   },
   SPARSE: {
-    label: "Sparse",
+    label: tAuto("sparse_2d8be31e"),
     tone: "text-orange-300",
     ring: "ring-orange-500/40 hover:ring-orange-400/70",
     bar: "bg-orange-500/80",
-    description: "1–49% codes resolved",
+    description: tAuto("CodesResolved_1959a956"),
   },
   UNMAPPED: {
-    label: "Unmapped",
+    label: tAuto("unmapped_fc7f9e09"),
     tone: "text-rose-300",
     ring: "ring-rose-500/40 hover:ring-rose-400/70",
     bar: "bg-rose-500/80",
-    description: "0% codes resolved — see coverage profile for portability",
+    description: tAuto("CodesResolvedSeeCoverageProfileForPortability_486993fb"),
   },
   CONTROL_ONLY: {
-    label: "Control only",
+    label: tAuto("controlOnly_711feb42"),
     tone: "text-slate-300",
     ring: "ring-slate-500/30 hover:ring-slate-400/60",
     bar: "bg-slate-500/60",
-    description: "No source codes — defines a control group",
+    description: tAuto("noSourceCodesDefinesAControlGroup_ba9fd1b0"),
   },
   UNKNOWN: {
-    label: "Unknown",
+    label: tAuto("unknown_bc7819b3"),
     tone: "text-slate-400",
     ring: "ring-slate-500/30",
     bar: "bg-slate-600/60",
-    description: "Coverage not classified",
+    description: tAuto("coverageNotClassified_5b116754"),
   },
 };
 
@@ -148,15 +149,13 @@ export function FinnGenEndpointBrowserPage() {
           <div className="flex items-baseline justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-teal-400/80">
-                FinnGen
+                {tAuto("finngen_7bb83e07")}
               </p>
               <h1 className="mt-1 text-3xl font-semibold text-slate-50">
-                Endpoint Library
+                {tAuto("endpointLibrary_987379e2")}
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                {total.toLocaleString()} curated FinnGen phenotype definitions
-                (DF14, 2026-02-13). Filter by mapping coverage to find endpoints
-                ready to use against Parthenon CDM data.
+                {total.toLocaleString()} {tAuto("curatedFinngenPhenotypeDefinitionsDf1420260213_2e47e5bf")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -165,7 +164,7 @@ export function FinnGenEndpointBrowserPage() {
                 to="/workbench/cohorts"
                 className="rounded-md border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 hover:border-teal-500/60 hover:text-teal-300"
               >
-                Open Workbench
+                {tAuto("openWorkbench_0a4fe891")}
               </Link>
             </div>
           </div>
@@ -204,7 +203,7 @@ export function FinnGenEndpointBrowserPage() {
                   {count.toLocaleString()}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  {pct.toFixed(1)}% of catalog
+                  {pct.toFixed(1)}{tAuto("ofCatalog_92d85b6e")}
                 </p>
                 <p className="mt-2 text-[11px] text-slate-500">
                   {meta.description}
@@ -224,14 +223,14 @@ export function FinnGenEndpointBrowserPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                placeholder="Search by name, longname, or ICD code (e.g. E4_DM2, hypertension, I10)"
+                placeholder={tAuto("searchByNameLongnameOrIcdCodeE_4219fb4f")}
                 className="w-full rounded-md border border-slate-800 bg-slate-950 px-4 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-600 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 hover:bg-slate-800 hover:text-slate-200"
-                  aria-label="Clear search"
+                  aria-label={tAuto("clearSearch_67300d0f")}
                 >
                   ×
                 </button>
@@ -242,7 +241,7 @@ export function FinnGenEndpointBrowserPage() {
                 onClick={resetFilters}
                 className="rounded-md border border-slate-800 px-3 py-2.5 text-xs text-slate-400 hover:border-slate-700 hover:text-slate-200"
               >
-                Clear all
+                {tAuto("clearAll_c043160a")}
               </button>
             )}
           </div>
@@ -285,26 +284,26 @@ export function FinnGenEndpointBrowserPage() {
                   : ""}
             </span>
             <span className="text-slate-600">
-              Sorted by name · click a row for codes &amp; coverage detail
+              {tAuto("sortedByNameClickARowForCodes_823da7b9")}
             </span>
           </div>
 
           <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/40">
             {list.isLoading && !list.data && (
               <div className="px-6 py-12 text-center text-sm text-slate-500">
-                Loading endpoints…
+                {tAuto("loadingEndpoints_daeaadda")}
               </div>
             )}
             {list.data && list.data.data.length === 0 && (
               <div className="px-6 py-16 text-center">
                 <p className="text-sm text-slate-400">
-                  No endpoints match your filters.
+                  {tAuto("noEndpointsMatchYourFilters_19cc68e1")}
                 </p>
                 <button
                   onClick={resetFilters}
                   className="mt-3 text-xs text-teal-400 hover:text-teal-300"
                 >
-                  Clear all filters →
+                  {tAuto("clearAllFilters_0da5c8f5")}
                 </button>
               </div>
             )}
@@ -325,17 +324,17 @@ export function FinnGenEndpointBrowserPage() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="rounded-md border border-slate-800 bg-slate-950/40 px-3 py-1.5 text-slate-300 disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-700"
               >
-                ← Previous
+                {tAuto("previous_471492a9")}
               </button>
               <span className="text-slate-500">
-                Page {list.data.current_page} of {list.data.last_page}
+                {tAuto("page_fb06270f")} {list.data.current_page} of {list.data.last_page}
               </span>
               <button
                 disabled={list.data.current_page >= list.data.last_page}
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-md border border-slate-800 bg-slate-950/40 px-3 py-1.5 text-slate-300 disabled:cursor-not-allowed disabled:opacity-40 hover:border-slate-700"
               >
-                Next →
+                {tAuto("next_2f04eb15")}
               </button>
             </div>
           )}
@@ -419,7 +418,7 @@ function EndpointRow({
               </span>
               <span className="text-slate-600"> / </span>
               <span className="font-mono">{row.n_tokens_total}</span>
-              <div className="text-[10px] text-slate-600">codes resolved</div>
+              <div className="text-[10px] text-slate-600">{tAuto("codesResolved_2fbc76d2")}</div>
             </div>
           )}
         </div>
@@ -428,7 +427,7 @@ function EndpointRow({
       {row.generations && row.generations.length > 0 && (
         <div className="mt-2 flex flex-wrap items-center gap-1">
           <span className="text-[10px] uppercase tracking-wider text-slate-600">
-            Generated:
+            {tAuto("generated_a2edf57c")}
           </span>
           {row.generations.map((g) => (
             <GenerationBadge key={`${g.source_key}-${g.run_id ?? ""}`} g={g} />
@@ -504,13 +503,13 @@ function EndpointDetailDrawer({
           <button
             onClick={onClose}
             className="rounded-md p-1.5 text-slate-500 hover:bg-slate-800 hover:text-slate-200"
-            aria-label="Close"
+            aria-label={tAuto("close_bbfa773e")}
           >
             ×
           </button>
         </div>
         {detail.isLoading && (
-          <div className="px-6 py-12 text-sm text-slate-500">Loading…</div>
+          <div className="px-6 py-12 text-sm text-slate-500">{tAuto("loading_33ce4174")}</div>
         )}
         {detail.data && (
           <EndpointDetailBody
@@ -559,8 +558,8 @@ function GenerationBadge({ g }: { g: EndpointGeneration }) {
 // Generation history + GWAS runs + Run GWAS + Generate panel).
 // "Profile" carries the new Risteys-style 3-panel dashboard.
 const DRAWER_TABS: Tab[] = [
-  { id: "overview", label: "Overview" },
-  { id: "profile", label: "Profile" },
+  { id: "overview", label: tAuto("overview_0efc2e6b") },
+  { id: "profile", label: tAuto("profile_ff4fc027") },
 ];
 
 function EndpointDetailBody({
@@ -609,7 +608,7 @@ function EndpointDetailBody({
       {d.longname && (
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-500">
-            Long name
+            {tAuto("longName_a8c07d2d")}
           </p>
           <h2 className="mt-1 text-lg font-semibold text-slate-100">
             {d.longname}
@@ -621,7 +620,7 @@ function EndpointDetailBody({
       <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-4">
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-xs uppercase tracking-wider text-slate-500">
-            Mapping coverage
+            {tAuto("mappingCoverage_17bccbf4")}
           </p>
           <div className="flex items-center gap-2">
             <span
@@ -649,8 +648,7 @@ function EndpointDetailBody({
         </div>
         {d.resolved_concepts.truncated && (
           <p className="mt-2 text-[10px] text-amber-400">
-            Concept lists truncated at 500 — endpoint matches more than the
-            display limit.
+            {tAuto("conceptListsTruncatedAt500EndpointMatchesMore_2fe1d562")}
           </p>
         )}
       </div>
@@ -673,7 +671,7 @@ function EndpointDetailBody({
       {visibleTags.length > 0 && (
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-500">
-            Tags
+            {tAuto("tags_848eed0f")}
           </p>
           <div className="mt-2 flex flex-wrap gap-1">
             {visibleTags.map((t) => (
@@ -692,7 +690,7 @@ function EndpointDetailBody({
       {codeColumns.length > 0 && (
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-500">
-            Source codes
+            {tAuto("sourceCodes_24f59e7e")}
           </p>
           <div className="mt-2 space-y-2">
             {codeColumns.map(([col, v]) => (
@@ -717,7 +715,7 @@ function EndpointDetailBody({
                 </p>
                 {v.raw && v.raw !== v.patterns.join("|") && (
                   <p className="mt-2 text-[10px] text-slate-600">
-                    Raw:{" "}
+                    {tAuto("raw_6a145a03")}{" "}
                     <span className="font-mono text-slate-500">{v.raw}</span>
                   </p>
                 )}
@@ -820,7 +818,7 @@ function GeneratePanel({
             to="/workbench/cohorts"
             className="mt-2 inline-block text-xs text-teal-400 hover:text-teal-300"
           >
-            Use in Workbench manually →
+            {tAuto("useInWorkbenchManually_f8d2a36a")}
           </Link>
         </div>
       </div>
@@ -842,20 +840,20 @@ function GeneratePanel({
     if (endpoint.coverage_bucket === "FULLY_MAPPED") {
       return {
         tone: "text-teal-300 border-teal-500/30 bg-teal-500/5",
-        label: "Strong match expected",
+        label: tAuto("strongMatchExpected_a1a9a91b"),
         detail: `${total.toLocaleString()} concept IDs will be searched (${expected.condition_count} conditions + ${expected.drug_count} drugs + ${expected.source_concept_count} source codes).`,
       };
     }
     if (endpoint.coverage_bucket === "PARTIAL") {
       return {
         tone: "text-amber-300 border-amber-500/30 bg-amber-500/5",
-        label: "Partial match expected",
+        label: tAuto("partialMatchExpected_fc405aaf"),
         detail: `${total.toLocaleString()} concept IDs (some source codes unresolved — subject count may underestimate the true cohort).`,
       };
     }
     return {
       tone: "text-orange-300 border-orange-500/30 bg-orange-500/5",
-      label: "Sparse match — best-effort",
+      label: tAuto("sparseMatchBestEffort_55d9b2ae"),
       detail: `Only ${total.toLocaleString()} concept IDs resolved; expect a small subject count.`,
     };
   })();
@@ -871,7 +869,7 @@ function GeneratePanel({
         <p className="mt-1 text-slate-400">{confidence.detail}</p>
       </div>
       <p className="mb-2 text-[10px] uppercase tracking-wider text-slate-500">
-        Materialize against
+        {tAuto("materializeAgainst_b7d75ac3")}
       </p>
       <div className="flex items-center gap-2">
         <select
@@ -880,7 +878,7 @@ function GeneratePanel({
           disabled={sourcesQuery.isLoading || generate.isPending}
           className="flex-1 rounded-md border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-200 focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
         >
-          {sourcesQuery.isLoading && <option>Loading sources…</option>}
+          {sourcesQuery.isLoading && <option>{tAuto("loadingSources_268dd8f1")}</option>}
           {sourcesQuery.data?.map((s) => (
             <option key={s.id} value={s.source_key}>
               {s.source_name} ({s.source_key})
@@ -919,7 +917,7 @@ function GeneratePanel({
           className="h-3 w-3 accent-teal-500"
           disabled={generate.isPending}
         />
-        Overwrite existing rows for this endpoint in the source
+        {tAuto("overwriteExistingRowsForThisEndpointInThe_c4b8e90e")}
       </label>
       {errorMsg && (
         <p className="mt-2 rounded border border-rose-500/40 bg-rose-500/10 px-2 py-1 text-[11px] text-rose-300">
@@ -927,8 +925,7 @@ function GeneratePanel({
         </p>
       )}
       <p className="mt-2 text-center text-[10px] text-slate-600">
-        Inserts one cohort row per qualifying subject (matched by condition +
-        drug concept descendants). You'll be redirected to the run page.
+        {tAuto("insertsOneCohortRowPerQualifyingSubjectMatched_7eb61b36")}
       </p>
     </div>
   );

@@ -11,6 +11,7 @@
 import { useMemo } from "react";
 import * as d3 from "d3";
 import type { Gene } from "../../api/gwas-results";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export interface GeneTrackProps {
   genes: Gene[];
@@ -38,7 +39,7 @@ export function GeneTrack({
         className="py-2 text-xs text-text-muted"
         data-testid="gene-track-empty"
       >
-        No genes in range
+        {tAuto("noGenesInRange_720153d7")}
       </div>
     );
   }

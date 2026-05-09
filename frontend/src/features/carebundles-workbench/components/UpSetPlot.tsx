@@ -4,6 +4,7 @@ import { useMemo, type ComponentType } from "react";
 // accepts our props; the runtime behavior is unchanged.
 import UpSetJSDefault from "@upsetjs/react";
 import type { ConditionBundle, UpsetCell } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type UpSetLikeProps = {
   sets: { name: string; cardinality: number }[];
@@ -57,7 +58,7 @@ export function UpSetPlot({ cells, bundles, width = 700, height = 380 }: Props) 
   if (sets.length < 2) {
     return (
       <p className="p-4 text-sm text-text-ghost">
-        Select at least two bundles to see an UpSet plot.
+        {tAuto("selectAtLeastTwoBundlesToSeeAn_9330b791")}
       </p>
     );
   }

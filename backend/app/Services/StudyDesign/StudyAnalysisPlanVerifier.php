@@ -67,7 +67,17 @@ class StudyAnalysisPlanVerifier
             $checks[] = $this->check('hades_package', 'pass', 'Required Darkstar HADES package is installed.', [
                 'package' => $payload['hades_package'] ?? null,
                 'version' => $payload['hades_capability']['version'] ?? null,
+                'target_version' => $payload['hades_capability']['target_version'] ?? null,
+                'version_status' => $payload['hades_capability']['version_status'] ?? null,
             ]);
+
+            if (($payload['hades_capability']['version_status'] ?? null) === 'behind') {
+                $checks[] = $this->check('hades_package_version', 'warn', 'Required Darkstar HADES package is installed but behind the current target version.', [
+                    'package' => $payload['hades_package'] ?? null,
+                    'version' => $payload['hades_capability']['version'] ?? null,
+                    'target_version' => $payload['hades_capability']['target_version'] ?? null,
+                ]);
+            }
         } else {
             $checks[] = $this->check('hades_package', 'fail', 'Blocked: required Darkstar HADES package is not reported as installed.', [
                 'package' => $payload['hades_package'] ?? null,
@@ -166,7 +176,10 @@ class StudyAnalysisPlanVerifier
             ->values()
             ->all();
         $warnings = collect($payload['warnings'] ?? [])
-            ->filter(fn (mixed $warning): bool => ! is_array($warning) || ($warning['code'] ?? null) !== 'limited_feasibility')
+            ->filter(fn (mixed $warning): bool => ! is_array($warning) || ! in_array($warning['code'] ?? null, [
+                'limited_feasibility',
+                'stale_hades_package',
+            ], true))
             ->values()
             ->all();
 
@@ -177,6 +190,22 @@ class StudyAnalysisPlanVerifier
                 'package' => $package,
                 'label' => 'Install HADES package',
             ]);
+        } elseif ($package !== '' && ($payload['hades_capability']['version_status'] ?? null) === 'behind') {
+            $warnings[] = $this->issue(
+                'stale_hades_package',
+                "{$package} is installed but behind the current HADES target version.",
+                [
+                    'package' => $package,
+                    'version' => $payload['hades_capability']['version'] ?? null,
+                    'target_version' => $payload['hades_capability']['target_version'] ?? null,
+                ],
+                [
+                    'type' => 'update_hades_package',
+                    'target_stage' => 'darkstar',
+                    'package' => $package,
+                    'label' => 'Update HADES package',
+                ],
+            );
         }
 
         if (($payload['feasibility']['status'] ?? null) === null) {
@@ -245,9 +274,12 @@ class StudyAnalysisPlanVerifier
                     'package' => $package,
                     'installed' => (bool) ($row['installed'] ?? false),
                     'version' => $row['version'] ?? null,
+                    'target_version' => $row['target_version'] ?? ($row['latest_version'] ?? null),
+                    'latest_version' => $row['latest_version'] ?? ($row['target_version'] ?? null),
+                    'version_status' => $row['version_status'] ?? null,
                     'surface' => $row['surface'] ?? null,
                     'priority' => $row['priority'] ?? null,
-                    'status' => (bool) ($row['installed'] ?? false) ? 'installed' : 'not_installed',
+                    'status' => (bool) ($row['installed'] ?? false) ? ($row['version_status'] ?? 'installed') : 'not_installed',
                 ];
             }
         } catch (\Throwable $exception) {

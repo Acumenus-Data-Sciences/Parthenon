@@ -1,5 +1,6 @@
 import type { StudyDesignAsset } from "../types/study";
 import { analysisDetailPath } from "./workbench/studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export type CompatibilityGroupId =
   | "concept_sets"
@@ -217,7 +218,7 @@ function actionForCritique(
   switch (code) {
     case "missing_concept_metadata":
       return {
-        label: "Repair concept-set traceability",
+        label: tAuto("repairConceptSetTraceability_bf9e9bbb"),
         target: "Open the cohort and confirm source concept sets before lock.",
         nativeLink: numberValue(meta.cohort_definition_id)
           ? `/cohort-definitions/${numberValue(meta.cohort_definition_id)}`
@@ -225,19 +226,19 @@ function actionForCritique(
       };
     case "missing_target_cohort":
       return {
-        label: "Link or draft target cohort",
+        label: tAuto("linkOrDraftTargetCohort_5d16aab2"),
         target: "Create, import, or map a target cohort before feasibility.",
         nativeLink: null,
       };
     case "missing_comparator_cohort":
       return {
-        label: "Resolve comparator requirement",
+        label: tAuto("resolveComparatorRequirement_8dd1f5c4"),
         target: "Link a comparator cohort or mark the design as descriptive/single-arm.",
         nativeLink: null,
       };
     case "deprecated_cohort":
       return {
-        label: "Replace deprecated cohort",
+        label: tAuto("replaceDeprecatedCohort_c6abc28d"),
         target: "Open the native cohort definition and create a replacement before lock.",
         nativeLink: numberValue(meta.cohort_definition_id)
           ? `/cohort-definitions/${numberValue(meta.cohort_definition_id)}`
@@ -245,31 +246,31 @@ function actionForCritique(
       };
     case "missing_feasibility_evidence":
       return {
-        label: "Run feasibility",
+        label: tAuto("runFeasibility_4e05c828"),
         target: "Run source-aware feasibility after required cohorts are linked.",
         nativeLink: null,
       };
     case "feasibility_not_ready":
       return {
-        label: "Resolve feasibility blockers",
+        label: tAuto("resolveFeasibilityBlockers_e289fad1"),
         target: "Review the latest feasibility result and repair blocking cohorts or sources.",
         nativeLink: null,
       };
     case "analysis_missing_required_roles":
       return {
-        label: "Map required cohort roles",
+        label: tAuto("mapRequiredCohortRoles_fa4cd97d"),
         target: "Link target, comparator, or outcome roles required by the native analysis.",
         nativeLink: null,
       };
     case "pico_gap":
       return {
-        label: "Update intent review",
+        label: tAuto("updateIntentReview_5c95c995"),
         target: "Return to Intent Review and save the missing PICO field.",
         nativeLink: null,
       };
     default:
       return {
-        label: "Review compatibility finding",
+        label: tAuto("reviewCompatibilityFinding_75cf9253"),
         target: "Document a reviewer decision before package lock.",
         nativeLink: null,
       };

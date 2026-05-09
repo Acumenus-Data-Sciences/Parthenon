@@ -1,0 +1,136 @@
+name: License & Org Reference Guard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  org-references:
+    name: Verify no stale sudoshi/Parthenon references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for stale org references
+        run: |
+          set -e
+          STALE=$(grep -rn 'sudoshi/Parthenon\|ghcr\.io/sudoshi/parthenon' \
+            --include='*.md' --include='*.yml' --include='*.yaml' \
+            --include='*.json' --include='*.toml' --include='*.sh' \
+            --include='*.py' --include='*.php' --include='*.ts' --include='*.tsx' \
+            --include='.env.example' --include='Dockerfile*' \
+            --exclude-dir=node_modules --exclude-dir=vendor \
+            --exclude-dir=graphify-out --exclude-dir=.git \
+            --exclude-dir=.venv --exclude-dir=backups \
+            . 2>/dev/null \
+            | grep -v 'docs/handoffs/' \
+            | grep -v 'docs/devlog/' \
+            | grep -v 'docs/superpowers/' \
+            | grep -v 'docs/blog/' \
+            | grep -v '.github/workflows/license-guard.yml' \
+            || true)
+          if [ -n "$STALE" ]; then
+            echo "Found stale sudoshi/Parthenon references in active source:"
+            echo "$STALE"
+            echo ""
+            echo "Update these to Acumenus-Data-Sciences/Parthenon (URLs)"
+            echo "or ghcr.io/acumenus-data-sciences/parthenon (image refs)."
+            echo "Historical references in docs/handoffs/, docs/devlog/,"
+            echo "docs/superpowers/, and docs/blog/ are excluded."
+            exit 1
+          fi
+          echo "OK: no stale sudoshi/Parthenon references in active source."
+
+  license-text:
+    name: Verify LICENSE is AGPL-3.0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check LICENSE first lines
+        run: |
+          set -e
+          if ! head -3 LICENSE | grep -q 'GNU AFFERO GENERAL PUBLIC LICENSE'; then
+            echo "LICENSE does not appear to be AGPL-3.0:"
+            head -3 LICENSE
+            exit 1
+          fi
+          if ! head -3 LICENSE | grep -q 'Version 3'; then
+            echo "LICENSE does not say Version 3:"
+            head -3 LICENSE
+            exit 1
+          fi
+          echo "OK: LICENSE is AGPL-3.0."
+
+  license-metadata:
+    name: Verify package manifests declare AGPL-3.0-only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: composer.json declares AGPL-3.0-only
+        run: |
+          set -e
+          LICENSE=$(node -e 'console.log(require("./backend/composer.json").license)')
+          if [ "$LICENSE" != "AGPL-3.0-only" ]; then
+            echo "backend/composer.json license is '$LICENSE', expected 'AGPL-3.0-only'"
+            exit 1
+          fi
+          echo "OK: backend/composer.json license = AGPL-3.0-only"
+      - name: frontend/package.json declares AGPL-3.0-only
+        run: |
+          set -e
+          LICENSE=$(node -e 'console.log(require("./frontend/package.json").license)')
+          if [ "$LICENSE" != "AGPL-3.0-only" ]; then
+            echo "frontend/package.json license is '$LICENSE', expected 'AGPL-3.0-only'"
+            exit 1
+          fi
+          echo "OK: frontend/package.json license = AGPL-3.0-only"
+      - name: ai/pyproject.toml declares AGPL-3.0-only
+        run: |
+          set -e
+          python3 - <<'PY'
+          import tomllib
+          with open('ai/pyproject.toml', 'rb') as f:
+              data = tomllib.load(f)
+          lic = data.get('project', {}).get('license', {}).get('text', '')
+          if lic != 'AGPL-3.0-only':
+              print(f"ai/pyproject.toml license is '{lic}', expected 'AGPL-3.0-only'")
+              raise SystemExit(1)
+          print('OK: ai/pyproject.toml license = AGPL-3.0-only')
+          PY
+      - name: templates/pyproject.toml declares AGPL-3.0-only
+        run: |
+          set -e
+          python3 - <<'PY'
+          import tomllib
+          with open('templates/pyproject.toml', 'rb') as f:
+              data = tomllib.load(f)
+          lic = data.get('project', {}).get('license', {}).get('text', '')
+          if lic != 'AGPL-3.0-only':
+              print(f"templates/pyproject.toml license is '{lic}', expected 'AGPL-3.0-only'")
+              raise SystemExit(1)
+          print('OK: templates/pyproject.toml license = AGPL-3.0-only')
+          PY
+
+  notice-and-trademarks:
+    name: Verify NOTICE, LICENSING.md, TRADEMARKS.md exist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set -e
+          for f in NOTICE LICENSING.md TRADEMARKS.md; do
+            if [ ! -s "$f" ]; then
+              echo "Missing or empty: $f"
+              exit 1
+            fi
+          done
+          grep -q 'OHDSI Atlas' NOTICE || { echo "NOTICE missing OHDSI Atlas attribution"; exit 1; }
+          grep -q 'GNU Affero' LICENSING.md || { echo "LICENSING.md missing AGPL reference"; exit 1; }
+          grep -q 'nominative' TRADEMARKS.md || { echo "TRADEMARKS.md missing nominative use"; exit 1; }
+          grep -q 'licensing@acumenus.net' LICENSING.md || { echo "LICENSING.md missing commercial contact"; exit 1; }
+          echo "OK: NOTICE, LICENSING.md, TRADEMARKS.md present and contain expected sections"

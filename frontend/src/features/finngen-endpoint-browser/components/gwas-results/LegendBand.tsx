@@ -1,3 +1,4 @@
+import { tAuto } from "@/i18n/autoUserFacing";
 // Phase 16 Plan 05 Task 1 — LegendBand (D-09 placeholder).
 //
 // Phase 16 ships without LD coloring per D-09. This component reserves the
@@ -13,7 +14,7 @@ export function LegendBand(): JSX.Element {
       aria-hidden="true"
       data-testid="legend-band-placeholder"
     >
-      LD coloring available in Phase 16.1
+      {tAuto("ldColoringAvailableInPhase161_c3a41746")}
     </div>
   );
 }

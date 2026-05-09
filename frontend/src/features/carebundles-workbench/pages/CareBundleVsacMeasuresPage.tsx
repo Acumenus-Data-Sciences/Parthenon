@@ -5,6 +5,7 @@ import { Shell } from "@/components/workbench/primitives";
 import { HelpButton } from "@/features/help";
 import { useVsacMeasures } from "../hooks";
 import { WorkbenchTabs } from "../components/WorkbenchTabs";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function CareBundleVsacMeasuresPage() {
   const [q, setQ] = useState("");
@@ -26,9 +27,9 @@ export default function CareBundleVsacMeasuresPage() {
             <Scale className="h-5 w-5 text-text-secondary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">CMS Measures</h1>
+            <h1 className="text-2xl font-bold text-text-primary">{tAuto("cmsMeasures_a37c082e")}</h1>
             <p className="text-sm text-text-ghost">
-              {meta?.total?.toLocaleString() ?? "…"} CMS eCQMs — each links to its VSAC value sets and OMOP mappings.
+              {meta?.total?.toLocaleString() ?? "…"} {tAuto("cmsEcqmsEachLinksToItsVsacValue_a148023e")}
             </p>
           </div>
         </div>
@@ -46,27 +47,27 @@ export default function CareBundleVsacMeasuresPage() {
             setQ(e.target.value);
             setPage(1);
           }}
-          placeholder="Search by CMS ID, CBE number, or title…"
+          placeholder={tAuto("searchByCmsIdCbeNumberOrTitle_3d0f7585")}
           className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
       </div>
 
-      <Shell title="Measures" subtitle={`Page ${meta?.page ?? 1} of ${meta?.last_page ?? "?"}`}>
+      <Shell title={tAuto("measures_724255a4")} subtitle={`Page ${meta?.page ?? 1} of ${meta?.last_page ?? "?"}`}>
         <div className="overflow-x-auto">
           {query.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tAuto("loading_33ce4174")}
             </div>
           ) : rows.length === 0 ? (
-            <p className="p-6 text-sm text-text-ghost">No measures match.</p>
+            <p className="p-6 text-sm text-text-ghost">{tAuto("noMeasuresMatch_eedad763")}</p>
           ) : (
             <table className="min-w-full text-sm">
               <thead className="border-b border-border-default">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">CMS ID</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">CBE #</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">Program</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">Value sets</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("cmsId_e0933eee")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("cbe_d361282b")}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">{tAuto("program_9d68007b")}</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">{tAuto("valueSets_0992621f")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,7 +105,7 @@ export default function CareBundleVsacMeasuresPage() {
                 disabled={page <= 1}
                 className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
               >
-                Prev
+                {tAuto("prev_e96fea52")}
               </button>
               <span>{page} / {meta.last_page}</span>
               <button
@@ -112,7 +113,7 @@ export default function CareBundleVsacMeasuresPage() {
                 disabled={meta.last_page != null && page >= meta.last_page}
                 className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
               >
-                Next
+                {tAuto("next_bc981983")}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import type { CareBundleSource } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   source: CareBundleSource | null | undefined;
@@ -16,12 +17,11 @@ export function SourceQualifierBanner({ source, minPopulation }: Props) {
     >
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
       <div>
-        <div className="font-semibold">Research-only source</div>
+        <div className="font-semibold">{tAuto("researchOnlySource_e7266eae")}</div>
         <div className="text-xs text-amber-200/80">
           {source.reason ??
             `Population below the ${minPopulation.toLocaleString()} threshold.`}
-          {" "}Quality-measure rates on this source are not statistically adequate for
-          reporting. Shown here for exploratory work only.
+          {" "}{tAuto("qualityMeasureRatesOnThisSourceAreNot_5ef8bfab")}
         </div>
       </div>
     </div>

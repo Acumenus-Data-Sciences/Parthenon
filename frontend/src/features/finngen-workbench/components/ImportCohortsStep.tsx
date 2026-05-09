@@ -15,6 +15,7 @@ import {
   type OperationNode,
 } from "../lib/operationTree";
 import { AtlasImportTab } from "./AtlasImportTab";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface ImportCohortsStepProps {
   tree: OperationNode | null;
@@ -68,10 +69,9 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
     <div className="space-y-3">
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <header className="space-y-2">
-          <h2 className="text-sm font-semibold text-text-primary">Import cohorts</h2>
+          <h2 className="text-sm font-semibold text-text-primary">{tAuto("importCohorts_338b6729")}</h2>
           <p className="text-xs text-text-ghost">
-            Pull cohorts from Parthenon directly, or import them from an
-            OHDSI Atlas instance via the active WebAPI registry.
+            {tAuto("pullCohortsFromParthenonDirectlyOrImportThem_9096e733")}
           </p>
           <div className="flex gap-1 border-b border-border-default pb-px -mb-1">
             <TabButton
@@ -119,7 +119,7 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="search cohorts by name…"
+            placeholder={tAuto("searchCohortsByName_f0781cd1")}
             className="w-full rounded border border-border-default bg-surface-overlay pl-7 pr-2 py-1.5 text-xs"
           />
         </div>
@@ -127,11 +127,11 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
         <div className="rounded border border-border-default bg-surface-overlay/30 max-h-[28rem] overflow-y-auto">
           {browse.isPending && (
             <div className="flex items-center gap-2 px-3 py-4 text-xs text-text-ghost">
-              <Loader2 size={12} className="animate-spin" /> Loading cohorts…
+              <Loader2 size={12} className="animate-spin" /> {tAuto("loadingCohorts_ea7c033e")}
             </div>
           )}
           {browse.isError && (
-            <p className="px-3 py-4 text-xs text-error">Failed to load cohort definitions.</p>
+            <p className="px-3 py-4 text-xs text-error">{tAuto("failedToLoadCohortDefinitions_77d455f4")}</p>
           )}
           {!browse.isPending && results.length === 0 && (
             <p className="px-3 py-4 text-xs text-text-ghost">
@@ -153,7 +153,7 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
           )}
           {browse.data !== undefined && browse.data.total > results.length && (
             <p className="border-t border-border-default px-3 py-2 text-[10px] text-text-ghost">
-              Showing {results.length} of {browse.data.total}. Refine the search to narrow.
+              {tAuto("showing_163d8174")} {results.length} of {browse.data.total}{tAuto("refineTheSearchToNarrow_713653e5")}
             </p>
           )}
         </div>
@@ -176,9 +176,9 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
                   ? "text-text-ghost cursor-not-allowed"
                   : "text-text-secondary hover:bg-surface-raised",
               ].join(" ")}
-              title="Replace the current tree with the selected cohorts"
+              title={tAuto("replaceTheCurrentTreeWithTheSelectedCohorts_b666ce7f")}
             >
-              Replace tree
+              {tAuto("replaceTree_f014c1cf")}
             </button>
             <button
               type="button"
@@ -191,7 +191,7 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
                   : "bg-success text-bg-canvas hover:bg-success/90",
               ].join(" ")}
             >
-              <Plus size={12} /> Add to tree
+              <Plus size={12} /> {tAuto("addToTree_991a5544")}
             </button>
           </div>
         </div>
@@ -201,7 +201,7 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
 
       {tree !== null && (
         <div className="rounded border border-border-default bg-surface-overlay/30 px-4 py-3 space-y-2">
-          <p className="text-[10px] uppercase tracking-wide text-text-ghost">Current tree preview</p>
+          <p className="text-[10px] uppercase tracking-wide text-text-ghost">{tAuto("currentTreePreview_35181291")}</p>
           <TreePreview tree={tree} />
           <div className="flex justify-end">
             <button
@@ -209,7 +209,7 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
               onClick={onAdvance}
               className="inline-flex items-center gap-1 rounded bg-success/10 px-2.5 py-1 text-xs font-medium text-success hover:bg-success/20 transition-colors"
             >
-              Go to Operate <ArrowRight size={12} />
+              {tAuto("goToOperate_65933435")} <ArrowRight size={12} />
             </button>
           </div>
         </div>
@@ -253,7 +253,7 @@ function CohortRow({
             <span className="truncate text-text-primary">{cohort.name}</span>
             {alreadyInTree && (
               <span className="ml-auto shrink-0 rounded bg-info/15 px-1.5 text-[9px] text-info">
-                in tree
+                {tAuto("inTree_bfe7cd4d")}
               </span>
             )}
           </span>

@@ -13,6 +13,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import type { AutosaveStatus } from "../hooks/useWorkbenchSession";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface AutosaveBadgeProps {
   status: AutosaveStatus;
@@ -34,7 +35,7 @@ export function AutosaveBadge({ status }: AutosaveBadgeProps) {
   if (status.saving) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
-        <Loader2 size={10} className="animate-spin" /> Saving…
+        <Loader2 size={10} className="animate-spin" /> {tAuto("saving_56a2285c")}
       </span>
     );
   }
@@ -44,14 +45,14 @@ export function AutosaveBadge({ status }: AutosaveBadgeProps) {
         title={status.error.message}
         className="inline-flex items-center gap-1.5 rounded bg-error/10 px-2 py-0.5 text-[10px] font-medium text-error"
       >
-        <AlertCircle size={10} /> Save failed
+        <AlertCircle size={10} /> {tAuto("saveFailed_0a444467")}
       </span>
     );
   }
   if (status.pending) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
-        <Clock size={10} /> Unsaved
+        <Clock size={10} /> {tAuto("unsaved_2ab06e25")}
       </span>
     );
   }
@@ -61,7 +62,7 @@ export function AutosaveBadge({ status }: AutosaveBadgeProps) {
         title={status.lastSavedAt.toLocaleString()}
         className="inline-flex items-center gap-1.5 rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success"
       >
-        <CheckCircle2 size={10} /> Saved {formatTime(status.lastSavedAt)}
+        <CheckCircle2 size={10} /> {tAuto("saved_c0ae8f6e")} {formatTime(status.lastSavedAt)}
       </span>
     );
   }

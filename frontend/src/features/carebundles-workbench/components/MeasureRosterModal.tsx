@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Loader2, Save, Users, X } from "lucide-react";
 import { useExportRosterToCohort, useMeasureRoster } from "../hooks";
 import type { ComplianceBucket } from "../types";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface Props {
   bundleId: number | null;
@@ -111,7 +112,7 @@ export function MeasureRosterModal({
             <Users className="h-4 w-4 text-text-secondary" />
             <div>
               <h2 id="roster-modal-title" className="text-base font-bold text-text-primary">
-                Patient roster · {measureCode ?? ""}
+                {tAuto("patientRoster_ebeba9aa")} {measureCode ?? ""}
               </h2>
               <p className="mt-0.5 text-xs text-text-ghost">
                 {measureName} on {sourceName}
@@ -121,7 +122,7 @@ export function MeasureRosterModal({
           <button
             onClick={onClose}
             className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
-            aria-label="Close"
+            aria-label={tAuto("close_bbfa773e")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -153,10 +154,9 @@ export function MeasureRosterModal({
 
           {savedCohortId != null && (
             <div className="rounded-lg border border-teal-900/60 bg-teal-950/30 p-3 text-xs text-teal-200">
-              <div className="font-semibold">Cohort saved · #{savedCohortId}</div>
+              <div className="font-semibold">{tAuto("cohortSaved_c4492aef")}{savedCohortId}</div>
               <div className="mt-1 opacity-90">
-                {total.toLocaleString()} members written to results.cohort. Use it
-                in any Study downstream.
+                {total.toLocaleString()} {tAuto("membersWrittenToResultsCohortUseItIn_84e0d4a2")}
               </div>
             </div>
           )}
@@ -171,7 +171,7 @@ export function MeasureRosterModal({
               style={{ backgroundColor: "var(--accent)" }}
             >
               <Save className="h-4 w-4" />
-              Save {total.toLocaleString()} {BUCKET_LABELS[bucket].toLowerCase()} patients as cohort
+              {tAuto("save_efc007a3")} {total.toLocaleString()} {BUCKET_LABELS[bucket].toLowerCase()} {tAuto("patientsAsCohort_04d22549")}
             </button>
           )}
 
@@ -179,7 +179,7 @@ export function MeasureRosterModal({
             <div className="space-y-2 rounded-lg border border-border-default bg-surface-raised p-4">
               <div>
                 <label className="text-xs font-semibold text-text-ghost">
-                  Cohort name
+                  {tAuto("cohortName_43d7ccb0")}
                 </label>
                 <input
                   value={cohortName}
@@ -190,13 +190,13 @@ export function MeasureRosterModal({
                 />
                 {cohortName.length >= 240 && (
                   <p className="mt-1 text-[10px] text-amber-300">
-                    {255 - cohortName.length} characters remaining (max 255).
+                    {255 - cohortName.length} {tAuto("charactersRemainingMax255_01ded77e")}
                   </p>
                 )}
               </div>
               <div>
                 <label className="text-xs font-semibold text-text-ghost">
-                  Description (optional)
+                  {tAuto("descriptionOptional_388de6fa")}
                 </label>
                 <textarea
                   value={cohortDescription}
@@ -212,7 +212,7 @@ export function MeasureRosterModal({
                   onChange={(e) => setIsPublic(e.target.checked)}
                   className="h-3.5 w-3.5"
                 />
-                Make cohort public
+                {tAuto("makeCohortPublic_9f496b1c")}
               </label>
               <div className="flex items-center gap-2 pt-2">
                 <button
@@ -230,18 +230,18 @@ export function MeasureRosterModal({
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
-                  Create cohort
+                  {tAuto("createCohort_dd680bd0")}
                 </button>
                 <button
                   onClick={() => setShowSaveForm(false)}
                   className="rounded-lg border border-border-default px-3 py-2 text-sm text-text-muted hover:bg-surface-overlay"
                 >
-                  Cancel
+                  {tAuto("cancel_77dfd213")}
                 </button>
               </div>
               {exporter.isError && (
                 <p className="text-xs text-red-300">
-                  Save failed. Try again or check the source's results schema.
+                  {tAuto("saveFailedTryAgainOrCheckTheSource_9dda8d5b")}
                 </p>
               )}
             </div>
@@ -249,13 +249,13 @@ export function MeasureRosterModal({
 
           {rosterQuery.isLoading && (
             <div className="flex items-center gap-2 text-xs text-text-ghost">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading roster…
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {tAuto("loadingRoster_0ed51484")}
             </div>
           )}
 
           {data && data.persons.length === 0 && (
             <p className="rounded border border-border-default bg-surface-raised p-4 text-xs text-text-ghost">
-              No patients in this bucket.
+              {tAuto("noPatientsInThisBucket_9ba48eb6")}
             </p>
           )}
 
@@ -265,13 +265,13 @@ export function MeasureRosterModal({
                 <thead className="border-b border-border-default bg-surface-raised">
                   <tr>
                     <th className="px-3 py-2 text-left font-semibold text-text-ghost">
-                      Person ID
+                      {tAuto("personId_a29edde9")}
                     </th>
                     <th className="px-3 py-2 text-right font-semibold text-text-ghost">
-                      Age
+                      {tAuto("age_ff9f1ff3")}
                     </th>
                     <th className="px-3 py-2 text-left font-semibold text-text-ghost">
-                      Sex
+                      {tAuto("sex_e301dd60")}
                     </th>
                   </tr>
                 </thead>
@@ -290,7 +290,7 @@ export function MeasureRosterModal({
               {lastPage > 1 && (
                 <div className="flex items-center justify-between border-t border-border-default px-3 py-2 text-xs text-text-ghost">
                   <span>
-                    Page {page} of {lastPage}
+                    {tAuto("page_fb06270f")} {page} of {lastPage}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
@@ -298,14 +298,14 @@ export function MeasureRosterModal({
                       disabled={page <= 1}
                       className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
                     >
-                      Prev
+                      {tAuto("prev_e96fea52")}
                     </button>
                     <button
                       onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
                       disabled={page >= lastPage}
                       className="rounded border border-border-default px-2 py-1 disabled:opacity-40"
                     >
-                      Next
+                      {tAuto("next_bc981983")}
                     </button>
                   </div>
                 </div>
@@ -314,10 +314,7 @@ export function MeasureRosterModal({
           )}
 
           <p className="text-[10px] text-text-ghost">
-            Roster shows person_ids and minimal demographics (age, sex). Saving as
-            a cohort writes the full set to <code>results.cohort</code> for use
-            in downstream Studies — no PHI dates, names, or identifiers leave the
-            workbench.
+            {tAuto("rosterShowsPersonIdsAndMinimalDemographicsAge_1d6990a0")} <code>results.cohort</code> {tAuto("forUseInDownstreamStudiesNoPhiDates_be3c9b18")}
           </p>
         </div>
       </div>

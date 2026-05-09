@@ -20,60 +20,61 @@ import {
   normalizeCohortRole,
   summaryAt,
 } from "./studyDesignWorkbenchHelpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const ANALYSIS_FAMILIES = [
   {
     id: "characterization",
-    label: "Baseline Characterization",
+    label: tAuto("baselineCharacterization_fb2c881d"),
     package: "Characterization",
     requiredRoles: ["target"],
     reason: "Useful before inferential analysis and requires only a target cohort.",
   },
   {
     id: "estimation",
-    label: "Population-Level Estimation",
+    label: tAuto("populationLevelEstimation_f696b622"),
     package: "CohortMethod",
     requiredRoles: ["target", "comparator", "outcome"],
     reason: "Best fit when target, comparator, and outcome cohorts support comparative effect estimation.",
   },
   {
     id: "prediction",
-    label: "Patient-Level Prediction",
+    label: tAuto("patientLevelPrediction_dfe0966c"),
     package: "PatientLevelPrediction",
     requiredRoles: ["target", "outcome"],
     reason: "Best fit when the intent asks for outcome risk prediction.",
   },
   {
     id: "incidence_rate",
-    label: "Incidence Rate",
+    label: tAuto("incidenceRate_4fd5ccd2"),
     package: "CohortIncidence",
     requiredRoles: ["target"],
     reason: "Best fit for incidence or prevalence questions.",
   },
   {
     id: "pathway",
-    label: "Treatment Pathways",
+    label: tAuto("treatmentPathways_dc709c56"),
     package: "TreatmentPatterns",
     requiredRoles: ["target", "comparator"],
     reason: "Best fit for treatment sequence, switching, or pathway questions.",
   },
   {
     id: "sccs",
-    label: "Self-Controlled Case Series",
+    label: tAuto("selfControlledCaseSeries_c757528e"),
     package: "SelfControlledCaseSeries",
     requiredRoles: ["target", "outcome"],
     reason: "Best fit for acute exposure-outcome safety questions.",
   },
   {
     id: "self_controlled_cohort",
-    label: "Self-Controlled Cohort",
+    label: tAuto("selfControlledCohort_c1fad939"),
     package: "SelfControlledCohort",
     requiredRoles: ["target", "outcome"],
     reason: "Best fit for self-controlled cohort risk-window designs.",
   },
   {
     id: "evidence_synthesis",
-    label: "Evidence Synthesis",
+    label: tAuto("evidenceSynthesis_fedd05a0"),
     package: "EvidenceSynthesis",
     requiredRoles: ["target"],
     reason: "Best fit after multiple sources produce analysis-ready evidence.",
@@ -192,7 +193,7 @@ export function AnalysisPlanPanel({
           className="btn btn-primary btn-sm shrink-0"
         >
           {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          Draft Selected Plans
+          {tAuto("draftSelectedPlans_e25a6518")}
         </button>
       </div>
 
@@ -201,7 +202,7 @@ export function AnalysisPlanPanel({
       {latestFeasibility && (
         <div className="rounded-md border border-border-default bg-surface-base p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-semibold text-text-secondary">Analysis family selection</p>
+            <p className="text-xs font-semibold text-text-secondary">{tAuto("analysisFamilySelection_2bf673b0")}</p>
             <span className="text-[11px] text-text-ghost">
               {activeFamilyIds.length}/{familyOptions.length} selected
             </span>
@@ -229,7 +230,7 @@ export function AnalysisPlanPanel({
                     </span>
                     {family.recommended && (
                       <span className="rounded-md bg-accent/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-accent">
-                        Recommended
+                        {tAuto("recommended_9ef93755")}
                       </span>
                     )}
                   </span>
@@ -279,7 +280,7 @@ export function AnalysisPlanPanel({
                     )}
                     {payload.analysis_family?.reason && (
                       <p className="mt-1 text-xs text-text-muted">
-                        Abby plan fit: {payload.analysis_family.reason}
+                        {tAuto("abbyPlanFit_641a996f")} {payload.analysis_family.reason}
                       </p>
                     )}
                     <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-text-ghost">
@@ -302,7 +303,7 @@ export function AnalysisPlanPanel({
                     {!blockers[0] && warnings[0] && <p className="mt-2 text-xs text-warning">{warnings[0].message}</p>}
                     {blockers[0]?.action?.label && (
                       <p className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">
-                        Action target: {blockers[0].action.label}
+                        {tAuto("actionTarget_f419294f")} {blockers[0].action.label}
                       </p>
                     )}
                     {parameterRows.length > 0 && (
@@ -364,7 +365,7 @@ export function AnalysisPlanPanel({
                         disabled={isGenerating}
                         className="btn btn-ghost btn-sm"
                       >
-                        Re-draft family
+                        {tAuto("reDraftFamily_77fdd123")}
                       </button>
                     )}
                     {!materialized && accepted && (

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { TimeCodeWASDisplay } from "../../types";
 import { CodeWASResults } from "./CodeWASResults";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface TimeCodeWASResultsProps {
   display: TimeCodeWASDisplay;
@@ -13,7 +14,7 @@ export function TimeCodeWASResults({ display }: TimeCodeWASResultsProps) {
   if (display.windows.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-text-ghost">
-        No temporal windows in results.
+        {tAuto("noTemporalWindowsInResults_696c40cd")}
       </div>
     );
   }
@@ -43,7 +44,7 @@ export function TimeCodeWASResults({ display }: TimeCodeWASResultsProps) {
     <div className="space-y-4">
       {/* Summary */}
       <div className="text-xs text-text-muted">
-        {display.summary.window_count} windows -- {display.summary.total_significant} total significant signals
+        {display.summary.window_count} {tAuto("windows_b62c9438")} {display.summary.total_significant} {tAuto("totalSignificantSignals_9455dca1")}
       </div>
 
       {/* Window tabs */}
@@ -60,7 +61,7 @@ export function TimeCodeWASResults({ display }: TimeCodeWASResultsProps) {
                 : "text-text-ghost hover:text-text-secondary",
             ].join(" ")}
           >
-            Day {w.start_day} to {w.end_day}
+            {tAuto("day_987b9ced")} {w.start_day} to {w.end_day}
           </button>
         ))}
       </div>

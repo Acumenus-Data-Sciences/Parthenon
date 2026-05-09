@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { CodeWASDisplay, CodeWASSignal } from "../../types";
 import { Download } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 // Domain color palette
 const DOMAIN_COLORS: Record<string, string> = {
@@ -107,13 +108,13 @@ export function CodeWASResults({ display }: CodeWASResultsProps) {
     <div className="space-y-6">
       {/* Summary */}
       <div className="flex gap-4 text-xs text-text-muted">
-        <span>{display.summary.total_codes_tested} codes tested</span>
+        <span>{display.summary.total_codes_tested} {tAuto("codesTested_ddab9d90")}</span>
         <span>{display.summary.significant_count} significant</span>
       </div>
 
       {/* Manhattan plot */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-        <h3 className="text-xs font-semibold text-text-secondary mb-3">Manhattan Plot</h3>
+        <h3 className="text-xs font-semibold text-text-secondary mb-3">{tAuto("manhattanPlot_4d31c156")}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
@@ -136,10 +137,10 @@ export function CodeWASResults({ display }: CodeWASResultsProps) {
                 return (
                   <div className="rounded border border-border-default bg-surface-overlay px-3 py-2 text-xs shadow">
                     <p className="font-medium text-text-primary">{pt.signal.concept_name}</p>
-                    <p className="text-text-muted">Domain: {pt.signal.domain_id}</p>
-                    <p className="text-text-muted">p = {pt.signal.p_value.toExponential(2)}</p>
-                    <p className="text-text-muted">beta = {pt.signal.beta.toFixed(3)}</p>
-                    <p className="text-text-muted">N cases: {pt.signal.n_cases}</p>
+                    <p className="text-text-muted">{tAuto("domain_da000b5b")} {pt.signal.domain_id}</p>
+                    <p className="text-text-muted">{tAuto("p_f19320a4")} {pt.signal.p_value.toExponential(2)}</p>
+                    <p className="text-text-muted">{tAuto("beta_cf3644e5")} {pt.signal.beta.toFixed(3)}</p>
+                    <p className="text-text-muted">{tAuto("nCases_9c523e65")} {pt.signal.n_cases}</p>
                   </div>
                 );
               }}
@@ -163,14 +164,14 @@ export function CodeWASResults({ display }: CodeWASResultsProps) {
       {/* Signal table */}
       <div className="rounded-lg border border-border-default bg-surface-raised">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
-          <h3 className="text-xs font-semibold text-text-secondary">Signal Table</h3>
+          <h3 className="text-xs font-semibold text-text-secondary">{tAuto("signalTable_f84ca066")}</h3>
           <button
             type="button"
             onClick={exportCsv}
             className="flex items-center gap-1 text-xs text-text-ghost hover:text-success transition-colors"
           >
             <Download size={12} />
-            Export CSV
+            {tAuto("exportCsv_5755f9ac")}
           </button>
         </div>
         <div className="overflow-x-auto">

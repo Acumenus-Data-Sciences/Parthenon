@@ -4,6 +4,7 @@ import { Loader2, Plus, X } from "lucide-react";
 import type { MatchCohortPayload } from "../api";
 import { CohortPicker } from "./CohortPicker";
 import { Divider, Section, Shell } from "@/components/workbench/primitives";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface MatchingConfigFormProps {
   sourceKey: string;
@@ -55,20 +56,20 @@ export function MatchingConfigForm({
 
   return (
     <Shell
-      title="Configure matching"
+      title={tAuto("configureMatching_5925895c")}
       subtitle="Match a primary cohort (cases) against one or more comparator cohorts (candidate controls)."
     >
       <div className="space-y-4 p-4">
         <Section label="Cohorts">
           <div className="space-y-1">
-            <Label>Primary cohort (cases)</Label>
+            <Label>{tAuto("primaryCohortCases_1c0881c0")}</Label>
             <CohortRow value={primary} onChange={setPrimary} />
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <Label>
-                Comparator cohorts{" "}
+                {tAuto("comparatorCohorts_a3b79970")}{" "}
                 <span className="text-text-ghost">({comparatorNums.length}/10)</span>
               </Label>
               <button
@@ -98,7 +99,7 @@ export function MatchingConfigForm({
                         setComparators((cs) => cs.filter((_, i) => i !== idx))
                       }
                       className="text-text-ghost hover:text-error"
-                      aria-label="Remove comparator"
+                      aria-label={tAuto("removeComparator_878f9d46")}
                     >
                       <X size={12} />
                     </button>
@@ -118,7 +119,7 @@ export function MatchingConfigForm({
               checked={matchSex}
               onChange={(e) => setMatchSex(e.target.checked)}
             />
-            Match on sex
+            {tAuto("matchOnSex_9bc4e2f4")}
           </label>
 
           <div className="space-y-1.5">
@@ -128,11 +129,11 @@ export function MatchingConfigForm({
                 checked={matchBirthYear}
                 onChange={(e) => setMatchBirthYear(e.target.checked)}
               />
-              Match on birth year
+              {tAuto("matchOnBirthYear_f22dc929")}
             </label>
             <div className="flex items-center gap-2 pl-6">
               <label className="text-[10px] uppercase tracking-wide text-text-ghost">
-                Max year diff
+                {tAuto("maxYearDiff_c88352c0")}
               </label>
               <input
                 type="number"
@@ -157,7 +158,7 @@ export function MatchingConfigForm({
         <Section label="Ratio">
           <div className="flex items-center gap-2">
             <label className="text-[10px] uppercase tracking-wide text-text-ghost">
-              Controls per case
+              {tAuto("controlsPerCase_a563ee47")}
             </label>
             <span className="text-xs font-mono text-text-secondary">1:</span>
             <input
@@ -198,7 +199,7 @@ export function MatchingConfigForm({
           ].join(" ")}
         >
           {loading ? <Loader2 size={12} className="animate-spin" /> : null}
-          Run matching
+          {tAuto("runMatching_a3ca7f25")}
         </button>
       </footer>
     </Shell>

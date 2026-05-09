@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
 import { GitMerge, LayoutGrid, List, Scale } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 const TABS = [
-  { to: "/workbench/care-bundles", label: "Bundles", icon: LayoutGrid, end: true },
-  { to: "/workbench/care-bundles/intersect", label: "Intersect", icon: GitMerge, end: false },
-  { to: "/workbench/care-bundles/value-sets", label: "Value Sets", icon: List, end: false },
-  { to: "/workbench/care-bundles/measures", label: "CMS Measures", icon: Scale, end: false },
+  { to: "/workbench/care-bundles", label: tAuto("bundles_9a033a11"), icon: LayoutGrid, end: true },
+  { to: "/workbench/care-bundles/intersect", label: tAuto("intersect_46ebb082"), icon: GitMerge, end: false },
+  { to: "/workbench/care-bundles/value-sets", label: tAuto("valueSets_05805154"), icon: List, end: false },
+  { to: "/workbench/care-bundles/measures", label: tAuto("cmsMeasures_a37c082e"), icon: Scale, end: false },
 ] as const;
 
 export function WorkbenchTabs() {

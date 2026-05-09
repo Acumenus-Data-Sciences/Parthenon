@@ -41,6 +41,12 @@ return [
         'ddl_timeout' => (int) env('DARKSTAR_DDL_TIMEOUT', 300),
     ],
 
+    'shiny_proxy' => [
+        'base_url' => env('SHINY_PROXY_BASE_URL', env('PARTHENON_SHINY_PROXY_BASE_URL', '')),
+        'runtime' => env('SHINY_RUNTIME', 'shinyproxy'),
+        'launch_ttl_minutes' => (int) env('SHINY_LAUNCH_TTL_MINUTES', 15),
+    ],
+
     // Phase 16: DICOMweb / Orthanc
     'dicomweb' => [
         'base_url' => env('DICOMWEB_BASE_URL', 'http://orthanc:8042'),

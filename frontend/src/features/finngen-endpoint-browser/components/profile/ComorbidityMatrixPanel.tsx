@@ -13,6 +13,7 @@ import { ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { EndpointProfileComorbidity } from "../../api";
 import { getPhiCellClass } from "./heatmap-helpers";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 type ComorbidityMatrixPanelProps = {
   comorbidities: EndpointProfileComorbidity[];
@@ -37,11 +38,10 @@ export function ComorbidityMatrixPanel({
         id="comorbidities-heading"
         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
       >
-        Comorbidities
+        {tAuto("comorbidities_7ba461b2")}
       </p>
       <p className="text-xs text-slate-400">
-        Top 50 co-occurring FinnGen endpoints by |phi|. Click a row to
-        navigate to that endpoint's profile.
+        {tAuto("top50CoOccurringFinngenEndpointsByPhi_a821915c")}
       </p>
 
       {comorbidities.length === 0 && (
@@ -105,7 +105,7 @@ export function ComorbidityMatrixPanel({
                         {displayName}
                       </p>
                       <p className="font-mono text-[10px] text-slate-400">
-                        phi={c.phi_coef.toFixed(3)} · OR=
+                        {tAuto("phi_48d554b5")}{c.phi_coef.toFixed(3)} {tAuto("or_4909b208")}
                         {c.odds_ratio.toFixed(2)} (
                         {c.or_ci_low.toFixed(2)}–{c.or_ci_high.toFixed(2)}) ·{" "}
                         {c.co_count.toLocaleString()} co-occurrences
@@ -120,8 +120,8 @@ export function ComorbidityMatrixPanel({
       )}
 
       <p className="text-xs text-slate-500">
-        Universe: {universeSize.toLocaleString()} FinnGen endpoints with ≥{" "}
-        {minSubjects} subjects on {sourceKey}.
+        {tAuto("universe_1552e6f5")} {universeSize.toLocaleString()} {tAuto("finngenEndpointsWith_bb92f1c1")}{" "}
+        {minSubjects} {tAuto("subjectsOn_6cf63896")} {sourceKey}.
       </p>
     </section>
   );

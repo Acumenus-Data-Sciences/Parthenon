@@ -27,6 +27,7 @@ import { SourceQualifierBanner } from "../components/SourceQualifierBanner";
 import { MeasureMethodologyModal } from "../components/MeasureMethodologyModal";
 import { MeasureRosterModal } from "../components/MeasureRosterModal";
 import { MeasureStrataRow } from "../components/MeasureStrataRow";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface RosterTarget {
   measureId: number;
@@ -95,7 +96,7 @@ export default function CareBundleDetailPage() {
             className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-primary"
           >
             <ArrowLeft className="h-3 w-3" />
-            All care bundles
+            {tAuto("allCareBundles_1cfc770a")}
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-text-primary">
             {bundle?.condition_name ?? "…"}
@@ -138,10 +139,10 @@ export default function CareBundleDetailPage() {
           <Link
             to={`/workbench/care-bundles/${bundleId ?? ""}/compare`}
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-overlay"
-            title="Compare this bundle's measures across qualifying sources"
+            title={tAuto("compareThisBundleSMeasuresAcrossQualifyingSources_4f287d75")}
           >
             <GitCompareArrows className="h-4 w-4" />
-            Compare sources
+            {tAuto("compareSources_7b3b1896")}
           </Link>
 
           <button
@@ -159,14 +160,14 @@ export default function CareBundleDetailPage() {
             }}
             disabled={bundleId == null || isFhirExporting}
             className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-overlay disabled:opacity-60"
-            title="Export FHIR R4 Measure resource"
+            title={tAuto("exportFhirR4MeasureResource_4dcb8350")}
           >
             {isFhirExporting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Download className="h-4 w-4" />
             )}
-            FHIR Measure
+            {tAuto("fhirMeasure_480d5bc9")}
           </button>
 
           <button
@@ -187,7 +188,7 @@ export default function CareBundleDetailPage() {
             ) : (
               <Play className="h-4 w-4" />
             )}
-            Materialize
+            {tAuto("materialize_8e5c1300")}
           </button>
         </div>
       </header>
@@ -235,44 +236,44 @@ export default function CareBundleDetailPage() {
         />
       </section>
 
-      <Shell title="Quality measures" subtitle="Denominator is post-exclusion. Rate shown with Wilson 95% CI.">
+      <Shell title={tAuto("qualityMeasures_1d265065")} subtitle="Denominator is post-exclusion. Rate shown with Wilson 95% CI.">
         <div className="overflow-x-auto">
           {qualificationsQuery.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-text-ghost">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading measures…
+              {tAuto("loadingMeasures_4006e749")}
             </div>
           ) : !qualifications || qualifications.measures.length === 0 ? (
             <p className="p-6 text-sm text-text-ghost">
-              No measure results yet. Click Materialize to compute.
+              {tAuto("noMeasureResultsYetClickMaterializeToCompute_f6e35df1")}
             </p>
           ) : (
             <table className="min-w-full text-sm">
               <thead className="border-b border-border-default">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                    Measure
+                    {tAuto("measure_d4fd0a23")}
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                    Domain
+                    {tAuto("domain_9b10914d")}
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                    Denominator
+                    {tAuto("denominator_60c64e3a")}
                   </th>
                   <th
                     className="px-4 py-2 text-right text-xs font-semibold text-text-ghost"
-                    title="Removed from both numerator and denominator (hospice, pregnancy, ESRD, etc.)"
+                    title={tAuto("removedFromBothNumeratorAndDenominatorHospicePregnancy_8dd1f50a")}
                   >
-                    Excluded
+                    {tAuto("excluded_9804952b")}
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                    Numerator
+                    {tAuto("numerator_e1ac440e")}
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                    Rate (95% CI)
+                    {tAuto("rate95Ci_50742b90")}
                   </th>
                   <th className="w-20 px-2 py-2 text-right text-xs font-semibold text-text-ghost">
-                    Detail
+                    {tAuto("detail_7c9a7c06")}
                   </th>
                 </tr>
               </thead>
@@ -319,7 +320,7 @@ export default function CareBundleDetailPage() {
                                   ? "Collapse strata"
                                   : "Stratify by age + sex"
                               }
-                              aria-label="Toggle stratification"
+                              aria-label={tAuto("toggleStratification_df09c469")}
                             >
                               {isStratExpanded ? (
                                 <ChevronDown className="h-3.5 w-3.5" />
@@ -336,8 +337,8 @@ export default function CareBundleDetailPage() {
                                 })
                               }
                               className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
-                              title="View patient roster + export as cohort"
-                              aria-label="View patient roster"
+                              title={tAuto("viewPatientRosterExportAsCohort_38e874a3")}
+                              aria-label={tAuto("viewPatientRoster_13c88300")}
                             >
                               <Users className="h-3.5 w-3.5" />
                             </button>
@@ -346,8 +347,8 @@ export default function CareBundleDetailPage() {
                                 setMethodologyMeasureId(m.quality_measure_id)
                               }
                               className="rounded p-1 text-text-ghost transition-colors hover:bg-surface-overlay hover:text-text-primary"
-                              title="View methodology + DQ flags"
-                              aria-label="View methodology"
+                              title={tAuto("viewMethodologyDqFlags_c31ae146")}
+                              aria-label={tAuto("viewMethodology_70a1c0ee")}
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
@@ -393,29 +394,29 @@ export default function CareBundleDetailPage() {
       )}
 
       <Shell
-        title="Recent runs"
+        title={tAuto("recentRuns_af7051db")}
         subtitle={`${runs.length} most recent for ${selectedSource?.source_name ?? "selected source"}`}
       >
         {runs.length === 0 ? (
-          <p className="p-6 text-sm text-text-ghost">No runs yet.</p>
+          <p className="p-6 text-sm text-text-ghost">{tAuto("noRunsYet_7a8b1c28")}</p>
         ) : (
           <table className="min-w-full text-sm">
             <thead className="border-b border-border-default">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                  Source
+                  {tAuto("source_6da13add")}
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                  Status
+                  {tAuto("status_bae7d5be")}
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-text-ghost">
-                  Trigger
+                  {tAuto("trigger_d3f06a58")}
                 </th>
                 <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                  Qualified persons
+                  {tAuto("qualifiedPersons_2206ac75")}
                 </th>
                 <th className="px-4 py-2 text-right text-xs font-semibold text-text-ghost">
-                  Completed
+                  {tAuto("completed_1798b3ba")}
                 </th>
               </tr>
             </thead>

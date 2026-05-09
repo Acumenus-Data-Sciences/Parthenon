@@ -61,11 +61,18 @@ class TemplatesControllerCancelTest extends TestCase
 
         $registry = Mockery::mock(TemplateRegistryClient::class);
         $registry->shouldReceive('cancelRun')->with('22222222-2222-2222-2222-222222222222')->andReturn(['status' => 'cancelled']);
+        // After cancel, the service polls upstream once to reconcile state.
+        // For this test the run was already in RUNNING locally, so upstream
+        // returning the same RUNNING/CANCELLED is fine — anything non-terminal
+        // means the service falls back to optimistic CANCELLED.
+        $registry->shouldReceive('getRun')->andReturn(['status' => 'cancelled']);
         $this->app->instance(TemplateRegistryClient::class, $registry);
 
         $this->actingAs($user)
             ->deleteJson('/api/v1/ingestion/templates/runs/'.$run->id)
             ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('id', $run->id)
             ->assertJsonPath('status', TemplateRun::STATUS_CANCELLED);
 
         $this->assertSame(TemplateRun::STATUS_CANCELLED, $run->refresh()->status);

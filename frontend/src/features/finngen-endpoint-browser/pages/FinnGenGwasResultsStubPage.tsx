@@ -10,12 +10,13 @@
 // `:name` or `:run_id` path params. It renders static copy only; Phase 16 will
 // introduce the param-driven summary_stats fetch.
 import { EmptyState } from "@/components/ui/EmptyState";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function FinnGenGwasResultsStubPage() {
   return (
     <div className="p-8">
       <EmptyState
-        title="GWAS results page"
+        title={tAuto("gwasResultsPage_d465a1e4")}
         message="This page ships in Phase 16 (PheWeb-lite UI)."
       />
     </div>

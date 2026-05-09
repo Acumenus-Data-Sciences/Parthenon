@@ -46,7 +46,7 @@ class TemplatesControllerRunReadTest extends TestCase
         ]);
     }
 
-    public function test_show_run_returns_row_and_linked_jobs(): void
+    public function test_show_run_returns_flat_run_payload(): void
     {
         $user = User::factory()->create();
         $user->givePermissionTo('ingestion.view');
@@ -55,11 +55,27 @@ class TemplatesControllerRunReadTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/v1/ingestion/templates/runs/'.$run->id)
             ->assertOk()
-            ->assertJsonPath('template_run.id', $run->id)
-            ->assertJsonPath('template_run.status', TemplateRun::STATUS_RUNNING);
+            ->assertJsonPath('id', $run->id)
+            ->assertJsonPath('status', TemplateRun::STATUS_RUNNING)
+            ->assertJsonPath('template_id', 'hello_cdm');
     }
 
-    public function test_run_logs_proxies_to_python(): void
+    public function test_list_runs_returns_paginated_envelope(): void
+    {
+        $user = User::factory()->create();
+        $user->givePermissionTo('ingestion.view');
+        $this->makeRun($user);
+
+        $resp = $this->actingAs($user)
+            ->getJson('/api/v1/ingestion/templates/runs?per_page=10')
+            ->assertOk()
+            ->assertJsonStructure(['data', 'meta' => ['total', 'page', 'per_page']]);
+
+        $this->assertSame(1, $resp->json('meta.total'));
+        $this->assertSame('hello_cdm', $resp->json('data.0.template_id'));
+    }
+
+    public function test_run_logs_normalizes_upstream_lines(): void
     {
         $user = User::factory()->create();
         $user->givePermissionTo('ingestion.view');
@@ -73,10 +89,11 @@ class TemplatesControllerRunReadTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/v1/ingestion/templates/runs/'.$run->id.'/logs')
             ->assertOk()
-            ->assertJsonPath('lines.0.message', 'started');
+            ->assertJsonPath('lines.0.message', 'started')
+            ->assertJsonPath('lines.0.timestamp', '2026-05-02T00:00:00Z');
     }
 
-    public function test_run_artifacts_proxies_to_python(): void
+    public function test_run_artifacts_normalizes_upstream_artifacts(): void
     {
         $user = User::factory()->create();
         $user->givePermissionTo('ingestion.view');
@@ -91,7 +108,8 @@ class TemplatesControllerRunReadTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/v1/ingestion/templates/runs/'.$run->id.'/artifacts')
             ->assertOk()
-            ->assertJsonPath('artifacts.0.name', 'summary.json');
+            ->assertJsonPath('artifacts.0.name', 'summary.json')
+            ->assertJsonPath('artifacts.0.size_bytes', 100);
     }
 
     public function test_run_endpoints_require_view_permission(): void

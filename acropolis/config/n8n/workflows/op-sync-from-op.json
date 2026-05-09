@@ -29,7 +29,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Placeholder: actual sync table lookup wired in n8n UI via DB node\n// This code node passes through for now; replace with Postgres node in production\nconst item = $input.first().json;\n\n// Expected: query app.op_sync_map WHERE op_wp_id = item.wpId\n// Returns: { ghIssueNumber, ghRepo, gsdTaskId, lastSyncedAt }\nconst syncRecord = {\n  ghIssueNumber: null,\n  ghRepo: 'sudoshi/Parthenon',\n  gsdTaskId: null,\n  lastSyncedAt: null,\n  found: false\n};\n\nreturn [{ json: { ...item, syncRecord } }];"
+        "jsCode": "// Placeholder: actual sync table lookup wired in n8n UI via DB node\n// This code node passes through for now; replace with Postgres node in production\nconst item = $input.first().json;\n\n// Expected: query app.op_sync_map WHERE op_wp_id = item.wpId\n// Returns: { ghIssueNumber, ghRepo, gsdTaskId, lastSyncedAt }\nconst syncRecord = {\n  ghIssueNumber: null,\n  ghRepo: 'Acumenus-Data-Sciences/Parthenon',\n  gsdTaskId: null,\n  lastSyncedAt: null,\n  found: false\n};\n\nreturn [{ json: { ...item, syncRecord } }];"
       },
       "id": "lookup-sync-table",
       "name": "Lookup Sync Table",
@@ -68,7 +68,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const item = $input.first().json;\nconst { wpId, subject, status, description, syncRecord } = item;\n\n// Map OP status to GitHub state\nconst statusMap = {\n  'New': 'open',\n  'In Progress': 'open',\n  'In Review': 'open',\n  'Closed': 'closed',\n  'Rejected': 'closed',\n  'Done': 'closed',\n  'On hold': 'open'\n};\nconst ghState = statusMap[status] || 'open';\n\n// Determine GitHub labels from OP status\nconst labelMap = {\n  'In Progress': ['in-progress'],\n  'In Review': ['in-review'],\n  'On hold': ['on-hold'],\n  'Done': ['done']\n};\nconst labels = (labelMap[status] || []).concat(['synced-by:n8n']);\n\nconst action = syncRecord.found ? 'update' : 'create';\n\nreturn [{\n  json: {\n    ...item,\n    github: {\n      action,\n      repo: syncRecord.ghRepo || 'sudoshi/Parthenon',\n      issueNumber: syncRecord.ghIssueNumber,\n      title: subject,\n      body: description ? `${description}\\n\\n---\\n*Synced from OpenProject WP #${wpId}*` : `*Synced from OpenProject WP #${wpId}*`,\n      state: ghState,\n      labels\n    }\n  }\n}];"
+        "jsCode": "const item = $input.first().json;\nconst { wpId, subject, status, description, syncRecord } = item;\n\n// Map OP status to GitHub state\nconst statusMap = {\n  'New': 'open',\n  'In Progress': 'open',\n  'In Review': 'open',\n  'Closed': 'closed',\n  'Rejected': 'closed',\n  'Done': 'closed',\n  'On hold': 'open'\n};\nconst ghState = statusMap[status] || 'open';\n\n// Determine GitHub labels from OP status\nconst labelMap = {\n  'In Progress': ['in-progress'],\n  'In Review': ['in-review'],\n  'On hold': ['on-hold'],\n  'Done': ['done']\n};\nconst labels = (labelMap[status] || []).concat(['synced-by:n8n']);\n\nconst action = syncRecord.found ? 'update' : 'create';\n\nreturn [{\n  json: {\n    ...item,\n    github: {\n      action,\n      repo: syncRecord.ghRepo || 'Acumenus-Data-Sciences/Parthenon',\n      issueNumber: syncRecord.ghIssueNumber,\n      title: subject,\n      body: description ? `${description}\\n\\n---\\n*Synced from OpenProject WP #${wpId}*` : `*Synced from OpenProject WP #${wpId}*`,\n      state: ghState,\n      labels\n    }\n  }\n}];"
       },
       "id": "sync-to-github",
       "name": "Sync to GitHub",

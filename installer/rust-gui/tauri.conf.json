@@ -53,7 +53,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/sudoshi/Parthenon/releases/latest/download/latest.json"
+        "https://github.com/Acumenus-Data-Sciences/Parthenon/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI0MzUxMkRGMEY4MzIyRkEKUldUNklvTVAzeEkxdEVXYmJjc25jRTlqUVVSd1ErSXk5ZDFzdm5LWXZXR0dPcTNaNFNwakFmNWIK",
       "windows": { "installMode": "passive" }

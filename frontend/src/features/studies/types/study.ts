@@ -213,6 +213,46 @@ export interface StudyArtifact {
   created_at: string;
   updated_at: string;
   uploaded_by_user?: { id: number; name: string; email: string };
+  managed_shiny_apps?: ManagedShinyApp[];
+}
+
+export interface ManagedShinyApp {
+  key: string;
+  label: string;
+  package: string;
+  module_family: string;
+  result_types: string[];
+  artifact_types?: string[];
+  launch_modes: ("embedded" | "full_page")[];
+  runtime_preference: string;
+  runtime_app?: string;
+  status: string;
+  permission_scope: string;
+  entrypoint: string;
+}
+
+export interface ManagedShinyLaunch {
+  app: ManagedShinyApp;
+  artifact: {
+    id: number;
+    title: string;
+    artifact_type: string;
+    version: string;
+  };
+  mode: "embedded" | "full_page";
+  runtime: string;
+  status: "ready" | "runtime_unconfigured";
+  launch_url: string | null;
+  token_expires_at: string;
+  embedding: {
+    allowed: boolean;
+    container: string;
+    sandbox: string[];
+  };
+  setup: {
+    required: boolean;
+    message: string;
+  };
 }
 
 export interface StudyActivityLogEntry {

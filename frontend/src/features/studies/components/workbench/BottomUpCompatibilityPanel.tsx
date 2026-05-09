@@ -11,6 +11,7 @@ import {
   type CompatibilityAssistance,
   type CompatibilityGroup,
 } from "../studyDesignCompatibilityAssistance";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export function BottomUpCompatibilityPanel({
   assets,
@@ -112,7 +113,7 @@ function CompatibilityOverview({ compatibility }: { compatibility: Compatibility
             ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-success" />
             : <Sparkles size={15} className="mt-0.5 shrink-0 text-warning" />}
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-text-secondary">Abby compatibility tasks</p>
+          <p className="text-sm font-semibold text-text-secondary">{tAuto("abbyCompatibilityTasks_225b3789")}</p>
           <p className="mt-1 text-xs text-text-muted">{compatibility.summary}</p>
           <p className="mt-1 text-[11px] text-text-ghost">{compatibility.policy}</p>
         </div>
@@ -141,7 +142,7 @@ function CompatibilityGroupCard({ group }: { group: CompatibilityGroup }) {
       </div>
 
       {!hasContent && (
-        <p className="mt-3 text-xs text-text-ghost">No imported assets or critique tasks in this stage yet.</p>
+        <p className="mt-3 text-xs text-text-ghost">{tAuto("noImportedAssetsOrCritiqueTasksInThis_49964a94")}</p>
       )}
 
       {group.tasks.length > 0 && (
@@ -170,7 +171,7 @@ function CompatibilityGroupCard({ group }: { group: CompatibilityGroup }) {
                   <p className="mt-1 text-[11px] text-text-ghost">{task.actionTarget}</p>
                   {task.nativeLink && (
                     <a href={task.nativeLink} className="mt-2 inline-flex text-xs text-accent hover:text-accent-hover">
-                      Open native record
+                      {tAuto("openNativeRecord_c0d646e0")}
                     </a>
                   )}
                 </div>

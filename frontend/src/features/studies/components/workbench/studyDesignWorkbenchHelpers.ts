@@ -9,6 +9,7 @@ import type {
   StudyFeasibilityResult,
   StudyReadinessAction,
 } from "../../types/study";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export interface IntentFormState {
   researchQuestion: string;
@@ -233,7 +234,7 @@ export function analysisPlanParameterRows(payload: Partial<StudyAnalysisPlanDraf
     name: key,
     label: key.replace(/_/g, " "),
     value,
-    message: "Review generated default.",
+    message: tAuto("reviewGeneratedDefault_b342a5ab"),
   }));
 }
 

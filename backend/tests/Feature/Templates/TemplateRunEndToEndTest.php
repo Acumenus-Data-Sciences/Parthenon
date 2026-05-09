@@ -84,10 +84,14 @@ class TemplateRunEndToEndTest extends TestCase
         $run->refresh();
         $this->assertSame(TemplateRun::STATUS_COMPLETED, $run->status);
 
-        // 4. Show endpoint reflects terminal state
+        // 4. Show endpoint reflects terminal state.
+        // Contract change (2026-05-08): showRun returns the flat TemplateRun
+        // payload (no template_run/ingestion_jobs envelope) — see
+        // TemplatePresenter::run.
         $this->actingAs($user)
             ->getJson('/api/v1/ingestion/templates/runs/'.$runId)
             ->assertOk()
-            ->assertJsonPath('template_run.status', TemplateRun::STATUS_COMPLETED);
+            ->assertJsonPath('id', $runId)
+            ->assertJsonPath('status', TemplateRun::STATUS_COMPLETED);
     }
 }

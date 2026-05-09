@@ -25,14 +25,14 @@ class StudyDesignProtocolImportService
     private const PROTOCOL_SOURCE = 'protocol_upload_abby';
 
     private const ANALYSIS_PACKAGES = [
-        'characterization' => ['package' => 'Characterization', 'endpoint' => '/characterization/run', 'label' => 'Baseline Characterization'],
-        'incidence_rate' => ['package' => 'CohortIncidence', 'endpoint' => '/cohort-incidence/run', 'label' => 'Incidence Rate'],
-        'pathway' => ['package' => 'TreatmentPatterns', 'endpoint' => '/treatment-patterns/run', 'label' => 'Treatment Pathways'],
-        'estimation' => ['package' => 'CohortMethod', 'endpoint' => '/estimation/run', 'label' => 'Population-Level Estimation'],
-        'prediction' => ['package' => 'PatientLevelPrediction', 'endpoint' => '/prediction/run', 'label' => 'Patient-Level Prediction'],
-        'sccs' => ['package' => 'SelfControlledCaseSeries', 'endpoint' => '/sccs/run', 'label' => 'Self-Controlled Case Series'],
-        'self_controlled_cohort' => ['package' => 'SelfControlledCohort', 'endpoint' => '/self-controlled-cohort/run', 'label' => 'Self-Controlled Cohort'],
-        'evidence_synthesis' => ['package' => 'EvidenceSynthesis', 'endpoint' => '/evidence-synthesis/run', 'label' => 'Evidence Synthesis'],
+        'characterization' => ['package' => 'Characterization', 'endpoint' => '/analysis/characterization/run', 'label' => 'Baseline Characterization'],
+        'incidence_rate' => ['package' => 'CohortIncidence', 'endpoint' => '/analysis/cohort-incidence/calculate', 'label' => 'Incidence Rate'],
+        'pathway' => ['package' => 'TreatmentPatterns', 'endpoint' => '/analysis/treatment-patterns/run', 'label' => 'Treatment Pathways'],
+        'estimation' => ['package' => 'CohortMethod', 'endpoint' => '/analysis/estimation/run', 'label' => 'Population-Level Estimation'],
+        'prediction' => ['package' => 'PatientLevelPrediction', 'endpoint' => '/analysis/prediction/run', 'label' => 'Patient-Level Prediction'],
+        'sccs' => ['package' => 'SelfControlledCaseSeries', 'endpoint' => '/analysis/sccs/run', 'label' => 'Self-Controlled Case Series'],
+        'self_controlled_cohort' => ['package' => 'SelfControlledCohort', 'endpoint' => '/analysis/self-controlled-cohort/run', 'label' => 'Self-Controlled Cohort'],
+        'evidence_synthesis' => ['package' => 'EvidenceSynthesis', 'endpoint' => '/analysis/evidence-synthesis/run', 'label' => 'Evidence Synthesis'],
     ];
 
     private const ANALYSIS_ALIASES = [

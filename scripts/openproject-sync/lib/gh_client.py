@@ -10,7 +10,7 @@ from typing import Any
 
 @dataclass
 class GhConfig:
-    repo: str = "sudoshi/Parthenon"
+    repo: str = "Acumenus-Data-Sciences/Parthenon"
 
 
 class GitHubClient:

@@ -18,6 +18,7 @@ import type { FinnGenAnalysisModule } from "@/features/_finngen-foundation";
 import { HelpButton } from "@/features/help";
 import { AnalysisGalleryPage } from "./AnalysisGalleryPage";
 import { AnalysisDetailPage } from "./AnalysisDetailPage";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 export default function FinnGenAnalysesStandalonePage() {
   const [params] = useSearchParams();
@@ -34,16 +35,15 @@ export default function FinnGenAnalysesStandalonePage() {
   if (sourceKey === "") {
     return (
       <div className="mx-auto max-w-3xl px-6 py-10 text-sm text-text-secondary">
-        <p>Missing <span className="font-mono">source_key</span> query parameter.</p>
+        <p>{tAuto("missing_92185dc5")} <span className="font-mono">source_key</span> {tAuto("queryParameter_b409423b")}</p>
         <p className="mt-2 text-xs text-text-ghost">
-          Reach this page from the Cohort Workbench Handoff step, or pick a
-          source from the Workbench launcher first.
+          {tAuto("reachThisPageFromTheCohortWorkbenchHandoff_55fa28b5")}
         </p>
         <Link
           to="/workbench"
           className="mt-4 inline-flex items-center gap-1 text-xs text-success hover:underline"
         >
-          <ArrowLeft size={12} /> Back to Workbench
+          <ArrowLeft size={12} /> {tAuto("backToWorkbench_002de53c")}
         </Link>
       </div>
     );
@@ -56,22 +56,22 @@ export default function FinnGenAnalysesStandalonePage() {
           to="/workbench"
           className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary"
         >
-          <ArrowLeft size={12} /> Workbench
+          <ArrowLeft size={12} /> {tAuto("workbench_93ef7c63")}
         </Link>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-semibold text-text-primary">
-              FinnGen Analysis Gallery
+              {tAuto("finngenAnalysisGallery_e066e107")}
             </h1>
             <span
               className="inline-flex items-center rounded bg-info/10 px-2 py-0.5 font-mono text-[10px] font-medium text-info"
-              title="Data source this gallery is scoped to"
+              title={tAuto("dataSourceThisGalleryIsScopedTo_34c90ae9")}
             >
               {sourceKey}
             </span>
             {validCohortId !== null && (
               <span className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
-                <Database size={10} /> cohort #{validCohortId} pre-selected
+                <Database size={10} /> {tAuto("cohort_ede166ec")}{validCohortId} pre-selected
               </span>
             )}
           </div>

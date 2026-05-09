@@ -31,6 +31,7 @@
 //     on any mismatch (covered by Vitest omit cases)
 import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
+import { tAuto } from "@/i18n/autoUserFacing";
 
 interface FinnGenEndpointSeed {
   kind: "finngen-endpoint";
@@ -64,7 +65,7 @@ export function FinnGenSeededPill({
       data-testid="finngen-seeded-pill"
     >
       <Sparkles size={12} aria-hidden="true" />
-      From FinnGen {seededFrom.endpoint_name}
+      {tAuto("fromFinngen_5f93ba04")} {seededFrom.endpoint_name}
     </Link>
   );
 }

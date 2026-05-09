@@ -34,7 +34,7 @@ Define all services in a single `docker-compose.yml` file (886 lines, 28+ servic
 
 **Schema isolation** (per ADR-001) means all these services share a single PostgreSQL instance. Inter-service communication uses Docker's internal DNS (service names as hostnames).
 
-**GHCR pre-built images** (e.g., `ghcr.io/sudoshi/parthenon-darkstar:latest`) eliminate the need to build R or Python containers locally, which can take 30-60 minutes due to HADES package compilation.
+**GHCR pre-built images** (e.g., `ghcr.io/acumenus-data-sciences/parthenon-darkstar:latest`) eliminate the need to build R or Python containers locally, which can take 30-60 minutes due to HADES package compilation.
 
 ## Consequences
 
