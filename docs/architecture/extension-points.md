@@ -16,7 +16,7 @@ Each extension point ships with:
 | # | Extension point | Interface | Detail page |
 |---|---|---|---|
 | 1 | Auth driver | `App\Contracts\AuthDriverInterface` | [auth-driver.md](extension-points/auth-driver.md) |
-| 2 | Tenant resolver | `App\Contracts\TenantResolverInterface` | (Plan 02-02) |
+| 2 | Tenant resolver | `App\Contracts\TenantResolverInterface` | [tenant-resolver.md](extension-points/tenant-resolver.md) |
 | 3 | Crypto provider | `App\Contracts\CryptoProviderInterface` | (Plan 02-03) |
 | 4 | Audit sink | `App\Contracts\AuditSinkInterface` | (Plan 02-04) |
 | 5 | Observability shipper | `App\Contracts\ObservabilityShipperInterface` | (Plan 02-05) |

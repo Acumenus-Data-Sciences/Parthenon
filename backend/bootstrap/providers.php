@@ -10,9 +10,11 @@ use App\Providers\PopulationCharacterizationServiceProvider;
 use App\Providers\PopulationRiskServiceProvider;
 use App\Providers\SolrServiceProvider;
 use App\Providers\TemplatesServiceProvider;
+use App\Providers\TenancyServiceProvider;
 
 return [
     AppServiceProvider::class,
+    TenancyServiceProvider::class,
     AuthDriverServiceProvider::class,
     AchillesServiceProvider::class,
     ClinicalCoherenceServiceProvider::class,
