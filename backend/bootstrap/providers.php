@@ -2,6 +2,7 @@
 
 use App\Providers\AchillesServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\AuthDriverServiceProvider;
 use App\Providers\ClinicalCoherenceServiceProvider;
 use App\Providers\DataQualityServiceProvider;
 use App\Providers\NetworkAnalysisServiceProvider;
@@ -12,6 +13,7 @@ use App\Providers\TemplatesServiceProvider;
 
 return [
     AppServiceProvider::class,
+    AuthDriverServiceProvider::class,
     AchillesServiceProvider::class,
     ClinicalCoherenceServiceProvider::class,
     DataQualityServiceProvider::class,
