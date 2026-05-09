@@ -12,13 +12,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UserAuditLog extends Model
 {
     protected $fillable = [
+        'event_id',
         'user_id',
+        'tenant_id',
         'action',
+        'outcome',
         'feature',
         'ip_address',
         'user_agent',
         'metadata',
         'occurred_at',
+        'prev_event_hash',
+        'event_hash',
     ];
 
     protected $casts = [

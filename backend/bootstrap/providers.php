@@ -2,6 +2,7 @@
 
 use App\Providers\AchillesServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\AuditServiceProvider;
 use App\Providers\AuthDriverServiceProvider;
 use App\Providers\ClinicalCoherenceServiceProvider;
 use App\Providers\CryptoProviderServiceProvider;
@@ -18,6 +19,7 @@ return [
     CryptoProviderServiceProvider::class,
     TenancyServiceProvider::class,
     AuthDriverServiceProvider::class,
+    AuditServiceProvider::class,
     AchillesServiceProvider::class,
     ClinicalCoherenceServiceProvider::class,
     DataQualityServiceProvider::class,
