@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\App\Investigation;
 use App\Models\App\UserExternalIdentity;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use BelongsToTenant, HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * Force Spatie Permission to use the 'web' guard so role lookups
@@ -48,6 +49,7 @@ class User extends Authenticatable
         'default_source_id',
         'theme_preference',
         'locale',
+        'tenant_id',
     ];
 
     /**
