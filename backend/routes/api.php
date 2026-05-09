@@ -835,6 +835,8 @@ Route::prefix('v1')->group(function () {
             Route::get('artifacts', [StudyArtifactController::class, 'index']);
             Route::post('artifacts', [StudyArtifactController::class, 'store']);
             Route::put('artifacts/{studyArtifact}', [StudyArtifactController::class, 'update']);
+            Route::post('artifacts/{studyArtifact}/shiny-launch', [StudyArtifactController::class, 'launchShiny'])
+                ->middleware('permission:studies.view');
             Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
             Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
 

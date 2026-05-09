@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Shiny\ManagedShinyAppRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -61,7 +62,7 @@ class HadesCapabilityController extends Controller
 
     private string $darkstarUrl;
 
-    public function __construct()
+    public function __construct(private readonly ManagedShinyAppRegistry $managedShinyApps)
     {
         $this->darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
     }
@@ -202,7 +203,7 @@ class HadesCapabilityController extends Controller
             'allowed_scope' => 'vetted_ohdsi_modules_only',
             'replacement_surface' => 'Parthenon native React remains primary; managed OHDSI Shiny reference viewers are available for canonical OHDSI result exploration.',
         ];
-        $payload['shiny_apps'] = $this->managedShinyApps();
+        $payload['shiny_apps'] = $this->managedShinyApps->all();
 
         if (! is_array($payload['packages'] ?? null)) {
             return $payload;
@@ -230,87 +231,6 @@ class HadesCapabilityController extends Controller
         }, $payload['packages']);
 
         return $payload;
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function managedShinyApps(): array
-    {
-        return [
-            [
-                'key' => 'plp-results',
-                'label' => 'PatientLevelPrediction Results',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'Prediction module',
-                'result_types' => ['PatientLevelPrediction'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'study_result_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultPredictionConfig',
-            ],
-            [
-                'key' => 'population-estimation-results',
-                'label' => 'CohortMethod, SCCS, and Evidence Synthesis Results',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'Estimator module',
-                'result_types' => ['CohortMethod', 'SelfControlledCaseSeries', 'EvidenceSynthesis'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'study_result_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultEstimationConfig',
-            ],
-            [
-                'key' => 'cohort-diagnostics',
-                'label' => 'Cohort Diagnostics Explorer',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'Cohort Diagnostic module',
-                'result_types' => ['CohortDiagnostics'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'cohort_diagnostics_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultCohortDiagnosticsConfig',
-            ],
-            [
-                'key' => 'characterization',
-                'label' => 'Characterization and Incidence Results',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'Characterization module',
-                'result_types' => ['Characterization', 'CohortIncidence'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'analysis_result_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultCharacterizationConfig',
-            ],
-            [
-                'key' => 'phevaluator',
-                'label' => 'PheValuator Results',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'PheValuator module',
-                'result_types' => ['PheValuator'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'phenotype_validation_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultPhevaluatorConfig',
-            ],
-            [
-                'key' => 'ohdsi-report',
-                'label' => 'OHDSI Report Viewer',
-                'package' => 'OhdsiShinyModules',
-                'module_family' => 'Report module',
-                'result_types' => ['OhdsiReportGenerator', 'OhdsiSharing'],
-                'launch_modes' => ['embedded', 'full_page'],
-                'runtime_preference' => 'shinyproxy',
-                'status' => 'registry_ready',
-                'permission_scope' => 'study_artifact_read',
-                'entrypoint' => 'OhdsiShinyAppBuilder::createDefaultReportConfig',
-            ],
-        ];
     }
 
     /**

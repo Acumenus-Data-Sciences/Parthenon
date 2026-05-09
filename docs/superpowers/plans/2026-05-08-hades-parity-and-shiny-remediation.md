@@ -45,6 +45,16 @@ Shiny compatibility layer.
   `outdated_count=0`, and `required_outdated_count=0`.
 - Deployed the frontend with `./deploy.sh --frontend` and passed smoke checks
   for `/`, `/login`, and `/jobs`.
+- Added a managed Shiny launch broker for study artifacts:
+  - shared registry service for vetted OHDSI Shiny apps
+  - artifact compatibility checks based on metadata, result type, and safe
+    artifact-type fallbacks
+  - short-lived signed launch envelopes for ShinyProxy/managed runtimes
+  - no support for legacy `shiny_app_url` artifacts or user-supplied app paths
+  - runtime-configuration reporting when `SHINY_PROXY_BASE_URL` is not set
+- Added the first frontend launch surface in Study Artifacts: eligible OHDSI
+  result artifacts now expose an embedded managed Shiny viewer panel or the
+  runtime setup gap.
 
 ## Remaining implementation todo
 
@@ -63,11 +73,11 @@ Shiny compatibility layer.
   - ShinyProxy compose service for open-source deployments.
   - Posit Connect adapter settings for licensed deployments.
   - Apache/WebSocket proxy route for `/shiny/*`.
-  - Short-lived Parthenon launch records with source/study/artifact permission
-    checks.
+  - Optional persisted launch audit records for source/study/artifact permission
+    checks; the initial broker currently issues signed stateless launch tokens.
   - Per-session working directories and result-bundle mounts.
-- Add frontend launch surfaces from study artifacts, PLP/PLE/SCCS/Evidence
-  Synthesis results, Cohort Diagnostics, Characterization, and PheValuator pages.
+- Add frontend launch surfaces from PLP/PLE/SCCS/Evidence Synthesis results,
+  Cohort Diagnostics, Characterization, and PheValuator pages.
 - Add golden Eunomia smoke tests for package-native endpoints and managed Shiny
   launch manifests.
 - Add Playwright coverage for System Health freshness, managed Shiny viewer
