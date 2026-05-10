@@ -1,3 +1,16 @@
+# docker-compose.community.yml — Parthenon CE overlay (community tier)
+#
+# COMPOSITION CONTRACT — see docs/architecture/extension-points/compose-composition.md
+#
+#   This overlay layers on top of docker-compose.yml when the installer
+#   selects the community tier. It pins the CE image registry and adds
+#   community-only services. Same contract rules apply: stable service
+#   names, `parthenon-<service>` container naming, no `parthenon-ee-*`
+#   volumes/networks, healthchecks required.
+#
+# Verify locally:
+#   python3 scripts/verify_compose_contract.py
+
 services:
   nginx:
     container_name: parthenon-nginx

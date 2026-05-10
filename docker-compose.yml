@@ -1,3 +1,20 @@
+# docker-compose.yml — Parthenon CE base layer
+#
+# COMPOSITION CONTRACT — see docs/architecture/extension-points/compose-composition.md
+#
+#   - Service names listed in STABLE_SERVICE_NAMES (verifier) are PUBLIC API.
+#     Renaming or removing them is a breaking change.
+#   - Container names follow `parthenon-<service>` (legacy `python-ai`
+#     allowlisted by verifier).
+#   - Named volumes are unprefixed (CE owns them). EE volumes must be
+#     `parthenon-ee-*` prefixed.
+#   - Images use `ghcr.io/acumenus-data-sciences/parthenon-<service>:${PARTHENON_IMAGE_TAG:-latest}`.
+#   - Variability via `${VAR:-default}` only — no conditional service definitions.
+#   - Healthchecks are required and MUST NOT be weakened by overrides.
+#
+# Verify locally:
+#   python3 scripts/verify_compose_contract.py
+
 services:
   nginx:
     container_name: parthenon-nginx
