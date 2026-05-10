@@ -12,7 +12,11 @@ Parthenon v1.0.3 launches on March 30, 2026. The platform today spans 39 feature
 
 What follows is our plan to harden, optimize, and evolve Parthenon from a working platform into a production-grade, cloud-deployable research operating system.
 
-> **Editions:** Parthenon is now distributed in two editions. **Community Edition** (this repository, AGPL-3.0-only) is the full research platform — all 39 feature modules, every clinical/research capability. **Enterprise Edition** (commercial license, separate distribution) adds enterprise infrastructure: Keycloak SSO with SAML/SCIM, multi-tenancy, FIPS-validated crypto, signed audit log retention, observability shippers (Datadog/Splunk), Kubernetes operator, premium support. Contact `licensing@acumenus.net` for Enterprise inquiries.
+> **Editions:** Parthenon is now distributed in two editions. **Community Edition** (this repository, AGPL-3.0-only) is the full research platform — all 39 feature modules, every clinical/research capability. **Enterprise Edition** (commercial license, separate distribution) adds enterprise infrastructure: Keycloak SSO with SAML/SCIM, multi-tenancy, FIPS-validated crypto, signed audit log retention, observability shippers (Datadog/Splunk/OTel), Kubernetes operator, premium support. EE is distributed from the private [`Acumenus-Data-Sciences/Parthenon-EE`](https://github.com/Acumenus-Data-Sciences/Parthenon-EE) repository — source available to licensed Enterprise customers only. Contact `licensing@acumenus.net` for Enterprise inquiries.
+>
+> **Phase 2 — eight CE/EE extension points landed in v1.0.7** (2026-05-10). Auth driver, tenant resolver, crypto provider, audit sink, observability shipper, frontend feature flags + EnterpriseGate, Acropolis installer phase registry, and compose composition contract are documented at [`docs/architecture/extension-points.md`](docs/architecture/extension-points.md). Every CE deployment continues to use its default implementation; EE plugs alternate drivers in via these seams.
+>
+> **EE migration — in progress.** The private `Parthenon-EE` repo is live with CE merged in via `git subtree` and daily sync. Plan 04 Track B drivers landing iteratively: license module (`vEE`-gated entitlements), MultiTenantResolver, and the remaining Keycloak/SAML/SCIM/FIPS/SignedAudit/Datadog/Splunk/OTel drivers are scheduled against the v1.2 "Advanced AI & Enterprise Identity" milestone where Keycloak replaces Authentik as the EE identity foundation. See [v1.2 below](#v12--advanced-ai--enterprise-identity) for the milestone scope.
 
 ---
 
