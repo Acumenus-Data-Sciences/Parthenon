@@ -449,6 +449,21 @@ if $DO_PHP; then
   echo ""
   echo "── PHP: runtime caches will be reset in the unified cache step ──"
 
+  # Composer autoloader sanity check: detect stale absolute paths from a
+  # deleted worktree (e.g. /tmp/parthenon-*) and regenerate. This caused a
+  # full prod outage on 2026-05-09 after PR 319 (ObservabilityShipper) when
+  # vendor/ was synced from /tmp/parthenon-observability-shipper/backend/
+  # and the worktree was later deleted, breaking every PHP request.
+  AUTOLOAD_STATIC="backend/vendor/composer/autoload_static.php"
+  if [ -f "$AUTOLOAD_STATIC" ] && grep -qE "'/(tmp|home)/" "$AUTOLOAD_STATIC" 2>/dev/null; then
+    warn "Composer autoloader has stale absolute paths — regenerating"
+    if docker compose exec -T php sh -c "cd /var/www/html && composer dump-autoload --optimize" >/dev/null 2>&1; then
+      ok "Composer autoloader regenerated"
+    else
+      fail "Failed to regenerate composer autoloader — run manually: docker compose exec php composer dump-autoload --optimize"
+    fi
+  fi
+
   echo "── Laravel: creating storage symlink ──"
   if docker compose exec php php artisan storage:link 2>/dev/null || true; then
     ok "Storage symlink created"
