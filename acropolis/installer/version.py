@@ -88,7 +88,7 @@ UPGRADE_NOTES: dict[str, dict[str, list[str]]] = {
             "Wazuh ports bound to localhost; token-based healthchecks",
         ],
         "upgraded": [
-            "Org transfer — repo moved from sudoshi/Parthenon to Acumenus-Data-Sciences/Parthenon (remotes auto-redirect)",
+            "Org transfer — repo now lives under Acumenus-Data-Sciences (remotes auto-redirect from the prior personal org)",
             "Frontend deps — @tanstack/react-query, react-joyride 3.0.2→3.1.0, zod 4.3.6→4.4.3, deck.gl 9.2.11→9.3.2",
             "AI deps — transformers, esda >=2.9.0, cyvcf2 >=0.32.1, asyncpg >=0.31.0, spreg >=1.9.0, geopandas >=1.1.3",
             "GitHub Actions — actions/github-script 7→9, astral-sh/setup-uv 3→7",
