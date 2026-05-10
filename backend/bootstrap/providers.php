@@ -16,6 +16,10 @@ use App\Providers\SolrServiceProvider;
 use App\Providers\TemplatesServiceProvider;
 use App\Providers\TenancyServiceProvider;
 
+require_once __DIR__.'/provider-extensions.php';
+
+parthenon_load_extra_bootstrap_files(dirname(__DIR__));
+
 return [
     AppServiceProvider::class,
     CryptoProviderServiceProvider::class,
@@ -32,4 +36,5 @@ return [
     PopulationCharacterizationServiceProvider::class,
     SolrServiceProvider::class,
     TemplatesServiceProvider::class,
+    ...parthenon_extra_provider_classes(),
 ];
