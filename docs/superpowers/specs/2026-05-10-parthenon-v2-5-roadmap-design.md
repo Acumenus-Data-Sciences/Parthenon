@@ -85,6 +85,7 @@ The platform-level release every distribution channel later depends on.
 - **Helm chart GA** — `oci://ghcr.io/acumenus-data-sciences/charts/parthenon`. Promotes the current `acropolis/k8s/helm/` skeleton to a first-class deliverable with `community`/`enterprise` values overlays.
 - **Kustomize overlays GA** — `acropolis/k8s/kustomize/{base,community,enterprise}` as the alternative to Helm for K8s-savvy operators.
 - **License server (EE)** — `license.acumenus.net` issuing signed JWTs (Ed25519 / ECDSA P-256). EE driver validates on boot, refreshes on a schedule, and supports an air-gap mode (offline-signed license blob). Public protocol spec; private signing keys (Acumenus HSM/KMS).
+- **Image signing approach (v2.0 launch):** Cosign **keyless OIDC signing** anchored to the GitHub Actions release workflow at `Acumenus-Data-Sciences/Parthenon`. The trust anchor is the immutable workflow source ref + the GitHub OIDC issuer — cryptographically equivalent to KMS-backed keys for the v2.0 launch posture without requiring Acumenus KMS provisioning lead time. **KMS-backed long-lived keys** are a documented follow-up (plan `05-01-followup-kms-keys`) once Acumenus KMS is operational; the migration is non-breaking because both signing modes can co-exist on a transition tag.
 - **Packaging refactor groundwork (subtree → package migration)** — incremental, not big-bang. Backend extracts a `parthenon-core` Composer package; Frontend extracts `@parthenon/ui` workspace; AI extracts `parthenon-ai` PyPI package; R extracts a `parthenon.r` package. Subtree remains the EE consumption model through v2.5 — packaging refactor only lands at v2.5.
 - **Workstation Edition (CE)** — Rust launcher graduates from experimental to GA: Mac (Apple Silicon + Intel), Windows (x64), Linux (deb/rpm). Embedded Postgres + Redis. Bundled Eunomia demo data. Auto-update channel.
 - **OpenAPI + SDK strategy** — published TypeScript and Python SDKs generated from the OpenAPI spec, so v2.1+ marketplace launches don't ship undocumented APIs.
@@ -161,7 +162,7 @@ CE PRs must keep passing without EE present (true today, must remain true). EE P
 
 ### 5.2 Image signing pipeline
 
-Single Cosign-signing pipeline used by all three editions (CE-only, EE-bundled, marketplace-bundled). Signing keys live in Acumenus KMS; public verification documented in `docs/security/image-signing.md` (new in v2.0).
+Single Cosign-signing pipeline used by all three editions (CE-only, EE-bundled, marketplace-bundled). **v2.0 launches with keyless OIDC signing** anchored to the official Parthenon GitHub Actions release workflow; this avoids a KMS-provisioning critical path while preserving cryptographic auditability. **KMS-backed long-lived keys** migrate in via plan `05-01-followup-kms-keys` post-launch — both signing modes can co-exist on a transition tag, so the migration is non-breaking. Public verification documented in `docs/security/image-signing.md` (new in v2.0).
 
 ### 5.3 License server reliability
 

@@ -136,7 +136,7 @@ These are not child plans; they are recurring discipline that must hold across e
 
 **Owner:** 05-01 establishes; every release plan consumes.
 
-- [ ] **Step 1: Single Cosign key set in Acumenus KMS.** Public key published at `parthenon.acumenus.net/.well-known/cosign.pub`. Documented in `docs/security/image-signing.md` (created in 05-01).
+- [ ] **Step 1: v2.0 launches with Cosign keyless OIDC signing.** Trust anchor is the official Parthenon GitHub Actions release workflow (`Acumenus-Data-Sciences/Parthenon/.github/workflows/release-images.yml@refs/tags/v*`) issued by the GitHub OIDC token issuer. No public key file required at launch. **KMS-backed long-lived keys** migrate in via plan `05-01-followup-kms-keys` once Acumenus KMS is operational; at that point `parthenon.acumenus.net/.well-known/cosign.pub` publishes the KMS public key and both signing modes co-exist during the transition. Documented in `docs/security/image-signing.md` (created in 05-01).
 - [ ] **Step 2: Every published image carries signature + SBOM.** GHCR + Docker Hub images include `*.sig` + `*.sbom` attestations.
 - [ ] **Step 3: Trivy scan blocks release on HIGH/CRITICAL CVEs.** Allowlist file at `.security/cve-allowlist.yaml` requires sign-off from the security-architect agent before merge.
 - [ ] **Step 4: Marketplace plans (08, 09) verify signature on launch.** AWS / Azure / GCP install paths run `cosign verify` against the public key before container start.

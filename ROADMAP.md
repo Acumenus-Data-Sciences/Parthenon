@@ -452,7 +452,7 @@ v3.0 introduces an **Acumenus-hosted SaaS** offering on one or more clouds with 
 
 ### Image signing pipeline
 
-A single Cosign-signing pipeline drives every published image (CE-only, EE-bundled, marketplace-bundled). Signing keys live in Acumenus KMS. Public verification documented in `docs/security/image-signing.md` (new in v2.0).
+A single Cosign-signing pipeline drives every published image (CE-only, EE-bundled, marketplace-bundled). v2.0 launches with **Cosign keyless OIDC signing** anchored to the official Parthenon GitHub Actions release workflow — the trust anchor is the workflow's immutable source ref plus the GitHub OIDC issuer. **KMS-backed long-lived keys** migrate in as a v2.x follow-up once Acumenus KMS is operational; both signing modes co-exist during the transition so customers verify either signature successfully. Public verification documented in `docs/security/image-signing.md` (new in v2.0).
 
 ### License server reliability
 
