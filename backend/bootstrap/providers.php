@@ -7,6 +7,7 @@ use App\Providers\AuthDriverServiceProvider;
 use App\Providers\ClinicalCoherenceServiceProvider;
 use App\Providers\CryptoProviderServiceProvider;
 use App\Providers\DataQualityServiceProvider;
+use App\Providers\FeatureFlagsServiceProvider;
 use App\Providers\NetworkAnalysisServiceProvider;
 use App\Providers\ObservabilityServiceProvider;
 use App\Providers\PopulationCharacterizationServiceProvider;
@@ -22,6 +23,7 @@ return [
     AuthDriverServiceProvider::class,
     AuditServiceProvider::class,
     ObservabilityServiceProvider::class,
+    FeatureFlagsServiceProvider::class,
     AchillesServiceProvider::class,
     ClinicalCoherenceServiceProvider::class,
     DataQualityServiceProvider::class,

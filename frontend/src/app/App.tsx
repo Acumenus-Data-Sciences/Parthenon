@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "react-router-dom";
 import { queryClient } from "@/lib/query-client";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { FlagsLoader } from "@/features/system/FlagsLoader";
 import { LocaleSync } from "@/i18n/LocaleSync";
 import { router } from "./router";
 
@@ -10,6 +11,7 @@ export function App() {
     <ErrorBoundary>
       <LocaleSync />
       <QueryClientProvider client={queryClient}>
+        <FlagsLoader />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </ErrorBoundary>
