@@ -181,14 +181,46 @@ export async function fetchVsacOmopConcepts(
   return data;
 }
 
+export type VsacMeasureSortColumn =
+  | "cms_id"
+  | "title"
+  | "cbe_number"
+  | "program_candidate"
+  | "value_set_count";
+
+export interface VsacMeasureListParams {
+  q?: string;
+  page?: number;
+  per_page?: number;
+  sort?: VsacMeasureSortColumn;
+  direction?: "asc" | "desc";
+  program?: "yes" | "no";
+  cbe?: "assigned" | "unassigned";
+  min_value_sets?: number;
+  topic?: string;
+}
+
+export interface VsacMeasureTopic {
+  key: string;
+  label: string;
+  count: number;
+}
+
 export async function fetchVsacMeasures(
-  params: { q?: string; page?: number; per_page?: number } = {},
+  params: VsacMeasureListParams = {},
 ): Promise<PaginatedResponse<VsacMeasureSummary>> {
   const { data } = await apiClient.get<PaginatedResponse<VsacMeasureSummary>>(
     `${VSAC}/measures`,
     { params },
   );
   return data;
+}
+
+export async function fetchVsacMeasureTopics(): Promise<VsacMeasureTopic[]> {
+  const { data } = await apiClient.get<{ data: VsacMeasureTopic[] }>(
+    `${VSAC}/measures/topics`,
+  );
+  return data.data;
 }
 
 export async function fetchVsacMeasure(

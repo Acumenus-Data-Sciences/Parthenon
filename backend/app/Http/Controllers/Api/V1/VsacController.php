@@ -8,6 +8,7 @@ use App\Models\App\VsacValueSet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * @group VSAC Reference Library
@@ -201,16 +202,60 @@ class VsacController extends Controller
     }
 
     /**
+     * Curated topic → case-insensitive POSIX regex pattern over title.
+     * Matched server-side via `title ~* ?` so the chip set in the UI
+     * stays in sync with what the SQL actually filters.
+     *
+     * @var array<string, string>
+     */
+    private const MEASURE_TOPICS = [
+        'diabetes' => 'diabet|glycemic|hba1c',
+        'cancer_screening' => 'cancer screening|colorectal cancer screening|breast cancer|cervical cancer',
+        'heart_failure' => 'heart failure|hf:|\\bhf\\b|left ventricular',
+        'cardiovascular' => 'coronary|\\bcad\\b|antithrombotic|stemi|atrial fibrillation|hypertension|blood pressure',
+        'preventive_care' => 'preventive care|screening for|tobacco|bmi|body mass index',
+        'mental_health' => 'depression|adhd|dementia|substance use|suicide|opioid',
+        'obstetric' => 'obstetric|cesarean|maternal|birth',
+        'pediatric' => 'children|adolescent|child ',
+        'imaging_quality' => 'radiation|imaging|optic nerve|retinopathy',
+        'hospital_harm' => 'hospital harm|harm[ -]',
+        'hybrid_hospital' => 'hybrid hospital',
+        'oncology' => 'oncology|prostate|bladder|bone density',
+        'medication_safety' => 'medication|polypharmacy|high-risk medication',
+        'kidney' => 'kidney',
+    ];
+
+    /**
      * GET /v1/vsac/measures
+     *
+     * @queryParam q string Search across cms_id / title / cbe_number.
+     * @queryParam sort string One of: cms_id, title, cbe_number, program_candidate, value_set_count. Default cms_id.
+     * @queryParam direction string asc|desc. Default asc.
+     * @queryParam program string Filter by program_candidate: yes|no.
+     * @queryParam cbe string Filter by CBE assignment: assigned|unassigned.
+     * @queryParam min_value_sets integer Only return measures with at least N value sets.
+     * @queryParam topic string Filter to a curated topic (see /vsac/measures/topics for the list).
+     * @queryParam per_page integer Default 100, max 200.
      */
     public function measures(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:200'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'sort' => ['nullable', 'string', Rule::in(['cms_id', 'title', 'cbe_number', 'program_candidate', 'value_set_count'])],
+            'direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
+            'program' => ['nullable', 'string', Rule::in(['yes', 'no'])],
+            'cbe' => ['nullable', 'string', Rule::in(['assigned', 'unassigned'])],
+            'min_value_sets' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'topic' => ['nullable', 'string', Rule::in(array_keys(self::MEASURE_TOPICS))],
         ]);
 
         $perPage = (int) ($validated['per_page'] ?? 100);
+        $sort = $validated['sort'] ?? 'cms_id';
+        $direction = $validated['direction'] ?? 'asc';
+
+        $valueSetCountSql = '(SELECT COUNT(*) FROM vsac_measure_value_sets
+                              WHERE vsac_measure_value_sets.cms_id = vsac_measures.cms_id)';
 
         $query = VsacMeasure::query()
             ->select([
@@ -219,8 +264,7 @@ class VsacController extends Controller
                 'vsac_measures.program_candidate',
                 'vsac_measures.title',
                 'vsac_measures.expansion_version',
-                DB::raw('(SELECT COUNT(*) FROM vsac_measure_value_sets
-                          WHERE vsac_measure_value_sets.cms_id = vsac_measures.cms_id) AS value_set_count'),
+                DB::raw($valueSetCountSql.' AS value_set_count'),
             ]);
 
         if ($q = $validated['q'] ?? null) {
@@ -231,7 +275,48 @@ class VsacController extends Controller
             });
         }
 
-        $page = $query->orderBy('cms_id')->paginate($perPage);
+        if ($topic = $validated['topic'] ?? null) {
+            $query->whereRaw('title ~* ?', [self::MEASURE_TOPICS[$topic]]);
+        }
+
+        if (($program = $validated['program'] ?? null) === 'yes') {
+            $query->where('program_candidate', 'Yes');
+        } elseif ($program === 'no') {
+            $query->where(function ($w) {
+                $w->where('program_candidate', '!=', 'Yes')->orWhereNull('program_candidate');
+            });
+        }
+
+        if (($cbe = $validated['cbe'] ?? null) === 'assigned') {
+            $query->whereNotNull('cbe_number')
+                ->where('cbe_number', '!=', '')
+                ->where('cbe_number', '!=', 'Not Applicable');
+        } elseif ($cbe === 'unassigned') {
+            $query->where(function ($w) {
+                $w->whereNull('cbe_number')
+                    ->orWhere('cbe_number', '')
+                    ->orWhere('cbe_number', 'Not Applicable');
+            });
+        }
+
+        if (($minVs = $validated['min_value_sets'] ?? null) !== null) {
+            $query->whereRaw($valueSetCountSql.' >= ?', [(int) $minVs]);
+        }
+
+        // value_set_count is a derived alias — order by the subquery directly
+        // for portability across pagination wrappers.
+        if ($sort === 'value_set_count') {
+            $query->orderByRaw($valueSetCountSql.' '.$direction);
+            // tie-break for stable ordering
+            $query->orderBy('cms_id');
+        } else {
+            $query->orderBy($sort, $direction);
+            if ($sort !== 'cms_id') {
+                $query->orderBy('cms_id');
+            }
+        }
+
+        $page = $query->paginate($perPage);
 
         return response()->json([
             'data' => $page->items(),
@@ -240,8 +325,35 @@ class VsacController extends Controller
                 'page' => $page->currentPage(),
                 'per_page' => $page->perPage(),
                 'last_page' => $page->lastPage(),
+                'sort' => $sort,
+                'direction' => $direction,
             ],
         ]);
+    }
+
+    /**
+     * GET /v1/vsac/measures/topics
+     *
+     * Returns the curated topic chip set with live row counts so the UI
+     * can hide chips that match zero measures.
+     */
+    public function measureTopics(): JsonResponse
+    {
+        $topics = [];
+        foreach (self::MEASURE_TOPICS as $key => $pattern) {
+            $count = (int) DB::table('vsac_measures')
+                ->whereRaw('title ~* ?', [$pattern])
+                ->count();
+            if ($count > 0) {
+                $topics[] = [
+                    'key' => $key,
+                    'label' => str_replace('_', ' ', ucfirst($key)),
+                    'count' => $count,
+                ];
+            }
+        }
+
+        return response()->json(['data' => $topics]);
     }
 
     /**

@@ -16,11 +16,13 @@ import {
   fetchVsacCodes,
   fetchVsacMeasure,
   fetchVsacMeasures,
+  fetchVsacMeasureTopics,
   fetchVsacOmopConcepts,
   fetchVsacValueSet,
   fetchVsacValueSets,
   materializeAllBundles,
   materializeBundle,
+  type VsacMeasureListParams,
   type VsacValueSetListParams,
 } from "./api";
 import type { ComplianceBucket } from "./types";
@@ -199,13 +201,19 @@ export function useVsacOmopConcepts(
   });
 }
 
-export function useVsacMeasures(
-  params: { q?: string; page?: number; per_page?: number } = {},
-) {
+export function useVsacMeasures(params: VsacMeasureListParams = {}) {
   return useQuery({
     queryKey: ["vsac", "measures", params],
     queryFn: () => fetchVsacMeasures(params),
     staleTime: 60_000,
+  });
+}
+
+export function useVsacMeasureTopics() {
+  return useQuery({
+    queryKey: ["vsac", "measures", "topics"],
+    queryFn: fetchVsacMeasureTopics,
+    staleTime: 5 * 60_000,
   });
 }
 

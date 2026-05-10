@@ -1059,6 +1059,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/value-sets/{oid}/omop-concepts', [VsacController::class, 'omopConcepts'])
                 ->where('oid', '[0-9.]+');
             Route::get('/measures', [VsacController::class, 'measures']);
+            Route::get('/measures/topics', [VsacController::class, 'measureTopics']);
             Route::get('/measures/{cms_id}', [VsacController::class, 'measure'])
                 ->where('cms_id', 'CMS[0-9]+v[0-9]+');
         });
