@@ -21,7 +21,7 @@ Each extension point ships with:
 | 4 | Audit sink | `App\Contracts\AuditSinkInterface` | [audit-sink.md](extension-points/audit-sink.md) |
 | 5 | Observability shipper | `App\Contracts\ObservabilityShipperInterface` | [observability-shipper.md](extension-points/observability-shipper.md) |
 | 6 | Frontend feature flags + EnterpriseGate | `frontend/src/contracts/featureFlags.ts` | [feature-flags.md](extension-points/feature-flags.md) |
-| 7 | Acropolis installer phase registry | `acropolis/installer/phases/Phase` (Python) | (Plan 02-07) |
+| 7 | Acropolis installer phase registry | `acropolis/installer/phases/Phase` (Python) | [installer-phase-registry.md](extension-points/installer-phase-registry.md) |
 | 8 | Compose composition contract | `docker-compose.yml` override conventions | (Plan 02-08) |
 
 ## How to add a custom driver (community)
