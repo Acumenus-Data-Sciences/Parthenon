@@ -29,7 +29,7 @@ Options:
 
 Examples:
   curl -fsSL https://parthenon.acumenus.net/install.sh | sh
-  curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.6
+  curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
   curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --cli -- --community
 EOF
 }

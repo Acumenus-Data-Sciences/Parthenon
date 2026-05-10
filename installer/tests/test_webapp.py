@@ -100,7 +100,7 @@ def test_install_landing_pages_match_release_bootstrap_regime():
 
     for html in (public_install, packaged_install):
         assert "curl -fsSL https://parthenon.acumenus.net/install.sh | sh" in html
-        assert "--version v1.0.6" in html
+        assert "--version v1.0.7" in html
         assert "--cli -- --community" in html
         assert "Source-only releases" in html
         assert "GitHub releases provide source code archives only" in html

@@ -98,7 +98,7 @@ curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 Pin a known release when you need a repeatable install:
 
 ```bash
-curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.6
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
 ```
 
 On Windows, run the same command from a WSL 2 Linux shell with Docker Desktop
