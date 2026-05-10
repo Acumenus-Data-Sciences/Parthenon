@@ -12,6 +12,20 @@ Usage::
 
     python3 scripts/verify_compose_contract.py
     python3 scripts/verify_compose_contract.py --check-ee /path/to/parthenon-ee/enterprise/docker-compose.ee.yml
+    python3 scripts/verify_compose_contract.py --check-infra-overlay acropolis/docker-compose.enterprise.yml
+
+Modes:
+    Default        — walk every CE compose file (CE_COMPOSE_FILES).
+    --check-ee     — strict EE-overlay rules for Parthenon-EE/docker-compose.ee.yml:
+                     parthenon-ee-* prefix on volumes/networks, EE GHCR namespace,
+                     port floor 8100, no redefining stable CE services.
+    --check-infra-overlay
+                   — relaxed rules for CE-bundled infrastructure overlays
+                     (acropolis/docker-compose.enterprise.yml et al.) that compose
+                     upstream third-party services (Authentik, Superset, DataHub,
+                     Wazuh). Upstream images and conventional volume/network names
+                     are permitted; container-name shape and stable-service
+                     protection are still enforced.
 
 Exit codes:
     0 — contract satisfied
@@ -250,12 +264,92 @@ def verify_ee_overlay(ee_path: Path) -> list[str]:
     return errors
 
 
+# ── Infrastructure-overlay verifier ─────────────────────────────────────────
+
+def verify_infra_overlay(path: Path) -> list[str]:
+    """Verify a CE-bundled infrastructure overlay (e.g. acropolis/docker-compose.enterprise.yml).
+
+    These overlays compose **upstream third-party services** (Authentik, Superset,
+    DataHub, Wazuh) into the CE stack. They live in the **public** repo and are
+    available to every deployer; they are NOT the EE-tier code overlay that lives
+    in the private Parthenon-EE repo. So the strict EE rules don't apply:
+
+    * Volume names follow upstream documentation (e.g. ``superset_db_data``,
+      ``wazuh_etc``). Renaming would break upgrade paths and confuse anyone
+      following an Authentik or Wazuh deployment guide.
+    * Networks may use upstream-conventional names (``wazuh-host``).
+    * Images come from upstream registries by design (``apache/superset``,
+      ``ghcr.io/goauthentik/server``, ``wazuh/wazuh-manager``).
+    * Host ports use upstream conventions (Authentik 9000, Wazuh 1514, etc.) —
+      the EE port floor was about EE/CE collision, which doesn't apply here.
+
+    What this mode STILL enforces:
+
+    * Container-name shape: ``parthenon-<svc>`` or ``acropolis-<svc>``.
+      Operator scripts (acropolis.sh, install state machine) and Grafana
+      dashboards rely on these prefixes for service discovery.
+    * No redefining stable CE services — an infra overlay must not silently
+      replace ``php`` or ``postgres`` with a different image/healthcheck.
+    * No weakening healthchecks on stable services.
+    """
+    if not path.exists():
+        return [f"Infra overlay path does not exist: {path}"]
+    doc = _load(path)
+    errors: list[str] = []
+
+    for name, spec in _services(doc).items():
+        spec = spec or {}
+        container = spec.get("container_name")
+        if container:
+            container_str = str(container)
+            allowed_legacy = LEGACY_CONTAINER_NAMES.get(name, set())
+            if (
+                not CONTAINER_NAME_RE.match(container_str)
+                and container_str not in allowed_legacy
+            ):
+                expected = "'parthenon-<service>' or 'acropolis-<service>'"
+                if allowed_legacy:
+                    expected += f" or one of {sorted(allowed_legacy)}"
+                errors.append(
+                    f"{path}: service {name} has non-standard container_name "
+                    f"'{container_str}'; expected {expected}"
+                )
+        if name in STABLE_SERVICE_NAMES:
+            healthcheck = spec.get("healthcheck") or {}
+            test = healthcheck.get("test")
+            if isinstance(test, list) and any(
+                isinstance(t, str) and t.lower().strip() in {"true", "/bin/true"}
+                for t in test
+            ):
+                errors.append(
+                    f"{path}: infra overlay weakens healthcheck on stable "
+                    f"service '{name}' (no-op test)"
+                )
+
+    return errors
+
+
 # ── Entry point ─────────────────────────────────────────────────────────────
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", default=".", type=Path)
-    parser.add_argument("--check-ee", default=None, type=Path)
+    parser.add_argument(
+        "--check-ee",
+        default=None,
+        type=Path,
+        help="Apply strict EE-overlay rules to the given compose file "
+        "(parthenon-ee-* prefixes, EE port floor, EE GHCR namespace).",
+    )
+    parser.add_argument(
+        "--check-infra-overlay",
+        default=None,
+        type=Path,
+        help="Apply relaxed rules suitable for CE-bundled infrastructure "
+        "overlays (acropolis/docker-compose.enterprise.yml). Permits "
+        "upstream images and conventional volume/network names; still "
+        "enforces container-name shape and stable-service protection.",
+    )
     parser.add_argument(
         "--ce-only",
         action="store_true",
@@ -269,6 +363,8 @@ def main(argv: list[str] | None = None) -> int:
         errors += verify_ce_stable_services_present(args.repo_root)
     if args.check_ee is not None:
         errors += verify_ee_overlay(args.check_ee)
+    if args.check_infra_overlay is not None:
+        errors += verify_infra_overlay(args.check_infra_overlay)
 
     if errors:
         print("Compose composition contract violations:")

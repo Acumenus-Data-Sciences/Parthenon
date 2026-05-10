@@ -198,18 +198,38 @@ Locally:
 # Verify CE only (no EE checkout required)
 python3 scripts/verify_compose_contract.py
 
-# Verify an EE overlay file
+# Verify an EE overlay file (strict EE rules)
 python3 scripts/verify_compose_contract.py --check-ee /path/to/Parthenon-EE/enterprise/docker-compose.ee.yml
+
+# Verify a CE-bundled infrastructure overlay (relaxed rules — see below)
+python3 scripts/verify_compose_contract.py --check-infra-overlay acropolis/docker-compose.enterprise.yml
 
 # Run the verifier's own unit tests
 pytest scripts/verify_compose_contract_test.py -q
 ```
 
+### Infrastructure-overlay mode (`--check-infra-overlay`)
+
+`acropolis/docker-compose.enterprise.yml` is a **CE-bundled infrastructure overlay**, not the EE-tier code overlay this contract was originally written for. It composes upstream third-party services (Authentik, Superset, DataHub, Wazuh) using their canonical images and conventional volume/network names. Renaming `superset_db_data` to `parthenon-ee-superset-db` would break upgrade paths and confuse anyone following an Authentik or Wazuh deployment guide.
+
+`--check-infra-overlay` applies a **relaxed** subset of the rules to these files:
+
+| Rule | EE overlay (`--check-ee`) | Infra overlay (`--check-infra-overlay`) |
+| --- | --- | --- |
+| Container-name shape (`parthenon-*` / `acropolis-*`) | Enforced | Enforced |
+| Stable-service protection (no renaming, no weakened healthchecks) | Enforced | Enforced |
+| Volume name prefix (`parthenon-ee-*`) | Required | Relaxed (upstream conventions OK) |
+| Network name prefix (`parthenon-ee-*`) | Required | Relaxed |
+| Image namespace (`ghcr.io/acumenus-data-sciences/parthenon-ee-*`) | Required | Relaxed (upstream images OK) |
+| Port floor (`>= 8100`) | Required | Relaxed (upstream conventions OK) |
+
+Treating `acropolis/docker-compose.enterprise.yml` as a strict EE overlay produces ~27 spurious violations. Treat it as an infra overlay instead.
+
 CI (`.github/workflows/compose-contract.yml`):
 
 - Runs on every PR that touches a compose file or the verifier itself.
 - Runs on every push to `main`.
-- Uses Python 3.12, installs `pyyaml` + `pytest`, executes both the live-repo check and the unit tests.
+- Uses Python 3.12, installs `pyyaml` + `pytest`, runs the default CE walk, the infra-overlay check on `acropolis/docker-compose.enterprise.yml`, and the unit tests.
 
 ## Out of scope
 

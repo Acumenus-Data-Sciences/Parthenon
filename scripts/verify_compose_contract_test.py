@@ -326,6 +326,88 @@ def test_ee_fails_when_healthcheck_is_no_op() -> None:
         assert "weakens healthcheck" in result.stdout
 
 
+# ── Infrastructure-overlay checks ───────────────────────────────────────────
+
+def test_infra_overlay_passes_with_upstream_images_and_conventional_volumes() -> None:
+    """Infra overlay mode must accept upstream images + non-prefixed volumes."""
+    with tempfile.TemporaryDirectory() as tmp:
+        infra = Path(tmp) / "infra.yml"
+        _write(
+            Path(tmp),
+            "infra.yml",
+            """
+            services:
+              authentik-server:
+                container_name: acropolis-authentik-server
+                image: ghcr.io/goauthentik/server:2026.2.1
+                ports:
+                  - "9000:9000"
+              superset:
+                container_name: acropolis-superset
+                image: apache/superset:6.0.0
+              wazuh-manager:
+                container_name: acropolis-wazuh-manager
+                image: wazuh/wazuh-manager:4.14.4
+            volumes:
+              superset_db_data: {}
+              authentik_db_data: {}
+              wazuh_etc: {}
+            networks:
+              wazuh-host: {}
+            """,
+        )
+        result = _run("--check-infra-overlay", str(infra), "--ce-only")
+        assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_infra_overlay_still_flags_bad_container_name() -> None:
+    """Container-name shape is still enforced in infra-overlay mode."""
+    with tempfile.TemporaryDirectory() as tmp:
+        infra = Path(tmp) / "infra.yml"
+        _write(
+            Path(tmp),
+            "infra.yml",
+            """
+            services:
+              authentik-server:
+                container_name: my-weird-name
+                image: ghcr.io/goauthentik/server:2026.2.1
+            """,
+        )
+        result = _run("--check-infra-overlay", str(infra), "--ce-only")
+        assert result.returncode == 1
+        assert "non-standard container_name" in result.stdout
+
+
+def test_infra_overlay_still_flags_weakened_healthcheck_on_stable_service() -> None:
+    """Stable-service protection still applies in infra-overlay mode."""
+    with tempfile.TemporaryDirectory() as tmp:
+        infra = Path(tmp) / "infra.yml"
+        _write(
+            Path(tmp),
+            "infra.yml",
+            """
+            services:
+              php:
+                healthcheck:
+                  test: ["CMD-SHELL", "true"]
+            """,
+        )
+        result = _run("--check-infra-overlay", str(infra), "--ce-only")
+        assert result.returncode == 1
+        assert "weakens healthcheck" in result.stdout
+
+
+def test_infra_overlay_accepts_acropolis_enterprise_in_repo() -> None:
+    """The repo's own acropolis enterprise overlay must pass infra-overlay mode."""
+    repo_root = Path(__file__).resolve().parent.parent
+    enterprise = repo_root / "acropolis" / "docker-compose.enterprise.yml"
+    if not enterprise.exists():
+        return  # If the file is ever removed, this test silently no-ops.
+    result = _run("--check-infra-overlay", str(enterprise), "--ce-only")
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
 # ── Live repo smoke ─────────────────────────────────────────────────────────
 
 def test_actual_repo_compose_satisfies_contract() -> None:
