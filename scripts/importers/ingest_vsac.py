@@ -152,6 +152,13 @@ def scan_sheet(ws, source_file: str) -> SheetScan:
                     "cms_id": cms_id,
                     "cbe_number": get(row, "cbe_number"),
                     "program_candidate": get(row, "program_candidate"),
+                    # CMS VSAC value-set sheets do not carry the eCQM title.
+                    # Titles are backfilled separately from the CMS eCQI
+                    # catalog via `php artisan vsac:backfill-measure-titles`
+                    # (sourced from cqframework FHIR Measure resources +
+                    # CMSgov/qpp-measures-data). The upsert below preserves
+                    # existing titles on conflict, so re-running this
+                    # importer never wipes them.
                     "title": None,
                     "expansion_version": get(row, "expansion_version"),
                 }
