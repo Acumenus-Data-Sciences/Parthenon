@@ -44,6 +44,14 @@ jobs:
           fi
           echo "OK: no stale sudoshi/Parthenon references in active source."
 
+  public-docs-current:
+    name: Verify public docs current-state claims
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check public docs for stale installer, repo, and license claims
+        run: sh docs/site/scripts/check-public-docs-current.sh
+
   license-text:
     name: Verify LICENSE is AGPL-3.0
     runs-on: ubuntu-latest

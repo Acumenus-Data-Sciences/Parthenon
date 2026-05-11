@@ -373,6 +373,12 @@ current public blog-facing references.
 
 ### Pass 6: CI guard
 
+Status: partially completed 2026-05-10. The public-docs current-state guard now
+runs in the Docusaurus build path and in `.github/workflows/license-guard.yml`.
+It blocks stale `sudoshi/Parthenon` references in active public docs and
+installer surfaces, stale public Apache 2.0 claims, and regressions that make
+the active installer docs read like native binary/package release instructions.
+
 Add checks for:
 
 - No new tracked Markdown/MDX outside approved roots.
