@@ -521,6 +521,11 @@ CI as the `docs-lineage-contract` job and blocks:
   Wizard plans from `docs/lineage/plans/open/` to
   `docs/lineage/plans/closed/`, linking them to their shipped module records or
   release diary.
+- Moved the v1.0.3-era BlackRabbit, Aqueduct canvas, and Risk Scores plans
+  from `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking
+  them to the v1.0.3 release notes or the population risk scoring architecture
+  post. Standard PROs Builder/Conduct remains open pending a direct closeout
+  for the campaign/conduct workflow.
 
 Post-migration keep:
 
@@ -538,7 +543,13 @@ above.
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
 - shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
+- shipped `docs/lineage/plans/closed/2026-03-26-blackrabbit.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-publish-page-study-driven-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-03-27-aqueduct-canvas-ux-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-frontend.md`
+- shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-v2-phases-ab.md`
+- shipped `docs/lineage/plans/closed/2026-03-29-cohort-risk-score-criteria.md`
+- shipped `docs/lineage/plans/closed/2026-03-29-risk-scores-v2-frontend.md`
 - shipped `docs/lineage/plans/closed/2026-04-04-cohort-similarity-parity.md`
 - shipped `docs/lineage/plans/closed/2026-04-03-concept-hierarchy-mapper.md`
 - shipped `docs/lineage/plans/closed/2026-04-06-llm-maintained-wiki.md`

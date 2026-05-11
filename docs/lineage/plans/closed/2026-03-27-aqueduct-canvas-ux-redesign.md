@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-27
 owner: acumenus
 module: aqueduct
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/timeline/releases/v1.0.3-release-notes.md
 related_code: []
 related_prs: []
 ---

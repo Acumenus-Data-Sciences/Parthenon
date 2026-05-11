@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-29
 owner: acumenus
 module: risk-scores
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-03-28-population-risk-scoring-engine.md
 related_code: []
 related_prs: []
 ---
