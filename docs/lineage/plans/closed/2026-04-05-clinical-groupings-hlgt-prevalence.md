@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-05
 owner: acumenus
 module: clinical-groupings
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-05-ontology-parity-with-meddra.md
 related_code: []
 related_prs: []
 ---

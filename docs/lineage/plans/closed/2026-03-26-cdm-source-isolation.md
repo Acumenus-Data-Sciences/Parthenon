@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-26
 owner: acumenus
 module: database
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-12-care-bundles-ecqm-library.md
 related_code: []
 related_prs: []
 ---

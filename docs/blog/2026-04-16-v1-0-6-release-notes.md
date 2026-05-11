@@ -149,7 +149,7 @@ OpenProject work packages, and GitHub Issues:
 - Backfill script for GSD → OpenProject → GitHub import
 - Reconciliation HTTP server (port 9890) driven by an n8n cron workflow
 - 4 n8n workflow scaffolds for OP↔GSD↔GH sync
-- Implementation plan and design spec live in `docs/lineage/plans/open/2026-04-15-openproject-bidirectional-sync.md` and `docs/lineage/design/specs/2026-04-15-openproject-bidirectional-sync-design.md`.
+- Implementation plan and design spec live in `docs/lineage/plans/closed/2026-04-15-openproject-bidirectional-sync.md` and `docs/lineage/design/specs/2026-04-15-openproject-bidirectional-sync-design.md`.
 
 ### Database role split (security hardening)
 

@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-29
 owner: acumenus
 module: conduct
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/reference/app-schema-data-dictionary.md
 related_code: []
 related_prs: []
 ---

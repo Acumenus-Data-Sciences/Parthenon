@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: superseded
 date: 2026-04-15
 owner: acumenus
 module: study-designer
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-28-dev-diary.md
 related_code: []
 related_prs: []
 ---
@@ -14,7 +14,7 @@ related_prs: []
 
 Date: 2026-04-15
 Status: Active working checklist
-Related plan: `docs/lineage/plans/open/2026-04-15-study-designer-ohdsi-compiler-plan.md`
+Related plan: `docs/lineage/plans/closed/2026-04-15-study-designer-ohdsi-compiler-plan.md`
 
 ## End Goal
 

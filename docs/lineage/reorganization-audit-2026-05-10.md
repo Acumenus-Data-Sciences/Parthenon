@@ -524,8 +524,7 @@ CI as the `docs-lineage-contract` job and blocks:
 - Moved the v1.0.3-era BlackRabbit, Aqueduct canvas, and Risk Scores plans
   from `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking
   them to the v1.0.3 release notes or the population risk scoring architecture
-  post. Standard PROs Builder/Conduct remains open pending a direct closeout
-  for the campaign/conduct workflow.
+  post.
 - Moved the shipped AI Data Interrogation, Pancreas CDM/full enrichment, and
   v1.0.5 remediation plans from `docs/lineage/plans/open/` to
   `docs/lineage/plans/closed/`, linking them to their handoff, session, and
@@ -538,6 +537,13 @@ CI as the `docs-lineage-contract` job and blocks:
   installer plan moved to closed as superseded by the current source-only
   installer release policy. Signed release packaging remains open because the
   trusted-signing handoff still requires first signed macOS/Windows builds.
+- Moved the remaining pre-May shipped or superseded implementation plans from
+  `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`: CDM source
+  isolation, ingestion page/database connect, unified concept-set builder,
+  Standard PROs Builder/Conduct, clinical groupings, Patient Similarity QA,
+  OpenProject sync, Study Designer compiler, and the April 26 Care Bundles and
+  Patient Similarity fix TODOs. The only older plan left open is signed release
+  packaging because it still needs verified signed-artifact evidence.
 
 Post-migration keep:
 
@@ -556,6 +562,8 @@ above.
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
 - shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-blackrabbit.md`
+- shipped `docs/lineage/plans/closed/2026-03-26-cdm-source-isolation.md`
+- shipped `docs/lineage/plans/closed/2026-03-26-ingestion-page-redesign.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-publish-page-study-driven-redesign.md`
 - shipped `docs/lineage/plans/closed/2026-03-27-ai-data-interrogation.md`
 - shipped `docs/lineage/plans/closed/2026-03-27-aqueduct-canvas-ux-redesign.md`
@@ -563,8 +571,11 @@ above.
 - shipped `docs/lineage/plans/closed/2026-03-28-pancreas-full-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-frontend.md`
 - shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-v2-phases-ab.md`
+- shipped `docs/lineage/plans/closed/2026-03-28-unified-concept-set-builder-plan.md`
 - shipped `docs/lineage/plans/closed/2026-03-29-cohort-risk-score-criteria.md`
 - shipped `docs/lineage/plans/closed/2026-03-29-risk-scores-v2-frontend.md`
+- shipped `docs/lineage/plans/closed/2026-03-29-standard-pros-builder-conduct.md`
+- shipped `docs/lineage/plans/closed/2026-04-05-clinical-groupings-hlgt-prevalence.md`
 - shipped `docs/lineage/plans/closed/2026-04-04-cohort-similarity-parity.md`
 - shipped `docs/lineage/plans/closed/2026-04-03-concept-hierarchy-mapper.md`
 - shipped `docs/lineage/plans/closed/2026-04-06-llm-maintained-wiki.md`
@@ -580,8 +591,12 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
 - shipped `docs/lineage/plans/closed/2026-04-13-authentik-parthenon-sso.md`
 - superseded `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md`
+- shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-qa-punch-list-implementation-plan.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
+- shipped `docs/lineage/plans/closed/2026-04-15-openproject-bidirectional-sync.md`
+- superseded `docs/lineage/plans/closed/2026-04-15-study-designer-active-todo.md`
+- shipped `docs/lineage/plans/closed/2026-04-15-study-designer-ohdsi-compiler-plan.md`
 - shipped `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
 - shipped `docs/lineage/plans/closed/2026-04-16-finngen-sp3-analysis-gallery.md`
 - shipped `docs/lineage/plans/closed/2026-04-23-installer-omop-cdm-support.md`
@@ -594,6 +609,8 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-6-cross-platform-polish.md`
 - shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-7-ci-release-plumbing.md`
 - shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-8-documentation.md`
+- shipped `docs/lineage/plans/closed/2026-04-26-care-bundles-workbench-findings-fix-todo.md`
+- shipped `docs/lineage/plans/closed/2026-04-26-patient-similarity-findings-fix-todo.md`
 - `docs/lineage/handoffs/**`
 - `docs/lineage/modules/poseidon/**`
 - `docs/research/irsf-nhs-*.md`

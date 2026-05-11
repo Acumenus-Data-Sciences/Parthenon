@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-15
 owner: acumenus
 module: study-designer
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-28-dev-diary.md
 related_code: []
 related_prs: []
 ---

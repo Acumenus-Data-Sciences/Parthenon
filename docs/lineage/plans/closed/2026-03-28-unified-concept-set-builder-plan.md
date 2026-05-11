@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-28
 owner: acumenus
 module: vocabulary
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-09-v1-0-4-release-notes.md
 related_code: []
 related_prs: []
 ---
