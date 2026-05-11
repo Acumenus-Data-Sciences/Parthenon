@@ -18,6 +18,10 @@ This directory is the target home for documentation whose purpose is to help a
 developer understand how Parthenon became what it is: decisions, shipped phases,
 module histories, implementation handoffs, active plans, and archived plans.
 
+Agents and contributors must read
+`docs/lineage/document-authoring-governance.md` before creating, moving, or
+materially rewriting tracked Markdown or MDX documents.
+
 The goal is not to preserve every scratch note forever. The goal is to make each
 surviving Markdown file answer at least one of these questions:
 

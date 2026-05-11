@@ -2,6 +2,7 @@
 
 - For frontend deployment in this repo, use `./deploy.sh --frontend` instead of `npm run build`.
 - Do not treat `npm run build` as the deploy path for shipped frontend assets.
+- Before creating, moving, or materially rewriting tracked Markdown/MDX documents, read `docs/lineage/document-authoring-governance.md` and follow its frontmatter, placement, catalog, and closure rules.
 
 ## graphify
 
