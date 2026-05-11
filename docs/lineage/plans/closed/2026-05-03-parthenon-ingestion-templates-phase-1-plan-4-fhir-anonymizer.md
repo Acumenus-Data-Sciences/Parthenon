@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-03
 owner: acumenus
 module: ingestion
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/ingestion/templates-phase-1.md
 related_code: []
 related_prs: []
 ---
@@ -1750,7 +1750,7 @@ ever seeing the salt itself.
 ## References
 
 - Phase 1 design spec: `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
-- Phase 1 Plan 4 (this plan): `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
+- Phase 1 Plan 4 (this plan): `docs/lineage/plans/closed/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
 - Phase 1 Plan 1 ADR (AnonymizerNode + sidecar): `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - HIPAA Safe Harbor de-identification: 45 CFR §164.514(b)(2)
 - Microsoft FHIR Anonymizer: <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>

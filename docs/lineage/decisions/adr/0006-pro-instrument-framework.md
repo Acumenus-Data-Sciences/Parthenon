@@ -157,7 +157,7 @@ Adding a new PRO instrument means appending its manifest_id to the test's
 - Phase 1 design spec:
   `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 3 (this plan):
-  `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-3-pro.md`
+  `docs/lineage/plans/closed/2026-05-03-parthenon-ingestion-templates-phase-1-plan-3-pro.md`
 - Devplan T-011: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` lines 450–467
 - EQ-5D instruments & value sets: <https://euroqol.org/eq-5d-instruments/>
 - FHIR `QuestionnaireResponse`:

@@ -18,9 +18,9 @@ related_prs: []
 **Plans:** Plan 1 (Foundations), Plan 2 (Laravel Integration), Plan 3
 (Frontend), Plan 4 (Templates and Close-Out), plus a mid-flight runtime-gap
 fix branch.
-**ADRs:** [0001 Node SDK Design](../../../adr/0001-node-sdk-design.md),
-[0002 Orchestration Backend](../../../adr/0002-orchestration-backend.md),
-[0003 Template Manifest Format](../../../adr/0003-template-manifest-format.md)
+**ADRs:** [0001 Node SDK Design](../../decisions/adr/0001-node-sdk-design.md),
+[0002 Orchestration Backend](../../decisions/adr/0002-orchestration-backend.md),
+[0003 Template Manifest Format](../../decisions/adr/0003-template-manifest-format.md)
 
 ## What we built
 
@@ -190,7 +190,7 @@ whole devplan.
 ## Cross-references
 
 - Spec: `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
-- Plans: `docs/lineage/plans/open/2026-05-02-parthenon-ingestion-templates-phase-0-plan-{1,2,3,4}-*.md`
+- Plans: `docs/lineage/plans/closed/2026-05-02-parthenon-ingestion-templates-phase-0-plan-{1,2,3,4}-*.md`
 - Plan 2 kickoff devlog: `docs/lineage/modules/templates-laravel-integration-2026-05-02.md`
 - Security review: `docs/lineage/modules/ingestion/templates-phase-0-security.md`
 - DoD: `docs/lineage/modules/ingestion/templates-phase-0-dod.md`

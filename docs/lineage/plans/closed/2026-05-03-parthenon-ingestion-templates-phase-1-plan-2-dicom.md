@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-03
 owner: acumenus
 module: ingestion
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/ingestion/templates-phase-1.md
 related_code: []
 related_prs: []
 ---
@@ -1738,7 +1738,7 @@ sentinel) and a warning logged.
 ## References
 
 - Phase 1 design spec: `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
-- Phase 1 Plan 2 (this plan): `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-2-dicom.md`
+- Phase 1 Plan 2 (this plan): `docs/lineage/plans/closed/2026-05-03-parthenon-ingestion-templates-phase-1-plan-2-dicom.md`
 - Phase 0 manifest schema: `templates/runtime/registry/schema/template.v1.json`
 - Phase 1 Plan 1 ADR (DicomMetadataNode): `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - Nagy P. et al., "Breaking data silos: incorporating the DICOM imaging standard into the OMOP CDM," JAMIA 2025

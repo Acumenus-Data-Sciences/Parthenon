@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-02
 owner: acumenus
 module: ingestion
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/ingestion/templates-phase-0.md
 related_code: []
 related_prs: []
 ---
@@ -2277,7 +2277,7 @@ git commit -m "docs(devlog): add Phase 0 ingestion-templates DoD verification do
 **Milestone close:** _(fill at sign-off)_
 **Specs:** `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
 **Plans:** Plan 1 (Foundations), Plan 2 (Laravel Integration), Plan 3 (Frontend), Plan 4 (Templates and Close-Out)
-**ADRs:** [0001 Node SDK Design](../../../adr/0001-node-sdk-design.md), [0002 Orchestration Backend](../../../adr/0002-orchestration-backend.md), [0003 Template Manifest Format](../../../adr/0003-template-manifest-format.md)
+**ADRs:** [0001 Node SDK Design](../../decisions/adr/0001-node-sdk-design.md), [0002 Orchestration Backend](../../decisions/adr/0002-orchestration-backend.md), [0003 Template Manifest Format](../../decisions/adr/0003-template-manifest-format.md)
 
 ## What we built
 
@@ -2376,7 +2376,7 @@ whole devplan.
 
 - Spec: `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
 - Devplan: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md`
-- Plans: `docs/lineage/plans/open/2026-05-02-parthenon-ingestion-templates-phase-0-plan-{1,2,3,4}-*.md`
+- Plans: `docs/lineage/plans/closed/2026-05-02-parthenon-ingestion-templates-phase-0-plan-{1,2,3,4}-*.md`
 - Security review: `docs/lineage/modules/ingestion/templates-phase-0-security.md`
 - DoD: `docs/lineage/modules/ingestion/templates-phase-0-dod.md`
 - Runbook: `docs/lineage/modules/ingestion/templates-phase-0-runbook.md`
