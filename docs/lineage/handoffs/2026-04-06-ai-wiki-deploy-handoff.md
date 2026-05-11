@@ -1,3 +1,20 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-06
+owner: acumenus
+module: commons
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - ai/app/wiki/engine.py
+  - ai/app/routers/wiki.py
+  - backend/app/Http/Controllers/Api/V1/WikiController.php
+  - frontend/src/features/commons/components/wiki/WikiPage.tsx
+related_prs: []
+---
+
 # Handoff: AI Commons Wiki Deploy + Test
 
 ## Commit

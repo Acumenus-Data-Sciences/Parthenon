@@ -1,3 +1,19 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-03-28
+owner: acumenus
+module: fhir
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Services/Fhir/FhirSyncDispatcherService.php
+  - backend/database/migrations/2026_03_28_140000_add_fhir_to_ingestion_projects.php
+  - backend/database/migrations/2026_03_28_150000_add_auth_mode_to_fhir_connections.php
+related_prs: []
+---
+
 # Project Vulcan Handoff
 
 **Date:** 2026-03-28  

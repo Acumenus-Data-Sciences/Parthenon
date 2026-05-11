@@ -1,3 +1,21 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-05-07
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - LICENSE
+  - LICENSING.md
+  - NOTICE
+  - TRADEMARKS.md
+  - .github/workflows/license-guard.yml
+related_prs: []
+---
+
 You're picking up two parallel workstreams on Parthenon (the OMOP CDM unified
 research platform at /home/smudoshi/Github/Parthenon, owner sudoshi). Read this
 whole brief before acting. Some of it is non-obvious and a naive approach will

@@ -1,3 +1,20 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-03-26
+owner: acumenus
+module: darkstar
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - darkstar/api/prediction.R
+  - darkstar/R/connection.R
+  - backend/app/Services/RService.php
+  - backend/app/Services/Analysis/PredictionService.php
+related_prs: []
+---
+
 # Handoff: Fix PatientLevelPrediction R Connection Error
 
 ## Problem

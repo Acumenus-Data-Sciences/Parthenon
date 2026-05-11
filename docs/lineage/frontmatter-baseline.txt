@@ -183,13 +183,6 @@ docs/lineage/design/strategy/PLAN.md
 docs/lineage/design/strategy/ROADMAP.md
 docs/lineage/design/strategy/SDLC-plan.md
 docs/lineage/design/strategy/SPECS.md
-docs/lineage/handoffs/2026-03-28-project-vulcan-handoff.md
-docs/lineage/handoffs/2026-04-06-ai-wiki-deploy-handoff.md
-docs/lineage/handoffs/2026-04-13-authentik-parthenon-sso-handoff.md
-docs/lineage/handoffs/2026-04-21-rust-installer-trusted-signing-handoff.md
-docs/lineage/handoffs/Apache2.0_to_AGPLv3_Conversion.md
-docs/lineage/handoffs/HANDOFF_FIX_PLP_CONNECTION.md
-docs/lineage/handoffs/parthenon-acropolis-integration-prompt.md
 docs/lineage/modules/2026-05-06-parthenon-concept-map-schema.md
 docs/lineage/modules/2026-05-07-harmonia-reviewer-queue-backend.md
 docs/lineage/modules/STUDIES.md

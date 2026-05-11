@@ -427,6 +427,8 @@ CI as the `docs-lineage-contract` job and blocks:
   explicit legacy context.
 - Classified ADRs under `docs/lineage/decisions/adr/` as accepted decision
   records and linked each to the most relevant code or runtime surface.
+- Classified handoffs under `docs/lineage/handoffs/` and linked each transfer
+  note to the implementation surfaces it handed off.
 
 Immediate keep:
 

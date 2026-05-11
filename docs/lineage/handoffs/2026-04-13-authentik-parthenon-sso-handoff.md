@@ -1,3 +1,20 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-13
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Http/Controllers/Api/V1/AuthController.php
+  - backend/routes/api.php
+  - frontend/src/features/auth/pages/LoginPage.tsx
+  - scripts/authentik/provision_parthenon_oidc.py
+related_prs: []
+---
+
 # Authentik SSO for Parthenon Handoff
 
 **Date:** 2026-04-13  

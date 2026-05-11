@@ -1,3 +1,21 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-03-21
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - install.py
+  - installer/cli.py
+  - acropolis/installer/cli.py
+  - acropolis/installer/config.py
+  - acropolis/installer/topology.py
+related_prs: []
+---
+
 # Agent Prompt: Integrate Acropolis as Parthenon's Default Installer
 
 ## Context

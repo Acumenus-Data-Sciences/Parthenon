@@ -1,3 +1,19 @@
+---
+doc_type: handoff
+status: active
+date: 2026-04-21
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - .github/workflows/build-rust-installer-gui.yml
+  - installer/rust-gui/tauri.conf.json
+  - installer/rust-gui/README.md
+related_prs: []
+---
+
 # Trusted Native Signing for the Rust Installer Handoff
 
 **Date:** 2026-04-21  
