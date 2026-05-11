@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-26
+owner: acumenus
+module: care-bundles
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CareBundles Workbench Findings Fix TODO
 
 > **Purpose:** Turn the April 26, 2026 CareBundles Workbench review into an executable repair list. This pass builds on the April 25 audit/follow-up and focuses on workflow correctness, stale UI state, source scoping, API contract hardening, and confidence interval resilience.

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-26
+owner: acumenus
+module: patient-similarity
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity Findings Fix TODO
 
 > **Purpose:** Turn the April 26, 2026 Patient Similarity page review into an executable repair list. This file tracks the user-facing failures found in the workspace, API contract, and analysis pipeline.

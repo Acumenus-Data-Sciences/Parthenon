@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-25
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Installer Phase 8 — Documentation Implementation Plan
 
 **Goal:** Author the four user-facing docs pages referenced from the GUI banners and links shipped in Phases 4–7, plus a CONTRIBUTING.md section explaining how to add diagnostic-KB fingerprints.

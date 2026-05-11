@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-07
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Ingestion Templates — Phase 4, Plan 4 (CONDITIONAL): Cross-encoder rerank
 
 > **For agentic workers:** Use `superpowers:executing-plans`. **DO NOT EXECUTE THIS PLAN until Plan 1's acceptance numbers are surfaced.** Plan 4 fires only if Plan 1 LoRA + Plan 6 reranker leave seen top-5 OR blind top-5 below **0.90**. Otherwise this plan is HOLD-FINAL.

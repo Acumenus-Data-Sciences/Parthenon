@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-15
+owner: acumenus
+module: study-designer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Study Designer OHDSI Compiler Implementation Plan
 
 Date: 2026-04-15

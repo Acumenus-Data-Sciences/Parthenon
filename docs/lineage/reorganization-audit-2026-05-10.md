@@ -464,6 +464,9 @@ CI as the `docs-lineage-contract` job and blocks:
   plan records. Operations onboarding scripts, installer TODOs, compliance
   fixes, and process fixes remain historical; `docs/lineage/plans/open/`
   records are marked `status: open`.
+- Classified the next 50 open plan records across FinnGen, Study Designer,
+  installer, care bundles, patient similarity, and ingestion-template phases.
+  These records are marked `status: open` and remain active planning lineage.
 
 Immediate keep:
 
