@@ -73,8 +73,9 @@ docs/lineage/
 ```
 
 Most developer lineage has now been moved out of `docs/devlog`,
-`docs/superpowers`, and `docs/handoffs`. Keep using phased passes for future
-cleanup so link changes, Docusaurus builds, and Git history remain reviewable.
+`docs/superpowers`, `docs/handoffs`, and the old top-level
+`docs/architecture` root. Keep using phased passes for future cleanup so link
+changes, Docusaurus builds, and Git history remain reviewable.
 
 ## Canonical Homes
 

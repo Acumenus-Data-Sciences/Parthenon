@@ -36,7 +36,7 @@ Parthenon already has robust technical controls: Wazuh SIEM with 47K+ HIPAA-tagg
 Note: Traefik already has HSTS configured in `acropolis/traefik/dynamic/middleware.yml` with `stsSeconds: 31536000` and `stsPreload: true`. This fix targets the production Apache layer at `parthenon.acumenus.net` which sits in front of Traefik.
 
 **File:** `/etc/apache2/sites-available/parthenon-ssl.conf` (production)
-**Reference:** `docs/architecture/apache-vhost-ssl.conf`
+**Reference:** `docs/ops/apache-vhost-ssl.conf`
 
 Add inside the `<VirtualHost *:443>` block, near the existing security headers:
 
@@ -56,7 +56,7 @@ curl -sI https://parthenon.acumenus.net | grep -i strict-transport
 Also update the reference config in the repo:
 
 ```bash
-# In docs/architecture/apache-vhost-ssl.conf, add alongside existing headers:
+# In docs/ops/apache-vhost-ssl.conf, add alongside existing headers:
 # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 ```
 

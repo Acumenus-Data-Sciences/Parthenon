@@ -470,6 +470,10 @@ CI as the `docs-lineage-contract` job and blocks:
 - Classified the final 18 open plan records across ingestion Phase 4, CE/EE
   fork licensing, and OHDSI/HADES remediation. The historical frontmatter
   baseline is now empty, so every tracked Markdown lineage file is typed.
+- Moved the remaining top-level architecture Markdown corpus into
+  `docs/lineage/design/architecture/`, removed the obsolete architecture-side
+  compliance pointer, moved the Apache vhost reference config to `docs/ops/`,
+  and updated active references to the new canonical paths.
 
 Immediate keep:
 

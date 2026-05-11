@@ -51,8 +51,8 @@ OpenAPI MDX/JSON files are generated locally by Docusaurus/OpenAPI tooling.
 - `docs/lineage/reorganization-audit-2026-05-10.md` captures the initial audit,
   duplicate sets, proposed target tree, and phased consolidation plan.
 - `docs/lineage/catalog.md` is generated from the current Markdown/MDX corpus.
-- `docs/lineage/frontmatter-baseline.txt` records existing files that predate
-  the lineage frontmatter contract.
+- `docs/lineage/frontmatter-baseline.txt` is retained as a zero-debt guard for
+  files that predate the lineage frontmatter contract.
 - `docs/devlog/README.md`, `docs/superpowers/README.md`, and
   `docs/lineage/handoffs/README.md` are transition pointers for old top-level homes.
 
