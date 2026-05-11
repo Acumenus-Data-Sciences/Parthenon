@@ -5,7 +5,8 @@ date: 2026-03-14
 owner: acumenus
 module: commons
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/commons/COMMONS_WORKSPACE_SPEC.md
 superseded_by: null
 related_code: []
 related_prs: []

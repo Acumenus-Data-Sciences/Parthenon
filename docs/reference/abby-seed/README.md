@@ -23,8 +23,8 @@ Canonical sources that replaced the old duplicate seed copies:
 - `docs/blog/2026-03-14-abby-ohdsi-brain.md`
 - `docs/blog/2026-03-16-abby-2.0-memory-foundation.md`
 - `docs/blog/2026-03-16-abby-live-database.md`
-- `docs/commons/abby-components/README.md`
-- `docs/commons/COMMONS_WORKSPACE_SPEC.md`
+- `docs/lineage/modules/commons/abby-components.md`
+- `docs/lineage/modules/commons/commons-workspace-spec.md`
 - `docs/lineage/operations/process/abby-dedicated-ollama-2026-04-04.md`
 
 Reference notes retained here:

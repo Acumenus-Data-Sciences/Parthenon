@@ -98,8 +98,8 @@ links or short pointers where the old path is still useful:
 | `docs/abby-seed/blog/2026-03-14-abby-ohdsi-brain.md`, `docs/blog/2026-03-14-abby-ohdsi-brain.md` | `docs/blog/2026-03-14-abby-ohdsi-brain.md` |
 | `docs/abby-seed/blog/2026-03-16-abby-2.0-memory-foundation.md`, `docs/blog/2026-03-16-abby-2.0-memory-foundation.md` | `docs/blog/2026-03-16-abby-2.0-memory-foundation.md` |
 | `docs/abby-seed/blog/2026-03-16-abby-live-database.md`, `docs/blog/2026-03-16-abby-live-database.md` | `docs/blog/2026-03-16-abby-live-database.md` |
-| `docs/abby-seed/commons/ABBY_COMPONENTS_README.md`, `docs/commons/ABBY_COMPONENTS_README.md`, `docs/commons/abby-components/README.md` | `docs/commons/abby-components/README.md` |
-| `docs/abby-seed/commons/COMMONS_WORKSPACE_SPEC.md`, `docs/commons/COMMONS_WORKSPACE_SPEC.md` | `docs/commons/COMMONS_WORKSPACE_SPEC.md` or lineage module spec |
+| `docs/abby-seed/commons/ABBY_COMPONENTS_README.md`, `docs/commons/ABBY_COMPONENTS_README.md`, `docs/commons/abby-components/README.md` | `docs/lineage/modules/commons/abby-components.md` |
+| `docs/abby-seed/commons/COMMONS_WORKSPACE_SPEC.md`, `docs/commons/COMMONS_WORKSPACE_SPEC.md` | `docs/lineage/modules/commons/commons-workspace-spec.md` |
 | `docs/abby-seed/devlog/process/abby-dedicated-ollama-2026-04-04.md`, `docs/devlog/process/abby-dedicated-ollama-2026-04-04.md` | `docs/devlog/process/abby-dedicated-ollama-2026-04-04.md` |
 | `docs/devlog/grafana-dashboard-research.md`, `docs/research/grafana-dashboard-research.md` | `docs/research/grafana-dashboard-research.md` |
 | `docs/devlog/grafana-log-dashboard-research.md`, `docs/research/grafana-log-dashboard-research.md` | `docs/research/grafana-log-dashboard-research.md` |
@@ -477,6 +477,10 @@ CI as the `docs-lineage-contract` job and blocks:
 - Converted `docs/abby-seed/` into `docs/reference/abby-seed/` by retaining the
   useful retrieval/reference notes, removing duplicate blog and Commons pointer
   stubs, and documenting the canonical replacement sources in the seed README.
+- Moved the Commons workspace specification and Abby component README into
+  `docs/lineage/modules/commons/`, removed the duplicate top-level Abby
+  components pointer, and left `docs/commons/` for non-Markdown prototype
+  assets.
 
 Immediate keep:
 
@@ -503,8 +507,8 @@ Immediate consolidate:
 - `docs/architecture/compliance-remediation-plan.md` into `docs/compliance`
 - `docs/devlog/parthenon-acropolis-integration-prompt.md` into
   `docs/handoffs`
-- `docs/commons/ABBY_COMPONENTS_README.md` and
-  `docs/commons/abby-components/README.md`
+- `docs/lineage/modules/commons/abby-components.md` and
+  `docs/lineage/modules/commons/abby-components.md`
 
 Immediate archive:
 

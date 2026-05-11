@@ -5,7 +5,9 @@ date: 2026-03-14
 owner: acumenus
 module: abby-ai
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/commons/abby-components/README.md
+  - docs/commons/ABBY_COMPONENTS_README.md
 superseded_by: null
 related_code: []
 related_prs: []

@@ -16,7 +16,7 @@ related_prs: []
 
 Phase 1 of the Commons Workspace delivers core real-time messaging infrastructure within Parthenon. It establishes a three-panel layout (channel sidebar, message area, right panel shell), channel-based group chat with Markdown support, simple online/offline presence, and the Laravel Reverb WebSocket infrastructure that all future Commons phases build on.
 
-This is Sub-project 1 of 5. See `docs/COMMONS_WORKSPACE_SPEC.md` for the full vision.
+This is Sub-project 1 of 5. See `docs/lineage/modules/commons/commons-workspace-spec.md` for the full vision.
 
 ## Decisions Made
 

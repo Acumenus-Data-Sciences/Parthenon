@@ -34,6 +34,10 @@ every Markdown/MDX file should be useful because it has an explicit role.
 | `docs/reference/` | Curated reference corpora used by internal tools, retrieval tests, or domain background. | Keep small and link to canonical blog, Commons, lineage, or public docs instead of duplicating them. |
 | `docs/demo/` | Presenter and product walkthrough runbooks. | Route-grounded and intentionally durable. |
 
+`docs/commons/` is retained for Commons prototype assets such as diagrams,
+mockups, and TypeScript sketches. Markdown lineage for Commons lives under
+`docs/lineage/modules/commons/`.
+
 ## Generated Or Local Artifacts
 
 Do not treat these as authored lineage:
