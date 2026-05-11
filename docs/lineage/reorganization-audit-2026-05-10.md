@@ -504,6 +504,11 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/` after confirming
   matching execution records. Phase 2 Plans 1 and 2 remain open because Plan 1
   has only a partial execution record and Plan 2 has no execution record.
+- Moved the shipped cohort/patient similarity plans for cohort-similarity
+  parity, Patient Similarity UX alignment, and saved runs from
+  `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking each to
+  its shipped module lineage record. Patient Similarity QA/finding TODOs remain
+  open pending closure evidence.
 
 Post-migration keep:
 
@@ -520,6 +525,9 @@ above.
 - current `docs/lineage/plans/open/2026-05-*`
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
+- shipped `docs/lineage/plans/closed/2026-04-04-cohort-similarity-parity.md`
+- shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
+- shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
 - `docs/lineage/handoffs/**`
 - `docs/lineage/modules/poseidon/**`
 - `docs/research/irsf-nhs-*.md`
