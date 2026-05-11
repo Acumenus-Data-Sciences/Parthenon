@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-09
 owner: acumenus
 module: ohdsi
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/timeline/sessions/2026/2026-05-09-managed-ohdsi-shiny-closeout.md
 related_code: []
 related_prs: []
 ---

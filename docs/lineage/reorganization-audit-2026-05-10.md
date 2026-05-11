@@ -550,6 +550,13 @@ CI as the `docs-lineage-contract` job and blocks:
   plan. Remaining May open plans are the Phase 4 template follow-ups without
   exact shipped evidence and the managed OHDSI Shiny follow-up execution
   backlog.
+- Moved the managed OHDSI Shiny follow-up execution plan to
+  `docs/lineage/plans/closed/` after confirming the later subproject closeout
+  records repository completion and moves the residue into follow-on hardening.
+  The remaining open-plan set is now intentionally narrow:
+  signed release packaging; ingestion Phase 4 Plans 1-8. Phase 4 Plan 8 has
+  partial upstream-diff infrastructure, but still lacks the quarterly cadence,
+  shared auto-PR helper, and operator devlog required by its plan contract.
 
 Post-migration keep:
 
@@ -571,6 +578,7 @@ above.
 - shipped `docs/lineage/plans/closed/2026-05-08-ce-ee-fork-plan-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-09-ce-ee-fork-plan-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-08-hades-parity-and-shiny-remediation.md`
+- shipped `docs/lineage/plans/closed/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
 - shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-blackrabbit.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-cdm-source-isolation.md`

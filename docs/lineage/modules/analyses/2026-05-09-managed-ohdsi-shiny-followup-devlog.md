@@ -53,7 +53,7 @@ loaders, native launch surfaces, version automation, and runtime operations.
 
 Added:
 
-- `docs/lineage/plans/open/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
+- `docs/lineage/plans/closed/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
 
 The plan defines six implementation phases:
 
@@ -416,7 +416,7 @@ Updated:
 - `docker/shiny-ohdsi/handoffs.R`
 - `docker/shiny-ohdsi/app.R`
 - `docker/shiny-ohdsi/tests/handoff_registry_test.R`
-- `docs/lineage/plans/open/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
+- `docs/lineage/plans/closed/2026-05-09-managed-ohdsi-shiny-followup-execution-plan.md`
 
 The schema guard now validates named result-family variants instead of only
 checking table prefixes. This is grounded in the installed runtime assets:
