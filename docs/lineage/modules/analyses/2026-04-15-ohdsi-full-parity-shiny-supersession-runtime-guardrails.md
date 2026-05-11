@@ -302,7 +302,7 @@ The same live response showed Shiny packages as installed compatibility dependen
 
 ### Documentation
 
-- `docs/lineage/plans/open/2026-04-13-ohdsi-full-parity.md`
+- `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md`
 - `docs/lineage/design/specs/2026-04-15-ohdsi-shiny-supersession-policy.md`
 - `docs/lineage/modules/analyses/2026-04-15-ohdsi-full-parity-shiny-supersession-runtime-guardrails.md`
 

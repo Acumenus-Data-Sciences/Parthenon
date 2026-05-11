@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-27
 owner: acumenus
 module: analyses
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/analyses/analytics-llm-handoff.md
 related_code: []
 related_prs: []
 ---

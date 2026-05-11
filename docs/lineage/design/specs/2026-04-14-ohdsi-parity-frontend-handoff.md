@@ -13,7 +13,7 @@ related_prs: []
 # OHDSI Parity+ Frontend and API Handoff
 
 Date: 2026-04-14
-Primary plan: `docs/lineage/plans/open/2026-04-13-ohdsi-full-parity.md`
+Primary plan: `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md`
 
 ## Goal
 
@@ -267,7 +267,7 @@ Recommendation:
 Tasks:
 
 - Run `git status --short` and identify unrelated worktree changes before editing.
-- Read `docs/lineage/plans/open/2026-04-13-ohdsi-full-parity.md`.
+- Read `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md`.
 - Verify package inventory still works:
   - `curl -s http://localhost:8787/hades/packages | jq '{status,total,installed:.installed_count,missing:.missing_count}'`
   - `cd backend && php artisan test tests/Feature/Api/V1/HadesCapabilityTest.php`
@@ -714,4 +714,4 @@ Parity+ is complete when:
 - Backend feature tests cover new validation/routes/result normalization.
 - Frontend typecheck and targeted lint pass.
 - `./deploy.sh --frontend` completes and basic smoke checks pass.
-- `docs/lineage/plans/open/2026-04-13-ohdsi-full-parity.md` is updated with completed tasks and any deliberate non-goals.
+- `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md` is updated with completed tasks and any deliberate non-goals.

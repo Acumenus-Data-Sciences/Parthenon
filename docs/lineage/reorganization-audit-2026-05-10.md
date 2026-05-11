@@ -526,6 +526,11 @@ CI as the `docs-lineage-contract` job and blocks:
   them to the v1.0.3 release notes or the population risk scoring architecture
   post. Standard PROs Builder/Conduct remains open pending a direct closeout
   for the campaign/conduct workflow.
+- Moved the shipped AI Data Interrogation, Pancreas CDM/full enrichment, and
+  v1.0.5 remediation plans from `docs/lineage/plans/open/` to
+  `docs/lineage/plans/closed/`, linking them to their handoff, session, and
+  release records. The older OHDSI full parity plan also moved to closed as
+  superseded by the 2026-04-15 HADES/Shiny parity guardrail closeout.
 
 Post-migration keep:
 
@@ -545,7 +550,10 @@ above.
 - shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-blackrabbit.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-publish-page-study-driven-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-03-27-ai-data-interrogation.md`
 - shipped `docs/lineage/plans/closed/2026-03-27-aqueduct-canvas-ux-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-03-28-pancreas-cdm-enrichment.md`
+- shipped `docs/lineage/plans/closed/2026-03-28-pancreas-full-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-frontend.md`
 - shipped `docs/lineage/plans/closed/2026-03-28-risk-scores-v2-phases-ab.md`
 - shipped `docs/lineage/plans/closed/2026-03-29-cohort-risk-score-criteria.md`
@@ -559,9 +567,11 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-10-cohort-phase2.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-cohort-wizard.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-patient-similarity-ux-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-04-10-v105-remediation.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-light-mode-phase1.md`
 - shipped `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
 - shipped `docs/lineage/plans/closed/2026-04-13-authentik-parthenon-sso.md`
+- superseded `docs/lineage/plans/closed/2026-04-13-ohdsi-full-parity.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
 - shipped `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
