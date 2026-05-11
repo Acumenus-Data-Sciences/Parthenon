@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-26
 owner: acumenus
 module: publish
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/publish/2026-03-27-publish-page-study-driven-redesign.md
 related_code: []
 related_prs: []
 ---

@@ -1,3 +1,21 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-05-11
+owner: acumenus
+module: platform
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - docker/postgres/init.sql
+  - docker/postgres/Dockerfile
+  - backend/database/migrations/2026_03_01_145000_create_core_database_schemas.php
+  - backend/database/migrations/2026_03_01_150011_repair_vocabulary_schema_bootstrap.php
+  - backend/tests/Feature/Vocabulary/VocabSchemaBootstrapTest.php
+related_prs: []
+---
+
 # Vocabulary Schema Bootstrap Fix
 
 Date: 2026-05-11

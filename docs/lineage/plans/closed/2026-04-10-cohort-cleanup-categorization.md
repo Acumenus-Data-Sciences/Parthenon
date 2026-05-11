@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-10
 owner: acumenus
 module: cohorts
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/cohort-categorization-phase2-2026-04-10.md
 related_code: []
 related_prs: []
 ---

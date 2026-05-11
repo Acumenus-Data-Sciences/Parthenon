@@ -110,7 +110,7 @@ User selects study → "Select All" loads executions with result_json + design_j
 - `frontend/src/components/ui/TagFilterBar.tsx`
 - `frontend/src/components/ui/TagSearchModal.tsx`
 - `docs/lineage/design/specs/2026-03-26-publish-page-study-driven-redesign.md`
-- `docs/lineage/plans/open/2026-03-26-publish-page-study-driven-redesign.md`
+- `docs/lineage/plans/closed/2026-03-26-publish-page-study-driven-redesign.md`
 - `docs/lineage/modules/publish/2026-03-27-publish-page-study-driven-redesign.md`
 
 ### Modified Files (15+)

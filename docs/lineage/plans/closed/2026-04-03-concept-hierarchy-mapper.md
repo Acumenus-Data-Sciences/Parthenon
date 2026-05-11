@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-03
 owner: acumenus
 module: data-explorer
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/data-explorer/2026-04-03-concept-hierarchy-mapper.md
 related_code: []
 related_prs: []
 ---

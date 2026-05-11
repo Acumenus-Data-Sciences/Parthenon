@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-03-25
 owner: acumenus
 module: datasets
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/synpuf-enrichment-2026-04-04.md
 related_code: []
 related_prs: []
 ---

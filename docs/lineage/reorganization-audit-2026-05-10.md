@@ -516,6 +516,11 @@ CI as the `docs-lineage-contract` job and blocks:
 - Moved the v1.0.6 release-era Light Mode, Authentik SSO, and FinnGen SP1-SP3
   plans from `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`,
   linking them to the rollout, live-smoke, and module closeout records.
+- Moved the shipped SynPUF enrichment, Publish page redesign, Concept Hierarchy
+  Mapper, LLM-maintained wiki, Cohort Categorization Phase 1/2, and Cohort
+  Wizard plans from `docs/lineage/plans/open/` to
+  `docs/lineage/plans/closed/`, linking them to their shipped module records or
+  release diary.
 
 Post-migration keep:
 
@@ -532,9 +537,16 @@ above.
 - current `docs/lineage/plans/open/2026-05-*`
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
+- shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
+- shipped `docs/lineage/plans/closed/2026-03-26-publish-page-study-driven-redesign.md`
 - shipped `docs/lineage/plans/closed/2026-04-04-cohort-similarity-parity.md`
+- shipped `docs/lineage/plans/closed/2026-04-03-concept-hierarchy-mapper.md`
+- shipped `docs/lineage/plans/closed/2026-04-06-llm-maintained-wiki.md`
 - shipped `docs/lineage/plans/closed/2026-04-02-patient-similarity-engine.md`
 - shipped `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
+- shipped `docs/lineage/plans/closed/2026-04-10-cohort-cleanup-categorization.md`
+- shipped `docs/lineage/plans/closed/2026-04-10-cohort-phase2.md`
+- shipped `docs/lineage/plans/closed/2026-04-10-cohort-wizard.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-patient-similarity-ux-redesign.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-light-mode-phase1.md`
 - shipped `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
