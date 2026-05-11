@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-19
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 18 Plan 02 — endpoint_profile_access table + Spatie permissions
 
 **Date:** 2026-04-19

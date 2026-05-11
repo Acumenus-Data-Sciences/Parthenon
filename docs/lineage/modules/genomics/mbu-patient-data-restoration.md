@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-23
+owner: acumenus
+module: genomics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # MBU Patient Data Restoration & Permanent Seeder
 
 **Date:** 2026-03-23

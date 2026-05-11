@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-06
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 16 — Imaging Outcomes Research (Phase 1: Longitudinal Timeline + Measurements)
 
 **Date:** 2026-03-06

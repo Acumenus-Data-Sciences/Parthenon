@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-04-15
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen SP1 — Ops Runbook
 
 Operational playbook for the FinnGen Runtime Foundation. Covers deployment, health checks, diagnostics, rollback, and routine maintenance.

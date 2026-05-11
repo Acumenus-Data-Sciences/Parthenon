@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-16
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Genomics #2.5 — Generation tracking + per-source badges + confidence
 
 **Date:** 2026-04-16

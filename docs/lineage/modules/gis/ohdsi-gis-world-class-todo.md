@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-28
+owner: acumenus
+module: gis
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI GIS World-Class Execution Todo
 
 **Date:** 2026-04-28

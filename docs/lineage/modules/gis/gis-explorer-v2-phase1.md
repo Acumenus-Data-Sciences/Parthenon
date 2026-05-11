@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-11
+owner: acumenus
+module: gis
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # GIS Explorer v2 Phase 1 — Disease-Agnostic Spatial Analytics
 
 **Date:** 2026-03-11

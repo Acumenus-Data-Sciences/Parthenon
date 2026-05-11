@@ -1,3 +1,15 @@
+---
+doc_type: adr
+status: historical
+date: 2026-05-03
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 1 — fhir_to_omop performance decision (Q6)
 
 **Date:** 2026-05-03

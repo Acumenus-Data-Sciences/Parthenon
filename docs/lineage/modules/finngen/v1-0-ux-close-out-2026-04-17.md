@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-17
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # v1.0 UX Close-Out — FinnGen Cohort Workbench + Analysis Gallery
 
 **Date:** 2026-04-17

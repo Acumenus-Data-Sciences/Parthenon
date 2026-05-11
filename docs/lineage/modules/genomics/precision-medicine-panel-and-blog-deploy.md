@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: genomics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Precision Medicine Panel, Patient Profile Fixes, and Blog Deployment
 
 **Date:** 2026-03-07

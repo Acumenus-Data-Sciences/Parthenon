@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-18
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 15-01 — GWAS tracking table + generation-history index
 
 **Date:** 2026-04-18

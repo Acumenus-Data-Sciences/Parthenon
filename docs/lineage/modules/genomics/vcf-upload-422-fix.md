@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-18
+owner: acumenus
+module: genomics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # VCF Upload 422 Fix & Large File Support
 
 **Date:** 2026-03-18

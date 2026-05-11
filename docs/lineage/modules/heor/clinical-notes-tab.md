@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-09
+owner: acumenus
+module: heor
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Clinical Notes Tab — Patient Profiles
 
 **Date:** 2026-03-09

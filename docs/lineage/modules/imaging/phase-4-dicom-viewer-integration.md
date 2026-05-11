@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 4: DICOM Viewer Integration
 
 **Date:** 2026-03-07

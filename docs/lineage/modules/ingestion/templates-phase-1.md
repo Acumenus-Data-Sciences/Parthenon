@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 1 — Parthenon Ingestion Templates
 
 **Status:** Engineering-complete (pending sign-off)

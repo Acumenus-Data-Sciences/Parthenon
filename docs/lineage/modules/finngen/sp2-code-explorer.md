@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-15
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen SP2 — Code Explorer Devlog
 
 **Status:** Deployed to production 2026-04-15. 4 of 5 tabs working end-to-end on PANCREAS; Report tab has a deferred infrastructure bug.

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-09
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # PACS System Health Integration & Imaging Re-Linking
 
 **Date:** 2026-03-09

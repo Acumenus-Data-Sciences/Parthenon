@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 2 Plan 4 — MIMIC-IV ETL Execution Devlog
 
 **Branch:** `feature/phase-2-plan-4-impl-mimic`

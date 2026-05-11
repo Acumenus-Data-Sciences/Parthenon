@@ -448,6 +448,10 @@ CI as the `docs-lineage-contract` job and blocks:
 - Classified the next 50 module lineage records across analyses, Commons, Data
   Explorer, FHIR, and FinnGen. Handoffs, prompts, runbooks, and module indexes
   are typed separately while retained as historical module lineage.
+- Classified the next 50 module lineage records across FinnGen, genomics, GIS,
+  HEOR, imaging, and ingestion templates. Runbooks, handoffs, security reviews,
+  signoffs, and module decision notes are typed separately while retained as
+  historical module lineage.
 
 Immediate keep:
 
