@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-29
+owner: acumenus
+module: pros
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Standard PROs+ Builder & Conduct Tab Design Spec
 
 **Date:** 2026-03-29

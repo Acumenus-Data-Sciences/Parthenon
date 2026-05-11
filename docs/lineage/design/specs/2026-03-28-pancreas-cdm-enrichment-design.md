@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-28
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Pancreatic Cancer Corpus — CDM Enrichment & Demo Readiness
 
 **Date:** 2026-03-28

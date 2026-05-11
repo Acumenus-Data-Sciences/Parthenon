@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-05
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 Landscape analysis acknowledges that Mt. Sinai and Johns Hopkins have the most mature OMOP implementations — both built via direct ETL against Epic Clarity (which at JHU took 2,000+ person-hours). The plan makes the case for why Parthenon should layer FHIR R4 Bulk Data on top: vendor-agnostic extraction, regulatory tailwind from the Cures Act, and a target of <400 person-hours per new site — while honestly documenting where FHIR falls short (custom fields, billing granularity, historical backfills) and building in hybrid ingestion paths.
 Architecture is a 6-phase pipeline: SMART Backend Services extraction → Spark transformation with concept-driven routing → Athena vocabulary mapping → multi-database OMOP CDM v5.4 loading (PostgreSQL, BigQuery, Snowflake, Redshift) → DQD/ACHILLES validation → Airflow orchestration.
 The critical design insight from the HL7 Vulcan IG (which just went to ballot in September 2025) is baked throughout: FHIR resources don't map 1:1 to OMOP tables by name. A FHIR Observation might become a measurement, condition_occurrence, or procedure_occurrence depending on the coded concepts it carries. The transformation engine implements a domain classifier for this routing.

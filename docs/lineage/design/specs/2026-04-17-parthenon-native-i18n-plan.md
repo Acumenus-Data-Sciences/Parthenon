@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-17
+owner: acumenus
+module: i18n
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Native i18n Availability Plan
 
 Date: 2026-04-17

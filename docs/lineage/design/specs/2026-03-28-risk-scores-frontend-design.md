@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-28
+owner: acumenus
+module: risk-scores
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Population Risk Scores — Frontend Design
 
 **Date:** 2026-03-28

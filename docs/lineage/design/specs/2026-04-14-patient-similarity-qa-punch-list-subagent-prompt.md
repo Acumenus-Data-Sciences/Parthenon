@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-14
+owner: acumenus
+module: pros
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity QA Punch List — Subagent Prompt
 
 > For Hermes subagents: implement this as a focused frontend/product-quality pass on the Patient Similarity workspace. Treat this document as your full brief. Do not assume unstated context. Inspect the codebase, make targeted improvements, run relevant tests, and leave the branch in a reviewable state.

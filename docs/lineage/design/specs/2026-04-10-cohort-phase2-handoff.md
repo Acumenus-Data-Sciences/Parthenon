@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-10
+owner: acumenus
+module: cohorts
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Cohort Categorization Phase 2 -- Handoff Document
 
 **Date:** 2026-04-10

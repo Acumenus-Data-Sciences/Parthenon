@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-09
+owner: acumenus
+module: design
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Labs Panel — Trend Chart with Reference Ranges
 
 **Date:** 2026-04-09

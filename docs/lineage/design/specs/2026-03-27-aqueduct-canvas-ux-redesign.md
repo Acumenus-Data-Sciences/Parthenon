@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-27
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Aqueduct Canvas UX Redesign
 
 **Date:** 2026-03-27

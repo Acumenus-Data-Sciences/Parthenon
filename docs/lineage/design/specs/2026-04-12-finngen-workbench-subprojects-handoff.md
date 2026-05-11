@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-12
+owner: acumenus
+module: pros
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen Workbench — Sub-Projects 2–4 Handoff
 
 **Date:** 2026-04-12

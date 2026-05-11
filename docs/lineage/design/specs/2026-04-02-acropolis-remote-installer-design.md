@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-02
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Acropolis Remote Installer — Design Spec
 
 **Date:** 2026-04-02

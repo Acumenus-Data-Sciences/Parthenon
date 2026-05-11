@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-26
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Installer v0.3.0 Design Contract
 
 **Status:** Accepted (2026-04-26)

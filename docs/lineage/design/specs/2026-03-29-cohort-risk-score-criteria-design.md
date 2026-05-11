@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-29
+owner: acumenus
+module: risk-scores
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Cohort Builder — Risk Score Criteria Integration
 
 **Date:** 2026-03-29

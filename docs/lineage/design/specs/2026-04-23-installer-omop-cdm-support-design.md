@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-23
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Installer Sub-project C: Existing OMOP CDM Support
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.

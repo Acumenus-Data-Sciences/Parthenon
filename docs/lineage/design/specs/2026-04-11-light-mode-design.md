@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-11
+owner: acumenus
+module: ui
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Light Mode Design Spec
 
 **Date:** 2026-04-11

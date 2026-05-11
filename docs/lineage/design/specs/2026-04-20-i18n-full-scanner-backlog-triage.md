@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-20
+owner: acumenus
+module: i18n
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # i18n Full Frontend Scanner Backlog Triage
 
 Date: 2026-04-22

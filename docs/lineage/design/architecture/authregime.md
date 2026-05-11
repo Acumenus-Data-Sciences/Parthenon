@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-02
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Auth Regime: JWT Registration & Authentication System
 
 A complete, self-contained authentication system for a React + Express + PostgreSQL application.

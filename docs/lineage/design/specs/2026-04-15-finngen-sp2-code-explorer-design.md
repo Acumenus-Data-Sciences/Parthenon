@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-15
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen SP2 — Code Explorer Design Spec
 
 **Date:** 2026-04-15

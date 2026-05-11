@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-04
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Database Expansion Worklist
 
 **Created:** 2026-03-04

@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: design
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Clinical Groupings: HLGT Sub-Groupings, Prevalence Overlay & Domain Counts Fix
 
 **Date:** 2026-04-05

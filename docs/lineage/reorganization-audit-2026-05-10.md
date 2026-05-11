@@ -432,6 +432,8 @@ CI as the `docs-lineage-contract` job and blocks:
 - Classified timeline records under `docs/lineage/timeline/`; phase and
   release records are marked `shipped`, while dated session notes are retained
   as historical lineage.
+- Classified the first 50 remaining design records under `docs/lineage/design/`
+  as historical design lineage, plans, or handoffs based on their filenames.
 
 Immediate keep:
 

@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-26
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CDM Source Isolation — Architectural Correction Spec
 
 **Date:** 2026-03-26

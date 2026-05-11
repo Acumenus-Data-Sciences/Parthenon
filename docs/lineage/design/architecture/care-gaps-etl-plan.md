@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-04
+owner: acumenus
+module: care-bundles
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Care Gaps — Star Schema & Nightly ETL Architecture Plan
 
 **Date:** 2026-03-04

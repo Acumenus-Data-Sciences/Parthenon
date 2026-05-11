@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-14
+owner: acumenus
+module: analytics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Parity+ Frontend and API Handoff
 
 Date: 2026-04-14
