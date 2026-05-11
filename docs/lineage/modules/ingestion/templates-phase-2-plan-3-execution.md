@@ -13,7 +13,7 @@ related_prs: []
 # Phase 2 Plan 3 — Llettuce Eval Harness Execution Devlog
 
 **Branch:** `feature/phase-2-plan-3-impl-llettuce`
-**Plan:** `docs/lineage/plans/open/2026-05-05-parthenon-ingestion-templates-phase-2-plan-3-ner-llettuce-eval.md`
+**Plan:** `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-3-ner-llettuce-eval.md`
 **Started:** 2026-05-05
 
 ## Task progress (10/10)

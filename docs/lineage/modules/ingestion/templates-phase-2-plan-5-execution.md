@@ -13,7 +13,7 @@ related_prs: []
 # Phase 2 Plan 5 — ARTEMIS Chemo Regimens Execution Devlog
 
 **Branch:** `feature/phase-2-plan-5-impl-artemis`
-**Plan:** `docs/lineage/plans/open/2026-05-05-parthenon-ingestion-templates-phase-2-plan-5-artemis.md`
+**Plan:** `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-5-artemis.md`
 **Started:** 2026-05-05
 
 ## Task progress (12/13; v2 stretch deferred)

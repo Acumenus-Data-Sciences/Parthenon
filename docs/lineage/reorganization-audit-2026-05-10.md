@@ -500,6 +500,10 @@ CI as the `docs-lineage-contract` job and blocks:
   plans from `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, marked
   them `status: shipped`, and linked them to the phase module records under
   `docs/lineage/modules/ingestion/`.
+- Moved ingestion-template Phase 2 Plans 3, 4, 5, and 6 from
+  `docs/lineage/plans/open/` to `docs/lineage/plans/closed/` after confirming
+  matching execution records. Phase 2 Plans 1 and 2 remain open because Plan 1
+  has only a partial execution record and Plan 2 has no execution record.
 
 Post-migration keep:
 
@@ -515,6 +519,7 @@ above.
 - current `docs/lineage/design/specs/2026-05-*`
 - current `docs/lineage/plans/open/2026-05-*`
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
 - `docs/lineage/handoffs/**`
 - `docs/lineage/modules/poseidon/**`
 - `docs/research/irsf-nhs-*.md`

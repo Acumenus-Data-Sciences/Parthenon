@@ -13,7 +13,7 @@ related_prs: []
 # Phase 2 Plan 6 — SDTM Bridge Execution Devlog
 
 **Branch:** `feature/phase-2-plan-6-impl-sdtm`
-**Plan:** `docs/lineage/plans/open/2026-05-05-parthenon-ingestion-templates-phase-2-plan-6-sdtm.md`
+**Plan:** `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-6-sdtm.md`
 **Started:** 2026-05-05
 
 ## Task progress

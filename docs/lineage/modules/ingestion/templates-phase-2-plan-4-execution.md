@@ -13,7 +13,7 @@ related_prs: []
 # Phase 2 Plan 4 — MIMIC-IV ETL Execution Devlog
 
 **Branch:** `feature/phase-2-plan-4-impl-mimic`
-**Plan:** `docs/lineage/plans/open/2026-05-05-parthenon-ingestion-templates-phase-2-plan-4-mimic-iv.md`
+**Plan:** `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-4-mimic-iv.md`
 **Started:** 2026-05-05
 
 ## Task progress (16/16)
