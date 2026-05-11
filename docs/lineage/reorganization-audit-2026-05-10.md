@@ -502,8 +502,7 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/modules/ingestion/`.
 - Moved ingestion-template Phase 2 Plans 3, 4, 5, and 6 from
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/` after confirming
-  matching execution records. Phase 2 Plans 1 and 2 remain open because Plan 1
-  has only a partial execution record and Plan 2 has no execution record.
+  matching execution records.
 - Moved the shipped cohort/patient similarity plans for cohort-similarity
   parity, Patient Similarity UX alignment, and saved runs from
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking each to
@@ -544,6 +543,13 @@ CI as the `docs-lineage-contract` job and blocks:
   OpenProject sync, Study Designer compiler, and the April 26 Care Bundles and
   Patient Similarity fix TODOs. The only older plan left open is signed release
   packaging because it still needs verified signed-artifact evidence.
+- Moved shipped May lineage plans from `docs/lineage/plans/open/` to
+  `docs/lineage/plans/closed/`: ingestion-template Phase 2 Plans 1-2, Phase 3
+  Plans 0-7, Phase 4 Plan 9, the CE/EE fork Plans 01-04 including all eight
+  extension-point subplans, and the HADES parity/managed Shiny remediation
+  plan. Remaining May open plans are the Phase 4 template follow-ups without
+  exact shipped evidence and the managed OHDSI Shiny follow-up execution
+  backlog.
 
 Post-migration keep:
 
@@ -559,7 +565,12 @@ above.
 - current `docs/lineage/design/specs/2026-05-*`
 - current `docs/lineage/plans/open/2026-05-*`
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
-- shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-06-parthenon-ingestion-templates-phase-3-plan-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-07-parthenon-ingestion-templates-phase-4-plan-9-hl7-v2-r30-r31.md`
+- shipped `docs/lineage/plans/closed/2026-05-08-ce-ee-fork-plan-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-09-ce-ee-fork-plan-*.md`
+- shipped `docs/lineage/plans/closed/2026-05-08-hades-parity-and-shiny-remediation.md`
 - shipped `docs/lineage/plans/closed/2026-03-25-synpuf-enrichment.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-blackrabbit.md`
 - shipped `docs/lineage/plans/closed/2026-03-26-cdm-source-isolation.md`

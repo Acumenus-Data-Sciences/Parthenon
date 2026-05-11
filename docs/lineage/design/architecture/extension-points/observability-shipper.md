@@ -19,7 +19,7 @@ related_prs: []
 **Public API:** `App\Observability\Observer` — accessed via the global `obs()` helper
 **Registry:** `App\Observability\ShipperRegistry`
 **Config:** `backend/config/observability.php`
-**Status:** Live since [Phase 2 #5](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-05-observability-shipper.md)
+**Status:** Live since [Phase 2 #5](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-05-observability-shipper.md)
 
 ## Purpose
 

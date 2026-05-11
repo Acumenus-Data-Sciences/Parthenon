@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-08
 owner: acumenus
 module: licensing
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-05-10-v1-0-7-release-notes.md
 related_code: []
 related_prs: []
 ---
@@ -48,7 +48,7 @@ Before starting any task:
 | `LICENSING.md` | CE | Current license + dual-licensing offer + commercial contact + trademark pointer |
 | `TRADEMARKS.md` | CE | Standalone trademark policy |
 | `.github/workflows/license-guard.yml` | CE | CI guard asserting LICENSE/manifest license metadata stays AGPLv3 |
-| `docs/lineage/plans/open/2026-05-08-ce-ee-fork-plan-01-legal-foundation.md` | meta | this plan (already exists by the time you read it) |
+| `docs/lineage/plans/closed/2026-05-08-ce-ee-fork-plan-01-legal-foundation.md` | meta | this plan (already exists by the time you read it) |
 
 **Files modified during this plan:**
 

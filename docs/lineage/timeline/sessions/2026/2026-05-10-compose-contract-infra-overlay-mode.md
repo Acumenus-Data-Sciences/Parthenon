@@ -104,6 +104,6 @@ None for code. Two notes for the next person touching this:
 ## Related work
 
 - PR #322 (`a38f285ce`) — original composition contract
-- `docs/lineage/plans/open/2026-05-09-ce-ee-fork-plan-02-08-compose-composition-contract.md` — Plan 02-08
+- `docs/lineage/plans/closed/2026-05-09-ce-ee-fork-plan-02-08-compose-composition-contract.md` — Plan 02-08
 - `docs/lineage/design/architecture/extension-points/compose-composition.md` — the contract doc itself (now updated)
 - This fix: `d81e8bc01` (`feat(compose-contract): add --check-infra-overlay mode for CE-bundled overlays`)

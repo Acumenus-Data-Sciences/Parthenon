@@ -22,7 +22,7 @@ related_prs: []
 **Frontend hook:** `useFlag(name)` — typed boolean
 **Frontend gate component:** `frontend/src/components/EnterpriseGate.tsx`
 **Frontend extension contract:** `frontend/src/contracts/featureFlags.ts`
-**Status:** Live since [Phase 2 #6](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-06-feature-flags-enterprise-gate.md)
+**Status:** Live since [Phase 2 #6](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-06-feature-flags-enterprise-gate.md)
 
 ## Purpose
 

@@ -17,7 +17,7 @@ related_prs: []
 **Registry:** `App\Auth\AuthDriverRegistry`
 **Service provider:** `App\Providers\AuthDriverServiceProvider`
 **Config:** `backend/config/auth-drivers.php`
-**Status:** Live since [Phase 2 #1](../../superpowers/plans/2026-05-08-ce-ee-fork-plan-02-01-auth-driver.md)
+**Status:** Live since [Phase 2 #1](../../../plans/closed/2026-05-08-ce-ee-fork-plan-02-01-auth-driver.md)
 
 ## Purpose
 

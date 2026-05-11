@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-06
 owner: acumenus
 module: ingestion
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/design/specs/2026-05-07-parthenon-ingestion-templates-phase-4-design.md
 related_code: []
 related_prs: []
 ---

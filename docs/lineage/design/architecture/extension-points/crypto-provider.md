@@ -17,7 +17,7 @@ related_prs: []
 **Default driver (CE):** `App\Crypto\LaravelNativeCryptoProvider`
 **Service provider:** `App\Providers\CryptoProviderServiceProvider`
 **Config:** `backend/config/crypto.php`
-**Status:** Live since [Phase 2 #3](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-03-crypto-provider.md)
+**Status:** Live since [Phase 2 #3](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-03-crypto-provider.md)
 
 ## Purpose
 

@@ -19,7 +19,7 @@ related_prs: []
 **Public API:** `App\Audit\AuditDispatcher` (`app(AuditDispatcher::class)->record(...)`)
 **Registry:** `App\Audit\AuditSinkRegistry`
 **Config:** `backend/config/audit.php`
-**Status:** Live since [Phase 2 #4](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-04-audit-sink.md)
+**Status:** Live since [Phase 2 #4](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-04-audit-sink.md)
 
 ## Purpose
 

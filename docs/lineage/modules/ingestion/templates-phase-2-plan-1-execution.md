@@ -13,7 +13,7 @@ related_prs: []
 # Phase 2 Plan 1 — NER Node + LLM Backend Execution Devlog
 
 **Branch:** `feature/phase-2-plan-1-impl-ner-llm`
-**Plan:** `docs/lineage/plans/open/2026-05-05-parthenon-ingestion-templates-phase-2-plan-1-ner-node-llm.md`
+**Plan:** `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-1-ner-node-llm.md`
 **Started:** 2026-05-05
 
 Execution log of the 15 TDD tasks landed by Phase 2 Plan 1.

@@ -446,7 +446,7 @@ Runtime and deployment files:
 Policy and planning files:
 
 - `docs/lineage/design/specs/2026-04-15-ohdsi-shiny-supersession-policy.md`
-- `docs/lineage/plans/open/2026-05-08-hades-parity-and-shiny-remediation.md`
+- `docs/lineage/plans/closed/2026-05-08-hades-parity-and-shiny-remediation.md`
 
 ---
 

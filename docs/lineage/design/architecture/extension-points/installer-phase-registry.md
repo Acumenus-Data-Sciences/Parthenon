@@ -21,7 +21,7 @@ related_prs: []
 **Registry:** `acropolis.installer.phases.registry.PhaseRegistry`
 **CE phases:** `acropolis.installer.phases.community.*`
 **Entry-point group (EE):** `parthenon.acropolis.phases`
-**Status:** Live since [Phase 2 #7](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-07-installer-phase-registry.md)
+**Status:** Live since [Phase 2 #7](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-07-installer-phase-registry.md)
 
 ## Purpose
 

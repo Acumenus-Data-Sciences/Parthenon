@@ -18,7 +18,7 @@ related_prs: []
 **Service provider:** `App\Providers\TenancyServiceProvider`
 **Config:** `backend/config/tenancy.php`
 **Trait:** `App\Tenancy\Concerns\BelongsToTenant`
-**Status:** Live since [Phase 2 #2](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-02-tenant-resolver.md)
+**Status:** Live since [Phase 2 #2](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-02-tenant-resolver.md)
 
 ## Purpose
 

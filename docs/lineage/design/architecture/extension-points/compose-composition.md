@@ -20,7 +20,7 @@ related_prs: []
 **Verifier tests:** `scripts/verify_compose_contract_test.py`
 **CI workflow:** `.github/workflows/compose-contract.yml`
 **Stable service list:** `STABLE_SERVICE_NAMES` in the verifier
-**Status:** Live since [Phase 2 #8](../../superpowers/plans/2026-05-09-ce-ee-fork-plan-02-08-compose-composition-contract.md)
+**Status:** Live since [Phase 2 #8](../../../plans/closed/2026-05-09-ce-ee-fork-plan-02-08-compose-composition-contract.md)
 
 ## Purpose
 

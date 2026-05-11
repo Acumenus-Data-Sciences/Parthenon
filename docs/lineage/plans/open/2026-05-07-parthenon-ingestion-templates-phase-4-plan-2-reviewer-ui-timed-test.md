@@ -48,7 +48,7 @@ related_prs: []
 3. **Anonymizer pre-pass** — if `--input` is given, run the customer file through `tools/anonymize_lis_export.py` (strips MRN, DOB, names; verifies output is PHI-free via a smoke check on the output sample).
 4. **Devlog + reviewer brief** — `docs/lineage/modules/2026-XX-XX-harmonia-timed-user-test.md` describes how to run the test, the gate, and where to record results. Brief is sent to Dr. Udoshi before the session.
 5. **Run the timed test** — single in-house reviewer session. Record wall-clock + decision histogram (approves vs rejects vs escalates) + screenshot of the queue at end. Target: **≤30 min**.
-6. **ADR 0019 + Plan 7 closeout** — amend ADR 0019 with verdict; update `docs/lineage/plans/open/2026-05-06-...-plan-7-...md` Task 12 from "Deferred" to "Done — Plan 4 Plan 2". If verdict misses 30 min, document UX friction points + Phase 5+ candidate work items.
+6. **ADR 0019 + Plan 7 closeout** — amend ADR 0019 with verdict; update `docs/lineage/plans/closed/2026-05-06-parthenon-ingestion-templates-phase-3-plan-7-review-ui-and-closeouts.md` Task 12 from "Deferred" to "Done — Plan 4 Plan 2". If verdict misses 30 min, document UX friction points + Phase 5+ candidate work items.
 
 ---
 

@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-05-08
 owner: acumenus
 module: ohdsi
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/analyses/2026-05-09-hades-parity-managed-ohdsi-shiny-runtime.md
 related_code: []
 related_prs: []
 ---
