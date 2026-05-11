@@ -478,7 +478,7 @@ These decisions are now binding for the per-plan drafters.
 
 - Source devplan: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` (esp. §4 Phase 1 lines 429–541, §5.1 Secrets, §5.4 CDM versioning, §6.4 Validation packs, §8 Definition of Done)
 - Phase 0 design spec: `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
-- Phase 0 ADRs: `docs/adr/0001-node-sdk-design.md`, `docs/adr/0002-orchestration-backend.md`, `docs/adr/0003-template-manifest-format.md`
+- Phase 0 ADRs: `docs/lineage/decisions/adr/0001-node-sdk-design.md`, `docs/lineage/decisions/adr/0002-orchestration-backend.md`, `docs/lineage/decisions/adr/0003-template-manifest-format.md`
 - HIGHSEC: `.claude/rules/HIGHSEC.spec.md` (esp. §3 Model Security, §4 Container Security, §8 Deployment Verification)
 - PG role model: `~/.claude/memory/project_parthenon_pg_roles.md`
 - Worktree sweep regressions: `~/.claude/memory/feedback_worktree_sweep_regressions.md`

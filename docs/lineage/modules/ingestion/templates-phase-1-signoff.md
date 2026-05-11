@@ -132,7 +132,7 @@ Merged at:   ____________________
   `docs/lineage/modules/ingestion/templates-phase-0-runbook.md`
 - This signoff:
   `docs/lineage/modules/ingestion/templates-phase-1-signoff.md`
-- ADRs: `docs/adr/000{4,5,6,7,8}-*.md`
+- ADRs: `docs/lineage/decisions/adr/000{4,5,6,7,8}-*.md`
 - Templates root: `templates/manifests/{etl_dicom_metadata,
   load_imaging_vocabulary, qr_eq5d5l_to_measurement,
   qr_eq5d3l_to_measurement, fhir_anonymizer, fhir_to_omop}/`

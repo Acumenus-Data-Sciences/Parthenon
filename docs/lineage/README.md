@@ -51,6 +51,7 @@ docs/lineage/
     heor/
     imaging/
     ingestion/
+    poseidon/
     morpheus/
     publish/
     solr/

@@ -5,9 +5,13 @@ date: 2026-03-29
 owner: acumenus
 module: poseidon
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/poseidon/HANDOFF.md
 superseded_by: null
-related_code: []
+related_code:
+  - poseidon/
+  - docker-compose.yml
+  - backend/.env.example
 related_prs: []
 ---
 # Poseidon — Agent Handoff Document

@@ -1574,7 +1574,7 @@ git commit -m "test(templates): HIPAA Safe Harbor PHI-leak regression guard"
 ## Task 8: ADR 0007 — FHIR anonymizer template design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0007-fhir-anonymizer-template.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0007-fhir-anonymizer-template.md`
 - Modify: `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py` (add `0007`)
 
 - [ ] **Step 1: Write the failing test**
@@ -1594,7 +1594,7 @@ Expected: FAIL — `0007` ADR doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
 
-`docs/adr/0007-fhir-anonymizer-template.md`:
+`docs/lineage/decisions/adr/0007-fhir-anonymizer-template.md`:
 
 ```markdown
 # ADR 0007 — FHIR Anonymizer Template Design
@@ -1751,7 +1751,7 @@ ever seeing the salt itself.
 
 - Phase 1 design spec: `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 4 (this plan): `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
-- Phase 1 Plan 1 ADR (AnonymizerNode + sidecar): `docs/adr/0004-phase-1-node-design.md`
+- Phase 1 Plan 1 ADR (AnonymizerNode + sidecar): `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - HIPAA Safe Harbor de-identification: 45 CFR §164.514(b)(2)
 - Microsoft FHIR Anonymizer: <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>
 - Anonymizer config v1 schema: `templates/runtime/nodes/schemas/anonymizer_config.v1.json`
@@ -1774,7 +1774,7 @@ uv run pytest -q
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0007-fhir-anonymizer-template.md templates/tests/test_adrs.py
+git add docs/lineage/decisions/adr/0007-fhir-anonymizer-template.md templates/tests/test_adrs.py
 git commit -m "docs(adr): ADR 0007 — FHIR anonymizer template design"
 ```
 

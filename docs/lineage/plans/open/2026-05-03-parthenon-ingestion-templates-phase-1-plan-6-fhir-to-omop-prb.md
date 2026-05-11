@@ -1268,7 +1268,7 @@ git commit -m "test(templates): add fhir_to_omop PR-B E2E test in CI"
 
 **Files:**
 - Modify: `/home/smudoshi/Github/Parthenon/templates/manifests/fhir_to_omop/README.md`
-- Modify: `/home/smudoshi/Github/Parthenon/docs/adr/0008-fhir-to-omop-architecture.md`
+- Modify: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0008-fhir-to-omop-architecture.md`
 
 Updates:
 
@@ -1327,7 +1327,7 @@ Edit the README's "Limitations" section to remove the "PR-A only" note. Add a ne
 | Consent | (PR-C, Plan 7) | — | — |
 ```
 
-Append to `docs/adr/0008-fhir-to-omop-architecture.md`:
+Append to `docs/lineage/decisions/adr/0008-fhir-to-omop-architecture.md`:
 
 ```markdown
 ## Amendment — 2026-05-03 (PR-B: Procedure + Medication + Immunization)
@@ -1404,7 +1404,7 @@ uv run pytest -q
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add templates/manifests/fhir_to_omop/README.md docs/adr/0008-fhir-to-omop-architecture.md
+git add templates/manifests/fhir_to_omop/README.md docs/lineage/decisions/adr/0008-fhir-to-omop-architecture.md
 git commit -m "docs(templates): update fhir_to_omop README + ADR 0008 amendment for PR-B"
 ```
 

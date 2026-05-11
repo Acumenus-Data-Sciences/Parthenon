@@ -1593,7 +1593,7 @@ git commit -m "test(templates): add etl_dicom_metadata E2E test in CI"
 ## Task 9: ADR 0005 — Imaging vocabulary namespace and DICOM ETL design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0005-imaging-vocabulary-namespace.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0005-imaging-vocabulary-namespace.md`
 - Modify: `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py` (add `0005`)
 
 Captures: the Parthenon-namespaced concept_id range decision, the rationale for re-keying upstream JAMIA concept IDs at load time, the decision to leave `person_id` NULL in `image_occurrence` until a Phase 2 cross-mapping template, and the no-pixel-data invariant as a defensive design choice.
@@ -1614,7 +1614,7 @@ Expected: FAIL — `0005` ADR doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
 
-`docs/adr/0005-imaging-vocabulary-namespace.md`:
+`docs/lineage/decisions/adr/0005-imaging-vocabulary-namespace.md`:
 
 ```markdown
 # ADR 0005 — Imaging Vocabulary Namespace and DICOM ETL Design
@@ -1740,7 +1740,7 @@ sentinel) and a warning logged.
 - Phase 1 design spec: `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 2 (this plan): `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-2-dicom.md`
 - Phase 0 manifest schema: `templates/runtime/registry/schema/template.v1.json`
-- Phase 1 Plan 1 ADR (DicomMetadataNode): `docs/adr/0004-phase-1-node-design.md`
+- Phase 1 Plan 1 ADR (DicomMetadataNode): `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - Nagy P. et al., "Breaking data silos: incorporating the DICOM imaging standard into the OMOP CDM," JAMIA 2025
 - `paulnagy/DICOM2OMOP`: <https://github.com/paulnagy/DICOM2OMOP>
 - OMOP CDM v5.4 imaging extension: <https://ohdsi.github.io/CommonDataModel/cdm54.html>
@@ -1763,7 +1763,7 @@ uv run pytest -q
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0005-imaging-vocabulary-namespace.md templates/tests/test_adrs.py
+git add docs/lineage/decisions/adr/0005-imaging-vocabulary-namespace.md templates/tests/test_adrs.py
 git commit -m "docs(adr): ADR 0005 — imaging vocabulary namespace and DICOM ETL design"
 ```
 

@@ -488,6 +488,11 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/handoffs/` after their canonical replacements under `docs/lineage/`
   carried the supersession metadata. `docs/devlog/README.md` is now the only
   retained transition index outside the canonical lineage tree.
+- Removed the archived `docs/adr/` transition pointer after the ADR index under
+  `docs/lineage/decisions/adr/` carried the canonical path.
+- Moved the remaining `docs/poseidon/` notes into
+  `docs/lineage/modules/poseidon/` and the remaining `docs/irsf-nhs/` research
+  handoffs into `docs/research/`, preserving their old paths in `supersedes`.
 
 Post-migration keep:
 
@@ -503,6 +508,8 @@ above.
 - current `docs/lineage/design/specs/2026-05-*`
 - current `docs/lineage/plans/open/2026-05-*`
 - `docs/lineage/handoffs/**`
+- `docs/lineage/modules/poseidon/**`
+- `docs/research/irsf-nhs-*.md`
 - `docs/ops/**`
 - `docs/compliance/**`
 - `docs/demo/**`

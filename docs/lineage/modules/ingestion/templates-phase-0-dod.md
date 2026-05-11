@@ -83,14 +83,14 @@ artifact itself (a file, a manifest), the path is given.
 
 ## ADRs
 
-- [x] `docs/adr/0001-node-sdk-design.md` committed and reflects final design.
+- [x] `docs/lineage/decisions/adr/0001-node-sdk-design.md` committed and reflects final design.
   - File present, MADR sections (`Status`, `Context`, `Decision`,
     `Consequences`) verified by `templates/tests/test_adrs.py`.
 
-- [x] `docs/adr/0002-orchestration-backend.md` committed.
+- [x] `docs/lineage/decisions/adr/0002-orchestration-backend.md` committed.
   - File present, MADR sections verified by `test_adrs.py`.
 
-- [x] `docs/adr/0003-template-manifest-format.md` committed.
+- [x] `docs/lineage/decisions/adr/0003-template-manifest-format.md` committed.
   - File present, MADR sections verified by `test_adrs.py`.
 
 ## CI integration

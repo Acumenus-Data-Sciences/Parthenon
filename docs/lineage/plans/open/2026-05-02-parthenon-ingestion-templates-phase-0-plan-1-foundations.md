@@ -3431,7 +3431,7 @@ git commit -m "feat(templates): add parthenon-nodes Typer CLI for local node exe
 ### Task 18: ADR 0001 — Node SDK design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0001-node-sdk-design.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0001-node-sdk-design.md`
 - Test: `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -3473,11 +3473,11 @@ def test_adr_exists_and_uses_madr(filename: str, title_keyword: str) -> None:
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cd /home/smudoshi/Github/Parthenon/templates && uv run pytest tests/test_adrs.py -v`
-Expected: FAIL — `AssertionError: missing ADR: .../docs/adr/0001-node-sdk-design.md`. (The other two also fail; they are written in tasks 23 and 31.)
+Expected: FAIL — `AssertionError: missing ADR: .../docs/lineage/decisions/adr/0001-node-sdk-design.md`. (The other two also fail; they are written in tasks 23 and 31.)
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create `/home/smudoshi/Github/Parthenon/docs/adr/0001-node-sdk-design.md` with the following exact content:
+Create `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0001-node-sdk-design.md` with the following exact content:
 
 ```markdown
 # ADR 0001: Node SDK Design
@@ -3589,7 +3589,7 @@ Expected: PASS — 1 passed (the other two parametrized cases remain failing unt
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0001-node-sdk-design.md templates/tests/test_adrs.py
+git add docs/lineage/decisions/adr/0001-node-sdk-design.md templates/tests/test_adrs.py
 git commit -m "docs(templates): add ADR 0001 Node SDK design"
 ```
 
@@ -4607,7 +4607,7 @@ git commit -m "feat(templates): add backend factory keyed on PARTHENON_ORCHESTRA
 ### Task 23: ADR 0002 — Orchestration backend
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0002-orchestration-backend.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0002-orchestration-backend.md`
 - Test: existing `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py` (parametrized case for `0002-orchestration-backend.md`)
 
 - [ ] **Step 1: Write the failing test**
@@ -4621,11 +4621,11 @@ tests/test_adrs.py::test_adr_exists_and_uses_madr[0002-orchestration-backend.md-
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cd /home/smudoshi/Github/Parthenon/templates && uv run pytest 'tests/test_adrs.py::test_adr_exists_and_uses_madr[0002-orchestration-backend.md-Orchestration]' -v`
-Expected: FAIL with `AssertionError: missing ADR: .../docs/adr/0002-orchestration-backend.md`.
+Expected: FAIL with `AssertionError: missing ADR: .../docs/lineage/decisions/adr/0002-orchestration-backend.md`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create `/home/smudoshi/Github/Parthenon/docs/adr/0002-orchestration-backend.md` with the following content:
+Create `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0002-orchestration-backend.md` with the following content:
 
 ```markdown
 # ADR 0002: Orchestration Backend
@@ -4704,7 +4704,7 @@ Expected: PASS — 2 of 3 cases pass (0001 + 0002); the 0003 case still fails un
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0002-orchestration-backend.md
+git add docs/lineage/decisions/adr/0002-orchestration-backend.md
 git commit -m "docs(templates): add ADR 0002 orchestration backend"
 ```
 
@@ -6436,7 +6436,7 @@ git commit -m "ci(templates): add parthenon-templates workflow with ruff/mypy/ma
 ### Task 31: ADR 0003 — Template manifest format
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0003-template-manifest-format.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0003-template-manifest-format.md`
 - Test: existing `templates/tests/test_adrs.py` (parametrized case for `0003-template-manifest-format.md`)
 
 - [ ] **Step 1: Write the failing test**
@@ -6446,11 +6446,11 @@ The parametrized case from Task 18 covers this ADR.
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cd /home/smudoshi/Github/Parthenon/templates && uv run pytest 'tests/test_adrs.py::test_adr_exists_and_uses_madr[0003-template-manifest-format.md-Manifest]' -v`
-Expected: FAIL with `AssertionError: missing ADR: .../docs/adr/0003-template-manifest-format.md`.
+Expected: FAIL with `AssertionError: missing ADR: .../docs/lineage/decisions/adr/0003-template-manifest-format.md`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create `/home/smudoshi/Github/Parthenon/docs/adr/0003-template-manifest-format.md` with the following content:
+Create `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0003-template-manifest-format.md` with the following content:
 
 ```markdown
 # ADR 0003: Template Manifest Format
@@ -6570,7 +6570,7 @@ Expected: PASS — 3 passed.
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0003-template-manifest-format.md
+git add docs/lineage/decisions/adr/0003-template-manifest-format.md
 git commit -m "docs(templates): add ADR 0003 template manifest format"
 ```
 
@@ -7292,7 +7292,7 @@ When this plan is fully executed, the following are true:
 - [ ] FastAPI surfaces all 6 catalog/run endpoints (`GET /templates`, `GET /templates/{id}`, `POST /runs`, `GET /runs/{id}`, `GET /runs/{id}/logs`, `GET /runs/{id}/artifacts`, `DELETE /runs/{id}`).
 - [ ] `parthenon-templates validate-manifests` and `parthenon-templates lint-secret-keys` run from the pre-commit hook (`scripts/githooks/pre-commit`) on staged manifest changes.
 - [ ] `.github/workflows/templates.yml` runs ruff, black --check, mypy --strict, manifest validation, and pytest against Python 3.12 + Postgres 16.
-- [ ] Three ADRs committed: `docs/adr/0001-node-sdk-design.md`, `docs/adr/0002-orchestration-backend.md`, `docs/adr/0003-template-manifest-format.md`, all MADR-shaped.
+- [ ] Three ADRs committed: `docs/lineage/decisions/adr/0001-node-sdk-design.md`, `docs/lineage/decisions/adr/0002-orchestration-backend.md`, `docs/lineage/decisions/adr/0003-template-manifest-format.md`, all MADR-shaped.
 - [ ] `parthenon-cdm` `bootstrap(version, schema, engine)` is idempotent for v5.3, v5.4, and `oncology_ext`.
 - [ ] End-to-end smoke test `tests/e2e/test_three_node_smoke.py` runs a 3-node fixture manifest through the FastAPI surface and asserts `rows.parquet` and `fetched.txt` artifacts exist.
 

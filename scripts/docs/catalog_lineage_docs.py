@@ -216,8 +216,6 @@ def classify(path: Path) -> tuple[str, str]:
         return "handoff", raw
 
     # Old roots retained only as transitional pointers or compatibility fallbacks.
-    if raw.startswith("docs/adr/"):
-        return "adr", "docs/lineage/decisions/adr/"
     if raw.startswith("docs/architecture/adr-"):
         return "adr", "docs/lineage/decisions/adr/"
     if raw.startswith("docs/architecture/"):
@@ -241,10 +239,6 @@ def classify(path: Path) -> tuple[str, str]:
         return "data-dictionary", raw
     if raw.startswith("docs/commons/"):
         return "commons", "docs/lineage/modules/commons/"
-    if raw.startswith("docs/irsf-nhs/"):
-        return "research-handoff", "docs/research/"
-    if raw.startswith("docs/poseidon/"):
-        return "poseidon", "docs/lineage/modules/poseidon/"
     if raw.startswith("docs/lineage/") or raw == "docs/README.md":
         return "lineage-index", raw
     if raw.startswith("docs/"):

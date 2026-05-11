@@ -44,7 +44,7 @@ Tracked as a Phase 1 fix; not a regression.
   with this document)
 - **Templates shipped:** 4 (`hello_cdm`, `nodes_test`, `load_athena_vocabulary`,
   `load_synpuf`)
-- **ADRs:** 3 (`docs/adr/000{1,2,3}-*.md`)
+- **ADRs:** 3 (`docs/lineage/decisions/adr/000{1,2,3}-*.md`)
 - **Tests:** 172 unit + integration (templates Python suite); 24 ADR
   guards; Pest feature tests for the Laravel API; 1 Playwright E2E
 - **Phase 0 branches:**

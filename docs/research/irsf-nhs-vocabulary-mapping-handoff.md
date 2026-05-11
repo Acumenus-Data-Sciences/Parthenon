@@ -5,9 +5,11 @@ date: 2026-03-26
 owner: acumenus
 module: irsf-nhs
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/irsf-nhs/COWORK_HANDOFF_VOCABULARY_MAPPING.md
 superseded_by: null
-related_code: []
+related_code:
+  - scripts/irsf_etl/
 related_prs: []
 ---
 # IRSF-NHS Vocabulary Mapping — Cowork Handoff for Research Paper Appendix

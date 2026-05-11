@@ -54,7 +54,7 @@ and pasting the resulting SHAs into the table. The pre-PR-C history
 | FHIR→OMOP PR-C E2E (T-015 PR-C) | + DiagnosticReport/Consent → OBSERVATION + `app.consent_decisions` | `tests/e2e/test_fhir_to_omop_prc.py::test_fhir_to_omop_prc_runs_to_completion` | `<commit>` |
 | 1M Observations < 10 min (T-015) | Performance harness + decision doc | `tests/performance/test_fhir_to_omop_throughput.py::test_1m_observations_under_10_minutes`; `docs/lineage/modules/ingestion/templates-phase-1-perf-decision.md` | `<commit>` |
 | Consent never silently dropped (T-015 PR-C, HIGHSEC) | `MalformedConsentError` raised on missing patient / missing or unknown provision.type | `tests/unit/test_fhir_to_omop_consent.py::test_map_consent_missing_provision_type_raises` | `<commit>` |
-| All Phase 1 ADRs (0004–0008) present | 5 ADRs accepted | `tests/unit/test_adrs.py` (or `ls docs/adr/000{4,5,6,7,8}-*.md`) | `<commit>` |
+| All Phase 1 ADRs (0004–0008) present | 5 ADRs accepted | `tests/unit/test_adrs.py` (or `ls docs/lineage/decisions/adr/000{4,5,6,7,8}-*.md`) | `<commit>` |
 | All `parthenon-templates validate-manifests` exit 0 | CI workflow gates the templates job on a clean validate | `.github/workflows/templates.yml` Validate manifests step | n/a (CI) |
 
 ## Plan-by-plan summary

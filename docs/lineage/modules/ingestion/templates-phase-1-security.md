@@ -59,7 +59,7 @@ unchanged and re-verified in CI on every Phase 1 commit.
 
 | Concern | Mitigation | Verified by |
 |---|---|---|
-| EQ-5D-5L value set is licensed; we cannot redistribute | Ship a placeholder value set clearly marked PLACEHOLDER; readme + ADR 0006 say customers must supply real data | `templates/runtime/instruments/value_sets/eq5d5l_placeholder.csv` (header banner); `docs/adr/0006-pro-instrument-framework.md` |
+| EQ-5D-5L value set is licensed; we cannot redistribute | Ship a placeholder value set clearly marked PLACEHOLDER; readme + ADR 0006 say customers must supply real data | `templates/runtime/instruments/value_sets/eq5d5l_placeholder.csv` (header banner); `docs/lineage/decisions/adr/0006-pro-instrument-framework.md` |
 
 ### Plan 4 — HIPAA Safe Harbor PHI-leak guard (HIGHSEC regression)
 

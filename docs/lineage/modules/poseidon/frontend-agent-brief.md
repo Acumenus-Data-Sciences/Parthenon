@@ -5,9 +5,12 @@ date: 2026-03-29
 owner: acumenus
 module: poseidon
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/poseidon/FRONTEND_AGENT_BRIEF.md
 superseded_by: null
-related_code: []
+related_code:
+  - poseidon/
+  - frontend/src/
 related_prs: []
 ---
 # Poseidon Frontend Agent Brief

@@ -2192,13 +2192,13 @@ For each spec §9 DoD bullet, attach evidence (test path, commit, screenshot, or
 
 ## ADRs
 
-- [ ] `docs/adr/0001-node-sdk-design.md` committed and reflects final design.
+- [ ] `docs/lineage/decisions/adr/0001-node-sdk-design.md` committed and reflects final design.
   Evidence: file exists, last commit reviewed.
 
-- [ ] `docs/adr/0002-orchestration-backend.md` committed.
+- [ ] `docs/lineage/decisions/adr/0002-orchestration-backend.md` committed.
   Evidence: file exists.
 
-- [ ] `docs/adr/0003-template-manifest-format.md` committed.
+- [ ] `docs/lineage/decisions/adr/0003-template-manifest-format.md` committed.
   Evidence: file exists.
 
 ## CI integration
@@ -2380,7 +2380,7 @@ whole devplan.
 - Security review: `docs/lineage/modules/ingestion/templates-phase-0-security.md`
 - DoD: `docs/lineage/modules/ingestion/templates-phase-0-dod.md`
 - Runbook: `docs/lineage/modules/ingestion/templates-phase-0-runbook.md`
-- ADRs: `docs/adr/000{1,2,3}-*.md`
+- ADRs: `docs/lineage/decisions/adr/000{1,2,3}-*.md`
 ```
 
 - [ ] **Step 2: Commit**
@@ -2626,9 +2626,9 @@ git commit -m "docs(devlog): add Phase 0 ingestion-templates ops runbook"
 ## Task 21: ADR review verification
 
 **Files:**
-- Verify: `/home/smudoshi/Github/Parthenon/docs/adr/0001-node-sdk-design.md`
-- Verify: `/home/smudoshi/Github/Parthenon/docs/adr/0002-orchestration-backend.md`
-- Verify: `/home/smudoshi/Github/Parthenon/docs/adr/0003-template-manifest-format.md`
+- Verify: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0001-node-sdk-design.md`
+- Verify: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0002-orchestration-backend.md`
+- Verify: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0003-template-manifest-format.md`
 
 - [ ] **Step 1: Read each ADR and verify against the implementation**
 
@@ -2642,7 +2642,7 @@ For each ADR, confirm:
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/000*.md
+git add docs/lineage/decisions/adr/000*.md
 git commit -m "docs(adr): align Phase 0 ADRs with shipped implementation"
 ```
 

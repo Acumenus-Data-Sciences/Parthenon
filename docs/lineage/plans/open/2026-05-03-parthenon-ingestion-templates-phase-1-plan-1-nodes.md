@@ -3252,7 +3252,7 @@ git commit -m "feat(templates): register Phase 1 node types in registry + manife
 ## Task 17: ADR 0004 — Phase 1 node design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0004-phase-1-node-design.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - Modify: `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py` (add 0004 to the parametrized cases)
 
 Document the three new node types' design choices in MADR format. Decisions captured: ABC compliance (no SDK changes), pixel-data defense in depth, FHIR streaming strategy, anonymizer plug-in interface, profile selector design, sidecar mirror policy.
@@ -3275,7 +3275,7 @@ Expected: FAIL — `0004` ADR file doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
 
-`docs/adr/0004-phase-1-node-design.md`:
+`docs/lineage/decisions/adr/0004-phase-1-node-design.md`:
 
 ```markdown
 # ADR 0004 — Phase 1 Node Design
@@ -3407,7 +3407,7 @@ logged or persisted.
 
 - Phase 1 design spec: `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 1 (this plan): `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-1-nodes.md`
-- Phase 0 Node SDK ADR: `docs/adr/0001-node-sdk-design.md`
+- Phase 0 Node SDK ADR: `docs/lineage/decisions/adr/0001-node-sdk-design.md`
 - HL7 FHIR Bulk Data Access IG: <https://hl7.org/fhir/uv/bulkdata/>
 - pydicom `stop_before_pixels`: <https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dcmread.html>
 - MS Tools-for-Health-Data-Anonymization: <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>
@@ -3432,7 +3432,7 @@ uv run pytest -q
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0004-phase-1-node-design.md templates/tests/test_adrs.py
+git add docs/lineage/decisions/adr/0004-phase-1-node-design.md templates/tests/test_adrs.py
 git commit -m "docs(adr): ADR 0004 — Phase 1 node design"
 ```
 

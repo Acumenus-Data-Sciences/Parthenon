@@ -2063,7 +2063,7 @@ The remaining tasks follow the same patterns established in Plans 2/3/4. Each is
 
 ### Task 12: ADR 0008 — fhir_to_omop architecture and IG pin
 
-- File: `docs/adr/0008-fhir-to-omop-architecture.md`
+- File: `docs/lineage/decisions/adr/0008-fhir-to-omop-architecture.md`
 - Decisions: per-resource mapper module (testable in isolation); IG snapshot file as the only authority for system→vocabulary mappings; person_id resolution via staging map (avoids subquery joins on every INSERT); strict_profile_match defaults false (PR-A; PR-C may flip this); unmapped_concepts_queue feeds existing review flow (no AI mapping); single Phase 1 IG pin (per spec Q9); IG bumps require ADR amendment.
 - Pattern from Plans 2/4 ADRs; add to `tests/test_adrs.py` parametrize list.
 

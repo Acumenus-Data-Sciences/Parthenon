@@ -195,4 +195,4 @@ whole devplan.
 - Security review: `docs/lineage/modules/ingestion/templates-phase-0-security.md`
 - DoD: `docs/lineage/modules/ingestion/templates-phase-0-dod.md`
 - Runbook: `docs/lineage/modules/ingestion/templates-phase-0-runbook.md`
-- ADRs: `docs/adr/000{1,2,3}-*.md`
+- ADRs: `docs/lineage/decisions/adr/000{1,2,3}-*.md`

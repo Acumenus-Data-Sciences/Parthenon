@@ -2023,7 +2023,7 @@ git commit -m "test(templates): assert EQ-5D-5L and EQ-5D-3L both reuse pro_base
 ## Task 10: ADR 0006 — PRO instrument framework design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/adr/0006-pro-instrument-framework.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/0006-pro-instrument-framework.md`
 - Modify: `/home/smudoshi/Github/Parthenon/templates/tests/test_adrs.py` (add `0006`)
 
 - [ ] **Step 1: Write the failing test**
@@ -2042,7 +2042,7 @@ Expected: FAIL — `0006` ADR doesn't exist.
 
 - [ ] **Step 3: Write minimal implementation**
 
-`docs/adr/0006-pro-instrument-framework.md`:
+`docs/lineage/decisions/adr/0006-pro-instrument-framework.md`:
 
 ```markdown
 # ADR 0006 — PRO Instrument Framework Design
@@ -2213,7 +2213,7 @@ uv run pytest -q
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-git add docs/adr/0006-pro-instrument-framework.md templates/tests/test_adrs.py
+git add docs/lineage/decisions/adr/0006-pro-instrument-framework.md templates/tests/test_adrs.py
 git commit -m "docs(adr): ADR 0006 — PRO instrument framework design"
 ```
 
