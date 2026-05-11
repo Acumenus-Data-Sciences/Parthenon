@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-14
+owner: acumenus
+module: commons
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Commons Phase 3: Notifications, Activity Feed & Phenotype Library
 
 **Date:** 2026-03-14

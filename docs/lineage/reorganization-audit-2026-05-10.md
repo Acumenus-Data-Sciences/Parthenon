@@ -445,6 +445,9 @@ CI as the `docs-lineage-contract` job and blocks:
   remaining design specs and strategy notes, and the first module histories.
   Current dated design specs are marked active; older strategy notes and module
   histories are retained as historical lineage.
+- Classified the next 50 module lineage records across analyses, Commons, Data
+  Explorer, FHIR, and FinnGen. Handoffs, prompts, runbooks, and module indexes
+  are typed separately while retained as historical module lineage.
 
 Immediate keep:
 

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: vocabulary
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Concept Hierarchy: Cross-Domain SNOMED Tree & Clinical Groupings
 
 **Date:** 2026-04-05

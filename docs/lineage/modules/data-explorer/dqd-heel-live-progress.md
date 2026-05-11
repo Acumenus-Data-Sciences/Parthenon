@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-19
+owner: acumenus
+module: data-explorer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # DQD & Heel Live Progress + Jobs Integration
 
 **Date:** 2026-03-19

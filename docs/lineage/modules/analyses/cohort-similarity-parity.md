@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-04
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Cohort Similarity Parity Upgrade — From Cohort, Compare Cohorts, and Cohort Expansion
 
 **Date:** 2026-04-04

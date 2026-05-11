@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-08
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Analyses v2 Phase 3 — Execution Coverage on Acumenus CDM
 
 **Date:** 2026-03-08

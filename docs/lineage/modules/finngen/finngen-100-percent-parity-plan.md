@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-16
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FINNGEN 100% Parity Plan
 
 ## Purpose

@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-25
+owner: acumenus
+module: data-explorer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Ares v2 — User Guide
 
 Ares is Parthenon's **network-level data observatory**. It provides characterization, quality tracking, and cross-source analysis across all your clinical data sources — replacing what would require Atlas, Achilles Results Viewer, DQD Dashboard, and several spreadsheets combined.

@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-04-23
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Claude Code Implementation Prompt — REAL-PE Replication Study
 
 **How to use this file:** paste the contents below into a Claude Code session, or invoke with `claude -p "$(cat docs/lineage/modules/analyses/real-pe/IMPLEMENTATION_PROMPT.md)"`. The prompt is self-contained and assumes no prior conversation context.

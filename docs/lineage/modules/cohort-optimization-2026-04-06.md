@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-06
+owner: acumenus
+module: cohorts
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Cohort Generation — 90x Performance Fix + 20 Cohort Fixes
 
 **Date:** 2026-04-06

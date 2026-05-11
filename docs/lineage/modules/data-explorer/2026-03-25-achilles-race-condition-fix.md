@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-25
+owner: acumenus
+module: data-explorer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Achilles Race Condition Fix & Data Pipeline Hardening
 
 **Date:** 2026-03-25

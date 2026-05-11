@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-19
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # R Runtime Hardening — plumber2 Migration, Async Execution, and Infrastructure Overhaul
 
 **Date:** 2026-03-19

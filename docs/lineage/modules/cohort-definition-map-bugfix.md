@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-09
+owner: acumenus
+module: cohorts
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Bugfix: `s.map is not a function` on Cohort Definition Detail Page
 
 **Date:** 2026-03-09

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-19
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Studies Phase B — Full HADES Pipeline Validated End-to-End
 
 **Date:** 2026-03-19 to 2026-03-20

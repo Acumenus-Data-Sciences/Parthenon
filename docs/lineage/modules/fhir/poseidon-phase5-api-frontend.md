@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-28
+owner: acumenus
+module: fhir
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Poseidon Phase 5: Laravel API + Panel-Based Frontend
 
 **Date:** 2026-03-28

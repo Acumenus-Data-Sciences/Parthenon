@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-25
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen — Cohort Research Workbench
 
 This directory documents Parthenon's FinnGen cohort research workbench implementation, including design specifications, acceptance testing, parity analysis, and developer guides.

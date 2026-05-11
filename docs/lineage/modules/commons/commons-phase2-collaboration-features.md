@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-13
+owner: acumenus
+module: commons
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Commons Phase 2: Collaboration Features
 
 **Date:** 2026-03-13

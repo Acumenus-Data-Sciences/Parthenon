@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-04-23
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # REAL-PE Replication in Parthenon
 
 **Status:** Draft scaffold — concept_ids not yet hydrated, feasibility not yet run.
