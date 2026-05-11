@@ -1,3 +1,17 @@
+---
+doc_type: plan
+status: historical
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/README.md
+  - templates/runtime/runner.py
+related_prs: []
+---
 # Parthenon — D2E-Style Ingestion Patterns Development Plan
 
 > **For Claude Code.** This is an executable, agentic dev plan. Each task is self-contained with paths, acceptance criteria, and references. You can pick up any task from `## Backlog` and execute it without re-reading the whole document — task headers carry their own context.

@@ -1,35 +1,5 @@
 # Existing Markdown/MDX files that predate the lineage frontmatter contract.
 # New files should not be added here unless they are intentionally historical.
-docs/abby-seed/devlog/paul-nagy-imaging-note.md
-docs/abby-seed/reference/clinvar.md
-docs/abby-seed/reference/cohortmethod.md
-docs/abby-seed/reference/hgvs.md
-docs/abby-seed/reference/omop-common-data-model.md
-docs/abby-seed/reference/parthenon-genomics-variant-reference.md
-docs/architecture/2026-04-02-patient-similarity-engine-design.md
-docs/architecture/2026-04-04-patient-similarity-evaluation-report.md
-docs/architecture/2026-04-05-abby-institutional-scale-hardware-and-deployment-plan.md
-docs/architecture/2026-04-05-patient-similarity-next-steps-plan.md
-docs/architecture/2026-04-10-omop-extension-remediation-package.md
-docs/architecture/PARTHENON_INGESTION_DEVPLAN.md
-docs/architecture/database-architecture.md
-docs/architecture/extension-points.md
-docs/architecture/extension-points/audit-sink.md
-docs/architecture/extension-points/auth-driver.md
-docs/architecture/extension-points/compose-composition.md
-docs/architecture/extension-points/crypto-provider.md
-docs/architecture/extension-points/feature-flags.md
-docs/architecture/extension-points/installer-phase-registry.md
-docs/architecture/extension-points/observability-shipper.md
-docs/architecture/extension-points/tenant-resolver.md
-docs/architecture/patient-similarity-engine.md
-docs/blog/README.md
-docs/blog/community-post.md
-docs/commons/COMMONS_WORKSPACE_SPEC.md
-docs/commons/abby-components/README.md
-docs/data-dictionary/app-schema.md
-docs/irsf-nhs/COWORK_HANDOFF_PAPER.md
-docs/irsf-nhs/COWORK_HANDOFF_VOCABULARY_MAPPING.md
 docs/lineage/archive/plans/2026-03-08-analysis-visualization-improvements-design.md
 docs/lineage/archive/plans/2026-03-08-analysis-visualization-improvements.md
 docs/lineage/archive/plans/2026-03-09-chromadb-abby-brain-design.md
@@ -651,5 +621,3 @@ docs/lineage/timeline/sessions/2026/2026-05-09-managed-ohdsi-shiny-closeout.md
 docs/lineage/timeline/sessions/2026/2026-05-10-ce-ee-fork-phase2-plan03-plan04partial-wrapup.md
 docs/lineage/timeline/sessions/2026/2026-05-10-compose-contract-infra-overlay-mode.md
 docs/lineage/timeline/sessions/2026/2026-05-10-uutils-coreutils-dirname-bug.md
-docs/poseidon/FRONTEND_AGENT_BRIEF.md
-docs/poseidon/HANDOFF.md

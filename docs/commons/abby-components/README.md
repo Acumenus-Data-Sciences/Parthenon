@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: archived
+date: 2026-03-14
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Abby — AI Research Companion Components
 
 React 19 + TypeScript components for integrating Abby into the Parthenon Commons workspace.

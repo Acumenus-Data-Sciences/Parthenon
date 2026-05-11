@@ -415,6 +415,17 @@ CI as the `docs-lineage-contract` job and blocks:
 - Left transition READMEs in `docs/devlog/`, `docs/superpowers/`, and
   `docs/handoffs/` so old top-level directory names remain explainable.
 
+### 2026-05-11: Baseline reduction
+
+- Classified canonical `docs/ops/`, `docs/compliance/`, `docs/demo/`, and
+  `docs/research/` files with lineage frontmatter.
+- Classified the remaining small non-lineage-root baseline set in
+  `docs/architecture/`, `docs/abby-seed/`, `docs/commons/`, `docs/blog/`,
+  `docs/data-dictionary/`, `docs/irsf-nhs/`, and `docs/poseidon/`.
+- Marked files that still live in legacy roots as `historical` or `archived`
+  until they are either rehomed to canonical lineage/reference paths or left as
+  explicit legacy context.
+
 Immediate keep:
 
 These lists preserve the original audit recommendations. The migration

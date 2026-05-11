@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-14
+owner: acumenus
+module: commons
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Commons Workspace — Implementation Specification
 
 ## Overview

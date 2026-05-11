@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Abby Institutional-Scale Hardware And Deployment Plan
 
 Date: 2026-04-05

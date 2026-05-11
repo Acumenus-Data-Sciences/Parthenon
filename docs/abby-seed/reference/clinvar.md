@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: archived
+date: 2026-04-06
+owner: acumenus
+module: genomics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # ClinVar
 
 ClinVar is the NCBI public archive of submitted interpretations of human genetic variants and their relationships to disease or other phenotypes.

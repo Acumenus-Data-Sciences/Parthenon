@@ -1,3 +1,15 @@
+---
+doc_type: blog
+status: active
+date: 2026-03-25
+owner: acumenus
+module: blog
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Blog — Development Diaries & Feature Posts
 
 This directory contains development diaries and feature announcements tracking Parthenon's evolution.

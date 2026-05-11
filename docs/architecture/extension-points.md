@@ -1,3 +1,22 @@
+---
+doc_type: spec
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: extension-points
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Contracts/AuthDriverInterface.php
+  - backend/app/Contracts/TenantResolverInterface.php
+  - backend/app/Contracts/CryptoProviderInterface.php
+  - backend/app/Contracts/AuditSinkInterface.php
+  - backend/app/Contracts/ObservabilityShipperInterface.php
+  - frontend/src/contracts/featureFlags.ts
+  - scripts/verify_compose_contract.py
+related_prs: []
+---
 # Parthenon CE Extension Points
 
 Parthenon Community Edition exposes 8 extension-point seams that allow drop-in alternative implementations without patching CE source. The extension points are designed for two consumers:

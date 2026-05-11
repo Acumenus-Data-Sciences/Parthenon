@@ -1,3 +1,15 @@
+---
+doc_type: research
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: patient-similarity
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity Evaluation Report
 
 Date: 2026-04-04

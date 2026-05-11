@@ -1,3 +1,15 @@
+---
+doc_type: research
+status: archived
+date: 2026-04-06
+owner: acumenus
+module: abby-seed
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Paul Nagy and OHDSI Medical Imaging
 
 This seed note exists to validate Abby's retrieval behavior for a specific name-based query.

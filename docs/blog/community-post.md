@@ -1,3 +1,15 @@
+---
+doc_type: blog
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: blog
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Introducing Parthenon — A Unified, Open-Source OHDSI Platform (Seeking Collaborators & Testers)
 
 Hi everyone,

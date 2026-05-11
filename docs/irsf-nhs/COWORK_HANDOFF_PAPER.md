@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: archived
+date: 2026-03-26
+owner: acumenus
+module: irsf-nhs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # IRSF-NHS Research Paper — Cowork Handoff
 
 **Prepared:** 2026-03-26

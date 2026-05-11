@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: archived
+date: 2026-04-06
+owner: acumenus
+module: genomics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # HGVS Variant Nomenclature
 
 HGVS stands for Human Genome Variation Society nomenclature. It is the standard system for describing sequence variants relative to a stated reference sequence.

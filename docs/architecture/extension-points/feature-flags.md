@@ -1,3 +1,16 @@
+---
+doc_type: spec
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: extension-points
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - frontend/src/contracts/featureFlags.ts
+related_prs: []
+---
 # Extension Point: Feature Flags + EnterpriseGate
 
 **Backend resolver:** `App\FeatureFlags\FeatureFlagResolver`

@@ -1,3 +1,19 @@
+---
+doc_type: spec
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: extension-points
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - docker-compose.community.yml
+  - docker-compose.yml
+  - scripts/verify_compose_contract.py
+  - scripts/verify_compose_contract_test.py
+related_prs: []
+---
 # Extension Point: Compose Composition Contract
 
 **Verifier:** `scripts/verify_compose_contract.py`

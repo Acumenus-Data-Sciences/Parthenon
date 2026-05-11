@@ -1,3 +1,16 @@
+---
+doc_type: spec
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: extension-points
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Contracts/AuthDriverInterface.php
+related_prs: []
+---
 # Extension Point: Auth Driver
 
 **Interface:** `App\Contracts\AuthDriverInterface`

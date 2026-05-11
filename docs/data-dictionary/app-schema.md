@@ -1,3 +1,16 @@
+---
+doc_type: reference
+status: historical
+date: 2026-04-02
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/database/migrations
+related_prs: []
+---
 # Parthenon `app` Schema — Data Dictionary
 
 **Last Updated:** 2026-04-02

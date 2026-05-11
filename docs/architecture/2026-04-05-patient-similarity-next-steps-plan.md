@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: patient-similarity
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity Next Steps Plan
 
 Date: 2026-04-05

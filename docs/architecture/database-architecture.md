@@ -1,3 +1,16 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-12
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/database/migrations
+related_prs: []
+---
 # Parthenon Database Architecture
 
 > **Reading time:** ~15 minutes
