@@ -189,7 +189,7 @@ The following risks have been evaluated and accepted:
 
 ## 7. Remediation Plan
 
-Active remediation is tracked in `docs/architecture/compliance-remediation-plan.md` with a 14-day timeline. Key actions:
+Active remediation is tracked in `docs/compliance/compliance-remediation-plan.md` with a 14-day timeline. Key actions:
 
 | Priority | Action | Target Date | Status |
 |---|---|---|---|
@@ -227,4 +227,4 @@ This risk assessment was conducted using the following approach:
 - NIST SP 800-66 Rev. 2: Implementing the HIPAA Security Rule
 - CIS Benchmarks: Ubuntu 24.04, Apache HTTP Server 2.4
 - Parthenon HIGHSEC Specification: `.claude/rules/HIGHSEC.spec.md`
-- Parthenon Compliance Remediation Plan: `docs/architecture/compliance-remediation-plan.md`
+- Parthenon Compliance Remediation Plan: `docs/compliance/compliance-remediation-plan.md`

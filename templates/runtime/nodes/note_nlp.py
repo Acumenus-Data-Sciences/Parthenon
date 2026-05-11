@@ -101,7 +101,7 @@ def _resolve_backend(params: dict[str, Any]) -> NlpBackend:
         warnings.warn(
             "LlettuceBackend is eval-only in Phase 2. Production graduation "
             "is gated to Phase 3 based on the NER eval report — see "
-            "docs/architecture/adr-0013-llettuce-eval-and-graduation.md.",
+            "docs/lineage/decisions/adr/adr-0013-llettuce-eval-and-graduation.md.",
             RuntimeWarning,
             stacklevel=2,
         )

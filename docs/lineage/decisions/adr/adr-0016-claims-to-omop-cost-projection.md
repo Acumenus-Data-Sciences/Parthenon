@@ -180,7 +180,7 @@ Phase 3 timeframe. See *Open follow-ups*.
 - X12 835 implementation guide 005010X221A1 (Washington Publishing).
 - HIGHSEC §7 — `/.claude/rules/HIGHSEC.spec.md`.
 - Phase 3 Plan 1 — `docs/superpowers/plans/2026-05-06-parthenon-ingestion-templates-phase-3-plan-1-x12-837.md`.
-- ADR 0015 (`sql_file://` reader) — `docs/architecture/adr-0015-sql-file-reader.md`.
+- ADR 0015 (`sql_file://` reader) — `docs/lineage/decisions/adr/adr-0015-sql-file-reader.md`.
 - Phase 3 Plan 2 — `docs/superpowers/plans/2026-05-06-parthenon-ingestion-templates-phase-3-plan-2-x12-835.md`.
 
 ---

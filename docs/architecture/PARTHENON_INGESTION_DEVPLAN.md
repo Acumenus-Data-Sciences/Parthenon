@@ -46,7 +46,7 @@
 Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`). Scope is the package (`feat(parthenon-nodes): add csv-reader node`).
 
 ### 1.4 ADRs (Architecture Decision Records)
-Architecturally significant decisions land in `docs/adr/NNNN-title.md` using the [MADR](https://adr.github.io/madr/) template. The platform-abstraction tasks (T-001, T-002, T-003) each require an ADR. Rule of thumb: if a future engineer would ask "why did we pick X?", write the ADR.
+Architecturally significant decisions land in `docs/lineage/decisions/adr/NNNN-title.md` using the [MADR](https://adr.github.io/madr/) template. The platform-abstraction tasks (T-001, T-002, T-003) each require an ADR. Rule of thumb: if a future engineer would ask "why did we pick X?", write the ADR.
 
 ### 1.5 Crimson brand color
 For any new Parthenon-branded UI element, accent color is **crimson `#9B1B30`** (not navy). Light variant `#F4DADF`. This is a project-wide convention.
@@ -183,7 +183,7 @@ Three platform abstractions, layered:
 - [ ] All 8 nodes pass their unit tests with >90% line coverage.
 - [ ] Each node has a docstring example that doctest runs green.
 - [ ] `mypy --strict packages/parthenon-nodes` passes.
-- [ ] ADR `docs/adr/0001-node-sdk-design.md` covering: dataframe library choice (Polars vs Pandas), schema library choice (Pandera vs Patito), and subprocess vs in-process execution.
+- [ ] ADR `docs/lineage/decisions/adr/0001-node-sdk-design.md` covering: dataframe library choice (Polars vs Pandas), schema library choice (Pandera vs Patito), and subprocess vs in-process execution.
 
 **Files to create (initial)**
 ```
@@ -234,7 +234,7 @@ packages/parthenon-nodes/
 - [ ] A 3-node hello-world flow runs end-to-end on Prefect 3.x and produces artifacts in the configured storage backend.
 - [ ] Run metadata persisted to the Parthenon catalog DB.
 - [ ] Backend selectable via config (env var `PARTHENON_ORCHESTRATION_BACKEND=prefect`).
-- [ ] ADR `docs/adr/0002-orchestration-backend.md` covering: Prefect vs Temporal vs Dagster, why Prefect default, swap path.
+- [ ] ADR `docs/lineage/decisions/adr/0002-orchestration-backend.md` covering: Prefect vs Temporal vs Dagster, why Prefect default, swap path.
 
 **Files to create**
 ```
@@ -304,7 +304,7 @@ packages/parthenon-orchestration/
 - [ ] Registry can load all manifests from `templates/`, validate them, and materialize a flow when given valid parameters.
 - [ ] Invalid manifest in `templates/_test_invalid/` is rejected with a clear error message.
 - [ ] CI fails when any committed manifest doesn't validate.
-- [ ] ADR `docs/adr/0003-template-manifest-format.md` covering: YAML schema choices, versioning policy, third-party manifest signing posture (deferred but documented).
+- [ ] ADR `docs/lineage/decisions/adr/0003-template-manifest-format.md` covering: YAML schema choices, versioning policy, third-party manifest signing posture (deferred but documented).
 
 **Files to create**
 ```
@@ -797,7 +797,7 @@ For every template, ship:
 
 For platform packages:
 - Each package ships an `API.md` generated from docstrings (`pdoc` or `mkdocstrings`).
-- Each ADR lives at `docs/adr/NNNN-title.md`.
+- Each ADR lives at `docs/lineage/decisions/adr/NNNN-title.md`.
 
 For the developer portal:
 - A "Build your first template" tutorial that takes a developer from zero to a custom template in ≤30 minutes.

@@ -145,7 +145,7 @@ without leaking the seed); the salt itself is **never** logged or persisted.
   `docs/superpowers/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 1 (this plan):
   `docs/superpowers/plans/2026-05-03-parthenon-ingestion-templates-phase-1-plan-1-nodes.md`
-- Phase 0 Node SDK ADR: `docs/adr/0001-node-sdk-design.md`
+- Phase 0 Node SDK ADR: `docs/lineage/decisions/adr/0001-node-sdk-design.md`
 - HL7 FHIR Bulk Data Access IG: <https://hl7.org/fhir/uv/bulkdata/>
 - pydicom `stop_before_pixels`:
   <https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dcmread.html>

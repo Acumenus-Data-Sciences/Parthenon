@@ -164,7 +164,7 @@ original `_shift_date(str(value), ...)` crashed on it.
 - Phase 1 Plan 4 (this plan):
   `docs/superpowers/plans/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
 - Phase 1 Plan 1 ADR (AnonymizerNode + sidecar):
-  `docs/adr/0004-phase-1-node-design.md`
+  `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - HIPAA Safe Harbor de-identification: 45 CFR §164.514(b)(2)
 - Microsoft FHIR Anonymizer:
   <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>

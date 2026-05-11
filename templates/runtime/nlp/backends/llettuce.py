@@ -28,7 +28,7 @@ def _lettuce_run(text: str) -> list[dict[str, Any]]:
     try:
         # Resolve the actual upstream API at integration time.
         # The PyPI name + entry-point may change once UCL publishes — see
-        # docs/architecture/adr-0013-llettuce-eval-and-graduation.md.
+        # docs/lineage/decisions/adr/adr-0013-llettuce-eval-and-graduation.md.
         from lettuce import run as _run  # type: ignore[import-not-found]
     except ImportError as exc:  # pragma: no cover
         raise LlettuceBackendError(

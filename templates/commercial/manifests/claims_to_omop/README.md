@@ -21,7 +21,7 @@ projects them to:
 The COST projection is the **Parthenon-specific commercial wedge** —
 D2E does not ship a COST mapper. Customers running this template can
 answer cost-effectiveness research questions D2E can't. See
-`docs/architecture/adr-0016-claims-to-omop-cost-projection.md`.
+`docs/lineage/decisions/adr/adr-0016-claims-to-omop-cost-projection.md`.
 
 ## Pipeline (12 stages)
 
