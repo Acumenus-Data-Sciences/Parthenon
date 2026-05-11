@@ -15,7 +15,7 @@ related_prs: []
 **Date:** 2026-04-10
 **Module:** Patient Profiles
 **Spec:** `docs/lineage/design/specs/2026-04-09-patient-labs-trend-chart-design.md`
-**Plan:** `docs/lineage/plans/open/2026-04-09-patient-labs-trend-chart.md`
+**Plan:** `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
 **Branch:** `feature/patient-labs-trend-chart`
 
 ## What shipped

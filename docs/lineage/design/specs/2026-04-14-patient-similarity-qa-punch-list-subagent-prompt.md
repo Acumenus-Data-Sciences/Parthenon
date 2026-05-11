@@ -279,7 +279,7 @@ If there is an existing narrower test command already used in this repo for the 
 
 Useful context documents:
 - `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
-- `docs/lineage/plans/open/2026-04-10-patient-similarity-ux-redesign.md`
+- `docs/lineage/plans/closed/2026-04-10-patient-similarity-ux-redesign.md`
 - `docs/blog/2026-04-10-patient-similarity-workspace-redesign.md`
 
 Useful source files:

@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-02
 owner: acumenus
 module: patient-similarity
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-04-02-patient-similarity-engine.md
 related_code: []
 related_prs: []
 ---

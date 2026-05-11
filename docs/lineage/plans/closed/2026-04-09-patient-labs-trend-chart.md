@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-09
 owner: acumenus
 module: patient-profiles
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/patient-profiles/2026-04-10-labs-trend-chart-shipped.md
 related_code: []
 related_prs: []
 ---
@@ -3602,7 +3602,7 @@ Pancreas has the `range_low` / `range_high` already populated in the ETL, but we
 **Date:** 2026-04-09
 **Module:** Patient Profiles
 **Spec:** `docs/lineage/design/specs/2026-04-09-patient-labs-trend-chart-design.md`
-**Plan:** `docs/lineage/plans/open/2026-04-09-patient-labs-trend-chart.md`
+**Plan:** `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
 
 ## What shipped
 
@@ -3733,7 +3733,7 @@ git commit -m "feat(profiles): expand lab reference ranges YAML to Tier 3 covera
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/lineage/plans/open/2026-04-09-patient-labs-trend-chart.md`. Two execution options:
+Plan complete and saved to `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration. Best for a 20-task plan where each task has clear acceptance criteria.
 

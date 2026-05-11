@@ -509,6 +509,10 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking each to
   its shipped module lineage record. Patient Similarity QA/finding TODOs remain
   open pending closure evidence.
+- Moved the shipped Patient Similarity engine, Patient Similarity workspace
+  redesign, and Patient Labs trend chart plans from
+  `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking them to
+  their shipped blog or module closeout records.
 
 Post-migration keep:
 
@@ -526,6 +530,9 @@ above.
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-{3,4,5,6}-*.md`
 - shipped `docs/lineage/plans/closed/2026-04-04-cohort-similarity-parity.md`
+- shipped `docs/lineage/plans/closed/2026-04-02-patient-similarity-engine.md`
+- shipped `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
+- shipped `docs/lineage/plans/closed/2026-04-10-patient-similarity-ux-redesign.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
 - `docs/lineage/handoffs/**`
