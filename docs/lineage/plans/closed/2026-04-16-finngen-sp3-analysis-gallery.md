@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-16
 owner: acumenus
 module: finngen
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/finngen/sp3-close.md
 related_code: []
 related_prs: []
 ---
@@ -22,7 +22,7 @@ related_prs: []
 
 **Spec:** `docs/lineage/design/specs/2026-04-16-finngen-sp3-analysis-gallery-design.md`
 **SP1 devlog:** `docs/lineage/modules/finngen/sp1-runtime-foundation.md`
-**SP2 plan:** `docs/lineage/plans/open/2026-04-15-finngen-sp2-code-explorer.md`
+**SP2 plan:** `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
 
 ---
 
@@ -3858,7 +3858,7 @@ No drift.
 
 ## Execution Handoff
 
-**Plan complete and saved to `docs/lineage/plans/open/2026-04-16-finngen-sp3-analysis-gallery.md`. Two execution options:**
+**Plan complete and saved to `docs/lineage/plans/closed/2026-04-16-finngen-sp3-analysis-gallery.md`. Two execution options:**
 
 **1. Subagent-Driven (recommended)** -- I dispatch a fresh subagent per task, review between tasks, fast iteration
 

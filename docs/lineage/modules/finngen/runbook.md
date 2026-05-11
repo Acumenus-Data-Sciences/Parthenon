@@ -316,7 +316,7 @@ See `docs/lineage/design/specs/2026-04-12-finngen-workbench-subprojects-handoff.
 ## Links
 
 - **Spec:** `docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md`
-- **Plan:** `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md`
+- **Plan:** `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
 - **Sub-project handoff:** `docs/lineage/design/specs/2026-04-12-finngen-workbench-subprojects-handoff.md`
 - **SP1 devlog:** `docs/lineage/modules/finngen/sp1-runtime-foundation.md`
 - **HIGHSEC rules:** `.claude/rules/HIGHSEC.spec.md`

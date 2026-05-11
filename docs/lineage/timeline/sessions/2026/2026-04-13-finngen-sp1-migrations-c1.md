@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-04-13
 **Branch:** `feature/finngen-sp1-runtime-foundation`
-**Plan:** `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md` — Part C / Task C1
+**Plan:** `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md` — Part C / Task C1
 
 ## What
 

@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-13
 owner: acumenus
 module: auth
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/timeline/sessions/2026/2026-04-15-authentik-sso-phase7-live.md
 related_code: []
 related_prs: []
 ---

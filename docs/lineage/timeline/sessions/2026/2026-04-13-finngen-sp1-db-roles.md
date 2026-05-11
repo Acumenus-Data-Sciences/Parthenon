@@ -15,7 +15,7 @@ related_prs: []
 **Date:** 2026-04-13
 **Branch:** `feature/finngen-sp1-runtime-foundation`
 **Related spec:** `docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md`
-**Related plan:** `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md` (Part A, Task A2)
+**Related plan:** `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md` (Part A, Task A2)
 
 ## What shipped
 

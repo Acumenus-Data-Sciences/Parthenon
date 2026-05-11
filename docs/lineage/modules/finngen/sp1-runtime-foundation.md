@@ -16,7 +16,7 @@ related_prs: []
 **Started:** 2026-04-12
 **Completed:** 2026-04-15
 **Spec:** `docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md`
-**Plan:** `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md`
+**Plan:** `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
 **Runbook:** `docs/lineage/modules/finngen/runbook.md`
 
 ## What SP1 delivers

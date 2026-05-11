@@ -88,7 +88,7 @@ conditional path:
 - API-driven Authentik provisioning for the `parthenon-oidc` app
 - Acropolis installer registers `parthenon-oidc` automatically
 
-A phased rollout plan is documented at `docs/lineage/plans/open/2026-04-13-authentik-parthenon-sso.md`.
+A phased rollout plan is documented at `docs/lineage/plans/closed/2026-04-13-authentik-parthenon-sso.md`.
 Username/password and the existing temp-password / forced-change flow are
 preserved exactly.
 

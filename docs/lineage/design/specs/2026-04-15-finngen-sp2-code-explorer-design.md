@@ -667,7 +667,7 @@ Per MEMORY `feedback_deploy_migration_guard`: full `./deploy.sh` skips migration
 ## Appendix A — Cross-references
 
 - **SP1 spec:** `docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md`
-- **SP1 plan:** `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md`
+- **SP1 plan:** `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
 - **Subprojects handoff (original SP2 outline):** `docs/lineage/design/specs/2026-04-12-finngen-workbench-subprojects-handoff.md` §1
 - **SP1 devlog:** `docs/lineage/modules/finngen/sp1-runtime-foundation.md`
 - **SP1 runbook:** `docs/lineage/modules/finngen/runbook.md`

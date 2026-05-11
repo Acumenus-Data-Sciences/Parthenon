@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-11
 owner: acumenus
 module: ui
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/ui/2026-04-12-light-mode-rollout.md
 related_code: []
 related_prs: []
 ---

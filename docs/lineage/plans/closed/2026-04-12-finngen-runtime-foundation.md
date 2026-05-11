@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-12
 owner: acumenus
 module: finngen
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/modules/finngen/sp1-runtime-foundation.md
 related_code: []
 related_prs: []
 ---
@@ -3309,7 +3309,7 @@ docker compose exec php sh -c 'cd /var/www/html && php artisan finngen:smoke-tes
 
 ## Plan complete.
 
-Saved to `docs/lineage/plans/open/2026-04-12-finngen-runtime-foundation.md`. Two execution options:
+Saved to `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** — I dispatch a fresh subagent per task, review between tasks, fast iteration. Each task's check-boxed steps become the subagent's prompt; green tests + passing verification gate each commit.
 

@@ -14,7 +14,7 @@ related_prs: []
 
 **Status:** Deployed to production 2026-04-15. 4 of 5 tabs working end-to-end on PANCREAS; Report tab has a deferred infrastructure bug.
 **Spec:** `docs/lineage/design/specs/2026-04-15-finngen-sp2-code-explorer-design.md`
-**Plan:** `docs/lineage/plans/open/2026-04-15-finngen-sp2-code-explorer.md`
+**Plan:** `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
 
 ## What SP2 delivers
 

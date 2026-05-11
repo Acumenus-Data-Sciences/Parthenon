@@ -101,7 +101,7 @@ Eight-slot categorical chart palette (`--chart-1`…`--chart-8`) is likewise the
 
 ### Phase 1 — Core infrastructure
 Spec: `docs/lineage/design/specs/2026-04-11-light-mode-design.md`
-Plan: `docs/lineage/plans/open/2026-04-11-light-mode-phase1.md` (8 tasks)
+Plan: `docs/lineage/plans/closed/2026-04-11-light-mode-phase1.md` (8 tasks)
 
 | Commit | What |
 |---|---|
@@ -225,6 +225,6 @@ No rollbacks. No production incidents. Three deploys were corrective (restore-fr
 - **Frontend (React/TypeScript):** ~80 files touched across Phases 1–4 + persistence layer. Core infra 6 files. Modal/wizard sweep 19 files. Page/panel sweep 27 files. Chart + chrome 5 files. Plus this session's themeStore + User type update.
 - **Database:** 1 new column (`app.users.theme_preference varchar(10) DEFAULT 'dark'`)
 - **New HTTP endpoint:** `PUT /v1/user/theme` (Sanctum, throttled, own-user-only)
-- **Design docs:** `docs/lineage/design/specs/2026-04-11-light-mode-design.md`, `docs/lineage/plans/open/2026-04-11-light-mode-phase1.md`
+- **Design docs:** `docs/lineage/design/specs/2026-04-11-light-mode-design.md`, `docs/lineage/plans/closed/2026-04-11-light-mode-phase1.md`
 
 Shipped to https://parthenon.acumenus.net. All smoke checks green.

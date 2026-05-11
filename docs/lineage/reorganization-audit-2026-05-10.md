@@ -513,6 +513,9 @@ CI as the `docs-lineage-contract` job and blocks:
   redesign, and Patient Labs trend chart plans from
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`, linking them to
   their shipped blog or module closeout records.
+- Moved the v1.0.6 release-era Light Mode, Authentik SSO, and FinnGen SP1-SP3
+  plans from `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`,
+  linking them to the rollout, live-smoke, and module closeout records.
 
 Post-migration keep:
 
@@ -533,8 +536,13 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-02-patient-similarity-engine.md`
 - shipped `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-patient-similarity-ux-redesign.md`
+- shipped `docs/lineage/plans/closed/2026-04-11-light-mode-phase1.md`
+- shipped `docs/lineage/plans/closed/2026-04-12-finngen-runtime-foundation.md`
+- shipped `docs/lineage/plans/closed/2026-04-13-authentik-parthenon-sso.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
+- shipped `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
+- shipped `docs/lineage/plans/closed/2026-04-16-finngen-sp3-analysis-gallery.md`
 - `docs/lineage/handoffs/**`
 - `docs/lineage/modules/poseidon/**`
 - `docs/research/irsf-nhs-*.md`
