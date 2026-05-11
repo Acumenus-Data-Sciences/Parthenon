@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-24
+owner: acumenus
+module: vocabulary
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # VSAC Value Set Library — CMS dQM/eCQM Reference Data
 
 **Date:** 2026-04-24

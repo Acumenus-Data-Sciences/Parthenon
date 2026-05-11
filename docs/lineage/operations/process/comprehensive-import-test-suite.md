@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-13
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Comprehensive Import Test Suite — Devlog
 
 **Date:** 2026-03-13

@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-05
+owner: acumenus
+module: atlas
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Atlas Migration Wizard
 
 **Date:** 2026-03-05

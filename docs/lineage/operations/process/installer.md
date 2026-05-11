@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-03
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Python Installer — Devlog
 
 **Date:** 2026-03-03

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-05
+owner: acumenus
+module: ux
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # UX: Contextual Help System & Docs Integration
 
 **Date:** 2026-03-05

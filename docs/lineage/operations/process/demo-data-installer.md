@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-06
+owner: acumenus
+module: demo
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Demo Data Installer — Tiered Dataset Downloads
 
 **Date:** 2026-03-06

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-04
+owner: acumenus
+module: abby
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Chroma Benchmarking And Memory Migration
 
 **Date:** 2026-04-04

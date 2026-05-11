@@ -456,6 +456,10 @@ CI as the `docs-lineage-contract` job and blocks:
   Morpheus, Results Explorer, Solr, Studies, SynPUF, UI, and UX. Handoffs,
   prompts, how-to guides, data dictionaries, module indexes, plans, and specs
   are typed separately while retained as historical module lineage.
+- Classified the final module record plus the first 49 operations process
+  records. SOPs, installers, onboarding tutorial scripts, audits, security
+  notes, plans, and operational devlogs are typed separately while retained as
+  historical process lineage.
 
 Immediate keep:
 

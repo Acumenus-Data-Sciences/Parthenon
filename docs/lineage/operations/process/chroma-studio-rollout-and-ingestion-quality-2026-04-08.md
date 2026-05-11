@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-08
+owner: acumenus
+module: abby
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Chroma Studio Rollout And Ingestion Quality Hardening
 
 **Date:** 2026-04-08

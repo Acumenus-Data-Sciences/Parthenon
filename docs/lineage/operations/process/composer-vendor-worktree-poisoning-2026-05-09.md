@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: dependencies
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Composer Vendor Worktree Poisoning — Prod Outage
 
 **Date:** 2026-05-09

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-16
+owner: acumenus
+module: commons
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Community Workbench SDK
 
 ## Purpose

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-09
+owner: acumenus
+module: care-bundles
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CMS eCQM Measure Titles Backfill
 
 **Date:** 2026-05-09

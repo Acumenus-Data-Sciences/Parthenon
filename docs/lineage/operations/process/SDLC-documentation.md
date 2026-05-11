@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-03
+owner: acumenus
+module: sdlc
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon SDLC — Documentation & Testing Playbook
 
 **Purpose:** This playbook defines the exact steps to execute the Phase 8 (Testing) and Phase 9 (Documentation) obligations whenever a new feature phase ships — specifically targeting Phases 15 (Genomics), 16 (Medical Imaging), and 17 (HEOR), but applicable to any future phase.

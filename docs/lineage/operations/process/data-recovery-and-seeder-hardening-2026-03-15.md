@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-15
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Data Recovery and Seeder Hardening — 2026-03-15
 
 **Severity:** Critical incident

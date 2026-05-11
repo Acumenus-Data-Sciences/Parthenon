@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-16
+owner: acumenus
+module: ci
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CI Fix: Phenotype schema alignment + authoring controller
 
 **Date:** 2026-04-16

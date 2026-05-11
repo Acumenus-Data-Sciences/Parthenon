@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-18
+owner: acumenus
+module: quality
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Full Codebase Health Audit & Remediation — 2026-03-18
 
 **Severity:** Systematic quality sweep

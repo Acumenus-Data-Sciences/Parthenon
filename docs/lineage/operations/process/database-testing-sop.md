@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-15
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Database Testing SOP — Parthenon
 
 **Last updated:** 2026-03-15

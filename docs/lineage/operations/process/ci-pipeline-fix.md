@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-06
+owner: acumenus
+module: ci
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CI Pipeline Fix — Devlog
 
 **Date:** 2026-03-06

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-02
+owner: acumenus
+module: acropolis
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Acropolis Service Hardening — 2026-04-02
 
 ## Context
