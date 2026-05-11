@@ -15,6 +15,8 @@ jobs:
       - name: Check for stale org references
         run: |
           set -e
+          # Guard scripts intentionally keep legacy strings in deny-list
+          # patterns and failure messages, so exclude those self-matches.
           STALE=$(grep -rn 'sudoshi/Parthenon\|ghcr\.io/sudoshi/parthenon' \
             --include='*.md' --include='*.yml' --include='*.yaml' \
             --include='*.json' --include='*.toml' --include='*.sh' \
@@ -29,6 +31,8 @@ jobs:
             | grep -v 'docs/lineage/' \
             | grep -v 'docs/devlog/' \
             | grep -v 'docs/blog/' \
+            | grep -v '^\./scripts/docs/catalog_lineage_docs\.py:' \
+            | grep -v '^\./docs/site/scripts/check-public-docs-current\.sh:' \
             | grep -v '.github/workflows/license-guard.yml' \
             || true)
           if [ -n "$STALE" ]; then
