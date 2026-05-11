@@ -22,7 +22,7 @@ Each entry below is a child plan. Filenames follow the existing convention (`YYY
 
 | ID | Plan | Status | Predecessor |
 |---|---|---|---|
-| AI-1 | `2026-05-XX-v1-0-8-docs-and-onboarding.md` | *deferred* | v1.0.7 shipped |
+| AI-1 | [`2026-05-10-v1-0-8-docs-and-onboarding.md`](2026-05-10-v1-0-8-docs-and-onboarding.md) | **authored 2026-05-10**, 14 tasks ready | v1.0.7 shipped |
 | AI-2 | `2026-05-XX-v1-0-9-security-audit.md` | *deferred* | v1.0.8 |
 | AI-3 | `2026-05-XX-v1-0-10-release-candidate.md` | *deferred* | v1.0.9 |
 | AI-4 | `2026-05-XX-v1-1-federation-multisite.md` | *deferred* | v1.0.10 |
@@ -41,10 +41,11 @@ v2.0 is an umbrella minor with 6 workstreams. v2.0 foundation work begins **in p
 
 | ID | Plan | Workstream | Predecessor | Parallel with |
 |---|---|---|---|---|
-| 05-01 | `2026-XX-XX-v2-0-signed-images-supply-chain.md` | Signed multi-arch images, Cosign, CycloneDX SBOM, Trivy gates | — (kickable now) | 05-02 through 05-06 |
+| 05-01 | [`2026-05-10-v2-0-signed-images-supply-chain.md`](2026-05-10-v2-0-signed-images-supply-chain.md) | **authored 2026-05-10**, 13 tasks ready (keyless OIDC) | — (kickable now) | 05-02 through 05-06 |
+| 05-01-followup | [`2026-05-10-v2-x-followup-kms-signing-keys.md`](2026-05-10-v2-x-followup-kms-signing-keys.md) | KMS-backed signing migration **tracking stub** — full plan authored once Acumenus KMS operational | 05-01 in production + KMS provisioned | — |
 | 05-02 | `2026-XX-XX-v2-0-helm-chart-ga.md` | Helm chart + Kustomize overlays GA on OCI registry | 05-01 (consumes signed images) | 05-03, 05-05, 05-06 |
 | 05-03 | `2026-XX-XX-v2-0-license-server.md` | `license.acumenus.net` JWT entitlement service with air-gap mode | v1.0.9 security audit | 05-02, 05-04, 05-05 |
-| 05-04 | `2026-XX-XX-v2-0-packaging-refactor-groundwork.md` | Extract `parthenon-core` (Composer), `@parthenon/ui` (npm), `parthenon-ai` (PyPI), `parthenon.r` (CRAN-style) | — (kickable now) | 05-01 through 05-06 |
+| 05-04 | [`2026-05-10-v2-0-packaging-refactor-groundwork.md`](2026-05-10-v2-0-packaging-refactor-groundwork.md) | **umbrella authored 2026-05-10** — 4 child plans (05-04-01..04) deferred until kickoff | — (kickable now) | 05-01 through 05-06 |
 | 05-05 | `2026-XX-XX-v2-0-workstation-edition-ga.md` | Rust launcher GA: macOS + Windows + Linux, embedded Postgres + Redis, auto-update | 05-04 (consumes packages); 05-01 (signed binaries) | 05-02, 05-03, 05-06 |
 | 05-06 | `2026-XX-XX-v2-0-openapi-sdk-strategy.md` | TypeScript + Python SDKs auto-generated from OpenAPI, published to registries | 05-04 (shares package release tooling) | 05-01 through 05-05 |
 
@@ -216,10 +217,11 @@ This umbrella is updated as each child plan completes. The format below mirrors 
 
 | Plan ID | Status | Started | Completed | Notes |
 |---|---|---|---|---|
-| 05-01 signed-images | Not started | — | — | Authorable now |
+| 05-01 signed-images | **Plan authored** 2026-05-10 | — | — | 13 TDD tasks ready (keyless OIDC); executable any time after v1.0.10 |
+| 05-01-followup KMS keys | **Stub authored** 2026-05-10 | — | — | Full plan authored when Acumenus KMS operational |
 | 05-02 helm-chart-ga | Not started | — | — | Wait for 05-01 |
 | 05-03 license-server | Not started | — | — | Wait for AI-2 |
-| 05-04 packaging-refactor | Not started | — | — | Authorable now |
+| 05-04 packaging-refactor | **Umbrella authored** 2026-05-10 | — | — | 4 child plans (05-04-01..04) deferred until kickoff |
 | 05-05 workstation-edition-ga | Not started | — | — | Wait for 05-04 + 05-01 |
 | 05-06 openapi-sdk-strategy | Not started | — | — | Wait for 05-04 |
 | 06 v2.1 ce-one-click | Not started | — | — | Wait for 05-05 + AI-1 |
@@ -243,9 +245,15 @@ When ready to start a child plan, invoke writing-plans with the spec section tha
 
 The next child plans authorable today (no unmet predecessors):
 
-- **05-01 — Signed multi-arch images, Cosign, CycloneDX SBOM, Trivy gates** — start here. Establishes the supply-chain foundation every other Arc II plan rides on.
-- **05-04 — Packaging refactor groundwork** — also kickable now. Extracts `parthenon-core` / `@parthenon/ui` / `parthenon-ai` / `parthenon.r` packages and gets them on public registries. Big-bang risk is contained because the EE repo continues consuming via subtree until v2.5.
-- **AI-1 — v1.0.8 docs & onboarding** — also kickable now. Independent of Arc II; gates v2.1 CE one-click.
+- ~~**05-01 — Signed multi-arch images**~~ — **authored 2026-05-10** ([plan](2026-05-10-v2-0-signed-images-supply-chain.md))
+- ~~**05-04 — Packaging refactor groundwork**~~ — **umbrella authored 2026-05-10** ([plan](2026-05-10-v2-0-packaging-refactor-groundwork.md)); child plans 05-04-01..04 authored just-in-time at execution kickoff.
+- ~~**AI-1 — v1.0.8 docs & onboarding**~~ — **authored 2026-05-10** ([plan](2026-05-10-v1-0-8-docs-and-onboarding.md))
+
+Next authorable batch (after 05-01 finishes or in parallel with v1.0.8 execution):
+
+- **05-02 helm-chart-ga** — wait for 05-01 execution to land at least one signed image release.
+- **05-03 license-server** — wait for AI-2 (v1.0.9 security audit) since license server is HIGHSEC-class.
+- **Pre-v1.2 Keycloak migration plan** — authorable now per the ROADMAP's stated pre-v1.2 deliverable requirement.
 
 ---
 
