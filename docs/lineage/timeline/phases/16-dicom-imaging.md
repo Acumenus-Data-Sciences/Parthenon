@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-05
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 16 — DICOM & Medical Imaging
 
 **Version target:** 1.2.0

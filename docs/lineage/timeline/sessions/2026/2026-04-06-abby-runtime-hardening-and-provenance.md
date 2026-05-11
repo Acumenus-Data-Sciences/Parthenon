@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-06
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Abby Runtime Hardening and Provenance
 
 Date: 2026-04-06

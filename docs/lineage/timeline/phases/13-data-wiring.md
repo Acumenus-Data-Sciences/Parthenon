@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-03
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 13 — End-to-End Data Wiring: Bug Fixes & Verification
 
 **Date:** 2026-03-03

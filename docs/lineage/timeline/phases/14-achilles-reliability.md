@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-25
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 14 — Achilles Engine Reliability Hardening
 
 **Date:** 2026-03-24

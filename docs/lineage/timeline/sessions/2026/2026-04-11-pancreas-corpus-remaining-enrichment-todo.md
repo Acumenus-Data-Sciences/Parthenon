@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-11
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Pancreatic Corpus Remaining Enrichment To-Do
 
 Date: 2026-04-11

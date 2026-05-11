@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-20
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Orthanc Clean Native Rebuild
 
 ## Why this was needed

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-28
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # 2026-03-28 — Pancreatic Cancer Corpus + Population Risk Scores
 
 ## Summary

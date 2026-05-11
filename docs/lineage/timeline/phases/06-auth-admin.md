@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-01
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 6: Auth & Multi-Tenancy — Development Log
 
 **Date:** 2026-03-01 (Phase 6) / 2026-03-02 (Auth Regime addendum)

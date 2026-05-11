@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-07
+owner: acumenus
+module: omop
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # 2026-05-07 — PostgreSQL 17 OMOP/vocab remediation
 
 ## Summary

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-03
+owner: acumenus
+module: analytics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 14 — HADES R Package Integration for Full PLE/PLP Parity
 
 **Date:** 2026-03-03

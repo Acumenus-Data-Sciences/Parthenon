@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-08
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Aqueduct Templates — Operator Runbook
 
 This document is the on-call diagnosis path for the ingestion templates feature.

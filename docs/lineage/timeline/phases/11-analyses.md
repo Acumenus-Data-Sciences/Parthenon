@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-02
+owner: acumenus
+module: analytics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 11 — Parthenon-Native Analyses: Achilles Parity + Clinical Intelligence
 
 **Status:** Complete (Tiers 1–3)

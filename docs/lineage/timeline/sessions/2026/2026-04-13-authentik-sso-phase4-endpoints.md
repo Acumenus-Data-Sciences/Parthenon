@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-15
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Authentik SSO — Phase 4: OIDC HTTP Endpoints (Flag-Off)
 
 **Date:** 2026-04-13

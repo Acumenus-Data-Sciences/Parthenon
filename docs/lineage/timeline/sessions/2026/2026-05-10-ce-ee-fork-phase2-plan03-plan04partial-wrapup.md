@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-10
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Phase 2 + Plan 03 + Plan 04 partial: Wrap-up
 
 **Date:** 2026-05-10

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-08
+owner: acumenus
+module: i18n
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # 2026-05-08 - i18n hard-coded user-facing strings todo
 
 ## Summary

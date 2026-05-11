@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-10
+owner: acumenus
+module: omop
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OMOP Extension Next-Agent Remediation Plan
 
 Date: 2026-04-10

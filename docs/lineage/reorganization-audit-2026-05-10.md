@@ -429,6 +429,9 @@ CI as the `docs-lineage-contract` job and blocks:
   records and linked each to the most relevant code or runtime surface.
 - Classified handoffs under `docs/lineage/handoffs/` and linked each transfer
   note to the implementation surfaces it handed off.
+- Classified timeline records under `docs/lineage/timeline/`; phase and
+  release records are marked `shipped`, while dated session notes are retained
+  as historical lineage.
 
 Immediate keep:
 

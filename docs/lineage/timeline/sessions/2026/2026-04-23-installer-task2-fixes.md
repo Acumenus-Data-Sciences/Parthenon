@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-23
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Installer Task 2 Fixes — 2026-04-23
 
 ## Summary

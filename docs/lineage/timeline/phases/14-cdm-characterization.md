@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-03-03
+owner: acumenus
+module: omop
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Phase 14 — CDM Source Characterization Dashboard
 
 **Date:** 2026-03-03

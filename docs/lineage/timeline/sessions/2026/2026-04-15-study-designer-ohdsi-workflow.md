@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-15
+owner: acumenus
+module: study-designer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Study Designer — OHDSI-Aligned Workflow Foundation
 
 **Date:** 2026-04-15
