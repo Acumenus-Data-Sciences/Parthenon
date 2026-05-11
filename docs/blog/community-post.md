@@ -5,7 +5,7 @@ Hi everyone,
 I'd like to share a project I've been building called **Parthenon** — an open-source platform that consolidates the OHDSI toolchain into a single application on OMOP CDM v5.4.
 
 **Live demo:** [parthenon.acumenus.net](https://parthenon.acumenus.net)
-**Source code:** [github.com/sudoshi/Parthenon](https://github.com/sudoshi/Parthenon) (Apache 2.0)
+**Source code:** [github.com/Acumenus-Data-Sciences/Parthenon](https://github.com/Acumenus-Data-Sciences/Parthenon) (AGPL-3.0-only)
 **User manual:** [parthenon.acumenus.net/docs](https://parthenon.acumenus.net/docs)
 
 ---
@@ -68,10 +68,7 @@ The fastest way to explore is the live demo at **[parthenon.acumenus.net](https:
 To run it yourself:
 
 ```bash
-git clone https://github.com/sudoshi/Parthenon.git
-cd Parthenon
-cp .env.example .env && cp backend/.env.example backend/.env
-docker compose up -d
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 ```
 
 Full setup instructions are in the README.

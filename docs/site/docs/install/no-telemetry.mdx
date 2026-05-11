@@ -5,92 +5,87 @@ sidebar_position: 92
 
 # No Telemetry
 
-The Parthenon Installer makes **zero** telemetry connections. No analytics SDK, no crash reporter, no usage tracking, no opt-in feedback channel. The "Learn more" link on the installer's Done page brings you here so you can verify this for yourself.
+The Parthenon source installer makes **zero** telemetry connections. It has no analytics SDK, crash reporter, usage tracking, or opt-in failure reporting. The install path only contacts services required to fetch source code and pull runtime containers.
 
-## What the installer connects to (and why)
-
-The installer makes outbound network calls to exactly two destinations, both required for it to do its job:
+## What the installer connects to
 
 | Destination | Why | When |
 |---|---|---|
-| **GitHub Releases** (`github.com/sudoshi/Parthenon/releases/...`) | Download the installer bundle (`.tar.gz`); auto-updater check (`latest.json`) | Once per install (bundle); once per 24 h (updater check, cached) |
-| **Docker Hub / GHCR** (`docker.io`, `ghcr.io`) | Pull container images for Parthenon services (PHP, PostgreSQL, Redis, Solr, etc.) | Once per install; periodic on user-initiated "Pull newer images" |
+| `parthenon.acumenus.net` | Serve the public `install.sh` bootstrap | When you run the documented `curl` command |
+| `api.github.com` | Resolve the latest release tag when no `--version` is provided | Once per install |
+| `github.com/Acumenus-Data-Sciences/Parthenon` and `codeload.github.com` | Clone the repo or download the tagged source archive | Once per install |
+| Docker Hub / GHCR (`docker.io`, `ghcr.io`) | Pull container images for Parthenon services | Once per install, and later only when you intentionally pull newer images |
 
-That's it. No other endpoints are contacted by the installer GUI or by `install.py`.
+That's it for the supported source installer. The native GUI/updater track is paused and is not the current public Community install path.
 
 ## What we don't do
 
 - **No analytics SDK.** No Sentry, Mixpanel, PostHog, GA, Plausible, Amplitude, or similar.
 - **No crash reporter.** If the installer crashes, you decide whether to file an issue.
-- **No usage tracking.** We don't know how many people clicked "Open Parthenon" vs "Cancel install."
-- **No phone-home for feature flags.** Feature toggles ship as configuration in the binary.
-- **No opt-in failure reporting.** Even opt-in is too much surface; users explicitly chose to share when they file a GitHub issue.
-- **No fingerprinting.** No MAC address, hostname, or installation-ID is generated or transmitted.
+- **No usage tracking.** We do not know how many people installed, cancelled, or opened Parthenon.
+- **No phone-home for feature flags.** Feature toggles ship as source and configuration.
+- **No opt-in failure reporting.** Users explicitly choose what to share when they file a GitHub issue or discussion.
+- **No fingerprinting.** No MAC address, hostname, or installation ID is generated or transmitted for telemetry.
 
 ## How to verify
 
-Don't take our word for it. Verify with a network capture:
-
-The principle is the same on every platform: **capture all outbound traffic without a destination filter, then verify only the expected hosts appear**. A whitelist filter would mask any unexpected destination, defeating the verification.
+Don't take our word for it. Capture all outbound traffic without a destination whitelist, then confirm only the expected hosts appear. A whitelist filter would hide unexpected traffic and defeat the test.
 
 ### macOS
 
-macOS does not provide tcpdump's Linux `-i any` interface. Capture on your active interface (or use `pktap` to capture on all interfaces simultaneously):
+macOS does not provide tcpdump's Linux `-i any` interface. Capture on your active interface, or use `pktap` to capture multiple interfaces:
 
 ```bash
-# Find your active interface (typically en0 for Wi-Fi, en1 for Ethernet)
 networksetup -listallhardwareports | grep -A 1 'Wi-Fi\|Ethernet'
-
-# Capture all TLS handshake destinations on every active interface (pktap covers all)
 sudo tcpdump -i pktap,en0 -nn -s 0 -A 'tcp port 443'
 ```
 
-Run the installer end-to-end while the capture is running. The only Server Name Indication (SNI) entries you should see are `*.github.com`, `*.githubusercontent.com`, `*.docker.io`, and `ghcr.io`. Any other host is a finding worth reporting.
+Run the installer while the capture is active. Expected TLS destinations are `parthenon.acumenus.net`, `api.github.com`, `github.com`, `codeload.github.com`, Docker registry hosts, and `ghcr.io`.
 
-For a friendlier UI, use [Little Snitch](https://www.obdev.at/products/littlesnitch/) and set every connection to "ask" — every outbound destination shows up as an interactive prompt.
+For a friendlier UI, use [Little Snitch](https://www.obdev.at/products/littlesnitch/) and set every connection to "ask" so each outbound destination appears as an interactive prompt.
 
 ### Linux
 
 ```bash
-# Capture all outbound TLS handshakes; -i any catches all interfaces
 sudo tcpdump -i any -nn -s 0 -A 'tcp port 443 and not net 127.0.0.0/8'
 ```
 
-Same expectation: `*.github.com`, `*.githubusercontent.com`, `*.docker.io`, `ghcr.io` only.
+Expected destinations are the same as macOS: Acumenus install hosting, GitHub source endpoints, Docker registry hosts, and GHCR.
 
 ### Windows
 
-Use Wireshark with a display filter:
+Run the installer inside WSL 2 and capture either from the WSL distro or with Wireshark on Windows:
 
-```
+```text
 http.host or tls.handshake.extensions_server_name
 ```
 
-Run the installer; only `*.github.com`, `*.docker.io`, and `ghcr.io` should appear.
+Only Acumenus install hosting, GitHub source endpoints, Docker registry hosts, and GHCR should appear during the supported install.
 
 ## The feedback link is user-initiated
 
-The Done page footer includes a passive link:
+Public docs and the paused native GUI include passive GitHub links, such as:
 
-> Was this install painful? [Tell us at github.com/sudoshi/Parthenon/discussions]
+```text
+https://github.com/Acumenus-Data-Sciences/Parthenon/discussions
+```
 
-Clicking that link opens GitHub Discussions in your default browser. Nothing is sent automatically. You decide what to share, when, and through what channel. This is the only signal channel we have for installer-experience feedback — and it requires you to type into a public GitHub thread, fully visible.
+Clicking one opens GitHub in your browser. Nothing is sent automatically. You decide what to share, when, and through what channel.
 
 ## Why we chose zero telemetry
 
 Two reasons:
 
-1. **Healthcare context.** Parthenon is built for healthcare-IT teams. Buyers in that space face strict policies around third-party API calls and supply-chain visibility. "We send your install logs to a third party" — even with consent — fails some procurement reviews.
-
-2. **Trust is a finite resource.** Acumenus Data Sciences is a nonprofit. Our only currency is the trust users place in the binaries we ship. Adding a phone-home — even one we'd never abuse — costs more trust than it returns in signal.
+1. **Healthcare context.** Parthenon is built for healthcare-IT teams. Buyers in that space face strict policies around third-party API calls and supply-chain visibility.
+2. **Trust is finite.** Acumenus Data Sciences is a nonprofit. Adding a phone-home channel, even one we would never abuse, costs more trust than it returns in signal.
 
 ## What if we change this?
 
-If a future version of the Parthenon Installer adds any kind of telemetry, it will be:
+If a future version of the Parthenon installer adds telemetry, it will be:
 
 1. **Opt-in only**, never opt-out
-2. **Documented here on this page** before the change ships
+2. **Documented here before the change ships**
 3. **Announced via a security advisory** so existing users can decide whether to opt in
-4. **Cryptographically separable** — you can verify what's being sent before each call
+4. **Cryptographically separable** so users can verify what is sent before each call
 
-For now: zero. Verified by source code at `installer/rust-gui/src/main.rs` (no network calls except `bundle download` and `tauri-plugin-updater`'s GitHub-pinned endpoint) and `install.py` (calls only to `github.com` for bundle archive and `docker` for image pulls).
+For now: zero. The relevant source is `frontend/public/install.sh`, `installer/install.sh`, and the Python installer path launched from the checked-out source tree.

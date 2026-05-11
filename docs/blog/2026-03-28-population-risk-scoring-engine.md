@@ -245,4 +245,4 @@ The architectural lesson: clinical analytics tools must respect clinical context
 | Score Interface | PopulationRiskScoreV2Interface with pure compute() |
 | Database | PostgreSQL 17, OMOP CDM v5.4 |
 
-All 20 scores, the recommendation engine, and the execution pipeline are open source under Apache 2.0.
+All 20 scores, the recommendation engine, and the execution pipeline are open source in Parthenon CE. At original publication the project used Apache 2.0; current CE releases are AGPL-3.0-only.

@@ -15,7 +15,7 @@
 -->
 <policyconfig>
   <vendor>Acumenus Data Sciences</vendor>
-  <vendor_url>https://github.com/sudoshi/Parthenon</vendor_url>
+  <vendor_url>https://github.com/Acumenus-Data-Sciences/Parthenon</vendor_url>
 
   <action id="io.acumenus.parthenon.installer.run-helper">
     <description>Configure the system for Parthenon</description>

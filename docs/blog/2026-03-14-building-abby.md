@@ -309,4 +309,4 @@ Abby isn't just a chatbot bolted onto a research platform. She's a retrieval-aug
 
 Every response is grounded. Every inference is traceable. Every byte of data stays on your infrastructure.
 
-*Parthenon is open-source and available at [github.com/sudoshi/Parthenon](https://github.com/sudoshi/Parthenon). Built by [Acumenus Data Sciences](https://www.acumenus.io).*
+*Parthenon is open-source and available at [github.com/Acumenus-Data-Sciences/Parthenon](https://github.com/Acumenus-Data-Sciences/Parthenon). Built by [Acumenus Data Sciences](https://www.acumenus.io).*

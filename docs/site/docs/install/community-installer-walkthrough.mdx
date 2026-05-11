@@ -1,208 +1,157 @@
 ---
-title: Community Installer Walkthrough
+title: Community Source Installer Walkthrough
 sidebar_position: 80
 ---
 
-# Community Installer Walkthrough
+# Community Source Installer Walkthrough
 
-This is the end-to-end walkthrough for a brand-new Parthenon Community install on each of the three supported platforms. It documents the **happy path** — what you see, in what order, with no terminal interactions on macOS or Windows.
+This is the current end-to-end walkthrough for a brand-new Parthenon Community install. Public Community releases are source-only: GitHub releases provide source code archives, and the supported install path runs the in-repo Python installer from that source tree.
 
-These journeys are also the v0.2.0 acceptance criteria — every release is validated against all three before ship.
+Native `.dmg`, `.msi`, `.deb`, `.rpm`, `.AppImage`, and updater assets are paused until they are signed, reproducible, and covered by install smoke tests. Do not look for those artifacts in the current public release.
 
-## Before you begin (any platform)
+## Before you begin
 
 Have ready:
 
-- **Disk space:** ~12 GB free at the install target (bundle + Docker images)
-- **Network:** ~6 GB download (Docker images on first install)
-- **Docker:** Docker Desktop on macOS / Windows; Docker Engine on Linux
-- **Time:** 15–25 minutes on a 100 Mbps link
+- **Disk space:** at least 20 GB free at the install target
+- **Memory:** at least 8 GB RAM for the Community stack
+- **Network:** enough bandwidth for the source archive plus Docker image pulls
+- **Docker:** Docker Desktop on macOS or Windows; Docker Engine with the Compose plugin on Linux
+- **Time:** 15-25 minutes on a typical broadband connection
 
-## macOS (Apple Silicon or Intel)
+Windows installs run inside WSL 2. Open an Ubuntu or Debian WSL shell before running the bootstrap command.
 
-### 1. Download and open the .dmg
+## Linux or macOS
 
-Download `Parthenon-Installer-<version>-macos-universal.dmg` from the [latest release](https://github.com/sudoshi/Parthenon/releases/latest).
+### 1. Start Docker
 
-Double-click the .dmg. A Finder window shows the **Parthenon Installer.app** alongside an Applications shortcut. Drag the app to Applications.
-
-### 2. First launch — Gatekeeper
-
-The first time you launch from the Applications folder, macOS may show:
-
-> "Parthenon Installer.app" cannot be opened because the developer cannot be verified.
-
-This is expected on first launch. **Right-click the .app → Open**, then confirm. See [First-Launch Trust Warnings](./first-launch-trust.mdx) for details. Subsequent launches don't prompt.
-
-### 3. Configure (Step 1 of 5)
-
-The installer opens to **Configure**. The novice-friendly view shows:
-
-- **Admin email** — defaults to `admin@example.com`. Change it.
-- **▼ Customize** — disclosure for advanced users. Leave collapsed for the default Community install.
-- **Run Test** / **Install Parthenon** buttons at the bottom
-
-Click **Check System** to advance.
-
-### 4. Check (Step 2 of 5)
-
-Preflight runs. Each check shows ✓ Ready / ⚠ Needs attention / ✗ Blocked. The most common item to fix:
-
-- **Docker daemon** — start Docker Desktop if it isn't running
-
-Once all checks pass, click **Install Parthenon**.
-
-### 5. Install (Step 3 of 5)
-
-A 9-cell phase strip appears across the top. Each cell represents one phase of the install (Preflight, Bootstrap, Compose Up, Migrations, Solr Index, etc.). The current phase is teal-highlighted; completed phases are filled. A live elapsed counter ticks under the strip.
-
-Output streams into a compact log panel. If anything fails, a recovery panel appears with diagnostic suggestions.
-
-You can click **Cancel install** at any time. Install state is preserved if past Phase 4 (Docker Up).
-
-### 6. Verify (Step 4 of 5)
-
-After the install subprocess exits successfully, the Verify panel appears. A health probe loop polls `http://localhost:8082/api/v1/health` every 2 seconds. Five rows light up as services come online:
-
-- ✓ Web server accepting connections
-- ✓ Application runtime responding
-- ✓ Database ready
-- ✓ /api/v1/health returns 200
-- ✓ Frontend assets served
-
-When all five are green (typically 30–60 seconds), the installer auto-advances to Done.
-
-If services are slow, the panel shows "Wait another 60 s" / "Show service status" buttons.
-
-### 7. Done (Step 5 of 5)
-
-The Hero Done page shows:
-
-- The URL (`http://localhost:8082`) with a copy button
-- The admin email and password (masked, with a 30-second reveal button and copy button)
-- A big crimson **Open Parthenon →** button
-
-Click **Open Parthenon**. Your default browser opens to the login screen.
-
-Sign in with the email and password from the Done page. **On first sign-in, Parthenon will require you to change the password** — that's the expected flow.
-
-You can close the installer once you're signed in. Parthenon runs as Docker services and will be at the same URL every time Docker is running.
-
-## Windows (with WSL2)
-
-### 1. Download and run the .msi
-
-Download `Parthenon-Installer-<version>-windows-x64.msi` from the [latest release](https://github.com/sudoshi/Parthenon/releases/latest).
-
-Double-click the .msi. The Windows installer wizard runs and places **Parthenon Installer** in `Program Files`.
-
-### 2. First launch — SmartScreen
-
-The first time you launch, Windows SmartScreen may show:
-
-> Microsoft Defender SmartScreen prevented an unrecognized app from starting.
-
-This is expected for new code-signing certificates. **Click "More info" → "Run anyway"**. See [First-Launch Trust Warnings](./first-launch-trust.mdx) for details. Subsequent launches don't prompt.
-
-### 3. WSL2 setup (if not already installed)
-
-If WSL2 is not installed, the installer detects this and shows:
-
-> WSL not detected. Run `wsl --install` from an Administrator PowerShell, then reboot.
-
-After WSL2 is installed and you've rebooted, re-launch the installer.
-
-If WSL2 is installed but no distro exists:
-
-> WSL is installed but no Linux distribution is set up. Run `wsl --install -d Ubuntu-24.04`.
-
-After installing the distro, the WSL distro dropdown in the installer's Configure step populates automatically on next launch.
-
-### 4. Configure → Check → Install → Verify → Done
-
-The remaining steps mirror the macOS journey above. The installer runs `install.py` inside WSL2 via `wsl.exe`. Docker Desktop's WSL integration must be enabled for your distro (Settings → Resources → WSL integration).
-
-The "Open Parthenon" CTA on the Done page opens your Windows-side default browser to `http://localhost:8082` — Docker Desktop's WSL2 bridge forwards the port automatically.
-
-## Linux (.deb / .rpm / .AppImage)
-
-### 1. Download and verify
-
-Download `Parthenon-Installer-<version>-linux-x64.{deb,rpm,AppImage}` from the [latest release](https://github.com/sudoshi/Parthenon/releases/latest).
-
-**Verify before installing**:
+Start Docker Desktop on macOS or start Docker Engine on Linux:
 
 ```bash
-# Import the public key (one-time)
-curl -L -O https://github.com/sudoshi/Parthenon/releases/latest/download/SIGNING-KEY.asc
-gpg --import SIGNING-KEY.asc
-
-# Verify the GPG signature
-gpg --verify Parthenon-Installer-*.deb.asc Parthenon-Installer-*.deb
-
-# Verify the SHA-256 sidecar (sidecars contain the digest only, no filename)
-expected="$(cat Parthenon-Installer-*.deb.sha256)"
-actual="$(sha256sum Parthenon-Installer-*.deb | awk '{print $1}')"
-[ "$expected" = "$actual" ] && echo "OK" || { echo "MISMATCH"; exit 1; }
-
-# Optionally verify the SLSA provenance attestation
-gh attestation verify Parthenon-Installer-*.deb --owner sudoshi
+docker --version
+docker compose version
+docker ps
 ```
 
-A successful verification prints `Good signature from "Acumenus Data Sciences (Releases)"` and `OK` for the SHA-256.
+`docker ps` should run without a daemon error before you continue.
 
-See [Verifying Installer Signatures](./verifying-signatures.mdx) for full per-platform commands.
-
-### 2. Install the package
+### 2. Run the source bootstrap
 
 ```bash
-# Debian / Ubuntu
-sudo apt install ./Parthenon-Installer-*.deb
-
-# Fedora / RHEL
-sudo dnf install ./Parthenon-Installer-*.rpm
-
-# Or run the AppImage directly (requires libfuse2 on Ubuntu 22.04+):
-chmod +x Parthenon-Installer-*.AppImage
-./Parthenon-Installer-*.AppImage
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 ```
 
-### 3. Configure → Check → Install → Verify → Done
+The bootstrap downloads the latest tagged source release into `~/Parthenon`, records the source reference in `.parthenon-source-ref`, and launches the browser installer.
 
-The installer runs natively on Linux. The flow mirrors macOS: 5 steps, native dialogs (via Tauri's dialog plugin), 9-cell phase strip, Verify health probe, Hero Done page with Open Parthenon CTA.
-
-The "Open Parthenon" CTA uses xdg-open to launch your default browser to `http://localhost:8082`.
-
-### Headless installation (DevOps path)
-
-If you're installing on a headless Linux server via SSH, the GUI is not used at all. Drive `install.py` directly with `--non-interactive` and a defaults file:
+Use a pinned tag when you need a repeatable deployment:
 
 ```bash
-# Generate a defaults template (writes config to stdout for review)
-python3 install.py --contract defaults --community --contract-pretty > my-defaults.json
-
-# Edit my-defaults.json to taste, then run the install
-python3 install.py --community --non-interactive --defaults-file my-defaults.json
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
 ```
 
-For the full CLI surface, run `python3 install.py --help`. The same `--contract <action>` interface that backs the GUI's preflight, recovery, and verify steps is also available from the command line — see [Verifying Installer Signatures](./verifying-signatures.mdx) for the contract action list.
+Use a custom directory when you do not want to install under `~/Parthenon`:
 
-## What "ready" means
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --dir "$HOME/parthenon-community"
+```
 
-After completing the journey on any platform, you should see:
+### 3. Configure
+
+The installer opens the Configure step. Set the admin email, review the local URL, and leave advanced options collapsed for the default Community install.
+
+### 4. Check
+
+Preflight checks Docker, Docker Compose, Python, free disk space, and required ports. The most common blocker is a stopped Docker daemon; start Docker and run the check again.
+
+### 5. Install
+
+The installer runs the Community setup from the checked-out source tree. It pulls containers, starts Docker Compose, runs migrations, seeds roles and permissions, and prepares the local application.
+
+If a phase fails, keep the install directory. Re-run:
+
+```bash
+cd ~/Parthenon
+python3 install.py --webapp
+```
+
+The installer detects completed work and offers to resume.
+
+### 6. Verify and sign in
+
+When installation finishes, open:
+
+```text
+http://localhost:8082
+```
+
+Sign in with the admin credentials shown by the installer. On first sign-in, Parthenon requires a password change.
+
+## Windows with WSL 2
+
+### 1. Prepare WSL 2
+
+From an Administrator PowerShell, install WSL 2 if needed:
+
+```powershell
+wsl --install -d Ubuntu-24.04
+```
+
+Reboot if Windows asks. Then open the Ubuntu shell and confirm Docker Desktop WSL integration is enabled for that distro.
+
+### 2. Run the same bootstrap inside WSL
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
+```
+
+The install runs inside Linux. Docker Desktop forwards `http://localhost:8082` to the Windows browser, so you can open Parthenon from either side once the stack is healthy.
+
+## Headless or terminal-only install
+
+Use `--cli` when no browser session is available:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --cli -- --community
+```
+
+For a pinned, terminal-only install:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7 --cli -- --community
+```
+
+If you already have a source checkout, run the installer directly:
+
+```bash
+python3 install.py --webapp --community
+```
+
+For the full CLI surface:
+
+```bash
+python3 install.py --help
+```
+
+## What ready means
+
+After completing the journey, you should see:
 
 1. The Parthenon login screen at `http://localhost:8082`
-2. A Setup Wizard appears on first sign-in (super-admin only) or a Change Password modal (regular users)
-3. After password change, the full Parthenon dashboard is accessible
+2. A first-login setup or password-change flow for the admin account
+3. The full Parthenon dashboard after password change
 
-If any of these are not true, the install is not complete. Use the Recovery panel inside the installer (or re-run `install.py --resume` from the command line) to recover.
+If any of these are not true, the install is not complete. Keep the source checkout and re-run the installer from that directory so it can resume with the existing state.
+
+## Verification and trust
+
+Before running the bootstrap in a regulated environment, verify the script and pinned source reference. See [Verifying the Source Installer](./verifying-signatures.mdx).
+
+The installer does not send analytics, crash reports, or usage telemetry. See [No Telemetry](./no-telemetry.mdx) for the current network surface.
 
 ## What to do if anything fails
 
-The installer's recovery panel handles most failures with diagnostic fingerprints and "Try this fix" suggestions. If the recovery panel doesn't help:
+1. Check the [diagnostic knowledge base](https://github.com/Acumenus-Data-Sciences/Parthenon/blob/main/installer/diagnostics-kb.json) for your error pattern.
+2. Open a [GitHub Discussion](https://github.com/Acumenus-Data-Sciences/Parthenon/discussions) with the install log.
+3. For security-related issues, file a [security advisory](https://github.com/Acumenus-Data-Sciences/Parthenon/security/advisories) instead of a public issue.
 
-1. Check the [diagnostic knowledge base](https://github.com/sudoshi/Parthenon/blob/main/installer/diagnostics-kb.json) for your error pattern
-2. Open a [GitHub Discussion](https://github.com/sudoshi/Parthenon/discussions) with the install log
-3. For security-related issues, file a [security advisory](https://github.com/sudoshi/Parthenon/security/advisories) instead of a public issue
-
-Diagnostic-KB additions are welcome contributions — see [CONTRIBUTING.md](https://github.com/sudoshi/Parthenon/blob/main/CONTRIBUTING.md) for the process.
+Diagnostic-KB additions are welcome contributions. See [CONTRIBUTING.md](https://github.com/Acumenus-Data-Sciences/Parthenon/blob/main/CONTRIBUTING.md) for the process.

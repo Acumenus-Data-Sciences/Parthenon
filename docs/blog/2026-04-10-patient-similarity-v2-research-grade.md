@@ -451,4 +451,4 @@ But those are for another late night. For now, the Patient Similarity Engine has
 
 ---
 
-*The eight upgrades described in this post were designed in a single research session and implemented as quick tasks using the GSD workflow. Total time from research to deployment: one session. The underlying algorithms are based on peer-reviewed methods from the OHDSI community, the machine learning literature, and the patient similarity network research pioneered by Pai & Bader (Nature Methods, 2018). All code is open-source under the Apache 2.0 license.*
+*The eight upgrades described in this post were designed in a single research session and implemented as quick tasks using the GSD workflow. Total time from research to deployment: one session. The underlying algorithms are based on peer-reviewed methods from the OHDSI community, the machine learning literature, and the patient similarity network research pioneered by Pai & Bader (Nature Methods, 2018). At original publication the project used Apache 2.0; current CE releases are AGPL-3.0-only.*

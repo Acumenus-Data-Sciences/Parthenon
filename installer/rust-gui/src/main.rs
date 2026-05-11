@@ -139,7 +139,7 @@ fn default_installer_bundle_url() -> String {
     option_env!("PARTHENON_BUNDLE_URL_AT_BUILD")
         .filter(|s| !s.trim().is_empty())
         .unwrap_or(
-            "https://github.com/sudoshi/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz",
+            "https://github.com/Acumenus-Data-Sciences/Parthenon/releases/latest/download/parthenon-community-bootstrap.tar.gz",
         )
         .to_string()
 }

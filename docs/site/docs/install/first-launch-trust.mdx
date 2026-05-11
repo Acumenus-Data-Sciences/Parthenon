@@ -1,149 +1,85 @@
 ---
-title: First-Launch Trust Warnings
+title: Source Installer Trust Checks
 sidebar_position: 93
 ---
 
-# First-Launch Trust Warnings
+# Source Installer Trust Checks
 
-When you launch the Parthenon Installer for the first time, your operating system may show a warning even though the installer is signed by Acumenus Data Sciences. This page explains why each warning appears and how to safely proceed.
+The current Parthenon Community install path is source-based. You run a public `install.sh` bootstrap, it downloads a tagged source tree, and the Python installer starts the local Community stack.
 
-The installer is signed and notarized — but Apple Gatekeeper, Windows SmartScreen, and similar mechanisms have additional layers beyond signature checking. This is a feature, not a bug; it's why this page exists.
+Older first-launch warnings for `.app`, `.msi`, `.deb`, `.rpm`, and `.AppImage` installers do not apply to the current public release because native packages are paused. This page replaces those binary-launch instructions with the trust checks that matter for the source installer.
 
-## macOS Gatekeeper
+## Before running the bootstrap
 
-### What you might see
-
-> "Parthenon Installer.app" cannot be opened because the developer cannot be verified.
-
-Or:
-
-> macOS cannot verify that this app is free from malware.
-
-### Why this appears
-
-macOS Gatekeeper validates code signatures, but it also tracks whether a binary has been launched from this user before. The first time you run the .app from a download (vs. a known location), macOS prompts you regardless of the signature.
-
-If you see this warning on a properly notarized binary:
-
-1. The artifact has been quarantined by Safari/Chrome/another browser (the `com.apple.quarantine` extended attribute is set).
-2. The download came from an unrecognized location.
-3. Network conditions blocked the notarization staple lookup.
-
-The signature itself is still valid — Gatekeeper is asking for explicit consent to run a recently-downloaded app.
-
-### How to proceed
-
-Right-click (or Control-click) the .app and choose **Open**. macOS will show a one-time confirmation that includes the developer name. If it says **Acumenus Data Sciences**, click **Open**.
-
-```
-Right-click "Parthenon Installer.app"
-  → Open
-  → Confirm "Open" in the dialog (you'll only see this once)
-```
-
-After this confirmation, macOS records the user's decision; subsequent launches don't prompt.
-
-### How to verify the signature explicitly
-
-If you want to confirm the signature before running:
+Download and inspect the script:
 
 ```bash
-codesign --verify --deep --strict --verbose=2 "/Applications/Parthenon Installer.app"
-spctl -a -vv "/Applications/Parthenon Installer.app"
-xcrun stapler validate "/Applications/Parthenon Installer.app"
+curl -fsSLo parthenon-install.sh https://parthenon.acumenus.net/install.sh
+less parthenon-install.sh
 ```
 
-See [Verifying Installer Signatures](./verifying-signatures.mdx) for full per-platform verification.
-
-### What if I see "App is damaged"?
-
-If macOS reports "Parthenon Installer.app is damaged and can't be opened", that means the quarantine attribute interfered with the staple ticket. Strip it:
+Confirm it points at the Acumenus repository:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Parthenon Installer.app"
+grep 'Acumenus-Data-Sciences/Parthenon' parthenon-install.sh
 ```
 
-This is safe for binaries you've verified. If you haven't verified the signature, do that first (link above).
-
-## Windows SmartScreen
-
-### What you might see
-
-> Microsoft Defender SmartScreen prevented an unrecognized app from starting. Running this app might put your PC at risk.
-
-### Why this appears
-
-Windows SmartScreen tracks publisher reputation in addition to signature validity. New code-signing certificates start with zero reputation; SmartScreen prompts on every download until the certificate accrues installations.
-
-The Parthenon Installer is signed via Azure Trusted Signing, which uses a fresh certificate per release. Reputation is built up over time as more users launch signed binaries from the same publisher identity. Until that reputation accrues, SmartScreen will show this warning even though the signature is valid.
-
-### How to proceed
-
-Click **More info**, then **Run anyway**.
-
-```
-Click "More info" in the SmartScreen dialog
-  → Note the "Publisher: Acumenus Data Sciences" line
-  → Click "Run anyway"
-```
-
-After the first launch, SmartScreen records your decision and won't prompt again for this version. New versions reset the prompt.
-
-### How to verify the signature explicitly
-
-PowerShell (most users):
-
-```powershell
-Get-AuthenticodeSignature .\Parthenon-Installer-*.msi
-```
-
-Look for `Status: Valid` and `SignerCertificate.Subject` containing `CN=Acumenus Data Sciences`.
-
-Command Prompt with `signtool` (Windows SDK installed):
-
-```cmd
-signtool verify /pa /v Parthenon-Installer-*.msi
-```
-
-See [Verifying Installer Signatures](./verifying-signatures.mdx) for full instructions.
-
-### What about antivirus alerts?
-
-Some endpoint-protection suites flag unfamiliar signed installers heuristically until they accrue reputation in the AV vendor's cloud database. If your AV flags Parthenon Installer:
-
-1. Verify the SHA-256 against the `.sha256` sidecar (catch tampering)
-2. Verify the Authenticode signature with `signtool` (catch a compromised binary)
-3. If both verify, whitelist the binary or temporarily disable the AV during install
-4. Re-enable the AV before opening Parthenon in your browser
-
-Don't disable AV for a binary you can't verify.
-
-## Linux
-
-Linux distributions don't show OS-level warnings the way macOS and Windows do. You're expected to verify signatures yourself before running unknown binaries.
-
-The Parthenon Installer ships with detached GPG signatures (`.asc` files) for `.deb`, `.rpm`, and `.AppImage` artifacts. The public key (`SIGNING-KEY.asc`) is uploaded with every release.
-
-Verify before installing:
+Compare the live script to the repository copy if your environment requires independent review:
 
 ```bash
-gpg --import SIGNING-KEY.asc
-gpg --verify Parthenon-Installer-*.deb.asc Parthenon-Installer-*.deb
+curl -fsSLo repo-install.sh \
+  https://raw.githubusercontent.com/Acumenus-Data-Sciences/Parthenon/main/frontend/public/install.sh
+cmp parthenon-install.sh repo-install.sh
 ```
 
-A successful verification prints `Good signature from "Acumenus Data Sciences (Releases)"`.
+No output from `cmp` means the files match.
 
-The installer doesn't trigger any first-launch prompts on Linux because no Linux distribution ships an equivalent of Gatekeeper or SmartScreen. The trust model is verify-yourself-before-install.
+## Pin the source version
 
-See [Verifying Installer Signatures](./verifying-signatures.mdx) for fingerprint, full verification commands, and SLSA attestation verification.
+Use a tagged release for repeatable installs:
 
-## Why these warnings exist (the bigger picture)
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
+```
 
-Both Gatekeeper and SmartScreen are optimistic-trust systems. They assume most users won't read warnings, so they bias toward strong signal (e.g., reputation that takes time to accrue) over weak signal (e.g., a fresh Authenticode signature on its own). For a small healthcare-informatics nonprofit, that means our first few hundred users will see warnings even when nothing is wrong.
+Verify the tag before running it:
 
-Over time:
+```bash
+git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.7
+```
 
-- macOS notarization pushes the first-launch warning to a single right-click → Open per user
-- Windows SmartScreen reputation accrues installation-by-installation; once the threshold is crossed, the prompt disappears for subsequent users
+Save the resolved commit SHA with your deployment record.
 
-The Acumenus team is committed to maintaining a clean reputation chain across releases. If a release ever causes a new SmartScreen prompt for users who previously installed a release with no prompt, that's a regression we'll investigate and document.
+## macOS and Linux prompts
+
+The source installer runs in a shell, so macOS Gatekeeper and Linux package managers do not show native app trust prompts. The meaningful prompts are shell-visible:
+
+- `curl` fails if TLS or the HTTPS endpoint fails.
+- `sh` runs only the script you pipe or download.
+- Docker may ask for permission to start or may fail if the daemon is not running.
+- The installer may prompt before changing local files or starting services.
+
+If your policy forbids `curl | sh`, use the inspect-then-run form:
+
+```bash
+curl -fsSLo parthenon-install.sh https://parthenon.acumenus.net/install.sh
+less parthenon-install.sh
+sh parthenon-install.sh --version v1.0.7
+```
+
+## Windows prompts
+
+Run the supported installer inside WSL 2. Windows SmartScreen does not apply to the source bootstrap because there is no Windows `.msi` in the current public release.
+
+Docker Desktop may prompt for WSL integration or firewall access. Enable integration for the Ubuntu or Debian distro you use to run Parthenon, then re-run the installer check.
+
+## If native packages return
+
+When native packages resume, this page must be updated with current instructions for:
+
+- macOS Gatekeeper, code signing, and notarization
+- Windows SmartScreen and Authenticode or Trusted Signing
+- Linux package signatures and checksums
+- Tauri updater signatures
+
+Until a release explicitly publishes those assets and verification steps, use the source installer verification flow above.

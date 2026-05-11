@@ -1,148 +1,110 @@
 ---
-title: Verifying Installer Signatures
+title: Verifying the Source Installer
 sidebar_position: 91
 ---
 
-# Verifying Installer Signatures
+# Verifying the Source Installer
 
-Every Parthenon Installer release artifact is signed and attested. This page explains how to verify signatures yourself before running the installer — useful for healthcare-IT teams with strict supply-chain policies, and a one-time exercise for individual users who want strong assurance.
+Current Parthenon Community releases are source-only. The supported public path downloads `install.sh`, fetches a tagged GitHub source tree from `Acumenus-Data-Sciences/Parthenon`, and runs the in-repo Python installer.
 
-You should not need to do any of this for the installer to work — your operating system already verifies the signature transparently when you launch the installer. The instructions here are for **independent verification** outside of OS-level checks.
+Native installer signatures, Tauri updater manifests, Linux package signatures, and binary SLSA attestations do not apply to the current public Community release because native artifacts are paused. This page documents what you can verify today.
 
-## What ships with each release
+## What ships today
 
-Every GitHub release for Parthenon publishes the following alongside each platform binary:
+| Item | What it is | How to verify |
+|---|---|---|
+| `https://parthenon.acumenus.net/install.sh` | Public bootstrap script | Compare it to the repo copy and review it before running |
+| GitHub release source archive | Tagged source tree used by the bootstrap | Pin `--version`, inspect the tag, and record the archive checksum you used |
+| Docker images | Runtime containers pulled during install | Review Compose files and pin image digests where your environment requires it |
 
-| Artifact | What it is |
-|---|---|
-| `Parthenon-Installer-<version>-macos-universal.dmg` | Signed + notarized Apple disk image |
-| `Parthenon-Installer-<version>-windows-x64.msi` | Authenticode-signed Windows installer |
-| `Parthenon-Installer-<version>-linux-x64.{deb,rpm,AppImage}` | Linux packages |
-| `*.sha256` | SHA-256 hex digest sidecar per binary |
-| `*.asc` (Linux only) | GPG detached signature per Linux package |
-| `SIGNING-KEY.asc` | GPG public key (uploaded with every release) |
-| `latest.json` | Auto-updater manifest, signed with Tauri updater key |
-| `*.intoto.jsonl` (via Sigstore) | SLSA Build L3 provenance attestation |
+GitHub also provides automatic source archives for every tag. Those archives do not have Parthenon-published `.sha256` or `.asc` sidecars today, so compute and retain your own checksum for change-control records.
 
-You can verify any subset of these depending on how much assurance you want.
+## Verify the public bootstrap script
 
-## macOS
-
-Apple Gatekeeper verifies the signature transparently when you double-click the `.dmg`. To verify manually:
+Download the live script and the repository copy:
 
 ```bash
-# Verify the .app's code signature
-codesign --verify --deep --strict --verbose=2 "/Applications/Parthenon Installer.app"
-
-# Confirm Gatekeeper accepts it
-spctl -a -vv "/Applications/Parthenon Installer.app"
-
-# Confirm the notarization staple ticket is attached
-xcrun stapler validate "/Applications/Parthenon Installer.app"
+curl -fsSLo parthenon-install-live.sh https://parthenon.acumenus.net/install.sh
+curl -fsSLo parthenon-install-repo.sh \
+  https://raw.githubusercontent.com/Acumenus-Data-Sciences/Parthenon/main/frontend/public/install.sh
 ```
 
-A successful run prints `accepted` and `source=Notarized Developer ID`. The signing identity is `Developer ID Application: Acumenus Data Sciences (TEAM_ID)`.
-
-The .dmg itself is also stapled. To verify before mounting:
+Compare them:
 
 ```bash
-xcrun stapler validate Parthenon-Installer-*.dmg
+cmp parthenon-install-live.sh parthenon-install-repo.sh
 ```
 
-## Windows
-
-Windows verifies the Authenticode signature transparently. To verify manually from PowerShell:
-
-```powershell
-Get-AuthenticodeSignature .\Parthenon-Installer-*.msi
-```
-
-Look for `Status: Valid` and `SignerCertificate.Subject` matching `CN=Acumenus Data Sciences`.
-
-Or with `signtool` (from the Windows SDK):
-
-```cmd
-signtool verify /pa /v Parthenon-Installer-*.msi
-```
-
-## Linux
-
-Linux distributions don't verify signatures automatically the way macOS and Windows do. You should verify before running the installer.
-
-### Import the public key
+No output means the files match. Then record a local checksum:
 
 ```bash
-# Download SIGNING-KEY.asc from the release, then:
-gpg --import SIGNING-KEY.asc
+shasum -a 256 parthenon-install-live.sh
 ```
 
-The fingerprint is published on the Acumenus website (separate channel — anti-tampering signal). Compare:
+Read the script before running it in a regulated environment:
 
 ```bash
-gpg --list-keys --with-fingerprint | head
+less parthenon-install-live.sh
 ```
 
-### Verify a `.deb`, `.rpm`, or `.AppImage`
+You should see `REPO="Acumenus-Data-Sciences/Parthenon"` and source archive URLs under `https://github.com/Acumenus-Data-Sciences/Parthenon/archive/refs/tags/`.
+
+## Pin and verify a release tag
+
+Use a pinned tag for repeatable installs:
 
 ```bash
-# Each artifact has a .asc detached signature
-gpg --verify Parthenon-Installer-*.deb.asc Parthenon-Installer-*.deb
-gpg --verify Parthenon-Installer-*.rpm.asc Parthenon-Installer-*.rpm
-gpg --verify Parthenon-Installer-*.AppImage.asc Parthenon-Installer-*.AppImage
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
 ```
 
-A successful verification prints `Good signature from "Acumenus Data Sciences (Releases)"`.
-
-## SHA-256 sidecars (any platform)
-
-Every artifact has a corresponding `.sha256` file containing the hex digest. Verify with:
+Before running, confirm the tag exists and record the resolved commit:
 
 ```bash
-# macOS / Linux
-expected="$(cat Parthenon-Installer-*.dmg.sha256)"
-actual="$(shasum -a 256 Parthenon-Installer-*.dmg | awk '{print $1}')"
-[ "$expected" = "$actual" ] && echo "OK" || echo "MISMATCH"
+git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.7
 ```
 
-```powershell
-# Windows
-$expected = Get-Content Parthenon-Installer-*.msi.sha256
-$actual = (Get-FileHash -Algorithm SHA256 Parthenon-Installer-*.msi).Hash.ToLower()
-if ($expected -eq $actual) { "OK" } else { "MISMATCH" }
-```
-
-## SLSA build provenance (any platform)
-
-Every release artifact has a Sigstore-backed SLSA Build L3 attestation proving it was built from this exact Git commit on GitHub Actions. Verify with the GitHub CLI:
+If your policy requires reviewing the archive first, download it directly:
 
 ```bash
-gh attestation verify Parthenon-Installer-*.dmg --owner sudoshi
+curl -fL -o parthenon-v1.0.7.tar.gz \
+  https://github.com/Acumenus-Data-Sciences/Parthenon/archive/refs/tags/v1.0.7.tar.gz
+
+shasum -a 256 parthenon-v1.0.7.tar.gz
+tar -tzf parthenon-v1.0.7.tar.gz | head
 ```
 
-A successful verification confirms:
-- The artifact was built by `sudoshi/Parthenon`'s GitHub Actions workflow
-- The exact commit SHA the build is from
-- The signing certificate matches the GitHub workload identity for that workflow run
+Store the checksum and the `git ls-remote` output with your deployment record.
 
-This is the strongest verification you can do — it cryptographically ties the binary to a specific source-code commit, without trusting Acumenus to be the build machine.
+## Verify an installed source checkout
 
-## Auto-updater manifest
-
-If you're investigating how the installer's notify-only auto-updater works:
+After the bootstrap completes:
 
 ```bash
-# Download latest.json from the release
-curl -L https://github.com/sudoshi/Parthenon/releases/latest/download/latest.json | jq .
+cd ~/Parthenon
+cat .parthenon-source-ref
+git remote -v 2>/dev/null || true
+git status --short 2>/dev/null || true
 ```
 
-The `signature` fields are minisign-format Ed25519 signatures over the corresponding artifacts, generated with the Tauri updater private key. The installer verifies these signatures before downloading any update payload — see [Updater Keypair & Rotation](./key-rotation.mdx) for the keypair lifecycle.
+`.parthenon-source-ref` records the release tag or source ref selected by the bootstrap. If the install came from a Git clone, `git status --short` should be clean before you start making local changes.
+
+## Binary and updater verification
+
+The native GUI track is paused. If native packages return, the release must publish updated verification instructions for:
+
+- macOS code signing and notarization
+- Windows Authenticode or Trusted Signing
+- Linux package signatures and checksums
+- Tauri `latest.json` updater signatures
+- Build provenance attestations
+
+Until then, do not rely on older `.dmg`, `.msi`, `.deb`, `.rpm`, `.AppImage`, `.sha256`, `.asc`, or `latest.json` instructions for current Community installs.
 
 ## What to do if verification fails
 
-If any verification fails:
+1. Do not run the installer.
+2. Re-download from `https://parthenon.acumenus.net/install.sh`.
+3. Compare against the repository copy under `frontend/public/install.sh`.
+4. If the mismatch persists, file a security advisory at `https://github.com/Acumenus-Data-Sciences/Parthenon/security/advisories`.
 
-1. **Don't run the installer.**
-2. Re-download from `https://github.com/sudoshi/Parthenon/releases/latest`.
-3. If a re-download still fails verification, file an issue at https://github.com/sudoshi/Parthenon/issues with `[security]` in the subject. Do not disclose the failure publicly until we've investigated.
-
-A failure most likely means the artifact was modified in transit or the local copy is corrupted. Both are worth investigating but neither implies a compromise.
+A failure most likely means the local copy is stale, incomplete, or modified in transit. Treat it as a supply-chain finding until the source is understood.

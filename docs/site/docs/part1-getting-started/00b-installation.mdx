@@ -13,17 +13,26 @@ Parthenon offers two installation paths depending on your needs:
 | **Application Only** | Development, evaluation, small teams | Parthenon + PostgreSQL + Redis + Solr |
 | **Full Infrastructure** | Production, enterprise, multi-service | Everything above + Traefik, Portainer, pgAdmin, and optional enterprise services |
 
-Both paths use the same one-command Python installer with a 9-phase guided setup.
+Both paths use the same source bootstrap and Python installer with a 9-phase guided setup.
 
 ## Quick Start (Application Only)
 
 ```bash
-# Clone the repository
-git clone https://github.com/sudoshi/Parthenon.git
-cd Parthenon
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh
+```
 
-# Run the installer
-python3 install.py
+For a repeatable install, pin the release tag:
+
+```bash
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
+```
+
+To work directly from a source checkout:
+
+```bash
+git clone https://github.com/Acumenus-Data-Sciences/Parthenon.git
+cd Parthenon
+python3 install.py --webapp
 ```
 
 The installer walks you through 9 phases:
@@ -41,7 +50,7 @@ The installer walks you through 9 phases:
 | 9. Complete | Shows URLs, credentials, and next steps |
 
 :::tip Resume on failure
-If the installer fails at any phase, re-run `python3 install.py` — it detects the last completed phase and offers to resume from where it left off.
+If the installer fails at any phase, re-run `python3 install.py --webapp` from the source checkout. It detects the last completed phase and offers to resume from where it left off.
 :::
 
 ### What Gets Created
@@ -85,7 +94,7 @@ All table structures are created by 170+ Laravel migrations during Phase 4. Data
 For production deployments or organizations that want reverse proxy, monitoring, and management tools:
 
 ```bash
-python3 install.py --with-infrastructure
+python3 install.py --webapp --with-infrastructure
 ```
 
 This runs the **Acropolis infrastructure installer** on top of the standard Parthenon setup, adding:
@@ -112,7 +121,7 @@ During the Acropolis setup, you choose an edition:
 For automated deployments or CI/CD pipelines, provide a JSON defaults file to skip interactive prompts:
 
 ```bash
-python3 install.py --defaults-file my-config.json
+python3 install.py --webapp --defaults-file my-config.json
 ```
 
 Example `my-config.json`:

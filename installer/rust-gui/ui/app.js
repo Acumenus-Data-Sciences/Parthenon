@@ -1473,7 +1473,7 @@ document.querySelector("#telemetry-docs-link")?.addEventListener("click", async 
   event.preventDefault();
   const shell = window.__TAURI__?.shell;
   if (shell?.open) {
-    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/no-telemetry.mdx");
+    await shell.open("https://github.com/Acumenus-Data-Sciences/Parthenon/blob/main/docs/site/docs/install/no-telemetry.mdx");
   }
 });
 
@@ -1481,7 +1481,7 @@ document.querySelector("#feedback-link")?.addEventListener("click", async (event
   event.preventDefault();
   const shell = window.__TAURI__?.shell;
   if (shell?.open) {
-    await shell.open("https://github.com/sudoshi/Parthenon/discussions");
+    await shell.open("https://github.com/Acumenus-Data-Sciences/Parthenon/discussions");
   }
 });
 
@@ -1782,14 +1782,14 @@ document.querySelector("#gatekeeper-docs")?.addEventListener("click", async (eve
   event.preventDefault();
   const shell = window.__TAURI__?.shell;
   if (shell?.open) {
-    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
+    await shell.open("https://github.com/Acumenus-Data-Sciences/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
   }
 });
 document.querySelector("#smartscreen-docs")?.addEventListener("click", async (event) => {
   event.preventDefault();
   const shell = window.__TAURI__?.shell;
   if (shell?.open) {
-    await shell.open("https://github.com/sudoshi/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
+    await shell.open("https://github.com/Acumenus-Data-Sciences/Parthenon/blob/main/docs/site/docs/install/first-launch-trust.mdx");
   }
 });
 

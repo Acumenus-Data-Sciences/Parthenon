@@ -323,4 +323,4 @@ Darkstar was built to handle exactly this kind of workload: computationally expe
 
 ---
 
-*Darkstar is open source as part of Parthenon. The container definition, plumber2 API, and s6-overlay configuration are in `docker/r/` and `r-runtime/` in the [Parthenon repository](https://github.com/sudoshi/Parthenon).*
+*Darkstar is open source as part of Parthenon. The container definition, plumber2 API, and s6-overlay configuration are in `docker/r/` and `r-runtime/` in the [Parthenon repository](https://github.com/Acumenus-Data-Sciences/Parthenon).*

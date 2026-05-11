@@ -179,11 +179,17 @@ Suggested movement:
 
 ### 4. Public docs contain stale active references
 
-Several active public docs still reference `github.com/sudoshi/Parthenon` or
+Several active public docs still referenced `github.com/sudoshi/Parthenon` or
 Apache 2.0-era instructions. This is acceptable inside historical lineage only
 when annotated as historical, but not in active install docs.
 
-High-priority active source examples:
+Status on 2026-05-10: active install docs, public install landing pages, and
+public blog-facing repo/license references were reconciled to the source-only
+Community installer path and the `Acumenus-Data-Sciences/Parthenon` repo. The
+remaining `sudoshi/Parthenon` hits in public blog content are in v1.0.7 release
+notes that explicitly document the historical org transfer.
+
+High-priority active source examples remediated in this pass:
 
 - `docs/site/docs/part1-getting-started/00b-installation.mdx`
 - `docs/site/docs/install/community-installer-walkthrough.mdx`
@@ -354,6 +360,9 @@ This pass should be low-risk and does not break links.
 4. For every open plan, add `related_code`, `related_tests`, and `exit_state`.
 
 ### Pass 5: public docs stale-reference fix
+
+Status: completed 2026-05-10 for active install docs, public install pages, and
+current public blog-facing references.
 
 1. Update active Docusaurus install docs from `sudoshi/Parthenon` to
    `Acumenus-Data-Sciences/Parthenon`.

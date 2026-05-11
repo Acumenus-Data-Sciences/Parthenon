@@ -44,7 +44,7 @@ Acropolis is not a separate application. It's a production infrastructure layer 
 | **Data Catalog** | DataHub v0.15 | Track data lineage from raw sources through OMOP to analysis outputs (Enterprise) |
 | **SSO** | Authentik 2025.2 | SAML/OIDC identity provider for all services (Enterprise) |
 
-Two editions: **Community** (Traefik + Portainer + pgAdmin, free under Apache 2.0) and **Enterprise** (adds n8n, Superset, DataHub, Authentik — license-gated).
+Two editions: **Community** (Traefik + Portainer + pgAdmin, free under the current Parthenon CE license) and **Enterprise** (adds n8n, Superset, DataHub, Authentik, license-gated).
 
 After installation, every service gets a subdomain:
 
@@ -335,9 +335,9 @@ The `Acropolis-v2` repository is now deprecated. All development continues in th
 If you're deploying Parthenon and want the full infrastructure stack:
 
 ```bash
-git clone https://github.com/sudoshi/Parthenon.git
+git clone https://github.com/Acumenus-Data-Sciences/Parthenon.git
 cd Parthenon
-python3 install.py --with-infrastructure
+python3 install.py --webapp --with-infrastructure
 ```
 
 That's it. One repo, one command, one platform.
