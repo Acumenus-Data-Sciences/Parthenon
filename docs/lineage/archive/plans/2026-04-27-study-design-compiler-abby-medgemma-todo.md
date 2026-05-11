@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-04-27
+owner: acumenus
+module: study-designer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Study Design Compiler Abby + MedGemma Harness TODO
 
 > **For agentic workers:** Implement this task-by-task with narrow commits. Abby is the product-facing assistant and workflow harness. MedGemma 27B on local Ollama is Abby's local control plane. Claude is the scoped research-grade evaluator for protocol compiler work when the Study Design Compiler cloud-evaluation flag is enabled. Keep canonical writes deterministic, validated, auditable, and user-reviewed.

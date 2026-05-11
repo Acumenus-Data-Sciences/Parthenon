@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-04-10
+owner: acumenus
+module: datasets
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # MIMIC-IV Superset Dashboard v2 Plan
 
 Date: 2026-04-10

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-18
+owner: acumenus
+module: qa
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # E2E Regression Guard — Implementation Plan
 
 **Date:** 2026-03-18

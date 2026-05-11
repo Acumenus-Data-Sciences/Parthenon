@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-12
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Comprehensive Data Import Test Plan
 
 **Date:** 2026-03-12

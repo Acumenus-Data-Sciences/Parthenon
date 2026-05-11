@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-12
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Database Architecture Documentation — Design Spec
 
 > **Audience:** New developers onboarding to the Parthenon codebase

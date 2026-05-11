@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-19
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Single-Database Migration Plan
 
 **Goal:** Unify Parthenon to one `parthenon` database with schema isolation, eliminating the multi-DB confusion that has caused repeated data-loss incidents.

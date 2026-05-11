@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-15
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FINNGEN Optional Tools Integration Design
 
 **Date:** 2026-03-15

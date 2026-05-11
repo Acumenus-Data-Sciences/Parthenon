@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: archived
+date: 2026-03-25
+owner: acumenus
+module: datasets
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # SynPUF Import Task — Pre-ETL'd OMOP CDM Data Available on Local Drive
 
 ## Context

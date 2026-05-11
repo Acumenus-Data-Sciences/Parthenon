@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-13
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Forgot Password — Design Spec
 
 **Date:** 2026-03-13

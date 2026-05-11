@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-11
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Repository Catalog & Parthenon Integration Plan
 
 **Date:** 2026-03-11

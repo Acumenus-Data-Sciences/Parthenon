@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-11
+owner: acumenus
+module: study-designer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Study Designer Integration Design
 
 **Date:** 2026-03-11

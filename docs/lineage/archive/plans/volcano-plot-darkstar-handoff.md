@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: archived
+date: 2026-03-20
+owner: acumenus
+module: analysis
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Volcano Plot via Darkstar — Agent Handoff
 
 **Date:** 2026-03-20

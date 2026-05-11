@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-15
+owner: acumenus
+module: security
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Design Data Protection — Fort Knox System
 
 **Date:** 2026-03-15

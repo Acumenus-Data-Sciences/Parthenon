@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: archived
+date: 2026-04-18
+owner: acumenus
+module: studies
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Claude Code Implementation Prompt — Hypertension Characterization Study (V2)
 
 **Date:** 2026-04-18

@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: archived
+date: 2026-03-25
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Plans — Implementation & Feature Roadmaps
 
 This directory consolidates feature planning documents across three phases of development:

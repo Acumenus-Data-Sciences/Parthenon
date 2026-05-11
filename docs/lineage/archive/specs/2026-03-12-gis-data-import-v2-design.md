@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-12
+owner: acumenus
+module: gis
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # GIS Data Import v2 — Design Specification
 
 **Date:** 2026-03-12

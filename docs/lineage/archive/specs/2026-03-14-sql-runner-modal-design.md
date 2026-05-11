@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-14
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # SQL Runner with Live Progress Modal — Design Spec
 
 **Date:** 2026-03-14

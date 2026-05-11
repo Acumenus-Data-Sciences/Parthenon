@@ -1,3 +1,15 @@
+---
+doc_type: compliance
+status: archived
+date: 2026-03-11
+owner: acumenus
+module: fhir
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FHIR-OMOP IG Compliance & Bidirectional Bridge — Design Spec
 
 **Date:** 2026-03-11

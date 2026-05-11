@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-19
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Inline Documentation Plan
 
 > A phased, priority-ordered plan for systematically adding inline documentation across the Parthenon codebase. Designed to be executed by Claude Code agents with human review.

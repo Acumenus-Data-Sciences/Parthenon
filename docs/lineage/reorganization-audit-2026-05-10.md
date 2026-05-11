@@ -437,6 +437,10 @@ CI as the `docs-lineage-contract` job and blocks:
 - Classified the first 50 remaining archived plan records under
   `docs/lineage/archive/plans/` as archived plans, specs, or compliance notes
   based on their filenames.
+- Classified the next 50 archived lineage records across
+  `docs/lineage/archive/plans/`, `docs/lineage/archive/prompts/`, and
+  `docs/lineage/archive/specs/` as archived plans, handoffs, references, specs,
+  or compliance records based on path and filename intent.
 
 Immediate keep:
 
