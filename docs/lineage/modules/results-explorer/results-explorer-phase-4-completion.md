@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: results-explorer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Results Explorer Phase 4 — Visualization Completion
 
 **Date:** 2026-03-07

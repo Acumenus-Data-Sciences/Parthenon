@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-04
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Network Studies Catalog
 
 **Source:** [github.com/ohdsi-studies](https://github.com/ohdsi-studies) (186 repositories) + [data.ohdsi.org/OhdsiStudies](https://data.ohdsi.org/OhdsiStudies/)

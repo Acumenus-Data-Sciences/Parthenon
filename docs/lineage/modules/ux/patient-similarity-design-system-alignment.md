@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-11
+owner: acumenus
+module: ux
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity Design System Alignment
 
 **Date:** 2026-04-11

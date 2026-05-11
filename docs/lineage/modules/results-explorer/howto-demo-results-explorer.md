@@ -1,3 +1,15 @@
+---
+doc_type: runbook
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: results-explorer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # HOW-TO: Demo the Results Explorer
 
 This guide walks through demoing every Results Explorer visualization in Parthenon. Since the R runtime produces these results during real analysis execution, we use an Artisan command to seed realistic demo data into `analysis_executions.result_json`.

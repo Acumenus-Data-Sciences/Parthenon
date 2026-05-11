@@ -452,6 +452,10 @@ CI as the `docs-lineage-contract` job and blocks:
   HEOR, imaging, and ingestion templates. Runbooks, handoffs, security reviews,
   signoffs, and module decision notes are typed separately while retained as
   historical module lineage.
+- Classified the next 50 module lineage records across ingestion, MIMIC,
+  Morpheus, Results Explorer, Solr, Studies, SynPUF, UI, and UX. Handoffs,
+  prompts, how-to guides, data dictionaries, module indexes, plans, and specs
+  are typed separately while retained as historical module lineage.
 
 Immediate keep:
 

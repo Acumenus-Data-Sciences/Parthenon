@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-27
+owner: acumenus
+module: publish
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Publish Page: Study-Driven Manuscript Redesign
 
 **Date:** 2026-03-27

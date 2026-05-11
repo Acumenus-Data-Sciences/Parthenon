@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-05
+owner: acumenus
+module: jobs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Devlog: Comprehensive Jobs Page — All Job Types Wired + Rich Detail Drawer
 
 **Date:** 2026-04-05

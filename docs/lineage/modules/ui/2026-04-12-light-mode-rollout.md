@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-12
+owner: acumenus
+module: ui
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Light / Dark Mode Rollout — Where We Are (2026-04-12)
 
 ## TL;DR

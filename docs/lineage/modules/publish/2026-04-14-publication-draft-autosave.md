@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-14
+owner: acumenus
+module: publish
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Publish — Researcher Draft Autosave Devlog
 
 **Date:** 2026-04-14  

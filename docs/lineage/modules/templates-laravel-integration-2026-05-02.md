@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-02
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Templates Laravel Integration — 2026-05-02
 
 Phase 0, Plan 2 of the Parthenon ingestion-templates initiative. Wires the Laravel

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-14
+owner: acumenus
+module: ux
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # SQL Runner Modal — Run SQL with Live Feedback
 
 **Date:** 2026-03-14

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: ux
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Recent Profiles & Default CDM Source
 
 **Date:** 2026-03-07

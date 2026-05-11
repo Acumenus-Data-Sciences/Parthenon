@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-25
+owner: acumenus
+module: morpheus
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Morpheus — Inpatient Workbench
 
 This directory documents Parthenon's Morpheus inpatient clinical workbench, tracking architecture evolution from v1 through v2.

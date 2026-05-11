@@ -1,3 +1,15 @@
+---
+doc_type: handoff
+status: historical
+date: 2026-03-20
+owner: acumenus
+module: mimic
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # MIMIC-Style Inpatient Dataset Devlog
 
 Date: 2026-03-20

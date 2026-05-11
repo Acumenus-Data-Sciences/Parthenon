@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: solr
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Apache Solr Integration Plan for Parthenon
 
 ## Overview

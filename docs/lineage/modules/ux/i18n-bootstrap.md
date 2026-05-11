@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-17
+owner: acumenus
+module: ux
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon native i18n — bootstrap commit
 
 **Date:** 2026-04-17

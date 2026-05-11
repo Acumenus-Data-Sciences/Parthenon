@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-21
+owner: acumenus
+module: morpheus
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Morpheus Phase B — Frontend Overhaul
 
 **Date:** 2026-03-21

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-06
+owner: acumenus
+module: solr
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Solr Integration — Phase 2.5 + Phase 3: Vocabulary UI & Cohort/Study Discovery
 
 **Date:** 2026-03-06

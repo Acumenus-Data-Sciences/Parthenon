@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-25
+owner: acumenus
+module: mimic
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # MIMIC — Clinical Database Integration
 
 This directory documents integration of the MIMIC-IV ICU dataset into Parthenon, including ingestion procedures, data dictionaries, and augmentation strategies.
