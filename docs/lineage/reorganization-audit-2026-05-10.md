@@ -557,6 +557,9 @@ CI as the `docs-lineage-contract` job and blocks:
   signed release packaging; ingestion Phase 4 Plans 1-8. Phase 4 Plan 8 has
   partial upstream-diff infrastructure, but still lacks the quarterly cadence,
   shared auto-PR helper, and operator devlog required by its plan contract.
+- Added `docs/lineage/plans/open/README.md` as the final active-backlog index.
+  It records why each remaining open plan is still open and the exact evidence
+  needed before moving it to `closed/`.
 
 Post-migration keep:
 
@@ -570,6 +573,8 @@ above.
 - `docs/lineage/decisions/adr/**`
 - `docs/lineage/design/architecture/**`
 - current `docs/lineage/design/specs/2026-05-*`
+- current `docs/lineage/plans/open/README.md`
+- current `docs/lineage/plans/open/2026-04-23-signed-release-packaging.md`
 - current `docs/lineage/plans/open/2026-05-*`
 - shipped `docs/lineage/plans/closed/2026-05-0{2,3}-parthenon-ingestion-templates-phase-{0,1}-*.md`
 - shipped `docs/lineage/plans/closed/2026-05-05-parthenon-ingestion-templates-phase-2-plan-*.md`

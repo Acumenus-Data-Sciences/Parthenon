@@ -26,3 +26,7 @@ This directory holds implementation plans that are still useful to developers.
 The first reorganization pass moved the former `docs/superpowers/plans/` corpus
 to `open/`. Future cleanup should close or archive individual plans only after
 linking each one to the shipped module log, ADR, commit, or successor spec.
+
+The current open backlog is summarized in `open/README.md`; that file is the
+review checklist for deciding whether the remaining active plans are still
+execution work or can be moved to `closed/`.
