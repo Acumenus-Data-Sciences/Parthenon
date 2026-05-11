@@ -110,6 +110,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageManagerInterface;
 use Pest\TestSuite;
 use PHPUnit\Framework\TestCase as PhpUnitTestCase;
+use Symfony\Component\Console\Input\InputInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -285,7 +286,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureTestingDatabaseConnection();
 
         Event::listen(CommandStarting::class, function (CommandStarting $event): void {
-            $this->guardDangerousConsoleCommands($event->command);
+            $this->guardDangerousConsoleCommands($event->command, $event->input);
         });
 
         $this->configureRateLimiters();
@@ -468,7 +469,7 @@ class AppServiceProvider extends ServiceProvider
         return false;
     }
 
-    private function guardDangerousConsoleCommands(string $command): void
+    private function guardDangerousConsoleCommands(string $command, ?InputInterface $input = null): void
     {
         if ($command === '') {
             return;
@@ -514,12 +515,10 @@ class AppServiceProvider extends ServiceProvider
         // Only `migrate --path=<specific_file>` is allowed on production data.
         if ($command === 'migrate') {
             $argv = $_SERVER['argv'] ?? [];
-            $hasPathFlag = false;
+            $hasPathFlag = $input?->hasParameterOption('--path') ?? false;
+
             foreach ($argv as $arg) {
-                if (str_starts_with($arg, '--path=') || str_starts_with($arg, '--path ')) {
-                    $hasPathFlag = true;
-                    break;
-                }
+                $hasPathFlag = $hasPathFlag || str_starts_with($arg, '--path=') || $arg === '--path';
             }
 
             if (! $hasPathFlag) {
