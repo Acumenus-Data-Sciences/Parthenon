@@ -5,7 +5,8 @@ date: 2026-04-02
 owner: acumenus
 module: database
 lineage_anchor: true
-supersedes: []
+supersedes:
+  - docs/data-dictionary/app-schema.md
 superseded_by: null
 related_code:
   - backend/database/migrations

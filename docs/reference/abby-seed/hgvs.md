@@ -51,4 +51,4 @@ Source URLs:
 Related local references:
 
 - `docs/lineage/timeline/phases/15-genomics.md`
-- `docs/data-dictionary/app-schema.md`
+- `docs/reference/app-schema-data-dictionary.md`

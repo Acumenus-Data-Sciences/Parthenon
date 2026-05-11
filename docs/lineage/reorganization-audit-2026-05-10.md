@@ -493,6 +493,9 @@ CI as the `docs-lineage-contract` job and blocks:
 - Moved the remaining `docs/poseidon/` notes into
   `docs/lineage/modules/poseidon/` and the remaining `docs/irsf-nhs/` research
   handoffs into `docs/research/`, preserving their old paths in `supersedes`.
+- Moved the one-file data-dictionary root into
+  `docs/reference/app-schema-data-dictionary.md` and preserved the old path in
+  `supersedes`.
 
 Post-migration keep:
 
@@ -513,7 +516,7 @@ above.
 - `docs/ops/**`
 - `docs/compliance/**`
 - `docs/demo/**`
-- `docs/data-dictionary/app-schema.md`
+- `docs/reference/app-schema-data-dictionary.md`
 
 Resolved consolidation:
 

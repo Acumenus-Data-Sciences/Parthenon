@@ -235,8 +235,6 @@ def classify(path: Path) -> tuple[str, str]:
         return "seed-duplicate-or-reference", "docs/reference/abby-seed/"
     if raw.startswith("docs/demo/"):
         return "demo", raw
-    if raw.startswith("docs/data-dictionary/"):
-        return "data-dictionary", raw
     if raw.startswith("docs/commons/"):
         return "commons", "docs/lineage/modules/commons/"
     if raw.startswith("docs/lineage/") or raw == "docs/README.md":

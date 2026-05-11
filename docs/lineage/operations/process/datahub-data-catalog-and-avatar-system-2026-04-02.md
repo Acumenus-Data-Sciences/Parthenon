@@ -42,7 +42,8 @@ Integrated DataHub as the enterprise data catalog for Parthenon, ingested the fu
 
 ## Data Dictionary
 
-Created comprehensive reference document at `docs/data-dictionary/app-schema.md`:
+Created comprehensive reference document now catalogued at
+`docs/reference/app-schema-data-dictionary.md`:
 - **3,635 lines** covering **170 tables** across **26 domain groups**
 - Full column tables with Type, Nullable, Default, and Description for ~1,500 columns
 - References OMOP CDM, OHDSI tools, FHIR R4, LOINC, SNOMED CT conventions
@@ -81,7 +82,7 @@ Created comprehensive reference document at `docs/data-dictionary/app-schema.md`
 ## Files Changed
 
 ### New
-- `docs/data-dictionary/app-schema.md` — Complete app schema data dictionary
+- `docs/reference/app-schema-data-dictionary.md` — Complete app schema data dictionary
 - `frontend/src/features/commons/components/UserAvatar.tsx` — Shared avatar component
 - `acropolis/config/datahub/Dockerfile.actions` — Custom datahub-actions image with postgres plugin
 - `acropolis/config/datahub/pg_recipe.yml` — PostgreSQL ingestion recipe
