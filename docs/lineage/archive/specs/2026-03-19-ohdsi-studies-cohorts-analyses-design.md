@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-19
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Studies: Cohort Definitions & HADES Analysis Configurations
 
 **Date:** 2026-03-19

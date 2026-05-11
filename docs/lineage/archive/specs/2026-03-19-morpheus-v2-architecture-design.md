@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-19
+owner: acumenus
+module: morpheus
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Morpheus v2 — Inpatient Analytics Workbench Architecture Design
 
 **Date:** 2026-03-19

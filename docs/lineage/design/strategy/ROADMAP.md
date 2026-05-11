@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-03
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Roadmap
 
 Parthenon 1.0 (shipping with Phase 14 — HADES integration) unifies the core OHDSI toolchain. The three phases that follow extend the platform into domains where the OHDSI community has the data, the vocabulary, and the scientific infrastructure — but no integrated tooling.

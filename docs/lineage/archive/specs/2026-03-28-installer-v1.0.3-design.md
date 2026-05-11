@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-28
+owner: acumenus
+module: installer
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Installer Update — Parthenon v1.0.3
 
 **Date:** 2026-03-28

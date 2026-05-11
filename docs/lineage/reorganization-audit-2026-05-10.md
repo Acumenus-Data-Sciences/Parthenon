@@ -441,6 +441,10 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/archive/plans/`, `docs/lineage/archive/prompts/`, and
   `docs/lineage/archive/specs/` as archived plans, handoffs, references, specs,
   or compliance records based on path and filename intent.
+- Classified the next 50 mixed lineage records: the final archive specs,
+  remaining design specs and strategy notes, and the first module histories.
+  Current dated design specs are marked active; older strategy notes and module
+  histories are retained as historical lineage.
 
 Immediate keep:
 

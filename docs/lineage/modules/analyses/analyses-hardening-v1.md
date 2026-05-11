@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-07
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Analyses Hardening v1 — API Envelope Fixes & Defensive Numeric Formatting
 
 **Date:** 2026-03-07

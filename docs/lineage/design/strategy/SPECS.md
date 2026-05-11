@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-03
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon — Technical Specifications
 
 Full technical reference for architecture, stack, data model, project structure, Docker services, environment configuration, and API surface.

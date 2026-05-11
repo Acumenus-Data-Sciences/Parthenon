@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-01
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # DESIGNLOG.md — Parthenon Frontend Design System
 
 > **Status:** Draft — Phase 2 Pre-Implementation

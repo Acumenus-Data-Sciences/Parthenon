@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-20
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen Evidence Investigation — Design Specification
 
 ## Overview

@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-04-03
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Abby AI: Database Awareness, Live Context Fixes, and Security Hardening
 
 **Date:** 2026-04-03

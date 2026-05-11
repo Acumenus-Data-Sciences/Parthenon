@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-07
+owner: acumenus
+module: harmonia
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # 2026-05-07 — Harmonia reviewer queue backend (Plan 7 Section A, Tasks 1-4)
 
 Phase 3 Plan 7 (T-024B). Backend half of the concept-mapping reviewer UI

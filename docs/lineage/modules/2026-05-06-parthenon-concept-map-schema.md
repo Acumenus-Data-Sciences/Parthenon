@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-05-06
+owner: acumenus
+module: vocabulary
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # 2026-05-06 — `app.parthenon_concept_map` schema
 
 Phase 3 Plan 6 Task 10 (T-024A). Lands the persistent home for

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-03
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon SDLC — Continuous Development Plan
 
 **Purpose:** Defines how Parthenon is developed, tested, documented, released, and maintained on an ongoing basis — from daily development practice through versioned releases and long-term platform evolution.

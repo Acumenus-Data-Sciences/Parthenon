@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-19
+owner: acumenus
+module: jupyterhub
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # JupyterHub Per-User Notebooks — Design Spec
 
 **Date:** 2026-03-19

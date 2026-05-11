@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-04
+owner: acumenus
+module: studies
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 Parthenon's Studies module will be the command center for federated outcomes research, 
 managing the full lifecycle from hypothesis through meta-analytic synthesis.
 

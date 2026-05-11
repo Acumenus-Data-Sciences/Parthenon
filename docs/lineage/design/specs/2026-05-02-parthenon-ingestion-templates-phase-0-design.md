@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: active
+date: 2026-05-02
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Ingestion Templates — Phase 0 Design
 
 **Date:** 2026-05-02

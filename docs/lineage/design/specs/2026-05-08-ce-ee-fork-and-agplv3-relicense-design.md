@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: active
+date: 2026-05-08
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork and AGPLv3 Relicense — Design
 
 **Status:** Draft for user review

@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: archived
+date: 2026-03-25
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Specs — Design Specifications & Architecture
 
 This directory contains detailed design specifications and architectural documentation, organized by feature area and development phase.

@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-04-23
+owner: acumenus
+module: carebundles
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CareBundles Workbench — Design Spec
 
 **Status:** Draft

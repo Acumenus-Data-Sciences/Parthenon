@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: historical
+date: 2026-03-10
+owner: acumenus
+module: analyses
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # AFib Anticoagulation Study Design
 
 **Date:** 2026-03-10

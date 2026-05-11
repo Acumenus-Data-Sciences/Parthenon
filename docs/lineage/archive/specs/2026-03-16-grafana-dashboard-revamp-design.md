@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-16
+owner: acumenus
+module: monitoring
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Grafana Dashboard Revamp — Design Specification
 
 **Date:** 2026-03-16

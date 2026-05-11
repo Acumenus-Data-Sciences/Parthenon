@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-11
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # ChromaDB Brain for Abby AI Assistant
 
 **Date:** 2026-03-11

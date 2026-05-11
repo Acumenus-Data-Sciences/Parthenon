@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-21
+owner: acumenus
+module: atlantic-health
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # AtlanticHealth Data Synthesis — Design Spec
 
 **Date:** 2026-03-21

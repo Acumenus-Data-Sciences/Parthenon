@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-24
+owner: acumenus
+module: ares
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Ares v2 — Panel Enhancement Design Spec
 
 **Date:** 2026-03-24

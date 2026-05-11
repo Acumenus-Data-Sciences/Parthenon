@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-02-28
+owner: acumenus
+module: docs
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon: Unified Outcomes Research Platform
 
 ## Executive Summary
