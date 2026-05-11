@@ -26,7 +26,6 @@ every Markdown/MDX file should be useful because it has an explicit role.
 | `docs/blog/` | Public development blog and release narrative. | Useful for chronology and external messaging, but not canonical implementation lineage. |
 | `docs/lineage/` | Developer-facing project lineage catalogue and canonical history. | Module logs, phases, sessions, plans, specs, ADRs, handoffs, and operations notes live here. |
 | `docs/devlog/` | Historical transition area. | Retained only for the transition index; developer lineage now lives under `docs/lineage/`. |
-| `docs/superpowers/` | Historical transition area. | Former plans/specs moved to `docs/lineage/plans/open/` and `docs/lineage/design/specs/`. |
 | `docs/lineage/decisions/adr/` and `docs/lineage/design/architecture/` | Architecture decisions and technical design. | ADRs are consolidated under lineage decisions; non-ADR design lineage lives under `docs/lineage/design/`. |
 | `docs/ops/` | Operator runbooks and infrastructure reports. | Keep review dates and validation commands current. |
 | `docs/compliance/` | Governance, audit, security, incident, and recovery documentation. | Keep owner and review cadence explicit. |
@@ -58,8 +57,9 @@ OpenAPI MDX/JSON files are generated locally by Docusaurus/OpenAPI tooling.
 - `docs/lineage/catalog.md` is generated from the current Markdown/MDX corpus.
 - `docs/lineage/frontmatter-baseline.txt` is retained as a zero-debt guard for
   files that predate the lineage frontmatter contract.
-- `docs/devlog/README.md`, `docs/superpowers/README.md`, and
-  `docs/lineage/handoffs/README.md` are transition pointers for old top-level homes.
+- `docs/devlog/README.md` is the remaining transition pointer for the old
+  developer log root; the former top-level `docs/superpowers/` and
+  `docs/handoffs/` roots have been reconciled into `docs/lineage/`.
 
 ## Validation
 

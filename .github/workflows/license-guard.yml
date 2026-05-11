@@ -28,7 +28,6 @@ jobs:
             . 2>/dev/null \
             | grep -v 'docs/lineage/' \
             | grep -v 'docs/devlog/' \
-            | grep -v 'docs/superpowers/' \
             | grep -v 'docs/blog/' \
             | grep -v '.github/workflows/license-guard.yml' \
             || true)
@@ -39,7 +38,7 @@ jobs:
             echo "Update these to Acumenus-Data-Sciences/Parthenon (URLs)"
             echo "or ghcr.io/acumenus-data-sciences/parthenon (image refs)."
             echo "Historical references in docs/lineage/, docs/devlog/,"
-            echo "docs/superpowers/, and docs/blog/ are excluded."
+            echo "and docs/blog/ are excluded."
             exit 1
           fi
           echo "OK: no stale sudoshi/Parthenon references in active source."

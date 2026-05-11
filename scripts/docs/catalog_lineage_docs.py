@@ -70,8 +70,6 @@ APPROVED_DOC_PREFIXES = (
 APPROVED_DOC_PATHS = {
     "docs/README.md",
     "docs/devlog/README.md",
-    "docs/handoffs/README.md",
-    "docs/superpowers/README.md",
 }
 
 CONTRACT_REQUIRED_PREFIXES = (
@@ -178,11 +176,7 @@ def classify(path: Path) -> tuple[str, str]:
         return "translation-source", raw
     if raw.startswith("docs/blog/"):
         return "public-dev-blog", raw
-    if raw in {
-        "docs/devlog/README.md",
-        "docs/superpowers/README.md",
-        "docs/handoffs/README.md",
-    }:
+    if raw == "docs/devlog/README.md":
         return "transition-index", raw
     if raw == "docs/lineage/reorganization-audit-2026-05-10.md":
         return "lineage-index", raw
@@ -229,10 +223,6 @@ def classify(path: Path) -> tuple[str, str]:
     if raw.startswith("docs/architecture/"):
         return "architecture", "docs/lineage/design/architecture/"
     if raw.startswith("docs/devlog/"):
-        return "transition-pointer", raw
-    if raw.startswith("docs/superpowers/"):
-        return "transition-pointer", raw
-    if raw.startswith("docs/handoffs/"):
         return "transition-pointer", raw
 
     if raw.startswith("docs/ops/"):

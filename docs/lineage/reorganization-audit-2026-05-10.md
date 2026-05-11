@@ -105,7 +105,7 @@ links or short pointers where the old path is still useful:
 | `docs/devlog/grafana-log-dashboard-research.md`, `docs/research/grafana-log-dashboard-research.md` | `docs/research/grafana-log-dashboard-research.md` |
 | `docs/devlog/grafana-styling-research.md`, `docs/research/grafana-styling-research.md` | `docs/research/grafana-styling-research.md` |
 | `docs/architecture/compliance-remediation-plan.md`, `docs/compliance/compliance-remediation-plan.md` | `docs/compliance/compliance-remediation-plan.md` |
-| `docs/devlog/parthenon-acropolis-integration-prompt.md`, `docs/handoffs/parthenon-acropolis-integration-prompt.md` | `docs/handoffs/parthenon-acropolis-integration-prompt.md` |
+| `docs/devlog/parthenon-acropolis-integration-prompt.md`, `docs/handoffs/parthenon-acropolis-integration-prompt.md` | `docs/lineage/handoffs/parthenon-acropolis-integration-prompt.md` |
 
 ## Structural problems
 
@@ -412,8 +412,8 @@ CI as the `docs-lineage-contract` job and blocks:
 - Moved legacy plans/specs and prompt notes to `docs/lineage/archive/`.
 - Moved process/runbook notes to `docs/lineage/operations/`.
 - Moved handoffs to `docs/lineage/handoffs/`.
-- Left transition READMEs in `docs/devlog/`, `docs/superpowers/`, and
-  `docs/handoffs/` so old top-level directory names remain explainable.
+- Initially left transition READMEs in `docs/devlog/`, `docs/superpowers/`, and
+  `docs/handoffs/` so old top-level directory names remained explainable.
 
 ### 2026-05-11: Baseline reduction
 
@@ -484,41 +484,47 @@ CI as the `docs-lineage-contract` job and blocks:
 - Removed the final duplicate pointer stubs from `docs/devlog/`; the directory
   is now only a transition index and no longer carries duplicate research or
   handoff Markdown.
+- Removed the remaining top-level transition roots `docs/superpowers/` and
+  `docs/handoffs/` after their canonical replacements under `docs/lineage/`
+  carried the supersession metadata. `docs/devlog/README.md` is now the only
+  retained transition index outside the canonical lineage tree.
 
-Immediate keep:
+Post-migration keep:
 
-These lists preserve the original audit recommendations. The migration
-checkpoints above record the actual canonical paths after rehoming.
+These paths are the reconciled canonical homes after the migration checkpoints
+above.
 
 - `docs/site/docs/**` authored user manual pages
 - `docs/site/i18n/**`
 - `docs/site/docs/api/index.mdx`
-- `docs/devlog/phases/**`
-- `docs/adr/**`
-- current `docs/architecture/adr-*`
-- current `docs/superpowers/specs/2026-05-*`
-- current `docs/superpowers/plans/2026-05-*`
+- `docs/lineage/timeline/phases/**`
+- `docs/lineage/decisions/adr/**`
+- `docs/lineage/design/architecture/**`
+- current `docs/lineage/design/specs/2026-05-*`
+- current `docs/lineage/plans/open/2026-05-*`
+- `docs/lineage/handoffs/**`
 - `docs/ops/**`
 - `docs/compliance/**`
 - `docs/demo/**`
 - `docs/data-dictionary/app-schema.md`
 
-Immediate consolidate:
+Resolved consolidation:
 
-- exact duplicates listed above
-- `docs/devlog/grafana-*.md` into `docs/research`
-- `docs/architecture/compliance-remediation-plan.md` into `docs/compliance`
-- `docs/devlog/parthenon-acropolis-integration-prompt.md` into
-  `docs/handoffs`
-- `docs/lineage/modules/commons/abby-components.md` and
-  `docs/lineage/modules/commons/abby-components.md`
+- exact duplicate stubs listed above were collapsed or rehomed
+- `docs/devlog/grafana-*.md` now resolves to `docs/research`
+- the architecture-side compliance pointer was removed in favor of
+  `docs/compliance/compliance-remediation-plan.md`
+- `docs/devlog/parthenon-acropolis-integration-prompt.md` and the former
+  top-level handoff copy now resolve to
+  `docs/lineage/handoffs/parthenon-acropolis-integration-prompt.md`
+- Commons Markdown lineage now resolves to `docs/lineage/modules/commons/`
 
-Immediate archive:
+Remaining archive review:
 
 - superseded installer package plans that assume binary assets no longer used
 - old `sudoshi/Parthenon` release instructions unless explicitly historical
-- `docs/devlog/plans/**` items that have shipped module closeouts
-- `docs/devlog/specs/**` items replaced by ADRs or `docs/superpowers/specs`
+- `docs/lineage/archive/plans/**` items that have shipped module closeouts
+- `docs/lineage/archive/specs/**` items replaced by ADRs or active design specs
 
 Do not track as lineage:
 
