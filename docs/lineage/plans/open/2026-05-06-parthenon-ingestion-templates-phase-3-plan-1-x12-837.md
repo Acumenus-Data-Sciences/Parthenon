@@ -257,7 +257,7 @@ Per HIGHSEC §7: provider NPI + patient subscriber ID are PHI-adjacent. Reader l
 ## Task 12: ADR 0016
 
 **Files:**
-- Create: `docs/architecture/adr-0016-claims-to-omop-cost-projection.md`
+- Create: `docs/lineage/decisions/adr/adr-0016-claims-to-omop-cost-projection.md`
 
 ADR records:
 - **Context:** D2E does not project COST; Parthenon claims_to_omop ships it as the primary commercial wedge per devplan T-021 §"why this matters".

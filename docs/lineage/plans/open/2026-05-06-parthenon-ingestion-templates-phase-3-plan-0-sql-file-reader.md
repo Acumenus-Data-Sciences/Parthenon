@@ -185,7 +185,7 @@ def test_sql_node_rejects_both_sql_and_sql_file() -> None:
 ## Task 6: ADR 0015
 
 **Files:**
-- Create: `docs/architecture/adr-0015-sql-file-reader.md`
+- Create: `docs/lineage/decisions/adr/adr-0015-sql-file-reader.md`
 
 ADR records:
 - **Context:** Phase 2 Plan 4 + 5 manifests need multi-stage SQL bootstrap files; inline `sql:` blocks are unwieldy beyond ~50 lines and lose syntax highlighting.

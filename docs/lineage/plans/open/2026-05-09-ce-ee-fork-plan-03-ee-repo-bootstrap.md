@@ -289,7 +289,7 @@ Private repository. Source available to Acumenus employees and licensed Enterpri
 ## What this repo contains
 
 - `parthenon/` — Parthenon Community Edition (AGPL-3.0-only), merged in as a git subtree from `github.com/Acumenus-Data-Sciences/Parthenon`.
-- `enterprise/` — Acumenus proprietary code that extends CE via documented extension points (see `parthenon/docs/architecture/extension-points.md`).
+- `enterprise/` — Acumenus proprietary code that extends CE via documented extension points (see `parthenon/docs/lineage/design/architecture/extension-points.md`).
 - `docker-compose.ee.yml` — EE composition (extends CE compose).
 - `.github/workflows/` — CI/CD for EE-specific testing and signed image builds.
 

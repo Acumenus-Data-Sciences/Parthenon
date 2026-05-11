@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-05-02
 **Status:** Draft — pending user review
-**Scope:** Phase 0 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-001 through T-009)
+**Scope:** Phase 0 of `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-001 through T-009)
 **Owners:** Platform engineer + 1 ETL engineer (per devplan §4)
 
 ---
@@ -518,7 +518,7 @@ Parthenon-specific. The devplan §9 list also applies; these are the additional 
 
 ## 13. References
 
-- Source devplan: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md`
+- Source devplan: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md`
 - D2E benchmark: https://github.com/OHDSI/Data2Evidence
 - Existing ingestion code: `backend/app/Services/Ingestion/`, `backend/app/Jobs/Ingestion/`, `backend/app/Http/Controllers/Api/V1/IngestionController.php`
 - Existing Aqueduct surface: `frontend/src/features/etl/`, `backend/app/Models/App/EtlProject.php`

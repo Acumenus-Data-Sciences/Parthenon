@@ -117,7 +117,7 @@ Main package:
 
 Supporting documentation:
 
-- [2026-04-10-omop-extension-remediation-package.md](/home/smudoshi/Github/Parthenon/docs/architecture/2026-04-10-omop-extension-remediation-package.md)
+- [2026-04-10-omop-extension-remediation-package.md](/home/smudoshi/Github/Parthenon/docs/lineage/design/architecture/2026-04-10-omop-extension-remediation-package.md)
 - [2026-04-10-omop-next-agent-remediation-plan.md](/home/smudoshi/Github/Parthenon/docs/lineage/timeline/sessions/2026/2026-04-10-omop-next-agent-remediation-plan.md)
 
 Repo-side migration/model updates:
@@ -473,7 +473,7 @@ Relevant current working-tree status:
 
 - [ImagingSeries.php](/home/smudoshi/Github/Parthenon/backend/app/Models/App/ImagingSeries.php) is modified
 - [2026_04_10_164500_add_imaging_series_omop_bridge.php](/home/smudoshi/Github/Parthenon/backend/database/migrations/2026_04_10_164500_add_imaging_series_omop_bridge.php) is untracked
-- [2026-04-10-omop-extension-remediation-package.md](/home/smudoshi/Github/Parthenon/docs/architecture/2026-04-10-omop-extension-remediation-package.md) is untracked
+- [2026-04-10-omop-extension-remediation-package.md](/home/smudoshi/Github/Parthenon/docs/lineage/design/architecture/2026-04-10-omop-extension-remediation-package.md) is untracked
 - the entire [scripts/omop-extension-package](/home/smudoshi/Github/Parthenon/scripts/omop-extension-package) directory is untracked
 
 There are also unrelated user changes elsewhere in the repo. Do not reset or clean the working tree.

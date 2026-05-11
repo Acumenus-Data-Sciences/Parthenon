@@ -562,7 +562,7 @@ def test_episode_source_value_never_contains_phi() -> None:
 ## Task 13: ADR 0014 — ARTEMIS regimen extraction strategy + R-package pin
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0014-artemis-regimen-extraction.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0014-artemis-regimen-extraction.md`
 
 ADR 0014 covers:
 - **Context:** Phase 2 §1 + Q8 (ARTEMIS R package fetched at Docker build, pinned commit SHA). The ~80% recall acceptance gate.

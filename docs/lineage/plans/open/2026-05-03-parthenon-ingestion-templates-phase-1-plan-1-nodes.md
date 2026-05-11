@@ -3412,7 +3412,7 @@ logged or persisted.
 - pydicom `stop_before_pixels`: <https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dcmread.html>
 - MS Tools-for-Health-Data-Anonymization: <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>
 - DICOMweb QIDO-RS: <https://www.dicomstandard.org/using/dicomweb/query-qido-rs/>
-- Devplan §4 Phase 1: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` lines 429–541
+- Devplan §4 Phase 1: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` lines 429–541
 ```
 
 - [ ] **Step 4: Run test to verify it passes**

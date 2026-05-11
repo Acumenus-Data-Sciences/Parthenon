@@ -62,8 +62,8 @@ Before starting any task:
 | `backend/tests/Feature/Auth/Drivers/AuthentikOidcAuthDriverTest.php` | Integration test | ~120 |
 | `backend/tests/Feature/Auth/AuthDriverRegistryTest.php` | Integration test (resolve, list, error) | ~80 |
 | `backend/tests/Feature/Auth/StubAuthDriver.php` | Test fixture proving pluggability | ~40 |
-| `docs/architecture/extension-points.md` | Index page for all 8 extension points (start here) | ~80 |
-| `docs/architecture/extension-points/auth-driver.md` | Detailed AuthDriver doc | ~200 |
+| `docs/lineage/design/architecture/extension-points.md` | Index page for all 8 extension points (start here) | ~80 |
+| `docs/lineage/design/architecture/extension-points/auth-driver.md` | Detailed AuthDriver doc | ~200 |
 
 **Modified files:**
 
@@ -112,7 +112,7 @@ use App\Auth\Drivers\AuthDriverResult;
  * Register a driver by adding it to config/auth-drivers.php under
  * 'drivers' => [ 'driver-name' => DriverClass::class ].
  *
- * See docs/architecture/extension-points/auth-driver.md for the full
+ * See docs/lineage/design/architecture/extension-points/auth-driver.md for the full
  * extension contract.
  */
 interface AuthDriverInterface
@@ -1022,10 +1022,10 @@ Completes the AuthDriver extension point on the controller side."
 ## Task 10: Documentation
 
 **Files:**
-- Create: `docs/architecture/extension-points.md`
-- Create: `docs/architecture/extension-points/auth-driver.md`
+- Create: `docs/lineage/design/architecture/extension-points.md`
+- Create: `docs/lineage/design/architecture/extension-points/auth-driver.md`
 
-- [ ] **Step 10.1: Write `docs/architecture/extension-points.md`** (index page; will grow as Plan 02-02..02-08 land)
+- [ ] **Step 10.1: Write `docs/lineage/design/architecture/extension-points.md`** (index page; will grow as Plan 02-02..02-08 land)
 
 ```markdown
 # Parthenon CE Extension Points
@@ -1070,14 +1070,14 @@ Each extension point ships with:
 See each extension point's detail page for examples.
 ```
 
-- [ ] **Step 10.2: Write `docs/architecture/extension-points/auth-driver.md`** (full driver doc)
+- [ ] **Step 10.2: Write `docs/lineage/design/architecture/extension-points/auth-driver.md`** (full driver doc)
 
 (Include: interface signature, what `AuthDriverResult` carries, how to register a new driver, error code semantics, examples for SAML and SCIM as reference.)
 
 - [ ] **Step 10.3: Commit**
 
 ```bash
-git add docs/architecture/extension-points.md docs/architecture/extension-points/auth-driver.md
+git add docs/lineage/design/architecture/extension-points.md docs/lineage/design/architecture/extension-points/auth-driver.md
 git commit -m "docs(architecture): document AuthDriver extension point
 
 Adds the extension-points index doc (will grow as Plans 02-02..02-08 land)
@@ -1133,8 +1133,8 @@ This is the foundation for EE drivers (Keycloak, SAML, SCIM) which will live in 
 - `backend/tests/Feature/Auth/Drivers/AuthentikOidcAuthDriverTest.php` (6 cases)
 - `backend/tests/Feature/Auth/AuthDriverRegistryTest.php` (6 cases — including pluggability proof via StubAuthDriver)
 - `backend/tests/Feature/Auth/StubAuthDriver.php`
-- `docs/architecture/extension-points.md`
-- `docs/architecture/extension-points/auth-driver.md`
+- `docs/lineage/design/architecture/extension-points.md`
+- `docs/lineage/design/architecture/extension-points/auth-driver.md`
 
 ## Files modified (3)
 

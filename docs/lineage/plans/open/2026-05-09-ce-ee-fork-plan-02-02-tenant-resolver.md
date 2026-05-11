@@ -63,7 +63,7 @@ docker compose exec -T php sh -c "cd /var/www/html && php artisan tenant:current
 | `backend/tests/Feature/Tenancy/StubMultiTenantResolver.php` | Test fixture proving pluggability | ~50 |
 | `backend/tests/Feature/Tenancy/TenantResolverPluggabilityTest.php` | Stub-driver test | ~80 |
 | `backend/app/Console/Commands/TenantCurrentCommand.php` | Diagnostic CLI: print current tenant | ~30 |
-| `docs/architecture/extension-points/tenant-resolver.md` | Detailed doc | ~250 |
+| `docs/lineage/design/architecture/extension-points/tenant-resolver.md` | Detailed doc | ~250 |
 
 **Modified files:**
 
@@ -74,7 +74,7 @@ docker compose exec -T php sh -c "cd /var/www/html && php artisan tenant:current
 | `backend/app/Models/App/Cohort.php` (and similar tenant-scoped models) | `use BelongsToTenant;` |
 | `backend/bootstrap/providers.php` | Register `TenancyServiceProvider` |
 | `backend/config/database.php` | No change (single DB stays the same) |
-| `docs/architecture/extension-points.md` | Mark row 2 done; link detail page |
+| `docs/lineage/design/architecture/extension-points.md` | Mark row 2 done; link detail page |
 
 **Models that get the trait** (initial set; expand as needed):
 - `User`, `App\Source`, `App\Cohort`, `App\ConceptSet`, `App\Analysis`, `App\Study`, `App\AuditLog`, `App\IngestionJob`
@@ -621,7 +621,7 @@ tenant. This is the contract that EE's MultiTenantResolver fulfills."
 
 ## Task 6: Documentation
 
-- [ ] **Step 6.1: Write `docs/architecture/extension-points/tenant-resolver.md`** covering:
+- [ ] **Step 6.1: Write `docs/lineage/design/architecture/extension-points/tenant-resolver.md`** covering:
   - The `TenantResolverInterface` contract
   - When the trait applies (and when it doesn't — vocab/CDM tables)
   - How to register a custom resolver
@@ -630,7 +630,7 @@ tenant. This is the contract that EE's MultiTenantResolver fulfills."
   - How `withoutGlobalScope(TenantScope::class)` works for admin tooling
   - Migration story for orgs adopting multi-tenancy
 
-- [ ] **Step 6.2: Update `docs/architecture/extension-points.md`** to mark row 2 done with link
+- [ ] **Step 6.2: Update `docs/lineage/design/architecture/extension-points.md`** to mark row 2 done with link
 
 - [ ] **Step 6.3: Commit**
 

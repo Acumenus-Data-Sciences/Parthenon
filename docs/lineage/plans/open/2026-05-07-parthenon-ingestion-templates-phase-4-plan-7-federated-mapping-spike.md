@@ -48,7 +48,7 @@ related_prs: []
 3. **Stub implementation** — `FederatedQueryClientStub` returns canned responses for testing. Real implementation deferred or wired against Hive depending on Task 1.
 4. **Reviewer UI panel** — `FederatedConsensusPanel.tsx` on the detail page. Shows the consensus numbers if `k_anonymity_met=true`, otherwise renders "Insufficient cross-network data". Feature-flagged off by default.
 5. **POC walkthrough** — record a short video or screenshots showing the panel in action across 2 networks (or stub). Lands in `docs/lineage/modules/2026-XX-XX-federated-mapping-poc.md`.
-6. **Design memo** — `docs/architecture/2026-XX-XX-federated-mapping-design-memo.md` documents:
+6. **Design memo** — `docs/lineage/design/architecture/2026-XX-XX-federated-mapping-design-memo.md` documents:
    - What the spike proved
    - What production requires (auth, k-anon enforcement, response caching, latency budget)
    - Open questions for Hive Networks Phase N owner

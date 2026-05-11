@@ -188,7 +188,7 @@ CE exposes stable interfaces so EE plugs in without patching CE files. Each exte
 Each extension point ships as its own CE PR with:
 - Interface definition + docblock
 - CE default implementation that preserves current behavior byte-for-byte
-- Documentation in `docs/architecture/extension-points.md`
+- Documentation in `docs/lineage/design/architecture/extension-points.md`
 - Tests verifying the default + at least one alternate stub (proves pluggability)
 - Where applicable, a feature flag so the new abstraction can be A/B-toggled in production
 
@@ -346,7 +346,7 @@ Add the 8 extension-point seams in CE. All work is **AGPLv3, in public Parthenon
 
 PRs are independent; can be parallelized if more contributors are available. Each preserves byte-identical CE behavior via the default implementation.
 
-**Exit:** All 8 PRs merged; `docs/architecture/extension-points.md` complete; integration tests prove default implementations preserve CE behavior; ROADMAP updated.
+**Exit:** All 8 PRs merged; `docs/lineage/design/architecture/extension-points.md` complete; integration tests prove default implementations preserve CE behavior; ROADMAP updated.
 
 ### Phase 3 — EE repo bootstrap (Week 7)
 
@@ -381,7 +381,7 @@ Move actually-EE assets out of public CE and into private EE. Each move is **two
 | Wazuh config | `acropolis/config/wazuh*` (if present) | `enterprise/acropolis/wazuh/` |
 | K8s/Helm charts | `acropolis/k8s/` | `enterprise/k8s/` |
 | Enterprise installer phases | `acropolis/installer/` enterprise phase modules | `enterprise/installer/phases/` |
-| Enterprise docs | `docs/lineage/handoffs/*-enterprise-*`, `docs/architecture/*-enterprise-*` | `enterprise/docs/` |
+| Enterprise docs | `docs/lineage/handoffs/*-enterprise-*`, `docs/lineage/design/architecture/*-enterprise-*` | `enterprise/docs/` |
 | Keycloak migration code (per ROADMAP v1.2 — placeholder) | (not yet present) | `enterprise/auth/keycloak/` |
 
 **Build new in EE (no CE removal):**
@@ -522,7 +522,7 @@ Plan authors and maintainers in any Acumenus repository: when proposing a Parthe
 - `NOTICE` (new)
 - `LICENSING.md` (new)
 - `TRADEMARKS.md` (new)
-- `docs/architecture/extension-points.md` (new, grows over Phase 2)
+- `docs/lineage/design/architecture/extension-points.md` (new, grows over Phase 2)
 - `backend/app/Contracts/AuthDriver.php` (new)
 - `backend/app/Contracts/TenantResolver.php` (new)
 - `backend/app/Contracts/CryptoProvider.php` (new)
@@ -550,7 +550,7 @@ Plan authors and maintainers in any Acumenus repository: when proposing a Parthe
 - `acropolis/config/wazuh*` (if present) → `enterprise/acropolis/wazuh/`
 - `acropolis/k8s/` → `enterprise/k8s/`
 - `acropolis/installer/` enterprise phase modules → `enterprise/installer/phases/`
-- Enterprise docs (`docs/lineage/handoffs/*-enterprise-*`, `docs/architecture/*-enterprise-*`) → `enterprise/docs/`
+- Enterprise docs (`docs/lineage/handoffs/*-enterprise-*`, `docs/lineage/design/architecture/*-enterprise-*`) → `enterprise/docs/`
 
 **Files/dirs to delete from CE:**
 - `package-lock.json` (root, 88-byte stub)

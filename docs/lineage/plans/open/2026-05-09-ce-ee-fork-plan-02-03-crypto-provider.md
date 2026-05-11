@@ -40,11 +40,11 @@ related_prs: []
 | `backend/tests/Feature/Crypto/LaravelNativeCryptoProviderTest.php` | Default tests | ~150 |
 | `backend/tests/Feature/Crypto/StubFipsCryptoProvider.php` | Pluggability fixture | ~50 |
 | `backend/tests/Feature/Crypto/CryptoProviderPluggabilityTest.php` | Stub tests | ~80 |
-| `docs/architecture/extension-points/crypto-provider.md` | Detail doc | ~200 |
+| `docs/lineage/design/architecture/extension-points/crypto-provider.md` | Detail doc | ~200 |
 
 **Modified files:**
 - `backend/bootstrap/providers.php` — register `CryptoProviderServiceProvider`
-- `docs/architecture/extension-points.md` — mark row 3 done
+- `docs/lineage/design/architecture/extension-points.md` — mark row 3 done
 
 ---
 
@@ -392,7 +392,7 @@ Existing AuthDriverTests still pass.
 
 ## Task 6: Documentation
 
-- [ ] Write `docs/architecture/extension-points/crypto-provider.md` covering: interface contract, FIPS rationale, supported algorithms, how EE plugs in, key rotation considerations.
+- [ ] Write `docs/lineage/design/architecture/extension-points/crypto-provider.md` covering: interface contract, FIPS rationale, supported algorithms, how EE plugs in, key rotation considerations.
 - [ ] Update extension-points.md to link.
 - [ ] Commit.
 

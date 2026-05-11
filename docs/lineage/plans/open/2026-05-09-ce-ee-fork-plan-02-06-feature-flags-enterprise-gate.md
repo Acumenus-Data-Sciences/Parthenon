@@ -59,7 +59,7 @@ related_prs: []
 **Modified files:**
 - `frontend/src/App.tsx` (or `main.tsx`) — fetch flags on app mount
 - `backend/bootstrap/providers.php` — register `FeatureFlagsServiceProvider`
-- `docs/architecture/extension-points.md` — mark row 6 done
+- `docs/lineage/design/architecture/extension-points.md` — mark row 6 done
 
 ---
 

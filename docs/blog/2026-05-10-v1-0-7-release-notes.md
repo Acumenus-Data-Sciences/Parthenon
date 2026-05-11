@@ -235,7 +235,7 @@ relicense plan; see `LICENSE`, `NOTICE`, and `docs/legal/`.
 
 - `git pull && ./deploy.sh` is sufficient for most environments.
 - **No config changes required** for upgrade from 1.0.6.
-- **EE consumers**: review `docs/architecture/extension-points/` for the
+- **EE consumers**: review `docs/lineage/design/architecture/extension-points/` for the
   eight contract interfaces before subclassing.
 - **Org rename**: update remote URLs (auto-redirected by GitHub but cleaner
   to fix).

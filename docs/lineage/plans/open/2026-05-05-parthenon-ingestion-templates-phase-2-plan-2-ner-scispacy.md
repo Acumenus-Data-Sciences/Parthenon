@@ -879,7 +879,7 @@ def test_readme_calls_out_concept_mapping_gap() -> None:
 ## Task 12: ADR 0012 — Phase 2 SciSpaCy sidecar + backend selection
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0012-scispacy-backend.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0012-scispacy-backend.md`
 
 - [ ] **Step 1: Draft the ADR**
 
@@ -896,7 +896,7 @@ ADR 0012 covers:
 - [ ] **Step 2: Run gates**
 
 ```bash
-ls /home/smudoshi/Github/Parthenon/docs/architecture/adr-0012-scispacy-backend.md
+ls /home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0012-scispacy-backend.md
 ```
 
 Expected: file present. **Commit:** `docs(adr): ADR 0012 — Phase 2 SciSpaCy sidecar + backend selection`.

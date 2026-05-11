@@ -70,7 +70,7 @@ Genomics is complete for the only clinically person-linked upload:
 SQL and documentation artifacts:
 
 - [scripts/omop-extension-package](/home/smudoshi/Github/Parthenon/scripts/omop-extension-package)
-- [OMOP extension remediation package](/home/smudoshi/Github/Parthenon/docs/architecture/2026-04-10-omop-extension-remediation-package.md)
+- [OMOP extension remediation package](/home/smudoshi/Github/Parthenon/docs/lineage/design/architecture/2026-04-10-omop-extension-remediation-package.md)
 - [OMOP extension handoff](/home/smudoshi/Github/Parthenon/docs/lineage/timeline/sessions/2026/2026-04-10-omop-extension-handoff.md)
 
 Laravel migrations:
@@ -237,7 +237,7 @@ Known unrelated or likely unrelated paths in the current working tree:
 Expected OMOP-related paths to stage for the OMOP package:
 
 - `scripts/omop-extension-package/`
-- `docs/architecture/2026-04-10-omop-extension-remediation-package.md`
+- `docs/lineage/design/architecture/2026-04-10-omop-extension-remediation-package.md`
 - `docs/lineage/timeline/sessions/2026/2026-04-10-omop-extension-handoff.md`
 - `docs/lineage/timeline/sessions/2026/2026-04-10-omop-next-agent-remediation-plan.md`
 - `backend/database/migrations/2026_04_10_164500_add_imaging_series_omop_bridge.php`

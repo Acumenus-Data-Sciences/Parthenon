@@ -21,7 +21,7 @@ use App\Observability\TraceHandle;
  *
  * CE default: {@see LokiPrometheusShipper}.
  *
- * @see docs/architecture/extension-points/observability-shipper.md
+ * @see docs/lineage/design/architecture/extension-points/observability-shipper.md
  */
 interface ObservabilityShipperInterface
 {

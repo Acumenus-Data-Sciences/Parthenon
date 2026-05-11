@@ -30,7 +30,7 @@ Renaming those volumes to `parthenon-ee-superset-db` would:
 
 ## What the EE overlay contract was actually about
 
-`docs/architecture/extension-points/compose-composition.md` documents the rules for **the future `Parthenon-EE/docker-compose.ee.yml`** — a private-repo overlay that EE-tier customers would layer onto CE. There the EE-prefix rule has real value: it's the visible boundary between code Acumenus owns (CE) and code that's gated by an EE entitlement. Putting EE volumes in `parthenon-ee-*` makes it impossible to accidentally export them as part of a CE backup, and putting EE images in `ghcr.io/acumenus-data-sciences/parthenon-ee-*` makes the registry layer enforce the same boundary the license does.
+`docs/lineage/design/architecture/extension-points/compose-composition.md` documents the rules for **the future `Parthenon-EE/docker-compose.ee.yml`** — a private-repo overlay that EE-tier customers would layer onto CE. There the EE-prefix rule has real value: it's the visible boundary between code Acumenus owns (CE) and code that's gated by an EE entitlement. Putting EE volumes in `parthenon-ee-*` makes it impossible to accidentally export them as part of a CE backup, and putting EE images in `ghcr.io/acumenus-data-sciences/parthenon-ee-*` makes the registry layer enforce the same boundary the license does.
 
 Those concerns don't apply to upstream Authentik or Wazuh. Those are unmodified third-party containers running their own data; the EE/CE boundary is *not* the line between Parthenon and Authentik.
 
@@ -62,7 +62,7 @@ Three things had to happen, none of them retreats:
   - `test_infra_overlay_still_flags_weakened_healthcheck_on_stable_service` — stable-service protection still enforced
   - `test_infra_overlay_accepts_acropolis_enterprise_in_repo` — actual repo file passes (smoke)
 - `.github/workflows/compose-contract.yml` — added an explicit infra-overlay step
-- `docs/architecture/extension-points/compose-composition.md` — added a section comparing the two overlay modes
+- `docs/lineage/design/architecture/extension-points/compose-composition.md` — added a section comparing the two overlay modes
 
 Test count went from 13 → 17, all green.
 
@@ -105,5 +105,5 @@ None for code. Two notes for the next person touching this:
 
 - PR #322 (`a38f285ce`) — original composition contract
 - `docs/lineage/plans/open/2026-05-09-ce-ee-fork-plan-02-08-compose-composition-contract.md` — Plan 02-08
-- `docs/architecture/extension-points/compose-composition.md` — the contract doc itself (now updated)
+- `docs/lineage/design/architecture/extension-points/compose-composition.md` — the contract doc itself (now updated)
 - This fix: `d81e8bc01` (`feat(compose-contract): add --check-infra-overlay mode for CE-bundled overlays`)

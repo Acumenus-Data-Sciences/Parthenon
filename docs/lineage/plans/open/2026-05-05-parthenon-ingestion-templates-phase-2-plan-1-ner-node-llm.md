@@ -1811,7 +1811,7 @@ Expected: all clean; YAML valid. **Commit:** `ci(templates): NER live-LLM lane g
 ## Task 15: ADR 0009 — Phase 2 NER node design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0009-phase-2-ner-node-design.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0009-phase-2-ner-node-design.md`
 
 - [ ] **Step 1: Draft the ADR**
 
@@ -1825,7 +1825,7 @@ ADR 0009 covers:
 
 ```bash
 cd /home/smudoshi/Github/Parthenon
-ls docs/architecture/adr-0009-phase-2-ner-node-design.md
+ls docs/lineage/decisions/adr/adr-0009-phase-2-ner-node-design.md
 ```
 
 Expected: file present + readable.

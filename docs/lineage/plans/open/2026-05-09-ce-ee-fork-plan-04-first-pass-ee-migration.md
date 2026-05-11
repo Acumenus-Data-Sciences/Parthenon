@@ -317,7 +317,7 @@ Same paired-PR pattern as Task 1, applied to each asset. Each row is its own PR-
 | Wazuh config (if present) | `acropolis/config/wazuh*` | `enterprise/acropolis/wazuh/` |
 | K8s / Helm charts | `acropolis/k8s/` | `enterprise/k8s/` |
 | Keycloak migration scaffolding (per ROADMAP v1.2) | (not yet present in CE) | `enterprise/acropolis/keycloak/` (build new) |
-| Enterprise docs | `docs/lineage/handoffs/*-enterprise-*`, `docs/architecture/*-enterprise-*` | `enterprise/docs/` |
+| Enterprise docs | `docs/lineage/handoffs/*-enterprise-*`, `docs/lineage/design/architecture/*-enterprise-*` | `enterprise/docs/` |
 
 Per asset:
 1. Copy from CE → EE; rewrite paths and image refs per Plan 02-08 contract

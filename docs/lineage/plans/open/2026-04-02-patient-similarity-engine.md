@@ -20,7 +20,7 @@ related_prs: []
 
 **Tech Stack:** Laravel 11 / PHP 8.4, FastAPI / Python 3.12, PostgreSQL 17 + pgvector, SapBERT (768-dim → 512-dim patient vectors), React 19 + TypeScript + TanStack Query, Horizon queues.
 
-**Spec:** `docs/architecture/2026-04-02-patient-similarity-engine-design.md`
+**Spec:** `docs/lineage/design/architecture/2026-04-02-patient-similarity-engine-design.md`
 
 ---
 

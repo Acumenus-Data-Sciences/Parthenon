@@ -818,7 +818,7 @@ nodes:
 ## Task 14: ADR 0011 — SDTM → OMOP bridge design
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0011-sdtm-to-omop-bridge.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0011-sdtm-to-omop-bridge.md`
 
 - [ ] **Step 1: Draft the ADR**
 
@@ -831,7 +831,7 @@ ADR 0011 covers:
 - [ ] **Step 2: Run gates**
 
 ```bash
-ls /home/smudoshi/Github/Parthenon/docs/architecture/adr-0011-sdtm-to-omop-bridge.md
+ls /home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0011-sdtm-to-omop-bridge.md
 ```
 
 Expected: file present. **Commit:** `docs(adr): ADR 0011 — SDTM → OMOP bridge design`.

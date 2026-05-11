@@ -295,7 +295,7 @@ Parthenon Community Edition is licensed under **GNU AGPL-3.0-only** — see [LIC
 
 A commercial **Enterprise Edition** is available with additional features (SSO with SAML/SCIM, multi-tenancy, FIPS crypto, signed audit retention, Kubernetes operator, premium support). EE is distributed from a separate private repository — [`Acumenus-Data-Sciences/Parthenon-EE`](https://github.com/Acumenus-Data-Sciences/Parthenon-EE) (source available to licensed Enterprise customers only). Contact `licensing@acumenus.net` for access or commercial inquiries.
 
-The CE/EE seams that EE plugs into are documented at [`docs/architecture/extension-points.md`](docs/architecture/extension-points.md). The eight extension points (auth driver, tenant resolver, crypto provider, audit sink, observability shipper, feature flags + EnterpriseGate, installer phase registry, compose composition contract) all shipped in v1.0.7 — see the [v1.0.7 release notes](docs/blog/2026-05-10-v1-0-7-release-notes.md) for the full architectural story.
+The CE/EE seams that EE plugs into are documented at [`docs/lineage/design/architecture/extension-points.md`](docs/lineage/design/architecture/extension-points.md). The eight extension points (auth driver, tenant resolver, crypto provider, audit sink, observability shipper, feature flags + EnterpriseGate, installer phase registry, compose composition contract) all shipped in v1.0.7 — see the [v1.0.7 release notes](docs/blog/2026-05-10-v1-0-7-release-notes.md) for the full architectural story.
 
 Built on the [OMOP Common Data Model](https://ohdsi.github.io/CommonDataModel/). OMOP CDM and the OHDSI vocabulary are governed by their respective licenses — see [ohdsi.org](https://ohdsi.org).
 

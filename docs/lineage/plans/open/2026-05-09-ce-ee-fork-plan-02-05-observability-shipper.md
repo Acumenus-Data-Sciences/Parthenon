@@ -46,12 +46,12 @@ related_prs: []
 | `backend/tests/Feature/Observability/LokiPrometheusShipperTest.php` | Default tests | ~120 |
 | `backend/tests/Feature/Observability/StubDatadogShipper.php` | Pluggability fixture | ~80 |
 | `backend/tests/Feature/Observability/ShipperRegistryTest.php` | Fan-out tests | ~80 |
-| `docs/architecture/extension-points/observability-shipper.md` | Detail doc | ~250 |
+| `docs/lineage/design/architecture/extension-points/observability-shipper.md` | Detail doc | ~250 |
 
 **Modified files:**
 - `backend/bootstrap/providers.php` — register `ObservabilityServiceProvider`
 - `backend/app/Providers/AppServiceProvider.php` — bind global `obs()` helper if not using a Facade
-- `docs/architecture/extension-points.md` — mark row 5 done
+- `docs/lineage/design/architecture/extension-points.md` — mark row 5 done
 
 ---
 

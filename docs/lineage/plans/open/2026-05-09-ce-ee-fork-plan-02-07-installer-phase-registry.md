@@ -57,11 +57,11 @@ related_prs: []
 | `acropolis/tests/test_phase_registry.py` | Registry tests | ~150 |
 | `acropolis/tests/test_phases_smoke.py` | Smoke: each phase importable, has metadata | ~80 |
 | `acropolis/tests/fixtures/StubFipsBootstrapPhase.py` | Pluggability fixture | ~50 |
-| `docs/architecture/extension-points/installer-phase-registry.md` | Detail doc | ~250 |
+| `docs/lineage/design/architecture/extension-points/installer-phase-registry.md` | Detail doc | ~250 |
 
 **Modified:**
 - `pyproject.toml` (root) — add entry-points group `parthenon.acropolis.phases` for EE auto-discovery
-- `docs/architecture/extension-points.md` — mark row 7 done
+- `docs/lineage/design/architecture/extension-points.md` — mark row 7 done
 
 ---
 

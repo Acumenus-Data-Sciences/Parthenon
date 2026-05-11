@@ -25,7 +25,7 @@ use App\Auth\Drivers\AuthDriverResult;
  * Register a driver by adding it to config/auth-drivers.php under
  * 'drivers' => [ 'driver-name' => DriverClass::class ].
  *
- * See docs/architecture/extension-points/auth-driver.md for the full
+ * See docs/lineage/design/architecture/extension-points/auth-driver.md for the full
  * extension contract.
  */
 interface AuthDriverInterface

@@ -53,7 +53,7 @@ Each Phase 2 PR went through full CI (license-guard, OpenAPI Scribe, Backend Lar
 
 ### Documentation deliverables
 
-`docs/architecture/extension-points.md` is the single index page with rows linking to detail pages:
+`docs/lineage/design/architecture/extension-points.md` is the single index page with rows linking to detail pages:
 
 - `extension-points/auth-driver.md`
 - `extension-points/tenant-resolver.md`
@@ -214,7 +214,7 @@ Each remaining Plan 04 task ships an EE driver that consumes a CE extension-poin
 # CE main contains the eight extension points
 cd /home/smudoshi/Github/Parthenon
 git checkout main && git pull
-ls docs/architecture/extension-points/
+ls docs/lineage/design/architecture/extension-points/
 # Expect: auth-driver.md audit-sink.md compose-composition.md crypto-provider.md
 #         feature-flags.md installer-phase-registry.md observability-shipper.md
 #         tenant-resolver.md

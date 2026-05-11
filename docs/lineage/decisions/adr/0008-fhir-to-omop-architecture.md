@@ -184,7 +184,7 @@ what they're getting in PR-A.
   `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-5-fhir-to-omop-pra.md`
 - HL7 FHIR-OMOP Implementation Guide:
   <https://github.com/HL7/fhir-omop-ig>
-- Devplan T-015: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md`
+- Devplan T-015: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md`
 
 ## Amendment — 2026-05-03 (PR-B: Procedure + Medication + Immunization)
 

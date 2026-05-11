@@ -1,6 +1,6 @@
 # docker-compose.community.yml — Parthenon CE overlay (community tier)
 #
-# COMPOSITION CONTRACT — see docs/architecture/extension-points/compose-composition.md
+# COMPOSITION CONTRACT — see docs/lineage/design/architecture/extension-points/compose-composition.md
 #
 #   This overlay layers on top of docker-compose.yml when the installer
 #   selects the community tier. It pins the CE image registry and adds

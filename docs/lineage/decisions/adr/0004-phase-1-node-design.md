@@ -168,4 +168,4 @@ without leaking the seed); the salt itself is **never** logged or persisted.
   <https://github.com/microsoft/Tools-for-Health-Data-Anonymization>
 - DICOMweb QIDO-RS:
   <https://www.dicomstandard.org/using/dicomweb/query-qido-rs/>
-- Devplan §4 Phase 1: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` lines 429–541
+- Devplan §4 Phase 1: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` lines 429–541

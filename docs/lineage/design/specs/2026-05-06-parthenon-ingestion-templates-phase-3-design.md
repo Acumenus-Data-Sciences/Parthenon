@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-05-06
 **Status:** Approved 2026-05-06 — 12 review questions settled (§3); ready for per-plan drafting
-**Scope:** Phase 3 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` — devplan T-021 through T-024
+**Scope:** Phase 3 of `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` — devplan T-021 through T-024
 **Owners:** Platform engineer + 2 ETL engineers + 1 ML engineer (concept-mapping) + 1 frontend (T-024 review UI)
 **Predecessor:** `docs/lineage/design/specs/2026-05-05-parthenon-ingestion-templates-phase-2-design.md` (merged 2026-05-06 as PRs #271–#276)
 
@@ -142,7 +142,7 @@ These come up in Phase 4 or later, not here:
 
 ## 7. Reference materials (to read before Plan drafting)
 
-- `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` §4.3 (Phase 3 deliverables)
+- `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` §4.3 (Phase 3 deliverables)
 - Phase 2 spec + ADRs 0010, 0011, 0013, 0014 (carry-over context)
 - OHDSI Oncology subgroup NAACCR ETL repo (T-022 base)
 - Llettuce paper (Reza et al., 2024) — algorithmic basis for T-024

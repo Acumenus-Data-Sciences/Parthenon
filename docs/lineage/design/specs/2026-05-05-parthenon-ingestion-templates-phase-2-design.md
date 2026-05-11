@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-05-05
 **Status:** Approved 2026-05-05 — 11 review questions settled (§3); ready for per-plan drafting
-**Scope:** Phase 2 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-016 through T-020)
+**Scope:** Phase 2 of `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-016 through T-020)
 **Owners:** Platform engineer + 1 ETL engineer + 1 ML engineer (NER backends)
 **Predecessor:** `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md` (merged 2026-05-05 as PRs #253–#259)
 

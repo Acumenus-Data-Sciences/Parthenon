@@ -71,7 +71,7 @@ Every sub-plan follows this template:
    - Unit test for the default driver
    - Integration test proving the registry resolves the right driver
    - Integration test with a stub alternate driver, proving pluggability
-6. **Documentation** — `docs/architecture/extension-points/<feature>.md` (per-extension doc), plus an index entry in `docs/architecture/extension-points.md`.
+6. **Documentation** — `docs/lineage/design/architecture/extension-points/<feature>.md` (per-extension doc), plus an index entry in `docs/lineage/design/architecture/extension-points.md`.
 7. **Commit, push, PR** — full CI required green before merge. Pre-commit hook must pass without `--no-verify` (these are real code changes, not docs-only).
 
 ## Exit criteria for Phase 2
@@ -80,7 +80,7 @@ When all 8 sub-plans land:
 
 - [ ] All 8 extension-point interfaces exist in `backend/app/Contracts/` (or appropriate per-language locations)
 - [ ] All 8 default implementations preserve CE behavior — integration tests prove byte-identical output for current users
-- [ ] All 8 documented in `docs/architecture/extension-points.md` with index + per-extension detail pages
+- [ ] All 8 documented in `docs/lineage/design/architecture/extension-points.md` with index + per-extension detail pages
 - [ ] All 8 have ≥1 alternate stub implementation in tests proving pluggability
 - [ ] CE main has no behavior regression (smoke test on `parthenon.acumenus.net` staging)
 - [ ] ROADMAP.md updated to reflect Phase 2 complete

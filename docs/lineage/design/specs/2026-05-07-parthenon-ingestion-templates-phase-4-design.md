@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-05-07
 **Status:** Approved 2026-05-07 — Q1–Q14 settled with the recommended picks; ready for per-plan drafting
-**Scope:** Phase 4 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` — closes out the templates subproject. Picks up every deferred item from Phases 0–3.
+**Scope:** Phase 4 of `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` — closes out the templates subproject. Picks up every deferred item from Phases 0–3.
 **Owners:** ML engineer (concept-mapping, Plan 1) + frontend (Plan 2 timed-user-test) + platform engineer (Plans 3, 5, 7) + ETL engineer (Plans 6, 8)
 **Predecessor:** `docs/lineage/design/specs/2026-05-06-parthenon-ingestion-templates-phase-3-design.md` (closed 2026-05-07 as PRs #283, #287–#293)
 
@@ -187,7 +187,7 @@ These items were considered and explicitly declined:
 
 **Gate review cadence:** weekly check-in on Plan 1 training metrics (recall@50 lift per vocabulary). Plans 2 + 8 + 9 are TDD-style with Plan 7 spec's acceptance criteria as gates.
 
-**Closeout:** when all 9 plans land, write `docs/lineage/design/specs/2026-XX-XX-parthenon-ingestion-templates-CLOSEOUT.md` summarizing all 4 phases. Update `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` to status "completed".
+**Closeout:** when all 9 plans land, write `docs/lineage/design/specs/2026-XX-XX-parthenon-ingestion-templates-CLOSEOUT.md` summarizing all 4 phases. Update `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` to status "completed".
 
 ---
 
@@ -238,4 +238,4 @@ When all plans land, write `docs/lineage/design/specs/2026-XX-XX-parthenon-inges
 - All ADRs in numerical order with status (Accepted / Superseded / Reconsidered)
 - Final acceptance numbers across the lifecycle
 - Open items that move to other subprojects (federated review → Hive Networks; real-time analytics → Real-time Analytics subproject)
-- Update `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` to status: completed
+- Update `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` to status: completed

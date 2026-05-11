@@ -56,7 +56,7 @@ In addition to the two PostgreSQL instances, Parthenon runs **Solr 9.7** as a re
 
 ## Deliverable 1: Architecture Guide
 
-**Path:** `docs/architecture/database-architecture.md`
+**Path:** `docs/lineage/design/architecture/database-architecture.md`
 
 ### Sections
 

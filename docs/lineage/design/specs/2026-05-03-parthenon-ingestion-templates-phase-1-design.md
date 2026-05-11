@@ -14,7 +14,7 @@ related_prs: []
 
 **Date:** 2026-05-03
 **Status:** Approved 2026-05-03 — 9 review questions settled (§11); ready for per-plan drafting
-**Scope:** Phase 1 of `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-010 through T-015)
+**Scope:** Phase 1 of `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` (devplan T-010 through T-015)
 **Owners:** Platform engineer + 1 ETL engineer (per devplan §4)
 **Predecessor:** `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
 
@@ -476,7 +476,7 @@ These decisions are now binding for the per-plan drafters.
 
 ### Parthenon internal
 
-- Source devplan: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md` (esp. §4 Phase 1 lines 429–541, §5.1 Secrets, §5.4 CDM versioning, §6.4 Validation packs, §8 Definition of Done)
+- Source devplan: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md` (esp. §4 Phase 1 lines 429–541, §5.1 Secrets, §5.4 CDM versioning, §6.4 Validation packs, §8 Definition of Done)
 - Phase 0 design spec: `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
 - Phase 0 ADRs: `docs/adr/0001-node-sdk-design.md`, `docs/adr/0002-orchestration-backend.md`, `docs/adr/0003-template-manifest-format.md`
 - HIGHSEC: `.claude/rules/HIGHSEC.spec.md` (esp. §3 Model Security, §4 Container Security, §8 Deployment Verification)

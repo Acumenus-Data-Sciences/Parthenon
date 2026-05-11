@@ -1,6 +1,6 @@
 # docker-compose.yml — Parthenon CE base layer
 #
-# COMPOSITION CONTRACT — see docs/architecture/extension-points/compose-composition.md
+# COMPOSITION CONTRACT — see docs/lineage/design/architecture/extension-points/compose-composition.md
 #
 #   - Service names listed in STABLE_SERVICE_NAMES (verifier) are PUBLIC API.
 #     Renaming or removing them is a breaking change.

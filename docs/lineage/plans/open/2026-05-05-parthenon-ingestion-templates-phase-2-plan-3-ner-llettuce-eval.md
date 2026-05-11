@@ -531,7 +531,7 @@ Current run:
 ## Task 10: ADR 0013 — Llettuce evaluation findings + Phase 3 graduation criterion
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0013-llettuce-eval-and-graduation.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0013-llettuce-eval-and-graduation.md`
 
 ADR 0013 covers:
 - **Context:** Phase 2 §1 + Q4 (Llettuce eval-only in Phase 2). The +5 pp SNOMED graduation threshold is the load-bearing criterion.

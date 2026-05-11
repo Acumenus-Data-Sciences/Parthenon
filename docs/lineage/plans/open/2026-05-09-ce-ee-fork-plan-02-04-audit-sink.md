@@ -48,14 +48,14 @@ related_prs: []
 | `backend/tests/Feature/Audit/AuditSinkRegistryTest.php` | Fan-out tests | ~100 |
 | `backend/tests/Feature/Audit/StubSignedAuditSink.php` | Pluggability fixture | ~60 |
 | `backend/tests/Feature/Audit/AuditDispatcherTest.php` | High-level dispatcher tests | ~100 |
-| `docs/architecture/extension-points/audit-sink.md` | Detail doc | ~250 |
+| `docs/lineage/design/architecture/extension-points/audit-sink.md` | Detail doc | ~250 |
 
 **Modified files:**
 - `backend/app/Http/Middleware/RecordUserActivity.php` — call `AuditDispatcher::record()` instead of writing directly to UserAuditLog
 - `backend/app/Observers/DesignProtection/DesignAuditObserver.php` — same
 - Any other call sites that currently `UserAuditLog::create(...)` directly
 - `backend/bootstrap/providers.php` — register `AuditServiceProvider`
-- `docs/architecture/extension-points.md` — mark row 4 done
+- `docs/lineage/design/architecture/extension-points.md` — mark row 4 done
 
 ---
 

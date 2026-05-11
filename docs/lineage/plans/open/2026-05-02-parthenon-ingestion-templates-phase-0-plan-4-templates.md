@@ -2375,7 +2375,7 @@ whole devplan.
 ## Cross-references
 
 - Spec: `docs/lineage/design/specs/2026-05-02-parthenon-ingestion-templates-phase-0-design.md`
-- Devplan: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md`
+- Devplan: `docs/lineage/design/architecture/PARTHENON_INGESTION_DEVPLAN.md`
 - Plans: `docs/lineage/plans/open/2026-05-02-parthenon-ingestion-templates-phase-0-plan-{1,2,3,4}-*.md`
 - Security review: `docs/lineage/modules/ingestion/templates-phase-0-security.md`
 - DoD: `docs/lineage/modules/ingestion/templates-phase-0-dod.md`

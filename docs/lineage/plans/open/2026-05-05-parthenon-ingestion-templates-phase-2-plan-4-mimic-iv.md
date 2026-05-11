@@ -696,7 +696,7 @@ Expected: all clean. **Commit:** `feat(templates): load_mimic_iv_omop manifest +
 ## Task 16: ADR 0010 — MIMIC-IV ETL strategy
 
 **Files:**
-- Create: `/home/smudoshi/Github/Parthenon/docs/architecture/adr-0010-mimic-iv-etl-strategy.md`
+- Create: `/home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0010-mimic-iv-etl-strategy.md`
 
 - [ ] **Step 1: Draft the ADR**
 
@@ -710,7 +710,7 @@ ADR 0010 covers:
 - [ ] **Step 2: Run gates**
 
 ```bash
-ls /home/smudoshi/Github/Parthenon/docs/architecture/adr-0010-mimic-iv-etl-strategy.md
+ls /home/smudoshi/Github/Parthenon/docs/lineage/decisions/adr/adr-0010-mimic-iv-etl-strategy.md
 ```
 
 Expected: file present. **Commit:** `docs(adr): ADR 0010 — MIMIC-IV ETL strategy`.

@@ -34,7 +34,7 @@ This plan does NOT introduce new compose files for EE — those land in Plan 04.
 
 This is a **mostly-documentation plan** with three concrete deliverables:
 
-1. A canonical contract document at `docs/architecture/extension-points/compose-composition.md`.
+1. A canonical contract document at `docs/lineage/design/architecture/extension-points/compose-composition.md`.
 2. A Python contract verifier (`scripts/verify_compose_contract.py`) that enforces the rules on every PR.
 3. A CI workflow job that runs the verifier (added to the existing license-guard.yml or as a new workflow).
 
@@ -46,19 +46,19 @@ There are **no production behavior changes** in CE — same compose files, same 
 
 | Path | Purpose | LOC |
 |---|---|---|
-| `docs/architecture/extension-points/compose-composition.md` | The contract document | ~400 |
+| `docs/lineage/design/architecture/extension-points/compose-composition.md` | The contract document | ~400 |
 | `scripts/verify_compose_contract.py` | Static contract verifier | ~200 |
 | `scripts/verify_compose_contract_test.py` | Pytest tests for the verifier | ~150 |
 | `.github/workflows/compose-contract.yml` | CI job — runs the verifier on every PR | ~30 |
 | `docker-compose.yml` | Annotated with stable-name + namespace-prefix comments (no behavior change) | (modify) |
 | `docker-compose.community.yml` | Same annotations | (modify) |
-| `docs/architecture/extension-points.md` | Mark row 8 done | (modify) |
+| `docs/lineage/design/architecture/extension-points.md` | Mark row 8 done | (modify) |
 
 ---
 
 ## Task 1: Draft the contract document
 
-Write `docs/architecture/extension-points/compose-composition.md` covering the rules below.
+Write `docs/lineage/design/architecture/extension-points/compose-composition.md` covering the rules below.
 
 ### 1.1 The compose layers
 
@@ -474,7 +474,7 @@ Add header comments to `docker-compose.yml` and `docker-compose.community.yml`:
 ```yaml
 # docker-compose.yml — Parthenon CE base layer
 #
-# COMPOSITION CONTRACT (see docs/architecture/extension-points/compose-composition.md):
+# COMPOSITION CONTRACT (see docs/lineage/design/architecture/extension-points/compose-composition.md):
 #   - Service names in this file are STABLE PUBLIC API. Renaming/removing them
 #     is a breaking change.
 #   - Container names follow `parthenon-<service>` convention.
@@ -499,7 +499,7 @@ Add header comments to `docker-compose.yml` and `docker-compose.community.yml`:
 
 ## Plan 02-08 completion checklist
 
-- [ ] Contract document published at `docs/architecture/extension-points/compose-composition.md`
+- [ ] Contract document published at `docs/lineage/design/architecture/extension-points/compose-composition.md`
 - [ ] Verifier script + tests pass on CE
 - [ ] CI workflow added; runs on every PR touching compose
 - [ ] Annotation comments added to top of compose files
