@@ -373,20 +373,23 @@ current public blog-facing references.
 
 ### Pass 6: CI guard
 
-Status: partially completed 2026-05-10. The public-docs current-state guard now
-runs in the Docusaurus build path and in `.github/workflows/license-guard.yml`.
-It blocks stale `sudoshi/Parthenon` references in active public docs and
-installer surfaces, stale public Apache 2.0 claims, and regressions that make
-the active installer docs read like native binary/package release instructions.
+Status: completed 2026-05-11. The public-docs current-state guard now runs in
+the Docusaurus build path and in `.github/workflows/license-guard.yml`. It
+blocks stale `sudoshi/Parthenon` references in active public docs and installer
+surfaces, stale public Apache 2.0 claims, and regressions that make the active
+installer docs read like native binary/package release instructions.
 
-Add checks for:
+`python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter` now runs in
+CI as the `docs-lineage-contract` job and blocks:
 
-- No new tracked Markdown/MDX outside approved roots.
-- Required frontmatter present.
-- `superseded` docs must name a successor.
-- `public-doc` paths must stay under `docs/site`.
-- Active docs must not reference `github.com/sudoshi/Parthenon` unless marked
-  `status: historical`.
+- New Markdown/MDX files outside approved roots unless intentionally archived.
+- New Markdown/MDX files that lack frontmatter classification.
+- Missing required contract keys on lineage/governance docs outside the
+  grandfathered baseline.
+- `superseded` docs without a `superseded_by` successor.
+- `doc_type: public-doc` outside `docs/site`.
+- Active non-public developer docs that still reference
+  `github.com/sudoshi/Parthenon` or `ghcr.io/sudoshi/parthenon`.
 
 ## Suggested file-level decisions
 

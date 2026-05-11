@@ -65,5 +65,7 @@ python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter
 sh docs/site/scripts/check-content-tree.sh
 ```
 
-The frontmatter check allows existing baseline debt but fails if a new
-Markdown/MDX file is added without classification metadata.
+The lineage check allows existing baseline debt but fails if a new Markdown/MDX
+file is unclassified, lands outside an approved documentation home, uses an
+invalid lifecycle value, marks itself `superseded` without a successor, or uses
+`doc_type: public-doc` outside `docs/site/`.

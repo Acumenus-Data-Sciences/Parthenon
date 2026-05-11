@@ -18,6 +18,76 @@ BASELINE_PATH = ROOT / "docs" / "lineage" / "frontmatter-baseline.txt"
 
 DOC_SUFFIXES = {".md", ".mdx"}
 
+REQUIRED_CONTRACT_KEYS = (
+    "doc_type",
+    "status",
+    "date",
+    "owner",
+    "module",
+    "lineage_anchor",
+    "supersedes",
+    "superseded_by",
+    "related_code",
+    "related_prs",
+)
+
+VALID_DOC_TYPES = {
+    "lineage",
+    "plan",
+    "spec",
+    "adr",
+    "runbook",
+    "handoff",
+    "public-doc",
+    "blog",
+    "compliance",
+    "research",
+    "reference",
+    "demo",
+}
+
+VALID_STATUSES = {
+    "open",
+    "active",
+    "accepted",
+    "shipped",
+    "superseded",
+    "historical",
+    "archived",
+}
+
+APPROVED_DOC_PREFIXES = (
+    "docs/site/",
+    "docs/blog/",
+    "docs/lineage/",
+    "docs/ops/",
+    "docs/compliance/",
+    "docs/research/",
+    "docs/reference/",
+    "docs/demo/",
+)
+
+APPROVED_DOC_PATHS = {
+    "docs/README.md",
+    "docs/devlog/README.md",
+    "docs/handoffs/README.md",
+    "docs/superpowers/README.md",
+}
+
+CONTRACT_REQUIRED_PREFIXES = (
+    "docs/lineage/",
+    "docs/ops/",
+    "docs/compliance/",
+    "docs/research/",
+    "docs/reference/",
+    "docs/demo/",
+)
+
+HISTORICAL_STATUSES = {"archived", "historical"}
+STALE_ORG_REFERENCE_RE = re.compile(
+    r"github\.com/sudoshi/Parthenon|ghcr\.io/sudoshi/parthenon"
+)
+
 
 @dataclass(frozen=True)
 class DocRecord:
@@ -29,6 +99,7 @@ class DocRecord:
     has_frontmatter: bool
     doc_type: str
     status: str
+    meta: dict[str, str]
 
 
 def git_paths() -> list[Path]:
@@ -207,6 +278,7 @@ def collect_records() -> list[DocRecord]:
                 has_frontmatter=bool(meta),
                 doc_type=meta.get("doc_type", ""),
                 status=meta.get("status", ""),
+                meta=meta,
             )
         )
     return records
@@ -310,6 +382,9 @@ def check_frontmatter(records: list[DocRecord]) -> int:
     missing = set(missing_frontmatter_paths(records))
     new_missing = sorted(missing - baseline)
     stale_baseline = sorted(baseline - {record.path for record in records})
+    placement_violations = check_placement(records, baseline)
+    contract_violations = check_contract(records, baseline)
+    stale_org_violations = check_active_org_references(records)
 
     if new_missing:
         print("New Markdown/MDX files missing lineage frontmatter:", file=sys.stderr)
@@ -322,14 +397,150 @@ def check_frontmatter(records: list[DocRecord]) -> int:
         if len(stale_baseline) > 40:
             print(f"  ... {len(stale_baseline) - 40} more", file=sys.stderr)
 
-    if new_missing or stale_baseline:
+    if placement_violations:
+        print("Markdown/MDX files outside approved documentation homes:", file=sys.stderr)
+        for path, reason in placement_violations:
+            print(f"  {path}: {reason}", file=sys.stderr)
+    if contract_violations:
+        print("Markdown/MDX files with invalid lineage metadata:", file=sys.stderr)
+        for path, reason in contract_violations:
+            print(f"  {path}: {reason}", file=sys.stderr)
+    if stale_org_violations:
+        print("Active developer docs with stale sudoshi/Parthenon references:", file=sys.stderr)
+        for path, reason in stale_org_violations:
+            print(f"  {path}: {reason}", file=sys.stderr)
+
+    if (
+        new_missing
+        or stale_baseline
+        or placement_violations
+        or contract_violations
+        or stale_org_violations
+    ):
         return 1
 
     print(
-        f"Lineage frontmatter OK: {len(missing)} existing baseline file(s), "
+        f"Docs lineage contract OK: {len(missing)} existing baseline file(s), "
         f"{len(records) - len(missing)} classified file(s)."
     )
     return 0
+
+
+def is_approved_doc_home(path: str) -> bool:
+    if path in APPROVED_DOC_PATHS:
+        return True
+    return path.startswith(APPROVED_DOC_PREFIXES)
+
+
+def requires_lineage_contract(record: DocRecord, baseline: set[str]) -> bool:
+    if record.path in baseline:
+        return False
+    if record.path in APPROVED_DOC_PATHS:
+        return True
+    return record.path.startswith(CONTRACT_REQUIRED_PREFIXES)
+
+
+def has_metadata_value(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip() not in {"", "null", "NULL", "[]", "~"}
+
+
+def check_placement(
+    records: list[DocRecord], baseline: set[str]
+) -> list[tuple[str, str]]:
+    violations: list[tuple[str, str]] = []
+    for record in records:
+        if is_approved_doc_home(record.path):
+            continue
+        if record.path in baseline:
+            continue
+        if record.status in HISTORICAL_STATUSES:
+            continue
+        violations.append(
+            (
+                record.path,
+                "new docs must live in docs/site, docs/blog, docs/lineage, "
+                "docs/ops, docs/compliance, docs/research, docs/reference, or docs/demo",
+            )
+        )
+    return violations
+
+
+def check_contract(
+    records: list[DocRecord], baseline: set[str]
+) -> list[tuple[str, str]]:
+    violations: list[tuple[str, str]] = []
+    for record in records:
+        if requires_lineage_contract(record, baseline):
+            missing_keys = [
+                key for key in REQUIRED_CONTRACT_KEYS if key not in record.meta
+            ]
+            if missing_keys:
+                violations.append(
+                    (
+                        record.path,
+                        "missing required metadata keys: " + ", ".join(missing_keys),
+                    )
+                )
+
+        if record.doc_type and record.doc_type not in VALID_DOC_TYPES:
+            violations.append(
+                (
+                    record.path,
+                    f"doc_type '{record.doc_type}' is not in the allowed lineage taxonomy",
+                )
+            )
+        if record.status and record.status not in VALID_STATUSES:
+            violations.append(
+                (
+                    record.path,
+                    f"status '{record.status}' is not in the allowed lifecycle taxonomy",
+                )
+            )
+        if (
+            requires_lineage_contract(record, baseline)
+            and record.meta.get("date")
+            and not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", record.meta["date"]
+            )
+        ):
+            violations.append((record.path, "date must use YYYY-MM-DD"))
+        if record.status == "superseded" and not has_metadata_value(
+            record.meta.get("superseded_by")
+        ):
+            violations.append(
+                (
+                    record.path,
+                    "status superseded requires superseded_by to name the successor",
+                )
+            )
+        if record.doc_type == "public-doc" and not record.path.startswith("docs/site/"):
+            violations.append(
+                (
+                    record.path,
+                    "doc_type public-doc is reserved for Docusaurus source under docs/site",
+                )
+            )
+    return violations
+
+
+def check_active_org_references(records: list[DocRecord]) -> list[tuple[str, str]]:
+    violations: list[tuple[str, str]] = []
+    for record in records:
+        if record.status != "active":
+            continue
+        if record.path.startswith(("docs/site/", "docs/blog/", "docs/lineage/")):
+            continue
+        text = (ROOT / record.path).read_text(encoding="utf-8", errors="replace")
+        if STALE_ORG_REFERENCE_RE.search(text):
+            violations.append(
+                (
+                    record.path,
+                    "use Acumenus-Data-Sciences/Parthenon unless the doc is historical",
+                )
+            )
+    return violations
 
 
 def main() -> int:

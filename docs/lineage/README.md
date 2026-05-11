@@ -133,7 +133,8 @@ Regenerate the catalogue after doc movement or classification work:
 python3 scripts/docs/catalog_lineage_docs.py --write-catalog
 ```
 
-Check that new docs are classified:
+Check that new docs are classified, placed under an approved corpus, and carry
+valid lifecycle metadata:
 
 ```bash
 python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter

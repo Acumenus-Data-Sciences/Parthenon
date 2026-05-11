@@ -52,6 +52,16 @@ jobs:
       - name: Check public docs for stale installer, repo, and license claims
         run: sh docs/site/scripts/check-public-docs-current.sh
 
+  docs-lineage-contract:
+    name: Verify docs lineage metadata and placement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Check Markdown/MDX lineage contract
+        run: python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter
+
   license-text:
     name: Verify LICENSE is AGPL-3.0
     runs-on: ubuntu-latest
