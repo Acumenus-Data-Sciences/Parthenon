@@ -1,3 +1,15 @@
+---
+doc_type: demo
+status: historical
+date: 2026-03-02
+owner: acumenus
+module: onboarding
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # V3 — Cohort Builder: Advanced Criteria
 
 | Field | Value |

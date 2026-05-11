@@ -460,6 +460,10 @@ CI as the `docs-lineage-contract` job and blocks:
   records. SOPs, installers, onboarding tutorial scripts, audits, security
   notes, plans, and operational devlogs are typed separately while retained as
   historical process lineage.
+- Classified the final 16 operations process records and the first 34 open
+  plan records. Operations onboarding scripts, installer TODOs, compliance
+  fixes, and process fixes remain historical; `docs/lineage/plans/open/`
+  records are marked `status: open`.
 
 Immediate keep:
 

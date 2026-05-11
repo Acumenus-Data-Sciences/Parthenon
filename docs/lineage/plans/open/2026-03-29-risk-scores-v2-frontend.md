@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-03-29
+owner: acumenus
+module: risk-scores
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Risk Scores v2 Frontend Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

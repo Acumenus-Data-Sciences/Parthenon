@@ -1,3 +1,15 @@
+---
+doc_type: lineage
+status: historical
+date: 2026-03-15
+owner: acumenus
+module: quality
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Repo Debugging Hardening Pass
 
 **Date:** 2026-03-15

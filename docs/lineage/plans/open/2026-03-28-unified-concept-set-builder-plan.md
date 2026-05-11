@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-03-28
+owner: acumenus
+module: vocabulary
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Unified Concept Set Builder — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-14
+owner: acumenus
+module: patient-similarity
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity QA Punch List — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This plan is for a focused UX/product-quality pass, not a rewrite.

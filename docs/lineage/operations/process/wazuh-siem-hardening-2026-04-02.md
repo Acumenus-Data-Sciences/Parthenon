@@ -1,3 +1,15 @@
+---
+doc_type: compliance
+status: historical
+date: 2026-04-02
+owner: acumenus
+module: security
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Wazuh SIEM Post-Install Hardening — Complete Gap Closure
 
 **Date:** 2026-04-02

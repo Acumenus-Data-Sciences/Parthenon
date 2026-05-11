@@ -1,3 +1,15 @@
+---
+doc_type: reference
+status: historical
+date: 2026-03-15
+owner: acumenus
+module: audit
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # User Audit Log, UI Alignment & Data Hygiene — 2026-03-15
 
 ## Overview

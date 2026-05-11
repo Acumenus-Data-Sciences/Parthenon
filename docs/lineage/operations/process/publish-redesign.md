@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: historical
+date: 2026-03-09
+owner: acumenus
+module: publish
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Publish Feature Redesign — Pre-Publication Document Generator
 
 **Date:** 2026-03-09

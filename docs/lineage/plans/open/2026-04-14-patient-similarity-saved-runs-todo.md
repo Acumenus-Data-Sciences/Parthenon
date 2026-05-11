@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-14
+owner: acumenus
+module: patient-similarity
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Patient Similarity Saved Runs Todo
 
 ## Goal

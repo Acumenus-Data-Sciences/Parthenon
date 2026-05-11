@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-04-13
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OHDSI Full Parity TODO
 
 Date: 2026-04-13
