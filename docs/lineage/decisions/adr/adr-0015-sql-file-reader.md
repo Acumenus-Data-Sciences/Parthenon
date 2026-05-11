@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/sql_node.py
+  - templates/runtime/sql_files/resolver.py
+related_prs: []
+---
 # ADR 0015 — `sql_node` `file://` SQL-Reference Reader
 
 **Status:** Accepted (2026-05-06)

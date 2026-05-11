@@ -1,3 +1,18 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - scripts/importers/mimic_export.sql
+  - scripts/importers/mimic_stage.sql
+  - scripts/importers/mimic_package.sql
+related_prs: []
+---
 # ADR 0010 — MIMIC-IV ETL Strategy
 
 **Status:** Accepted (2026-05-05)

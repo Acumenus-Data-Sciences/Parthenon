@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: finngen
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - frontend/src/features/finngen-workbench/api.ts
+  - docker/shiny-ohdsi/manifest.R
+related_prs: []
+---
 # ADR-007: Darkstar with s6-overlay, Plumber2, and mirai Worker Pool
 
 **Status:** Accepted

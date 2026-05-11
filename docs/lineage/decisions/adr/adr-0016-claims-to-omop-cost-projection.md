@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/commercial/runtime/commercial/claims/cost_projector.py
+  - templates/commercial/runtime/commercial/claims/types.py
+related_prs: []
+---
 # ADR 0016 — `claims_to_omop` COST Projection (Parthenon Commercial Wedge)
 
 **Status:** Accepted (2026-05-06)

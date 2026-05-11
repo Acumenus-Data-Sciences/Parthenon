@@ -1,3 +1,16 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/sdtm_domain.py
+related_prs: []
+---
 # ADR 0011 — SDTM → OMOP Bridge Design
 
 **Status:** Accepted (2026-05-05)

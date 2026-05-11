@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-06
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/hl7v2_oru_reader.py
+  - templates/runtime/lab/harmonizer.py
+related_prs: []
+---
 # ADR 0018 — `lis_lab_to_omop` tiering boundary
 
 **Status:** Accepted (2026-05-06)

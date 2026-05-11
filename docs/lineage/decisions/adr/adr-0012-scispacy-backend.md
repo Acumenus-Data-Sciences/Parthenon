@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - docker/parthenon-scispacy/server.py
+  - templates/runtime/nlp/backends/scispacy.py
+related_prs: []
+---
 # ADR 0012 — Phase 2 SciSpaCy Sidecar + Backend Selection
 
 **Status:** Accepted (2026-05-05)

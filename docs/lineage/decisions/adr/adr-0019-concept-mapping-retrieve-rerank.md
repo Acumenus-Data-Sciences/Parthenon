@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-07
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/commercial/runtime/commercial/mapping/retriever.py
+  - templates/commercial/runtime/commercial/mapping/reranker.py
+related_prs: []
+---
 # ADR 0019 — Harmonia: concept-mapping retrieve-then-rerank architecture
 
 **Status:** Accepted (2026-05-06)

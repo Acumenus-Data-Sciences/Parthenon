@@ -425,6 +425,8 @@ CI as the `docs-lineage-contract` job and blocks:
 - Marked files that still live in legacy roots as `historical` or `archived`
   until they are either rehomed to canonical lineage/reference paths or left as
   explicit legacy context.
+- Classified ADRs under `docs/lineage/decisions/adr/` as accepted decision
+  records and linked each to the most relevant code or runtime surface.
 
 Immediate keep:
 

@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: frontend
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - frontend/src/lib/api-client.ts
+  - frontend/src/lib/query-client.ts
+related_prs: []
+---
 # ADR-005: Frontend API Layer with TanStack Query
 
 **Status:** Accepted

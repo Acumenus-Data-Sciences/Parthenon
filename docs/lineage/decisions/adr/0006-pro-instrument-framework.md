@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/instruments/pro_base.py
+  - templates/runtime/instruments/value_sets/eq5d.py
+related_prs: []
+---
 # ADR 0006 — PRO Instrument Framework Design
 
 ## Status

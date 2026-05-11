@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/base.py
+  - templates/runtime/nodes/__init__.py
+related_prs: []
+---
 # ADR 0001: Node SDK Design
 
 ## Status

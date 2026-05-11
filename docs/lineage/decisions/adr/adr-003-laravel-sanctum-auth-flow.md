@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/config/sanctum.php
+  - backend/config/auth.php
+related_prs: []
+---
 # ADR-003: Laravel Sanctum Authentication with Temp Passwords and Forced Change
 
 **Status:** Accepted

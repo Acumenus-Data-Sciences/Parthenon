@@ -1,3 +1,18 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/anonymizer.py
+  - templates/runtime/nodes/anonymizer_backends/base.py
+  - docker/parthenon-anonymizer/server.py
+related_prs: []
+---
 # ADR 0007 — FHIR Anonymizer Template Design
 
 ## Status

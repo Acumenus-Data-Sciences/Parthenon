@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: imaging
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/dicom_metadata.py
+  - scripts/omop-extension-package/020_imaging_extension.sql
+related_prs: []
+---
 # ADR 0005 — Imaging Vocabulary Namespace and DICOM ETL Design
 
 ## Status

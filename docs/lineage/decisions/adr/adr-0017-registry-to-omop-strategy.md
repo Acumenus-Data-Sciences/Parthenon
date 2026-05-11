@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-06
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/commercial/runtime/commercial/registry/naaccr/reader.py
+  - templates/commercial/manifests/registry_to_omop_naaccr/manifest.yaml
+related_prs: []
+---
 # ADR 0017 — `registry_to_omop` strategy: extend OHDSI's NAACCR ETL
 
 **Status:** Accepted (2026-05-06)

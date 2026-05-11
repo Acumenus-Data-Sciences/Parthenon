@@ -1,3 +1,18 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/csv_reader.py
+  - templates/runtime/nodes/db_writer.py
+  - templates/runtime/nodes/generic_file.py
+related_prs: []
+---
 # ADR 0004 — Phase 1 Node Design
 
 ## Status

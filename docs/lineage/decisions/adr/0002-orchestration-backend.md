@@ -1,3 +1,18 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/orchestration/interface.py
+  - templates/runtime/orchestration/factory.py
+  - templates/runtime/runner.py
+related_prs: []
+---
 # ADR 0002: Orchestration Backend
 
 ## Status

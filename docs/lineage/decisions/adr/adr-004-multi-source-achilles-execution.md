@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: achilles
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - scripts/irsf_etl/validate_achilles.py
+  - scripts/irsf_etl/validate_achilles_temporal.py
+related_prs: []
+---
 # ADR-004: Multi-Source Achilles via Per-Request search_path Switching
 
 **Status:** Accepted

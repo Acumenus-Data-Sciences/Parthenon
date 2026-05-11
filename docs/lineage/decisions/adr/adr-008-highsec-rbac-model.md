@@ -1,3 +1,16 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: auth
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/config/permission.php
+related_prs: []
+---
 # ADR-008: HIGHSEC Six-Tier RBAC Model with Viewer as Default
 
 **Status:** Accepted

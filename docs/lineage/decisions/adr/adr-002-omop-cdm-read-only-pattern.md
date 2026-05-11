@@ -1,3 +1,16 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: omop
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Models
+related_prs: []
+---
 # ADR-002: OMOP CDM Read-Only Model Pattern
 
 **Status:** Accepted

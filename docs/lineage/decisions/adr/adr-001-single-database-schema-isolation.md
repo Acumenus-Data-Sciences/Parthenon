@@ -1,3 +1,16 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-03-21
+owner: acumenus
+module: database
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/database/migrations
+related_prs: []
+---
 # ADR-001: Single Database with Schema Isolation
 
 **Status:** Accepted

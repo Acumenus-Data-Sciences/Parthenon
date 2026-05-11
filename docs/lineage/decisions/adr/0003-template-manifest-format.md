@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/README.md
+  - templates/tests/fixtures/manifests_valid/minimal.yaml
+related_prs: []
+---
 # ADR 0003: Template Manifest Format
 
 ## Status

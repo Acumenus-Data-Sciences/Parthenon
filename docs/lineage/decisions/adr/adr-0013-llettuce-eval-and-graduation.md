@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: templates
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nlp/backends/llettuce.py
+  - templates/runtime/nlp/eval
+related_prs: []
+---
 # ADR 0013 — Llettuce Evaluation Harness + Phase 3 Graduation Criterion
 
 **Status:** Amended 2026-05-07 — Llettuce HOLD; remains eval-only.

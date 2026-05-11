@@ -1,3 +1,17 @@
+---
+doc_type: adr
+status: accepted
+date: 2026-05-05
+owner: acumenus
+module: fhir
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - templates/runtime/nodes/fhir_resource.py
+  - docker/fhir-to-cdm/wrapper.py
+related_prs: []
+---
 # ADR 0008 — FHIR→OMOP Architecture and IG Pin
 
 ## Status
