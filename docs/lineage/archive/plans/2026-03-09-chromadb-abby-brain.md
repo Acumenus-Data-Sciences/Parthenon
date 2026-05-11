@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-09
+owner: acumenus
+module: abby
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # ChromaDB Brain for Abby — Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.

@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-08
+owner: acumenus
+module: analytics
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Analysis Results Visualization Improvements — Design Document
 
 **Date:** 2026-03-08

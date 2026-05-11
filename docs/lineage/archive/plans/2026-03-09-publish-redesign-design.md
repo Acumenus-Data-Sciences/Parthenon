@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-09
+owner: acumenus
+module: publish
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Publish Feature Redesign — Pre-Publication Document & Diagram Generator
 
 **Date:** 2026-03-09

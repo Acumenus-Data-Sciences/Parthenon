@@ -1,3 +1,15 @@
+---
+doc_type: spec
+status: archived
+date: 2026-03-09
+owner: acumenus
+module: claims
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Claims Solr Core + Clinical Notes Indexing — Design
 
 **Date:** 2026-03-09

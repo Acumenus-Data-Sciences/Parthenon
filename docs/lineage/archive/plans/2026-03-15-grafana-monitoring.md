@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: archived
+date: 2026-03-15
+owner: acumenus
+module: monitoring
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Grafana Monitoring Stack Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.

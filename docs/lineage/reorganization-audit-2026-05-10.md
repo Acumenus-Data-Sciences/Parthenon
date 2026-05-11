@@ -434,6 +434,9 @@ CI as the `docs-lineage-contract` job and blocks:
   as historical lineage.
 - Classified the first 50 remaining design records under `docs/lineage/design/`
   as historical design lineage, plans, or handoffs based on their filenames.
+- Classified the first 50 remaining archived plan records under
+  `docs/lineage/archive/plans/` as archived plans, specs, or compliance notes
+  based on their filenames.
 
 Immediate keep:
 
