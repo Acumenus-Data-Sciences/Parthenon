@@ -25,7 +25,7 @@ every Markdown/MDX file should be useful because it has an explicit role.
 | `docs/site/` | Docusaurus source for the public user manual, install pages, i18n docs, and API entry page. | Generated API pages, build output, `.docusaurus`, and `node_modules` are ignored artifacts. |
 | `docs/blog/` | Public development blog and release narrative. | Useful for chronology and external messaging, but not canonical implementation lineage. |
 | `docs/lineage/` | Developer-facing project lineage catalogue and canonical history. | Module logs, phases, sessions, plans, specs, ADRs, handoffs, and operations notes live here. |
-| `docs/devlog/` | Historical transition area. | Retained only for the legacy index and short archived duplicate pointers. |
+| `docs/devlog/` | Historical transition area. | Retained only for the transition index; developer lineage now lives under `docs/lineage/`. |
 | `docs/superpowers/` | Historical transition area. | Former plans/specs moved to `docs/lineage/plans/open/` and `docs/lineage/design/specs/`. |
 | `docs/lineage/decisions/adr/` and `docs/lineage/design/architecture/` | Architecture decisions and technical design. | ADRs are consolidated under lineage decisions; non-ADR design lineage lives under `docs/lineage/design/`. |
 | `docs/ops/` | Operator runbooks and infrastructure reports. | Keep review dates and validation commands current. |

@@ -29,5 +29,5 @@ Use these canonical homes:
 | `docs/devlog/strategy/` | `docs/lineage/design/strategy/` |
 | root dated `docs/devlog/2026-*.md` notes | `docs/lineage/timeline/sessions/2026/` |
 
-The remaining files in this directory are short archived pointers for paths
-that were duplicated elsewhere before the lineage cleanup.
+This directory is now retained only as a transition index. Do not add new
+devlog records here; classify them under `docs/lineage/` instead.

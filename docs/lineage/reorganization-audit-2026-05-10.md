@@ -481,6 +481,9 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/modules/commons/`, removed the duplicate top-level Abby
   components pointer, and left `docs/commons/` for non-Markdown prototype
   assets.
+- Removed the final duplicate pointer stubs from `docs/devlog/`; the directory
+  is now only a transition index and no longer carries duplicate research or
+  handoff Markdown.
 
 Immediate keep:
 
