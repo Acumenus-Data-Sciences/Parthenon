@@ -1,6 +1,6 @@
 ---
 doc_type: research
-status: archived
+status: active
 date: 2026-04-06
 owner: acumenus
 module: abby-seed

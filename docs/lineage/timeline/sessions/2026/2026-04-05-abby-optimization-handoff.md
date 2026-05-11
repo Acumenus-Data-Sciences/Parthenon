@@ -136,7 +136,7 @@ The user explicitly asked for a clean restart with small-batch validation before
 
 Curated docs seed directory created and ingested:
 
-- `docs/abby-seed`
+- `docs/reference/abby-seed`
 
 This was used to rebuild the `docs` collection from a small, intentionally scoped corpus instead of the previous opaque mixed state.
 
@@ -144,9 +144,9 @@ This was used to rebuild the `docs` collection from a small, intentionally scope
 
 New genomics/standards reference seed docs were added under:
 
-- `docs/abby-seed/reference/clinvar.md`
-- `docs/abby-seed/reference/hgvs.md`
-- `docs/abby-seed/reference/parthenon-genomics-variant-reference.md`
+- `docs/reference/abby-seed/clinvar.md`
+- `docs/reference/abby-seed/hgvs.md`
+- `docs/reference/abby-seed/parthenon-genomics-variant-reference.md`
 
 These were designed to give Abby grounded answers on:
 
@@ -561,7 +561,7 @@ Recommended answer shape:
 
 Look specifically at:
 
-- `docs/abby-seed/reference/*.md`
+- `docs/reference/abby-seed/*.md`
 - docs ingester behavior
 - chunk boundaries around headings like `Source URLs`, `Related local references`, `Examples`
 
@@ -636,8 +636,8 @@ If a new agent is starting cold, the first files worth opening are:
 - `ai/tests/test_abby_integration.py`
 - `ai/tests/test_chroma_retrieval.py`
 - `ai/tests/test_chroma_ingestion.py`
-- `docs/abby-seed/reference/clinvar.md`
-- `docs/abby-seed/reference/hgvs.md`
+- `docs/reference/abby-seed/clinvar.md`
+- `docs/reference/abby-seed/hgvs.md`
 - `OHDSI-scraper/CURATED_MEDICAL_TEXTBOOKS.md`
 - `frontend/src/features/administration/components/ChromaStudioPanel.tsx`
 - `frontend/src/features/administration/components/vector-explorer/constants.ts`

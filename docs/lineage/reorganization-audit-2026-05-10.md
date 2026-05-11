@@ -203,9 +203,9 @@ The cleanup should distinguish:
 - Active install/user docs: update canonical org/release URLs and current
   installer strategy.
 
-### 5. `docs/abby-seed` is a duplicate/reference corpus
+### 5. `docs/reference/abby-seed` is a duplicate/reference corpus
 
-`docs/abby-seed` duplicates blog and Commons material and also contains external
+`docs/reference/abby-seed` duplicates blog and Commons material and also contains external
 reference notes (`clinvar`, `cohortmethod`, `hgvs`, OMOP CDM). It should not
 remain as a peer of source docs.
 
@@ -474,6 +474,9 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/design/architecture/`, removed the obsolete architecture-side
   compliance pointer, moved the Apache vhost reference config to `docs/ops/`,
   and updated active references to the new canonical paths.
+- Converted `docs/abby-seed/` into `docs/reference/abby-seed/` by retaining the
+  useful retrieval/reference notes, removing duplicate blog and Commons pointer
+  stubs, and documenting the canonical replacement sources in the seed README.
 
 Immediate keep:
 

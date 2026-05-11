@@ -31,6 +31,7 @@ every Markdown/MDX file should be useful because it has an explicit role.
 | `docs/ops/` | Operator runbooks and infrastructure reports. | Keep review dates and validation commands current. |
 | `docs/compliance/` | Governance, audit, security, incident, and recovery documentation. | Keep owner and review cadence explicit. |
 | `docs/research/` | Background research and external landscape notes. | Reference material, not source-of-truth implementation state. |
+| `docs/reference/` | Curated reference corpora used by internal tools, retrieval tests, or domain background. | Keep small and link to canonical blog, Commons, lineage, or public docs instead of duplicating them. |
 | `docs/demo/` | Presenter and product walkthrough runbooks. | Route-grounded and intentionally durable. |
 
 ## Generated Or Local Artifacts

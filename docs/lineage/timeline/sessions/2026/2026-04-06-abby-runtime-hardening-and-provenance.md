@@ -60,7 +60,7 @@ Primary files:
 - `ai/tests/test_chroma_ingestion.py`
 - `ai/tests/test_chroma_retrieval.py`
 - `ai/tests/test_chroma_api.py`
-- `docs/abby-seed/*`
+- `docs/reference/abby-seed/`
 
 Key changes:
 

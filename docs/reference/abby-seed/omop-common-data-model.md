@@ -1,6 +1,6 @@
 ---
 doc_type: reference
-status: archived
+status: active
 date: 2026-04-06
 owner: acumenus
 module: omop
