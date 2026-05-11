@@ -2,7 +2,7 @@ groups:
   - name: horizon
     rules:
       - alert: HorizonContainerMissing
-        expr: absent_over_time(container_last_seen{name="parthenon-horizon",job="cadvisor"}[2m])
+        expr: absent_over_time(container_memory_working_set_bytes{name="parthenon-horizon",job="cadvisor"}[2m])
         for: 2m
         labels:
           severity: critical
@@ -12,7 +12,7 @@ groups:
           description: parthenon-horizon has not been observed by cAdvisor for at least 2 minutes.
 
       - alert: HorizonContainerRestartLoop
-        expr: count(count_over_time(container_last_seen{name="parthenon-horizon",job="cadvisor"}[15m]) > 0) > 3
+        expr: changes(container_start_time_seconds{name="parthenon-horizon",job="cadvisor"}[15m]) > 3
         for: 1m
         labels:
           severity: critical

@@ -919,6 +919,8 @@ services:
   cadvisor:
     container_name: parthenon-cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.51.0
+    cgroup: host
+    pid: host
     cap_add:
       - SYS_PTRACE
     security_opt:
