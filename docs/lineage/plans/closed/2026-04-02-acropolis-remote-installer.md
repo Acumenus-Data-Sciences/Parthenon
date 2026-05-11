@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: superseded
 date: 2026-04-02
 owner: acumenus
 module: acropolis
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/lineage/operations/process/installer.md
 related_code: []
 related_prs: []
 ---

@@ -531,6 +531,13 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/plans/closed/`, linking them to their handoff, session, and
   release records. The older OHDSI full parity plan also moved to closed as
   superseded by the 2026-04-15 HADES/Shiny parity guardrail closeout.
+- Moved the installer v2 engine, OMOP CDM installer support, and installer GUI
+  Phases 1-8 plans from `docs/lineage/plans/open/` to
+  `docs/lineage/plans/closed/`, linking them to the v1.0.7 release notes that
+  list the shipped contract layer and GUI milestone. The older Acropolis remote
+  installer plan moved to closed as superseded by the current source-only
+  installer release policy. Signed release packaging remains open because the
+  trusted-signing handoff still requires first signed macOS/Windows builds.
 
 Post-migration keep:
 
@@ -562,6 +569,7 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-03-concept-hierarchy-mapper.md`
 - shipped `docs/lineage/plans/closed/2026-04-06-llm-maintained-wiki.md`
 - shipped `docs/lineage/plans/closed/2026-04-02-patient-similarity-engine.md`
+- superseded `docs/lineage/plans/closed/2026-04-02-acropolis-remote-installer.md`
 - shipped `docs/lineage/plans/closed/2026-04-09-patient-labs-trend-chart.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-cohort-cleanup-categorization.md`
 - shipped `docs/lineage/plans/closed/2026-04-10-cohort-phase2.md`
@@ -576,6 +584,16 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
 - shipped `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`
 - shipped `docs/lineage/plans/closed/2026-04-16-finngen-sp3-analysis-gallery.md`
+- shipped `docs/lineage/plans/closed/2026-04-23-installer-omop-cdm-support.md`
+- shipped `docs/lineage/plans/closed/2026-04-23-installer-v2-engine.md`
+- shipped `docs/lineage/plans/closed/2026-04-24-installer-phase-1-contract-surface.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-2-rust-gui-foundation.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-3-step-structure.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-4-hero-done-page.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-5-failure-recovery.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-6-cross-platform-polish.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-7-ci-release-plumbing.md`
+- shipped `docs/lineage/plans/closed/2026-04-25-installer-phase-8-documentation.md`
 - `docs/lineage/handoffs/**`
 - `docs/lineage/modules/poseidon/**`
 - `docs/research/irsf-nhs-*.md`

@@ -1,12 +1,12 @@
 ---
 doc_type: plan
-status: open
+status: shipped
 date: 2026-04-25
 owner: acumenus
 module: installer
 lineage_anchor: true
 supersedes: []
-superseded_by: null
+superseded_by: docs/blog/2026-05-10-v1-0-7-release-notes.md
 related_code: []
 related_prs: []
 ---
