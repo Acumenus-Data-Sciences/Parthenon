@@ -46,4 +46,4 @@ using the `claude_dev` user. Credentials from `HECATE_PG_PASSWORD` env var.
 - `standard_concept(concept_id)` — follow Maps to relationship to standard concept
 - `generate_schema_name(custom, node)` — route models to correct OMOP PG schema
 
-See `docs/devlog/specs/2026-03-28-poseidon-design.md` for the full design spec.
+See `docs/lineage/archive/specs/2026-03-28-poseidon-design.md` for the full design spec.

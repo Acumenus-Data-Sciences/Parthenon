@@ -107,36 +107,63 @@ def classify(path: Path) -> tuple[str, str]:
         return "translation-source", raw
     if raw.startswith("docs/blog/"):
         return "public-dev-blog", raw
+    if raw in {
+        "docs/devlog/README.md",
+        "docs/superpowers/README.md",
+        "docs/handoffs/README.md",
+    }:
+        return "transition-index", raw
+    if raw == "docs/lineage/reorganization-audit-2026-05-10.md":
+        return "lineage-index", raw
+
+    # Canonical lineage homes.
     if raw.startswith("docs/lineage/decisions/adr/"):
         return "adr", raw
+    if raw.startswith("docs/lineage/modules/"):
+        return "module-lineage", raw
+    if raw.startswith("docs/lineage/timeline/phases/"):
+        return "phase-lineage", raw
+    if raw.startswith("docs/lineage/timeline/releases/"):
+        return "release-lineage", raw
+    if raw.startswith("docs/lineage/timeline/sessions/"):
+        return "session-lineage", raw
+    if raw.startswith("docs/lineage/plans/open/"):
+        return "active-plan", raw
+    if raw.startswith("docs/lineage/plans/review/"):
+        return "plan-review", raw
+    if raw.startswith("docs/lineage/plans/closed/"):
+        return "closed-plan", raw
+    if raw.startswith("docs/lineage/design/specs/"):
+        return "active-spec", raw
+    if raw.startswith("docs/lineage/design/strategy/"):
+        return "strategy-lineage", raw
+    if raw.startswith("docs/lineage/design/architecture/"):
+        return "architecture", raw
+    if raw.startswith("docs/lineage/archive/plans/"):
+        return "legacy-plan", raw
+    if raw.startswith("docs/lineage/archive/specs/"):
+        return "legacy-spec", raw
+    if raw.startswith("docs/lineage/archive/prompts/"):
+        return "archived-prompt", raw
+    if raw.startswith("docs/lineage/operations/"):
+        return "operations-lineage", raw
+    if raw.startswith("docs/lineage/handoffs/"):
+        return "handoff", raw
+
+    # Old roots retained only as transitional pointers or compatibility fallbacks.
     if raw.startswith("docs/adr/"):
         return "adr", "docs/lineage/decisions/adr/"
     if raw.startswith("docs/architecture/adr-"):
         return "adr", "docs/lineage/decisions/adr/"
     if raw.startswith("docs/architecture/"):
         return "architecture", "docs/lineage/design/architecture/"
-    if raw.startswith("docs/devlog/modules/"):
-        return "module-lineage", "docs/lineage/modules/"
-    if raw.startswith("docs/devlog/phases/"):
-        return "phase-lineage", "docs/lineage/timeline/phases/"
-    if raw.startswith("docs/devlog/plans/"):
-        return "legacy-plan", "docs/lineage/archive/plans/"
-    if raw.startswith("docs/devlog/specs/"):
-        return "legacy-spec", "docs/lineage/archive/specs/"
-    if raw.startswith("docs/devlog/process/"):
-        return "process-lineage", "docs/lineage/operations/"
-    if raw.startswith("docs/devlog/strategy/"):
-        return "strategy-lineage", "docs/lineage/design/strategy/"
-    if raw.startswith("docs/devlog/releases/"):
-        return "release-lineage", "docs/lineage/timeline/releases/"
     if raw.startswith("docs/devlog/"):
-        return "loose-devlog", "docs/lineage/timeline/sessions/"
-    if raw.startswith("docs/superpowers/plans/"):
-        return "active-plan", "docs/lineage/plans/open/"
-    if raw.startswith("docs/superpowers/specs/"):
-        return "active-spec", "docs/lineage/design/specs/"
+        return "transition-pointer", raw
+    if raw.startswith("docs/superpowers/"):
+        return "transition-pointer", raw
     if raw.startswith("docs/handoffs/"):
-        return "handoff", "docs/lineage/handoffs/"
+        return "transition-pointer", raw
+
     if raw.startswith("docs/ops/"):
         return "operations", raw
     if raw.startswith("docs/compliance/"):

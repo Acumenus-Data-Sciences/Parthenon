@@ -34,7 +34,7 @@ key-files:
   created:
     - backend/database/migrations/2026_04_22_000100_create_endpoint_profile_access_and_permissions.php
     - backend/app/Models/FinnGen/EndpointProfileAccess.php
-    - docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md
+    - docs/lineage/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md
   modified:
     - backend/database/seeders/RolePermissionSeeder.php  # + finngen.endpoint_profile permissions and role-list entries for admin/researcher/data-steward/viewer
 
@@ -72,7 +72,7 @@ completed: 2026-04-19
 - HIGHSEC §4.1 three-tier grants applied on the new table via role-existence-guarded `DO $grants$` block — portable across dev / CI / production where `parthenon_app` / `parthenon_finngen_rw` / `parthenon_finngen_ro` may or may not exist yet.
 - Spatie permissions `finngen.endpoint_profile.view` (5 roles incl. viewer — aggregate data is non-PHI) and `finngen.endpoint_profile.compute` (4 roles, viewer excluded) seeded by the migration AND codified in `RolePermissionSeeder` so fresh CI bootstraps reproduce the same matrix.
 - `App\Models\FinnGen\EndpointProfileAccess` Eloquent model lives on the `finngen` connection with `$fillable` whitelist (HIGHSEC §3.1 / T-18-02). DB composite PK is enforced by the table constraint; model exposes `endpoint_name` as scalar `$primaryKey` to stay covariant with `Model::$primaryKey` for PHPStan level 8.
-- Phase 18 devlog entry created under `docs/devlog/modules/finngen/` so the pre-commit migration-gate is satisfied and the audit trail is discoverable.
+- Phase 18 devlog entry created under `docs/lineage/modules/finngen/` so the pre-commit migration-gate is satisfied and the audit trail is discoverable.
 
 ## Task Commits
 
@@ -88,7 +88,7 @@ _Plan metadata commit will follow this SUMMARY write alongside STATE.md + ROADMA
 - `backend/database/migrations/2026_04_22_000100_create_endpoint_profile_access_and_permissions.php` — Idempotent single-transaction migration. Creates `finngen.endpoint_profile_access`, applies HIGHSEC §4.1 grants, and seeds the two Spatie permissions + role assignments. `down()` reverses cleanly (delete permissions, `DROP TABLE IF EXISTS`).
 - `backend/app/Models/FinnGen/EndpointProfileAccess.php` — Eloquent model on the `finngen` connection. `$fillable = ['endpoint_name', 'source_key', 'last_accessed_at', 'access_count']`; `$casts` for `datetime` + `integer`; `$incrementing = false`; scalar `$primaryKey = 'endpoint_name'` with doc explaining the true composite PK is DB-enforced.
 - `backend/database/seeders/RolePermissionSeeder.php` — PERMISSIONS map gains `'finngen.endpoint_profile' => ['view', 'compute']`. admin / researcher / data-steward role lists each gain both permissions (on split lines so grep-based acceptance checks pass). viewer list gains `finngen.endpoint_profile.view` only. super-admin stays on the wildcard.
-- `docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md` — Devlog capturing the migration contract, role matrix, and threat-model coverage; satisfies the pre-commit hook's migration-pairs-devlog gate.
+- `docs/lineage/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md` — Devlog capturing the migration contract, role matrix, and threat-model coverage; satisfies the pre-commit hook's migration-pairs-devlog gate.
 
 ## Decisions Made
 
@@ -110,9 +110,9 @@ _Plan metadata commit will follow this SUMMARY write alongside STATE.md + ROADMA
 
 **2. [Rule 3 — Blocking / pre-commit hook] Created Phase 18 devlog entry alongside migration**
 - **Found during:** Task 1 (first `git commit` attempt)
-- **Issue:** Pre-commit hook `scripts/githooks/pre-commit` rejects migration commits without a paired `docs/devlog/` or `CHANGELOG` entry. The hook is newer than the Phase 17 migrations in history (which committed without devlog entries), so the plan did not anticipate it.
-- **Fix:** Created `docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md` documenting the migration contract, role matrix, and threat coverage. Staged alongside the migration.
-- **Files created:** `docs/devlog/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md`
+- **Issue:** Pre-commit hook `scripts/githooks/pre-commit` rejects migration commits without a paired `docs/lineage/` or `CHANGELOG` entry. The hook is newer than the Phase 17 migrations in history (which committed without devlog entries), so the plan did not anticipate it.
+- **Fix:** Created `docs/lineage/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md` documenting the migration contract, role matrix, and threat coverage. Staged alongside the migration.
+- **Files created:** `docs/lineage/modules/finngen/phase18-02-endpoint-profile-access-and-permissions.md`
 - **Verification:** `git commit` succeeded with `Pre-commit: all checks passed.` banner.
 - **Committed in:** `654f533aa` (Task 1 commit)
 

@@ -29,6 +29,6 @@ Source URLs:
 
 Related local references:
 
-- `docs/devlog/phases/15-clinvar.md`
-- `docs/devlog/phases/15-genomics.md`
+- `docs/lineage/timeline/phases/15-clinvar.md`
+- `docs/lineage/timeline/phases/15-genomics.md`
 - `docs/data-dictionary/app-schema.md`

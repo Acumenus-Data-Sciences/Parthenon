@@ -160,9 +160,9 @@ original `_shift_date(str(value), ...)` crashed on it.
 ## References
 
 - Phase 1 design spec:
-  `docs/superpowers/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
+  `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 4 (this plan):
-  `docs/superpowers/plans/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
+  `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-4-fhir-anonymizer.md`
 - Phase 1 Plan 1 ADR (AnonymizerNode + sidecar):
   `docs/lineage/decisions/adr/0004-phase-1-node-design.md`
 - HIPAA Safe Harbor de-identification: 45 CFR §164.514(b)(2)

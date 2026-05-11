@@ -37,7 +37,7 @@ parameters:
 			path: app/Services/AiService.php
 
 		-
-			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/lineage/design/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
 			count: 2
 			path: app/Services/Ares/NetworkComparisonService.php
 
@@ -96,7 +96,7 @@ parameters:
 			path: app/Services/Imaging/DicomFileService.php
 
 		-
-			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/lineage/design/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
 			count: 1
 			path: app/Services/PatientSimilarity/CohortComparisonService.php
 

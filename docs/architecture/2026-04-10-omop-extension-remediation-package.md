@@ -39,7 +39,7 @@ Those app-layer tables are retained. This package is intentionally additive.
 
 ## Package Contents
 
-- [2026-04-10-omop-next-agent-remediation-plan.md](/home/smudoshi/Github/Parthenon/docs/devlog/2026-04-10-omop-next-agent-remediation-plan.md)
+- [2026-04-10-omop-next-agent-remediation-plan.md](/home/smudoshi/Github/Parthenon/docs/lineage/timeline/sessions/2026/2026-04-10-omop-next-agent-remediation-plan.md)
   Next-agent checklist for the remaining validation, smoke testing, dry-run, packaging, and deferred-decision work.
 - [001_preflight_inventory.sql](/home/smudoshi/Github/Parthenon/scripts/omop-extension-package/001_preflight_inventory.sql)
   Read-only inventory and gap checks against localhost.

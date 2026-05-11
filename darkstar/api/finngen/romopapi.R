@@ -6,7 +6,7 @@
 #
 # Invariant: we NEVER call ROMOPAPI::runApiServer() — we host our own Plumber
 # and call the package's functions directly. See
-# docs/superpowers/specs/2026-04-12-finngen-runtime-foundation-design.md §0.4
+# docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md §0.4
 # (handoff doc) for the upstream contract.
 
 source("/app/api/finngen/common.R")

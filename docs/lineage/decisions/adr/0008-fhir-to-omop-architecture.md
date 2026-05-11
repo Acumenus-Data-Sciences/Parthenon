@@ -165,9 +165,9 @@ what they're getting in PR-A.
 ## References
 
 - Phase 1 design spec:
-  `docs/superpowers/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
+  `docs/lineage/design/specs/2026-05-03-parthenon-ingestion-templates-phase-1-design.md`
 - Phase 1 Plan 5 (this plan):
-  `docs/superpowers/plans/2026-05-03-parthenon-ingestion-templates-phase-1-plan-5-fhir-to-omop-pra.md`
+  `docs/lineage/plans/open/2026-05-03-parthenon-ingestion-templates-phase-1-plan-5-fhir-to-omop-pra.md`
 - HL7 FHIR-OMOP Implementation Guide:
   <https://github.com/HL7/fhir-omop-ig>
 - Devplan T-015: `docs/architecture/PARTHENON_INGESTION_DEVPLAN.md`

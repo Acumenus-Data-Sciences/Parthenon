@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Code Explorer API — thin semantic facade over SP1 sync reads + async runs.
  *
- * Spec: docs/superpowers/specs/2026-04-15-finngen-sp2-code-explorer-design.md
+ * Spec: docs/lineage/design/specs/2026-04-15-finngen-sp2-code-explorer-design.md
  *
  * TTLs per §4.1 (tiered Q6 decision):
  *   /counts         →  1h (tracks stratified_code_counts freshness)

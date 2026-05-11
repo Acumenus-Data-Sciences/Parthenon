@@ -21,10 +21,12 @@ jobs:
             --include='*.py' --include='*.php' --include='*.ts' --include='*.tsx' \
             --include='.env.example' --include='Dockerfile*' \
             --exclude-dir=node_modules --exclude-dir=vendor \
-            --exclude-dir=graphify-out --exclude-dir=.git \
-            --exclude-dir=.venv --exclude-dir=backups \
+            --exclude-dir=graphify-out --exclude-dir=graphify-views \
+            --exclude-dir=.git --exclude-dir=.venv --exclude-dir=.docusaurus \
+            --exclude-dir=backups --exclude-dir=.superpowers \
+            --exclude-dir=build --exclude-dir=dist \
             . 2>/dev/null \
-            | grep -v 'docs/handoffs/' \
+            | grep -v 'docs/lineage/' \
             | grep -v 'docs/devlog/' \
             | grep -v 'docs/superpowers/' \
             | grep -v 'docs/blog/' \
@@ -36,7 +38,7 @@ jobs:
             echo ""
             echo "Update these to Acumenus-Data-Sciences/Parthenon (URLs)"
             echo "or ghcr.io/acumenus-data-sciences/parthenon (image refs)."
-            echo "Historical references in docs/handoffs/, docs/devlog/,"
+            echo "Historical references in docs/lineage/, docs/devlog/,"
             echo "docs/superpowers/, and docs/blog/ are excluded."
             exit 1
           fi

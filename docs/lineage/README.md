@@ -72,9 +72,24 @@ docs/lineage/
     specs/
 ```
 
-The existing files still live mostly in `docs/devlog`, `docs/superpowers`,
-`docs/architecture`, and `docs/adr`. Move them in phased passes so links,
-Docusaurus builds, and Git history remain reviewable.
+Most developer lineage has now been moved out of `docs/devlog`,
+`docs/superpowers`, and `docs/handoffs`. Keep using phased passes for future
+cleanup so link changes, Docusaurus builds, and Git history remain reviewable.
+
+## Canonical Homes
+
+| Corpus | Canonical path |
+|---|---|
+| ADRs | `docs/lineage/decisions/adr/` |
+| Module histories | `docs/lineage/modules/` |
+| Phase records | `docs/lineage/timeline/phases/` |
+| Release records | `docs/lineage/timeline/releases/` |
+| Dated session notes | `docs/lineage/timeline/sessions/` |
+| Current/recent plans | `docs/lineage/plans/open/` |
+| Current/recent design specs | `docs/lineage/design/specs/` |
+| Legacy plans/specs | `docs/lineage/archive/` |
+| Operations/process notes | `docs/lineage/operations/` |
+| Handoffs | `docs/lineage/handoffs/` |
 
 ## Frontmatter Contract
 

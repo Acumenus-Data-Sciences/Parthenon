@@ -57,7 +57,7 @@ Optional results demo, if your branch includes the demo result seeder:
 docker compose exec php php artisan results:seed-demo
 ```
 
-If that command is not available in the environment, use existing completed analyses and skip live result seeding. The results-specific mini-script is in `docs/devlog/modules/results-explorer/howto-demo-results-explorer.md`.
+If that command is not available in the environment, use existing completed analyses and skip live result seeding. The results-specific mini-script is in `docs/lineage/modules/results-explorer/howto-demo-results-explorer.md`.
 
 ## Condensed 10-Minute Path
 

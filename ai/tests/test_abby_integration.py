@@ -760,7 +760,7 @@ class TestLocalReplyQualityGuards:
 
     def test_reference_only_grounded_sentence_is_rejected(self) -> None:
         assert _is_reference_only_grounded_sentence(
-            "https://hgvs-nomenclature.org/recommendations/general/ Related local references: docs/devlog/phases/15-genomics.md"
+            "https://hgvs-nomenclature.org/recommendations/general/ Related local references: docs/lineage/timeline/phases/15-genomics.md"
         ) is True
 
     def test_save_user_profile_skips_missing_users(self) -> None:

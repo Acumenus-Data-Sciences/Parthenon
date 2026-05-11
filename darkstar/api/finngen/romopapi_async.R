@@ -8,7 +8,7 @@
 # write_progress emits newline-JSON to progress.json, summary.json + result.json
 # land in the run's export_folder.
 #
-# Spec: docs/superpowers/specs/2026-04-15-finngen-sp2-code-explorer-design.md §4.2
+# Spec: docs/lineage/design/specs/2026-04-15-finngen-sp2-code-explorer-design.md §4.2
 
 source("/app/api/finngen/common.R")
 

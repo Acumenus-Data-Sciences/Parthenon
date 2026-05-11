@@ -125,7 +125,7 @@ manifest test that greps the SQL for the assembly shape.
 - OHDSI/CdmEtlNaaccr (Apache-2.0) — pinned at the SHA in `ohdsi_pin.txt`
 - NAACCR Data Dictionary v23
 - Phase 3 Plan 4A —
-  `docs/superpowers/plans/2026-05-06-parthenon-ingestion-templates-phase-3-plan-4a-naaccr.md`
+  `docs/lineage/plans/open/2026-05-06-parthenon-ingestion-templates-phase-3-plan-4a-naaccr.md`
 - Phase 2 ADR 0014 (ARTEMIS upstream-diff pattern, source for the
   weekly cron + issue-open mechanism)
 - ADR 0015 (`sql_file://` reader)

@@ -44,7 +44,7 @@ checksums as the foundation for no-repo downloads, and the system check reports
 that bundle readiness without showing the raw manifest. Bundle download and
 checksum verification are wired into the desktop installer. OMOP DDL
 installation, Athena vocabulary import, and full phase resume/rollback are
-tracked in `docs/devlog/process/rust-installer-v2-bootstrapper-todo.md`.
+tracked in `docs/lineage/operations/rust-installer-v2-bootstrapper-todo.md`.
 
 ## Run
 

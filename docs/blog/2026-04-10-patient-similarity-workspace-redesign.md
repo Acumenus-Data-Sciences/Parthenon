@@ -178,4 +178,4 @@ The "Select Cluster → New Cohort" action in the UMAP Landscape step is the fea
 
 ---
 
-*The design specification that drove this redesign lives at `docs/superpowers/specs/2026-04-10-patient-similarity-ux-redesign.md`. The 13 new frontend components and backend endpoint changes are in the same commit as this post. All code is open-source under the Apache 2.0 license.*
+*The design specification that drove this redesign lives at `docs/lineage/design/specs/2026-04-10-patient-similarity-ux-redesign.md`. The 13 new frontend components and backend endpoint changes are in the same commit as this post. All code is open-source under the Apache 2.0 license.*

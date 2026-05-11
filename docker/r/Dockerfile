@@ -293,7 +293,7 @@ RUN R -e " \
 ## (its Shiny transitive deps pollute the runtime). SP4 replaces the CO2 Shiny UI
 ## with native React; SP1 uses only its execute_CodeWAS / execute_CohortOverlaps /
 ## execute_DBProfile functions.
-## See docs/superpowers/specs/2026-04-12-finngen-runtime-foundation-design.md
+## See docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md
 ## Commits pinned 2026-04-12 — bump refs after validating upstream changes.
 RUN R -e " \
   options(repos = c( \

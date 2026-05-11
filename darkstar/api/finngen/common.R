@@ -2,7 +2,7 @@
 #
 # Shared utilities for all FinnGen Plumber routes (SP1 Runtime Foundation).
 #
-# Design invariants (from docs/superpowers/specs/2026-04-12-finngen-runtime-foundation-design.md §5.5):
+# Design invariants (from docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md §5.5):
 #   - PHP does NO error-message pattern matching. All error classification
 #     happens here and is surfaced as result$error$category.
 #   - Adding a new category = one R branch + one translation key in Laravel.

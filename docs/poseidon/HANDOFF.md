@@ -3,7 +3,7 @@
 **Date:** 2026-03-28
 **Branch:** `claude/blissful-elgamal` (git worktree at `.claude/worktrees/blissful-elgamal`)
 **Handoff from:** Session that designed and built Poseidon Phase 1 (Foundation)
-**Design spec:** `docs/devlog/specs/2026-03-28-poseidon-design.md` (827 lines, comprehensive)
+**Design spec:** `docs/lineage/archive/specs/2026-03-28-poseidon-design.md` (827 lines, comprehensive)
 
 ---
 
@@ -109,7 +109,7 @@ Containers have **not been started** (left to the user's discretion).
 
 ## 3. What Remains (Phases 2–6)
 
-The design spec (`docs/devlog/specs/2026-03-28-poseidon-design.md`, Section 7) defines 6 implementation phases. Phase 1 is done. Phases 2–6 remain:
+The design spec (`docs/lineage/archive/specs/2026-03-28-poseidon-design.md`, Section 7) defines 6 implementation phases. Phase 1 is done. Phases 2–6 remain:
 
 ### Phase 2: Core dbt Models (Staging + Intermediate + CDM)
 
@@ -307,7 +307,7 @@ open http://localhost:3100
 
 | File | Purpose |
 |------|---------|
-| `docs/devlog/specs/2026-03-28-poseidon-design.md` | **Primary reference** — full design spec with code examples |
+| `docs/lineage/archive/specs/2026-03-28-poseidon-design.md` | **Primary reference** — full design spec with code examples |
 | `.planning/quick/10-begin-execution-of-v1-of-poseidon/10-PLAN.md` | Execution plan for Phase 1 |
 | `.planning/quick/10-begin-execution-of-v1-of-poseidon/10-SUMMARY.md` | Phase 1 completion summary |
 | `poseidon/README.md` | Quick-start and architecture overview |

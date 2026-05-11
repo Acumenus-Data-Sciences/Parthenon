@@ -57,7 +57,7 @@ I'm reaching out to the community because this project would benefit enormously 
 - **Frontend/UX contributors** — The interface is functional but there's always room for improvement
 - **Anyone willing to test** — Try the demo, file issues, break things. The project has a full CI pipeline and I'm responsive to bug reports
 
-The GitHub repo has a `CLAUDE.md` file that gives an AI-friendly overview of the architecture, and the `docs/devlog/` directory contains detailed phase-by-phase development logs if you want to understand how things were built.
+The GitHub repo has a `CLAUDE.md` file that gives an AI-friendly overview of the architecture, and `docs/lineage/` contains detailed phase-by-phase development logs if you want to understand how things were built.
 
 ---
 

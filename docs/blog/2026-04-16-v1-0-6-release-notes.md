@@ -88,7 +88,7 @@ conditional path:
 - API-driven Authentik provisioning for the `parthenon-oidc` app
 - Acropolis installer registers `parthenon-oidc` automatically
 
-A phased rollout plan is documented at `docs/devlog/auth/phased-rollout.md`.
+A phased rollout plan is documented at `docs/lineage/plans/open/2026-04-13-authentik-parthenon-sso.md`.
 Username/password and the existing temp-password / forced-change flow are
 preserved exactly.
 
@@ -149,7 +149,7 @@ OpenProject work packages, and GitHub Issues:
 - Backfill script for GSD → OpenProject → GitHub import
 - Reconciliation HTTP server (port 9890) driven by an n8n cron workflow
 - 4 n8n workflow scaffolds for OP↔GSD↔GH sync
-- Implementation plan + design spec under `docs/devlog/sync/`
+- Implementation plan and design spec live in `docs/lineage/plans/open/2026-04-15-openproject-bidirectional-sync.md` and `docs/lineage/design/specs/2026-04-15-openproject-bidirectional-sync-design.md`.
 
 ### Database role split (security hardening)
 

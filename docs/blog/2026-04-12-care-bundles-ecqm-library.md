@@ -336,7 +336,7 @@ We introduced `DB::connection('omop')` into the controller to look up vocab conc
 ```
 Direct DB::connection('omop') is banned. Use the SourceAware trait:
 $this->cdm(), $this->results(), or $this->vocab().
-See docs/superpowers/specs/2026-03-26-cdm-source-isolation-design.md
+See docs/lineage/design/specs/2026-03-26-cdm-source-isolation-design.md
 ```
 
 Parthenon has a strict CDM source isolation rule — controllers that query CDM data must go through a trait that routes to the correct source based on request context. The reason: Parthenon supports multiple CDM sources (Acumenus, SynPUF, IRSF, Pancreas, MIMIC-IV) and they have different schemas. Hardcoding `'omop'` in a controller means the code only works for the Acumenus source.

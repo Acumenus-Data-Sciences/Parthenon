@@ -40,7 +40,7 @@ AGPL-3.0-only (#314), org transfer from `sudoshi/Parthenon` to
 
 Plans 02-04 are the architectural work — extension points, industry
 templates, and the Phase 4 spec set. The detailed phase plans live in
-`docs/devlog/specs/` and `docs/devlog/plans/`.
+`docs/lineage/archive/specs/` and `docs/lineage/archive/plans/`.
 
 ### Eight Phase 2 extension points
 
@@ -102,7 +102,7 @@ Parthenon now manages OHDSI Shiny app launches end-to-end:
 - Tenant grants fixed for managed Shiny smoke setup
 - HADES freshness + parity work
 
-A dedicated devlog at `docs/devlog/` documents the runtime architecture.
+A dedicated devlog at `docs/lineage/modules/analyses/2026-05-09-hades-parity-managed-ohdsi-shiny-runtime.md` documents the runtime architecture.
 
 ### Aqueduct ingestion templates
 

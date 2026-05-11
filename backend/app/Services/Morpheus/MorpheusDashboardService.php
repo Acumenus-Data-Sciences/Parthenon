@@ -11,7 +11,7 @@ class MorpheusDashboardService
      * Connection name resolved at boot from config('morpheus.connection').
      * Defaults to 'inpatient' in production; phpunit.xml overrides to
      * 'inpatient_testing' so tests target parthenon_testing, not parthenon.
-     * See docs/superpowers/specs for the Morpheus isolation rationale.
+     * See docs/lineage/design/specs for the Morpheus isolation rationale.
      */
     private readonly string $conn;
 

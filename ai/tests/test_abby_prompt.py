@@ -89,7 +89,7 @@ def test_grounded_definition_skips_reference_only_top_chunk():
                 "source_label": "Parthenon Documentation",
                 "title": "HGVS Variant Nomenclature",
                 "source_file": "abby-seed/reference/hgvs.md",
-                "text": "https://hgvs-nomenclature.org/recommendations/general/ Related local references: docs/devlog/phases/15-genomics.md",
+                "text": "https://hgvs-nomenclature.org/recommendations/general/ Related local references: docs/lineage/timeline/phases/15-genomics.md",
             },
             {
                 "score": 1.1,

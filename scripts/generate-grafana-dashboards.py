@@ -8,7 +8,7 @@ Writes:
     monitoring/grafana/provisioning/dashboards/parthenon.json
 
 Design spec:
-    docs/superpowers/specs/2026-03-16-grafana-dashboard-revamp-design.md
+    docs/lineage/design/specs/2026-03-16-grafana-dashboard-revamp-design.md
 """
 import json
 import pathlib

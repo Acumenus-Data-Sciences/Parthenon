@@ -95,7 +95,7 @@ class NoBareConnectionCallRule implements Rule
             RuleErrorBuilder::message(
                 "Direct DB::connection('{$arg->value}') is banned. "
                 .'Use the SourceAware trait: $this->cdm(), $this->results(), or $this->vocab(). '
-                .'See docs/superpowers/specs/2026-03-26-cdm-source-isolation-design.md'
+                .'See docs/lineage/design/specs/2026-03-26-cdm-source-isolation-design.md'
             )->build(),
         ];
     }

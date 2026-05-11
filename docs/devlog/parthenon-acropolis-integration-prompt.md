@@ -6,7 +6,7 @@ owner: acumenus
 module: installer
 lineage_anchor: false
 supersedes: []
-superseded_by: docs/handoffs/parthenon-acropolis-integration-prompt.md
+superseded_by: docs/lineage/handoffs/parthenon-acropolis-integration-prompt.md
 related_code: []
 related_prs: []
 ---
@@ -14,7 +14,7 @@ related_prs: []
 # Archived Pointer: Parthenon Acropolis Integration Prompt
 
 The canonical copy of this handoff prompt is
-[`docs/handoffs/parthenon-acropolis-integration-prompt.md`](../handoffs/parthenon-acropolis-integration-prompt.md).
+[`docs/lineage/handoffs/parthenon-acropolis-integration-prompt.md`](../lineage/handoffs/parthenon-acropolis-integration-prompt.md).
 
 This path is retained only to avoid losing historical references during the
 documentation lineage cleanup.
