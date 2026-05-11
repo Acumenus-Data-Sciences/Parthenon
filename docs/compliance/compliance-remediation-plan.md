@@ -1,3 +1,15 @@
+---
+doc_type: compliance
+status: active
+date: 2026-04-04
+owner: acumenus
+module: compliance
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Compliance Remediation Plan
 
 **Date:** 2026-04-03

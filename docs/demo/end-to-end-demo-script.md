@@ -1,3 +1,15 @@
+---
+doc_type: demo
+status: active
+date: 2026-04-15
+owner: acumenus
+module: demo
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon End-to-End Demo Script
 
 **Audience:** clinical researchers, informatics leaders, OHDSI collaborators, data platform teams  

@@ -1,3 +1,15 @@
+---
+doc_type: research
+status: active
+date: 2026-03-15
+owner: acumenus
+module: research
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Grafana Dashboard Design Research Report
 ## For Parthenon Platform (20+ Docker Containers, Prometheus + Loki, Grafana 11)
 

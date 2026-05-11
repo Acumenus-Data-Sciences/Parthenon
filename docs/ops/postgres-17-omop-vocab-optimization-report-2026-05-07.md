@@ -1,3 +1,19 @@
+---
+doc_type: runbook
+status: active
+date: 2026-05-07
+owner: acumenus
+module: ops
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - scripts/pg-host-basebackup.sh
+  - scripts/pg-host-prune-backups.sh
+  - scripts/pg-host-logical-backup.sh
+  - scripts/pg-host-archive-wal.sh
+related_prs: []
+---
 # PostgreSQL 17 OMOP and Vocabulary Optimization Report
 
 Date: 2026-05-07  

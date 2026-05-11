@@ -1,3 +1,19 @@
+---
+doc_type: runbook
+status: active
+date: 2026-05-09
+owner: acumenus
+module: ops
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/app/Services/Shiny/ManagedShinyLaunchService.php
+  - backend/app/Console/Commands/Shiny/CleanupManagedShinyWorkspacesCommand.php
+  - docker/shinyproxy/application.yml
+  - docker-compose.yml
+related_prs: []
+---
 # Managed OHDSI Shiny Runtime Operations
 
 Date: 2026-05-09

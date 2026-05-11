@@ -1,3 +1,19 @@
+---
+doc_type: runbook
+status: active
+date: 2026-03-30
+owner: acumenus
+module: ops
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - scripts/pg-host-basebackup.sh
+  - scripts/pg-host-prune-backups.sh
+  - scripts/pg-host-logical-backup.sh
+  - scripts/pg-host-archive-wal.sh
+related_prs: []
+---
 # Host PostgreSQL Backup Strategy
 
 This runbook applies to the localhost PostgreSQL 17 cluster that stores the large `parthenon` database.

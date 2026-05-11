@@ -1,3 +1,18 @@
+---
+doc_type: runbook
+status: active
+date: 2026-03-31
+owner: acumenus
+module: ops
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - scripts/create_github_project.py
+  - scripts/enhance_github_project.py
+  - scripts/github_project/parthenon_roadmap_project.json
+related_prs: []
+---
 # Parthenon GitHub Project V2
 
 This repository includes a checked-in Project V2 seed for the roadmap in [ROADMAP.md](/home/smudoshi/Github/Parthenon/ROADMAP.md).

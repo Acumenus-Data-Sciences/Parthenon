@@ -1,3 +1,15 @@
+---
+doc_type: demo
+status: active
+date: 2026-04-23
+owner: acumenus
+module: demo
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # FinnGen Workbench — Demo Guide
 
 **Audience:** Internal demos, investor walkthroughs, conference presentations  

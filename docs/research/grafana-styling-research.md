@@ -1,3 +1,15 @@
+---
+doc_type: research
+status: active
+date: 2026-03-16
+owner: acumenus
+module: research
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Grafana Dashboard Styling Research Report
 
 **Date:** 2026-03-15

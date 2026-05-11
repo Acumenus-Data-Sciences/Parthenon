@@ -1,3 +1,17 @@
+---
+doc_type: runbook
+status: active
+date: 2026-04-08
+owner: acumenus
+module: ops
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - deploy.sh
+  - docker-compose.yml
+related_prs: []
+---
 # Deploy Cache Audit
 
 Date: 2026-04-08

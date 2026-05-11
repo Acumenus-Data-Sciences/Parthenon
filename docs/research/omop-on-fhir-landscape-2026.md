@@ -1,3 +1,15 @@
+---
+doc_type: research
+status: active
+date: 2026-03-29
+owner: acumenus
+module: research
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # OMOP on FHIR: Landscape Research — March 2026
 
 ## Executive Summary
