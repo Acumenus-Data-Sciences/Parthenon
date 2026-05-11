@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-08
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # HADES Parity and Managed OHDSI Shiny Remediation
 
 Date: 2026-05-08

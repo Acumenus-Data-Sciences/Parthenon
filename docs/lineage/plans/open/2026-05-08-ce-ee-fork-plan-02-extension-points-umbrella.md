@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-08
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Plan 02 (Umbrella): Phase 2 CE Extension Points
 
 > **For agentic workers:** this is the umbrella for Phase 2. Each of the 8 extension points has its own detailed sub-plan (`Plan 02-01` through `Plan 02-08`). Sub-plans are written close to execution time so they reflect current `Acumenus-Data-Sciences/Parthenon` main state.

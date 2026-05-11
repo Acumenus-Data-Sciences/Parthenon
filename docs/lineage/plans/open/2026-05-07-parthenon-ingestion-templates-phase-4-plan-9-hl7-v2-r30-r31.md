@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-07
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Ingestion Templates — Phase 4, Plan 9: HL7 v2 ORU trigger event coverage (R30 + R31)
 
 > **For agentic workers:** Use `superpowers:executing-plans`. Steps use checkbox tracking.

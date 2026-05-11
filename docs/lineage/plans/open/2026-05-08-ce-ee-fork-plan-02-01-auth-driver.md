@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-08
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Plan 02-01: AuthDriver Extension Point
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

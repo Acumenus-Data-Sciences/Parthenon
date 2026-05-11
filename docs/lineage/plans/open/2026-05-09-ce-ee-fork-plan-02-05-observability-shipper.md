@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-09
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Plan 02-05: ObservabilityShipper Extension Point
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development or superpowers:executing-plans. See [Plan 02-01](2026-05-08-ce-ee-fork-plan-02-01-auth-driver.md) for the canonical TDD pattern.

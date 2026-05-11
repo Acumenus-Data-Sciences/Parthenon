@@ -467,6 +467,9 @@ CI as the `docs-lineage-contract` job and blocks:
 - Classified the next 50 open plan records across FinnGen, Study Designer,
   installer, care bundles, patient similarity, and ingestion-template phases.
   These records are marked `status: open` and remain active planning lineage.
+- Classified the final 18 open plan records across ingestion Phase 4, CE/EE
+  fork licensing, and OHDSI/HADES remediation. The historical frontmatter
+  baseline is now empty, so every tracked Markdown lineage file is typed.
 
 Immediate keep:
 

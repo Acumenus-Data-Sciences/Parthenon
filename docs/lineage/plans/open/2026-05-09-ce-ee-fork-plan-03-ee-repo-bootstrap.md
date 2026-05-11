@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-09
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Plan 03: Enterprise Edition Repo Bootstrap
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development or superpowers:executing-plans. This plan establishes the private `Acumenus-Data-Sciences/Parthenon-EE` repository and its CI/CD foundation. Most steps run on GitHub.com or on a self-hosted runner host (`beastmode`) — they cannot be performed from inside the CE working tree.

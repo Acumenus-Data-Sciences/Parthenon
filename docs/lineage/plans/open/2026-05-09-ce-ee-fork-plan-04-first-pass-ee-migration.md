@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-09
+owner: acumenus
+module: licensing
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # CE/EE Fork — Plan 04: First-Pass EE Migration
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development or superpowers:executing-plans. This is the largest plan in the CE/EE fork — it builds the actual EE features against Plan 02's extension points, migrates Acropolis enterprise services from CE to EE, and lights up the customer demo path.

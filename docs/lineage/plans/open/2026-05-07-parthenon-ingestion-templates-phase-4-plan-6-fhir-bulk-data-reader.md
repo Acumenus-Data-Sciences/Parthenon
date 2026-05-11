@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-07
+owner: acumenus
+module: ingestion
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Parthenon Ingestion Templates — Phase 4, Plan 6: HL7 FHIR Bulk Data reader (streaming claims)
 
 > **For agentic workers:** Use `superpowers:subagent-driven-development`. Steps use checkbox tracking.

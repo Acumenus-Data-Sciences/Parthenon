@@ -1,3 +1,15 @@
+---
+doc_type: plan
+status: open
+date: 2026-05-09
+owner: acumenus
+module: ohdsi
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
 # Managed OHDSI Shiny Follow-Up Execution Plan
 
 Date: 2026-05-09
