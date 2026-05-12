@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Parthenon · Studies · Design · v2 prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" />
+<style>
+:root{
+  --bg:           #0E0E11;
+  --slate-1:      #1E2026;
+  --slate-2:      #262A32;
+  --slate-3:      #3A3E48;
+  --crimson:      #9B1B30;
+  --gold:         #C9A227;
+  --teal:         #2DD4BF;
+  --parchment:    #F4EFE6;
+  --text-hi:      #E6E4DE;
+  --text-mid:     #A8A89F;
+  --text-low:     #6E6E66;
+  --hairline:     rgba(255,255,255,0.08);
+  --hairline-strong: rgba(255,255,255,0.14);
+  --inset-top:    rgba(255,255,255,0.06);
+  --shadow-active:0 24px 60px -24px rgba(0,0,0,0.7);
+  --font-display: 'Source Serif 4','Source Serif Pro',Georgia,serif;
+  --font-ui:      system-ui,-apple-system,'Söhne',sans-serif;
+  --font-mono:    'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text-hi);font-family:var(--font-ui);font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;position:relative;overflow-x:hidden}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+  opacity:.9;mix-blend-mode:screen;
+}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono);font-feature-settings:"ss01","ss02"}
+.serif{font-family:var(--font-display)}
+.lo{color:var(--text-low)}
+.mid{color:var(--text-mid)}
+.hi{color:var(--text-hi)}
+
+/* ---------- Identity Strip ---------- */
+.identity-strip{
+  position:sticky;top:0;z-index:40;height:56px;
+  display:grid;grid-template-columns:300px 1fr 460px;align-items:center;
+  padding:0 18px;background:linear-gradient(180deg,#121318 0%,#0E0E11 100%);
+  border-bottom:.5px solid var(--hairline);
+}
+.id-left{display:flex;align-items:center;gap:14px;min-width:0}
+.wordmark{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--text-hi)}
+.wordmark .dot{display:inline-block;width:6px;height:6px;background:var(--crimson);border-radius:9999px;margin-right:8px;vertical-align:2px}
+.breadcrumb{font-family:var(--font-mono);font-size:10.5px;color:var(--text-low);letter-spacing:.04em;text-transform:uppercase}
+.breadcrumb b{color:var(--text-mid);font-weight:500}
+.id-center{min-width:0;padding:0 16px;text-align:center}
+.id-title{font-family:var(--font-display);font-weight:600;font-size:15.5px;color:var(--text-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.005em}
+.id-subtitle{font-family:var(--font-display);font-style:italic;font-size:11.5px;color:var(--text-mid);margin-top:1px}
+.id-right{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.pill{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:9999px;border:.5px solid var(--hairline-strong);background:rgba(255,255,255,.02);color:var(--text-mid)}
+.pill.gold{color:#1B1404;background:var(--gold);border-color:transparent;font-weight:500}
+.pill.slate{background:rgba(255,255,255,.03);color:var(--text-mid)}
+.pi-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--text-mid)}
+.lock-cta-wrap{position:relative}
+.btn-lock{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 14px 7px 28px;border-radius:6px;
+  background:linear-gradient(180deg,#A11E34 0%,#82172A 100%);
+  color:#F6E5E9;border:.5px solid rgba(255,255,255,.08);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 4px 14px -6px rgba(155,27,48,.6);
+  position:relative;cursor:not-allowed;opacity:.78;
+}
+.btn-lock::before{
+  content:"";position:absolute;left:10px;top:50%;width:10px;height:11px;transform:translateY(-50%);
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14' fill='none' stroke='%23F6E5E9' stroke-width='1.25'><rect x='2' y='6' width='8' height='7' rx='1'/><path d='M4 6V4a2 2 0 1 1 4 0v2'/></svg>") center/contain no-repeat;
+}
+.lock-tooltip{
+  position:absolute;right:0;top:calc(100% + 6px);
+  font-family:var(--font-mono);font-size:9.5px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(20,18,12,.9);border:.5px solid rgba(201,162,39,.35);padding:4px 8px;border-radius:4px;white-space:nowrap;
+  box-shadow:0 6px 16px -8px rgba(0,0,0,.6);
+}
+.lock-tooltip::before{
+  content:"";position:absolute;right:18px;top:-4px;width:7px;height:7px;background:rgba(20,18,12,.9);border-left:.5px solid rgba(201,162,39,.35);border-top:.5px solid rgba(201,162,39,.35);transform:rotate(45deg)
+}
+
+/* ---------- Workbench grid ---------- */
+.workbench{
+  display:grid;grid-template-columns:220px minmax(0,1fr) 340px;
+  min-height:calc(100vh - 56px);
+}
+.pane{position:relative}
+.pane + .pane{border-left:.5px solid var(--hairline)}
+
+/* ---------- Pipeline Rail ---------- */
+.rail{
+  background:linear-gradient(180deg,#101116 0%,#0C0D11 100%);
+  position:relative;padding:20px 0 24px 0;
+}
+.rail::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.6;
+}
+.rail-title{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-low);padding:0 18px 14px 18px}
+.rail-spine{position:absolute;left:38px;top:50px;bottom:30px;width:1px;background:linear-gradient(180deg,var(--slate-3) 0%,var(--slate-2) 60%,var(--slate-2) 100%)}
+.station{position:relative;padding:11px 14px 11px 56px;display:block}
+.station + .station{margin-top:1px}
+.station-dot{
+  position:absolute;left:32px;top:14px;width:13px;height:13px;border-radius:9999px;
+  background:var(--slate-3);border:1.5px solid var(--bg);box-shadow:0 0 0 1px var(--slate-3)
+}
+.station-dot.teal{background:var(--teal);box-shadow:0 0 0 1px rgba(45,212,191,.4),0 0 8px rgba(45,212,191,.35)}
+.station-dot.gold{background:var(--gold);box-shadow:0 0 0 1px rgba(201,162,39,.4),0 0 8px rgba(201,162,39,.35)}
+.station-dot.slate{background:var(--slate-3)}
+.station.active{background:linear-gradient(90deg,rgba(201,162,39,.07) 0%,transparent 80%)}
+.station.active::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:.5px;background:var(--gold)}
+.station.active .station-dot::after{
+  content:"";position:absolute;inset:-3px;border-radius:9999px;border:1px solid rgba(201,162,39,.5);animation:railPulse 2.4s ease-in-out infinite
+}
+@keyframes railPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.15)}}
+.station-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.station-num{font-family:var(--font-mono);font-size:9.5px;color:var(--text-low);width:12px;flex-shrink:0;position:absolute;left:14px;top:13px}
+.station-name{font-family:var(--font-display);font-size:13.5px;color:var(--text-hi);letter-spacing:.005em}
+.station.gated .station-name,.station.gated .station-state{color:var(--text-low)}
+.station-state{font-size:10.5px;color:var(--text-mid);margin-top:2px;line-height:1.35}
+.station-state .micro{font-family:var(--font-mono);font-size:9.5px;color:var(--text-low);text-transform:uppercase;letter-spacing:.06em}
+.station-arc{position:absolute;right:12px;top:11px;width:14px;height:14px}
+.station-time{font-family:var(--font-mono);font-size:9.5px;color:var(--text-low);margin-top:3px;letter-spacing:.04em}
+.lock-rivet{
+  position:absolute;left:26px;top:7px;width:25px;height:25px;border-radius:12px;
+  border:1px solid rgba(201,162,39,.65);
+  box-shadow:inset 0 0 0 1px rgba(201,162,39,.15);
+  background:radial-gradient(circle at 50% 35%,rgba(201,162,39,.10),transparent 70%);
+  pointer-events:none;
+}
+
+/* ---------- Center pane ---------- */
+.center{padding:22px 28px 28px 28px;display:flex;flex-direction:column;gap:18px;background:linear-gradient(180deg,#0E0E11 0%,#0B0C0F 100%)}
+.section-eyebrow{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-low)}
+
+/* version timeline */
+.versions{display:flex;align-items:center;gap:0;padding:6px 0 0 4px}
+.vnode{position:relative;display:flex;flex-direction:column;align-items:flex-start;padding:0 6px;flex:0 0 auto}
+.vnode + .vnode{margin-left:38px}
+.vnode + .vnode::before{content:"";position:absolute;left:-38px;top:6px;width:38px;height:1px;background:var(--slate-3)}
+.vnode .vdot{width:9px;height:9px;border-radius:9999px;background:var(--slate-3);margin-bottom:7px;border:1.5px solid var(--bg);box-shadow:0 0 0 1px var(--slate-3)}
+.vnode .vlabel{font-family:var(--font-display);font-size:12px;color:var(--text-mid);letter-spacing:.005em}
+.vnode .vmeta{font-family:var(--font-mono);font-size:9.5px;color:var(--text-low);margin-top:1px;letter-spacing:.04em;text-transform:uppercase}
+.vnode.active .vdot{background:var(--teal);box-shadow:0 0 0 1px rgba(45,212,191,.4),0 0 8px rgba(45,212,191,.3)}
+.vnode.active .vlabel{color:var(--text-hi);font-weight:600;border-bottom:.5px solid var(--teal);padding-bottom:2px}
+
+/* center editor card (the only thing with the long shadow) */
+.canvas-card{
+  background:var(--slate-1);border:.5px solid var(--hairline);border-radius:6px;
+  box-shadow:var(--shadow-active),inset 0 1px 0 var(--inset-top);
+  padding:18px 20px 14px 20px;
+}
+.canvas-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.canvas-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-hi);letter-spacing:.005em}
+.canvas-title em{font-style:italic;color:var(--text-mid);font-weight:400}
+.canvas-meta{font-family:var(--font-mono);font-size:10px;color:var(--text-low);letter-spacing:.06em;text-transform:uppercase}
+.pico-svg{display:block;width:100%;height:auto;max-width:100%}
+.caption{font-family:var(--font-display);font-style:italic;font-size:11.5px;color:var(--text-low);margin-top:10px;padding-top:10px;border-top:.5px solid var(--hairline)}
+.caption .mono{font-style:normal;color:var(--text-mid)}
+
+/* sub strip below canvas — sites preview row & inline blockers */
+.sub-strip{
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:10px 14px;background:var(--slate-1);border:.5px solid var(--hairline);border-radius:6px;
+  box-shadow:inset 0 1px 0 var(--inset-top)
+}
+.blockers{font-family:var(--font-mono);font-size:10.5px;color:var(--text-mid);letter-spacing:.04em}
+.blockers b{color:var(--gold);font-weight:500}
+
+/* ---------- Right pane: Peripheral Rail ---------- */
+.periph{background:linear-gradient(180deg,#0E0E11 0%,#0B0C0F 100%);display:flex;flex-direction:column}
+.tabs{display:flex;gap:0;border-bottom:.5px solid var(--hairline);padding:0 18px}
+.tab{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;
+  padding:14px 12px 11px 12px;color:var(--text-mid);border-bottom:1.5px solid transparent;cursor:default
+}
+.tab.active{color:var(--text-hi);border-bottom-color:var(--gold)}
+.periph-body{padding:18px 20px 20px 20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.periph-h{font-family:var(--font-display);font-size:14.5px;font-weight:600;color:var(--text-hi)}
+.periph-crumb{font-family:var(--font-mono);font-size:10px;color:var(--text-low);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.parchment-quote{
+  background:rgba(244,239,230,0.08);
+  border:.5px solid rgba(244,239,230,0.18);
+  border-radius:6px;padding:14px 16px 12px 16px;
+  font-family:var(--font-display);font-style:italic;font-size:13px;line-height:1.55;color:#E8E2D2;
+  position:relative;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+.parchment-quote::before{content:"\201C";position:absolute;left:6px;top:-2px;font-family:var(--font-display);font-size:30px;color:rgba(244,239,230,.35);font-style:normal}
+.parchment-quote .attr{display:block;margin-top:10px;font-family:var(--font-mono);font-style:normal;font-size:10px;color:var(--text-mid);letter-spacing:.04em;text-transform:uppercase}
+.lint-row,.ai-row{
+  display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:flex-start;
+  padding:10px 0;border-top:.5px solid var(--hairline)
+}
+.lint-row .icon-dot{width:8px;height:8px;border-radius:9999px;background:var(--gold);margin-top:5px;box-shadow:0 0 6px rgba(201,162,39,.5)}
+.ai-row .icon-dot{width:8px;height:8px;border-radius:9999px;background:var(--slate-3);margin-top:5px;border:1px solid var(--text-low)}
+.lint-row .body,.ai-row .body{font-size:12px;color:var(--text-hi);line-height:1.45}
+.lint-row .body em{font-style:normal;color:var(--gold)}
+.btn-ghost{
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.10em;text-transform:uppercase;
+  color:var(--text-mid);background:transparent;border:.5px solid var(--hairline-strong);
+  padding:5px 9px;border-radius:4px;cursor:default;white-space:nowrap;
+}
+.btn-ghost.gold{color:var(--gold);border-color:rgba(201,162,39,.4)}
+.btn-ghost.teal{color:var(--teal);border-color:rgba(45,212,191,.35)}
+.sites-row{display:flex;gap:6px;flex-wrap:wrap;padding-top:10px;border-top:.5px solid var(--hairline)}
+.chip{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;
+  padding:4px 8px;border-radius:4px;border:.5px solid var(--hairline-strong);
+  background:rgba(255,255,255,.02);color:var(--text-mid);display:inline-flex;align-items:center;gap:5px;
+}
+.chip .g{font-size:11px;line-height:1}
+.chip.teal{color:var(--teal);border-color:rgba(45,212,191,.35)}
+.chip.gold{color:var(--gold);border-color:rgba(201,162,39,.40)}
+.chip.crimson{color:#E07A8A;border-color:rgba(155,27,48,.50)}
+.collapse-link{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-low);margin-top:auto;padding-top:14px;border-top:.5px solid var(--hairline);text-align:right}
+
+/* ---------- Corner toggle ---------- */
+.corner-toggle{
+  position:fixed;right:18px;bottom:18px;z-index:60;
+  display:grid;grid-template-columns:1fr 1px 1fr;align-items:stretch;
+  width:212px;height:34px;
+  background:rgba(14,14,17,.92);backdrop-filter:blur(6px);
+  border:.5px solid var(--hairline-strong);border-radius:6px;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  box-shadow:0 12px 28px -14px rgba(0,0,0,.7), inset 0 1px 0 var(--inset-top);
+}
+.corner-toggle a{display:flex;align-items:center;justify-content:center;color:var(--text-mid);padding:0 8px}
+.corner-toggle a:hover{color:var(--text-hi)}
+.corner-toggle .sep{background:var(--hairline-strong)}
+.corner-toggle .right{color:var(--text-hi)}
+
+/* ---------- PICO node hover (sole second motion exception) ---------- */
+.pico-hover{transition:transform 180ms ease, filter 180ms ease}
+.pico-hover:hover{transform:translateY(-1px);filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+
+/* tighter line heights for single-screen pitch */
+@media (max-height: 920px){
+  .center{padding:18px 24px 22px 24px;gap:14px}
+  .periph-body{padding:14px 18px 16px 18px;gap:11px}
+  .station{padding:9px 14px 9px 56px}
+}
+</style>
+</head>
+<body>
+<a id="top"></a>
+
+<!-- ---------- SVG defs: grain + reusable symbols ---------- -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grain" x="0" y="0">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#A8A89F"/>
+    </marker>
+    <symbol id="i-lock" viewBox="0 0 12 14">
+      <rect x="2" y="6" width="8" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.25"/>
+      <path d="M4 6V4a2 2 0 1 1 4 0v2" fill="none" stroke="currentColor" stroke-width="1.25"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 12 14">
+      <path d="M3 1.5h4l3 3V12a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 2 12V2a.5.5 0 0 1 .5-.5z M7 1.5V4.5h3" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 12 12">
+      <path d="M6 1.5 7.1 4.9 10.5 6 7.1 7.1 6 10.5 4.9 7.1 1.5 6 4.9 4.9z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-dot" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- ---------- Identity Strip ---------- -->
+<header class="identity-strip">
+  <div class="id-left">
+    <span class="wordmark"><span class="dot"></span>Parthenon</span>
+    <span class="breadcrumb">Studies&nbsp;/&nbsp;<b>ACE vs ARB · HFrEF</b>&nbsp;/&nbsp;Design</span>
+  </div>
+  <div class="id-center">
+    <div class="id-title">Effect of ACE inhibitors vs ARBs on heart-failure hospitalization in HFrEF patients</div>
+    <div class="id-subtitle">Comparative effectiveness · observational</div>
+  </div>
+  <div class="id-right">
+    <span class="pill gold">v3 · review</span>
+    <span class="pi-tag">PI:&nbsp;S. Udoshi, MD</span>
+    <span class="pill slate">design · unlocked</span>
+    <div class="lock-cta-wrap">
+      <button class="btn-lock" type="button" aria-disabled="true" title="Resolve 2 blockers">Lock v3</button>
+      <div class="lock-tooltip">▲ Resolve 2 blockers</div>
+    </div>
+  </div>
+</header>
+
+<!-- ---------- Workbench ---------- -->
+<main class="workbench">
+
+  <!-- ============ LEFT: Pipeline Rail ============ -->
+  <aside class="pane rail" aria-label="Pipeline Rail">
+    <div class="rail-title">Pipeline</div>
+    <div class="rail-spine" aria-hidden="true"></div>
+
+    <div class="station">
+      <span class="station-num mono">01</span>
+      <span class="station-dot gold" aria-label="accepted"></span>
+      <div class="station-row"><span class="station-name">Intent</span></div>
+      <div class="station-state"><span class="micro">accepted</span> · protocol parsed, 12 fields</div>
+      <div class="station-time mono">4h ago</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/><circle cx="7" cy="7" r="5.5" fill="none" stroke="#C9A227" stroke-width="1.25" stroke-dasharray="34.6 34.6" stroke-dashoffset="0" transform="rotate(-90 7 7)"/></svg>
+    </div>
+
+    <div class="station">
+      <span class="station-num mono">02</span>
+      <span class="station-dot teal" aria-label="validated"></span>
+      <div class="station-row"><span class="station-name">Phenotypes</span></div>
+      <div class="station-state"><span class="micro">accepted</span> · 4 endpoints linked</div>
+      <div class="station-time mono">4h ago</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/><circle cx="7" cy="7" r="5.5" fill="none" stroke="#2DD4BF" stroke-width="1.25" stroke-dasharray="34.6 34.6" stroke-dashoffset="0" transform="rotate(-90 7 7)"/></svg>
+    </div>
+
+    <div class="station">
+      <span class="station-num mono">03</span>
+      <span class="station-dot teal" aria-label="materializing"></span>
+      <div class="station-row"><span class="station-name">Concept Sets</span></div>
+      <div class="station-state"><span class="micro">3/4 materialized</span> · 1 pending review</div>
+      <div class="station-time mono">3h ago</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/><circle cx="7" cy="7" r="5.5" fill="none" stroke="#2DD4BF" stroke-width="1.25" stroke-dasharray="25.95 34.6" stroke-dashoffset="0" transform="rotate(-90 7 7)"/></svg>
+    </div>
+
+    <div class="station active">
+      <span class="station-num mono">04</span>
+      <span class="station-dot gold" aria-label="in review"></span>
+      <div class="station-row"><span class="station-name">Cohorts</span></div>
+      <div class="station-state"><span class="micro">in review</span> · 2 blockers</div>
+      <div class="station-time mono">2h ago</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/><circle cx="7" cy="7" r="5.5" fill="none" stroke="#C9A227" stroke-width="1.25" stroke-dasharray="23.1 34.6" stroke-dashoffset="0" transform="rotate(-90 7 7)"/></svg>
+    </div>
+
+    <div class="station">
+      <span class="station-num mono">05</span>
+      <span class="station-dot gold" aria-label="feasibility partial"></span>
+      <div class="station-row"><span class="station-name">Feasibility</span></div>
+      <div class="station-state"><span class="micro">3/4 sites passing</span> · IRSF partial, Pancreas blocked</div>
+      <div class="station-time mono">2h ago</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/><circle cx="7" cy="7" r="5.5" fill="none" stroke="#C9A227" stroke-width="1.25" stroke-dasharray="25.95 34.6" stroke-dashoffset="0" transform="rotate(-90 7 7)"/></svg>
+    </div>
+
+    <div class="station gated">
+      <span class="station-num mono">06</span>
+      <span class="station-dot slate" aria-label="not started"></span>
+      <div class="station-row"><span class="station-name">Analyses</span></div>
+      <div class="station-state"><span class="micro">not started</span></div>
+      <div class="station-time mono">—</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/></svg>
+    </div>
+
+    <div class="station gated">
+      <span class="station-num mono">07</span>
+      <span class="lock-rivet" aria-hidden="true"></span>
+      <span class="station-dot slate" aria-label="lock gated"></span>
+      <div class="station-row"><span class="station-name">Lock</span></div>
+      <div class="station-state"><span class="micro">gated</span> · awaiting resolution</div>
+      <div class="station-time mono">—</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/></svg>
+    </div>
+
+    <div class="station gated">
+      <span class="station-num mono">08</span>
+      <span class="station-dot slate" aria-label="package gated"></span>
+      <div class="station-row"><span class="station-name">Package</span></div>
+      <div class="station-state"><span class="micro">gated</span></div>
+      <div class="station-time mono">—</div>
+      <svg class="station-arc" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#3A3E48" stroke-width="1"/></svg>
+    </div>
+  </aside>
+
+  <!-- ============ CENTER: PICO Canvas ============ -->
+  <section class="pane center" aria-label="Active Editor — PICO Canvas">
+
+    <!-- Version timeline -->
+    <div>
+      <div class="section-eyebrow">Versions</div>
+      <div class="versions">
+        <div class="vnode"><span class="vdot"></span><span class="vlabel">v1</span><span class="vmeta">draft · 3d ago</span></div>
+        <div class="vnode"><span class="vdot"></span><span class="vlabel">v2</span><span class="vmeta">accepted · 1d ago</span></div>
+        <div class="vnode active"><span class="vdot"></span><span class="vlabel">v3</span><span class="vmeta">review · 4h ago</span></div>
+      </div>
+    </div>
+
+    <!-- PICO canvas card -->
+    <div class="canvas-card">
+      <div class="canvas-head">
+        <div>
+          <div class="canvas-title">PICO Canvas <em>— causal frame</em></div>
+        </div>
+        <div class="canvas-meta">stage 04 · cohorts</div>
+      </div>
+
+      <svg class="pico-svg" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="PICO causal diagram">
+        <!-- Population frame -->
+        <g>
+          <rect x="14" y="20" width="450" height="380" rx="6" ry="6" fill="none" stroke="#3A3E48" stroke-width="1" stroke-dasharray="2 3"/>
+          <text x="30" y="42" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#A8A89F" letter-spacing="1.5">POPULATION</text>
+          <text x="30" y="64" font-family="Source Serif 4, Georgia, serif" font-size="13.5" fill="#E6E4DE">Adults 18–75, HFrEF (EF&lt;40%),</text>
+          <text x="30" y="82" font-family="Source Serif 4, Georgia, serif" font-size="13.5" fill="#E6E4DE">no prior ACE-i / ARB exposure</text>
+          <g>
+            <circle cx="32" cy="100" r="3" fill="#C9A227"/>
+            <text x="42" y="103" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#A8A89F">protocol p.3 · conf 0.91</text>
+          </g>
+        </g>
+
+        <!-- Exposure node -->
+        <g class="pico-hover">
+          <rect x="40" y="140" width="220" height="86" rx="6" ry="6" fill="#1E2026" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+          <rect x="40" y="140" width="220" height="86" rx="6" ry="6" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="0" transform="translate(0,0.5)"/>
+          <text x="54" y="160" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#A8A89F" letter-spacing="1.5">EXPOSURE</text>
+          <text x="54" y="180" font-family="Source Serif 4, Georgia, serif" font-size="14" fill="#E6E4DE">ACE inhibitor</text>
+          <text x="54" y="196" font-family="Source Serif 4, Georgia, serif" font-size="11.5" font-style="italic" fill="#A8A89F">first dispensing as index</text>
+          <circle cx="56" cy="214" r="3" fill="#C9A227"/>
+          <text x="66" y="217" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#A8A89F">protocol p.4 · conf 0.88</text>
+        </g>
+
+        <!-- Comparator branch line (dashed) -->
+        <g>
+          <path d="M150 226 C 150 252, 150 264, 150 278" fill="none" stroke="#3A3E48" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="158" y="260" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#6E6E66" letter-spacing="1.2">COMPARE TO</text>
+        </g>
+
+        <!-- Comparator node -->
+        <g class="pico-hover">
+          <rect x="40" y="284" width="220" height="86" rx="6" ry="6" fill="#1E2026" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+          <text x="54" y="304" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#A8A89F" letter-spacing="1.5">COMPARATOR</text>
+          <text x="54" y="324" font-family="Source Serif 4, Georgia, serif" font-size="14" fill="#E6E4DE">ARB</text>
+          <text x="54" y="340" font-family="Source Serif 4, Georgia, serif" font-size="11.5" font-style="italic" fill="#A8A89F">first dispensing as index</text>
+          <circle cx="56" cy="358" r="3" fill="#C9A227"/>
+          <text x="66" y="361" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#A8A89F">protocol p.4 · conf 0.88</text>
+        </g>
+
+        <!-- Arrow Exposure -> Outcome -->
+        <g>
+          <path d="M260 183 C 360 183, 380 183, 488 183" fill="none" stroke="#A8A89F" stroke-width="1.25" marker-end="url(#arrow)"/>
+          <!-- time-at-risk pill -->
+          <g transform="translate(290 168)">
+            <rect x="0" y="0" width="180" height="30" rx="4" ry="4" fill="rgba(244,239,230,0.10)" stroke="rgba(244,239,230,0.20)" stroke-width="0.75"/>
+            <text x="10" y="13" font-family="JetBrains Mono, ui-monospace, monospace" font-size="8.5" fill="#A8A89F" letter-spacing="1.2">TIME AT RISK</text>
+            <text x="10" y="25" font-family="Source Serif 4, Georgia, serif" font-style="italic" font-size="10" fill="#E8E2D2">On-treatment, censored at switch / discontinuation, 1-year cap</text>
+          </g>
+        </g>
+
+        <!-- Outcome node (focused — teal outline) -->
+        <g class="pico-hover" filter="drop-shadow(0 6px 14px rgba(0,0,0,0.45))">
+          <rect x="490" y="140" width="216" height="116" rx="6" ry="6" fill="#1E2026" stroke="#2DD4BF" stroke-width="1"/>
+          <rect x="490" y="140" width="216" height="116" rx="6" ry="6" fill="none" stroke="rgba(45,212,191,0.18)" stroke-width="3"/>
+          <text x="504" y="160" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#2DD4BF" letter-spacing="1.5">OUTCOME · FOCUSED</text>
+          <text x="504" y="180" font-family="Source Serif 4, Georgia, serif" font-size="14" fill="#E6E4DE">Heart-failure hospitalization</text>
+          <text x="504" y="198" font-family="Source Serif 4, Georgia, serif" font-size="11.5" font-style="italic" fill="#A8A89F">primary, ICD-10 I50.x</text>
+          <text x="504" y="220" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#6E6E66">domain: condition_occurrence</text>
+          <circle cx="506" cy="240" r="3" fill="#2DD4BF"/>
+          <text x="516" y="243" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#A8A89F">protocol p.7 · conf 0.89</text>
+        </g>
+
+        <!-- Outcome → downstream measures (whisper line) -->
+        <g opacity="0.55">
+          <path d="M598 256 L 598 300 L 552 300" fill="none" stroke="#3A3E48" stroke-width="1" stroke-dasharray="2 3"/>
+          <text x="486" y="312" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#6E6E66" letter-spacing="1.2">→ HR · KM · COMPETING RISK</text>
+        </g>
+
+        <!-- Inline blocker dot on outcome arrow -->
+        <g>
+          <circle cx="380" cy="183" r="4" fill="#C9A227" opacity="0.9"/>
+          <circle cx="380" cy="183" r="7" fill="none" stroke="rgba(201,162,39,0.35)" stroke-width="1"/>
+        </g>
+      </svg>
+
+      <div class="caption">Click any node to edit · Hover Outcome to see linked evidence&nbsp;<span class="mono">→</span></div>
+    </div>
+
+    <!-- Sub-strip: federation preview + blocker count -->
+    <div class="sub-strip">
+      <div class="sites-row" style="border-top:0;padding-top:0;gap:6px">
+        <span class="chip teal"><span class="g">✓</span>SynPUF</span>
+        <span class="chip teal"><span class="g">✓</span>Inpatient</span>
+        <span class="chip gold"><span class="g">⚠</span>IRSF&nbsp;<span class="lo">partial</span></span>
+        <span class="chip crimson"><span class="g">✗</span>Pancreas&nbsp;<span class="lo">blocked</span></span>
+      </div>
+      <div class="blockers"><b>2&nbsp;blockers</b>&nbsp;·&nbsp;1 lint · 1 site</div>
+    </div>
+
+  </section>
+
+  <!-- ============ RIGHT: Peripheral Rail ============ -->
+  <aside class="pane periph" aria-label="Peripheral Rail">
+    <div class="tabs" role="tablist">
+      <div class="tab active" role="tab" aria-selected="true">Evidence</div>
+      <div class="tab" role="tab">Lint</div>
+      <div class="tab" role="tab">Sites</div>
+      <div class="tab" role="tab">Versions</div>
+      <div class="tab" role="tab">Abby</div>
+    </div>
+    <div class="periph-body">
+
+      <div>
+        <div class="periph-h">Outcome — Heart-failure hospitalization</div>
+        <div class="periph-crumb">protocol p.7 · linked to Outcome node</div>
+      </div>
+
+      <div class="parchment-quote">
+        Hospitalization with primary discharge diagnosis ICD-10 I50.x within 12 months of index. Recurrent events ignored.
+        <span class="attr">— ace-hf-protocol.pdf · p.7</span>
+      </div>
+
+      <div class="lint-row">
+        <span class="icon-dot" aria-hidden="true"></span>
+        <div class="body"><em>Lint warning.</em> Censoring rule unspecified for transfers between hospitals.</div>
+        <button class="btn-ghost gold" type="button">Resolve</button>
+      </div>
+
+      <div class="ai-row">
+        <span class="icon-dot" aria-hidden="true"></span>
+        <div class="body">Should same-day re-admissions for I50.x count as a recurrent event or be merged into the index hospitalization?</div>
+        <button class="btn-ghost teal" type="button">Ask Abby</button>
+      </div>
+
+      <div class="sites-row" aria-label="Federation sites preview">
+        <span class="chip teal"><span class="g">✓</span>SynPUF</span>
+        <span class="chip teal"><span class="g">✓</span>Inpatient</span>
+        <span class="chip gold"><span class="g">⚠</span>IRSF</span>
+        <span class="chip crimson"><span class="g">✗</span>Pancreas</span>
+      </div>
+
+      <div class="collapse-link">Collapse rail →</div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ---------- Corner v1↔v2 toggle ---------- -->
+<nav class="corner-toggle" aria-label="Prototype version toggle">
+  <a href="http://localhost:5175/studies" title="Requires the Vite dev server running on :5175">← v1 (live)</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="#top" class="right">v2 prototype →</a>
+</nav>
+
+</body>
+</html>
