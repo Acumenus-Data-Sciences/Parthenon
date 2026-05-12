@@ -165,3 +165,5 @@ For details on dual licensing and the Enterprise Edition, see [LICENSING.md](LIC
 ### Bots
 
 Automated contribution bots (Sentinel, Bolt, Palette, Jules, Dependabot) are allow-listed in CLA Assistant. They are not subject to per-PR CLA prompts.
+
+**Sentinel, Bolt, Palette, and Jules** are all [Jules Skills](https://github.com/google-labs-code/jules-skills) running as the `google-labs-jules[bot]` identity. Their persistent learnings live in `.jules/` — see `.jules/README.md` for the per-skill ledger convention. The base entry point Jules reads on every run is `AGENTS.md` at the repo root, which links into `.jules/`.
