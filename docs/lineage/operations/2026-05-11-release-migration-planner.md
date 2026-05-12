@@ -1,6 +1,6 @@
 ---
 doc_type: lineage
-status: in_progress
+status: active
 date: 2026-05-11
 owner: acumenus
 module: platform
