@@ -406,7 +406,7 @@ class StudyAnalysisPlanService
                 'populationSettings' => ['washoutPeriod' => 365, 'removeSubjectsWithPriorOutcome' => true, 'firstExposureOnly' => true],
             ],
             'incidence_rate' => [
-                'targetCohortIds' => array_values(array_filter([$targetId])),
+                'targetCohortId' => $targetId,
                 'outcomeCohortIds' => array_values(array_filter([$outcomeId])),
                 'timeAtRisk' => ['start' => 1, 'end' => 365],
             ],
