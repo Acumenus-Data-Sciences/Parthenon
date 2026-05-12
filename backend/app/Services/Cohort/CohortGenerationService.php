@@ -19,22 +19,39 @@ class CohortGenerationService
     /**
      * Generate a cohort by compiling and executing the cohort expression SQL.
      *
-     * This method:
-     * 1. Creates a CohortGeneration record with Running status
-     * 2. Resolves schema qualifiers from the Source
-     * 3. Compiles the expression into SQL via CohortSqlCompiler
-     * 4. Executes the SQL against the results database
-     * 5. Counts the resulting cohort members
-     * 6. Updates the generation record with final status
+     * Claims an existing Queued row for the (cohort_def, source) pair if present
+     * (created by CohortDefinitionController::generate before dispatch); otherwise
+     * creates a fresh Running row. This avoids orphan queued rows when a job is
+     * dispatched via the controller — the caller-visible row receives the actual
+     * status updates rather than a sibling row.
      */
     public function generate(CohortDefinition $cohortDef, Source $source): CohortGeneration
     {
-        $generation = CohortGeneration::create([
-            'cohort_definition_id' => $cohortDef->id,
-            'source_id' => $source->id,
-            'status' => ExecutionStatus::Running,
-            'started_at' => now(),
-        ]);
+        $generation = DB::transaction(function () use ($cohortDef, $source) {
+            $existing = CohortGeneration::where('cohort_definition_id', $cohortDef->id)
+                ->where('source_id', $source->id)
+                ->where('status', ExecutionStatus::Queued)
+                ->where('created_at', '>=', now()->subMinutes(15))
+                ->orderByDesc('id')
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing !== null) {
+                $existing->update([
+                    'status' => ExecutionStatus::Running,
+                    'started_at' => now(),
+                ]);
+
+                return $existing;
+            }
+
+            return CohortGeneration::create([
+                'cohort_definition_id' => $cohortDef->id,
+                'source_id' => $source->id,
+                'status' => ExecutionStatus::Running,
+                'started_at' => now(),
+            ]);
+        });
 
         try {
             $cdmSchema = $source->getTableQualifier(DaimonType::CDM);

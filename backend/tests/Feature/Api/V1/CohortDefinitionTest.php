@@ -1,8 +1,11 @@
 <?php
 
+use App\Enums\ExecutionStatus;
 use App\Models\App\CohortDefinition;
+use App\Models\App\CohortGeneration;
 use App\Models\App\Source;
 use App\Models\User;
+use App\Services\Cohort\CohortGenerationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -163,6 +166,44 @@ it('dispatches generation job', function () {
         'cohort_definition_id' => $cohort->id,
         'source_id' => $source->id,
     ]);
+});
+
+it('claims an existing queued generation instead of creating a duplicate', function () {
+    // Regression: prior to 2026-05-12, the controller created a Queued row and the
+    // service created a SECOND Running row, leaving the controller's row orphaned
+    // at status=queued forever. The service must now claim the controller's row.
+    $user = User::factory()->create();
+    $cohort = CohortDefinition::factory()->create(['author_id' => $user->id]);
+    $source = Source::factory()->create();
+
+    $preCreated = CohortGeneration::create([
+        'cohort_definition_id' => $cohort->id,
+        'source_id' => $source->id,
+        'status' => ExecutionStatus::Queued,
+        'started_at' => now(),
+    ]);
+
+    expect(CohortGeneration::count())->toBe(1);
+
+    // Run the service. SQL execution will fail in the test env (no real CDM schemas),
+    // but the row claim happens BEFORE compile/execute; the catch block updates the
+    // same row to Failed. Either way, the test source has no Results daimon, so we
+    // expect Failed with a schema-config error message.
+    $service = app(CohortGenerationService::class);
+    try {
+        $service->generate($cohort, $source);
+    } catch (Throwable $e) {
+        // Service should catch internally and update the row to Failed; not raise.
+    }
+
+    $rows = CohortGeneration::where('cohort_definition_id', $cohort->id)
+        ->where('source_id', $source->id)
+        ->orderBy('id')
+        ->get();
+
+    expect($rows->count())->toBe(1);
+    expect($rows->first()->id)->toBe($preCreated->id);
+    expect($rows->first()->status)->not->toBe(ExecutionStatus::Queued);
 });
 
 it('lists generation history', function () {
