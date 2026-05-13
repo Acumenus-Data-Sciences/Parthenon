@@ -1,3 +1,16 @@
+---
+doc_type: research
+status: active
+date: 2026-05-12
+owner: acumenus
+module: hypertension-v3
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Lu et al. 2025 — Methodology Comparison
 
 **Lu et al. citation:** Lu Y, Brush J Jr, Kim C, et al. Delayed Hypertension Diagnosis and Its Association With Cardiovascular Treatment and Outcomes. *JAMA Network Open* 2025;8(7):e2520498. doi:10.1001/jamanetworkopen.2025.20498

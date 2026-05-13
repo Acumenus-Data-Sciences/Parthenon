@@ -32,7 +32,7 @@ What started as "get Authentik SSO working for Alfresco and eliminate Keycloak f
 ## Starting State
 
 ```
-acumenus (172.22.0.0/16):        acropolis-traefik, acropolis-n8n, alfresco stack, openproject stack, parthenon-php
+acumenus (172.22.0.0/16):        acropolis-traefik, acropolis-n8n, alfresco stack, parthenon-php
 acropolis_network (172.28.0.0/16, orphan): everything else Acropolis (22 containers)
 ```
 
@@ -56,7 +56,7 @@ Two-tier pattern, matching the standard 3-tier ingress/app/backend model:
 │  ├─ wazuh-dashboard           ← HTTP ingress             │
 │  ├─ grafana (+parthenon net)  ← HTTP ingress             │
 │  ├─ pgadmin, portainer, n8n   ← HTTP ingress             │
-│  └─ [alfresco/openproject/parthenon-php — unchanged]     │
+│  └─ [alfresco/parthenon-php — unchanged]                 │
 └──────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────┐
 │  acropolis-backend (internal: true, no external route)   │
@@ -68,7 +68,7 @@ Two-tier pattern, matching the standard 3-tier ingress/app/backend model:
 └──────────────────────────────────────────────────────────┘
 ```
 
-Ingress services (`authentik-server`, `superset`, `datahub-frontend`, `wazuh-dashboard`) sit on **both** networks so they can serve HTTP to Traefik on `acumenus` and talk to their DB/Redis/Kafka on `acropolis-backend`. The backend network is declared `internal: true` — Docker installs no NAT rules for it, so nothing on `acumenus` (including alfresco-share, openproject, parthenon-php) can reach `authentik-db:5432`, `superset-db:5432`, `datahub-mysql:3306`, or `datahub-opensearch:9200` even at the IP level.
+Ingress services (`authentik-server`, `superset`, `datahub-frontend`, `wazuh-dashboard`) sit on **both** networks so they can serve HTTP to Traefik on `acumenus` and talk to their DB/Redis/Kafka on `acropolis-backend`. The backend network is declared `internal: true` — Docker installs no NAT rules for it, so nothing on `acumenus` (including alfresco-share and parthenon-php) can reach `authentik-db:5432`, `superset-db:5432`, `datahub-mysql:3306`, or `datahub-opensearch:9200` even at the IP level.
 
 This satisfies HIGHSEC §1.1 (principle of least privilege). An attacker who compromises alfresco-share (public-facing CMS, plugin ecosystem, historical CVE count) can no longer pivot to internal databases.
 
@@ -78,7 +78,7 @@ This satisfies HIGHSEC §1.1 (principle of least privilege). An attacker who com
 
 ```yaml
 networks:
-  # Ingress network — shared with Alfresco, OpenProject, parthenon-php.
+  # Ingress network — shared with Alfresco and parthenon-php.
   acropolis:
     external: true
     name: acumenus
@@ -301,4 +301,4 @@ alfresco/scripts/configure_authentik.py                          | 311 +++++++
 
 - **v1.1**: monitor the network topology in production; no follow-up needed
 - **v1.2**: author detailed Keycloak migration plan (prerequisite for v1.2 release) — this work validates the `external`-auth header-based pattern transfers cleanly to oauth2-proxy in front of Keycloak
-- **Unrelated**: `acropolis/installer/authentik.py` in the working tree adds OpenProject as a native OIDC service. Per the 2026-04-08 rule that OpenProject is Acumenus internal (not an Acropolis product component), that change is flagged for user review and was deliberately excluded from this commit
+- **Unrelated**: project-management services are not Acropolis product components; keep their Apache/vhost lifecycle separate from this Acropolis network topology.

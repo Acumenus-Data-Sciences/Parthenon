@@ -43,7 +43,7 @@ services:
       - "traefik.enable=true"
 
 networks:
-  # Ingress network — shared with Alfresco, OpenProject, parthenon-php.
+  # Ingress network — shared by Acumenus edge services and parthenon-php.
   # Declared external because the acumenus network is created by Acumenus
   # internal compose projects (alfresco stack), not by Acropolis.
   acropolis:

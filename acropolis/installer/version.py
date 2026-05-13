@@ -114,7 +114,7 @@ UPGRADE_NOTES: dict[str, dict[str, list[str]]] = {
             "Authentik SSO via OIDC (Phase 7 live, feature-flagged per environment)",
             "Light mode — first-class theme with warm parchment palette + per-user preference",
             "Patient Similarity rework — UMAP, Phenotype Discovery, Inspector sidebar, AI step interpretation",
-            "OpenProject bidirectional sync — n8n workflows + reconciliation server",
+            "Acumenus Data Room project-management handoff — dataroom.acumenus.net local Apache vhost",
             "eCQM care bundle library expanded 10 → 45 (OHDSI-compliant)",
         ],
         "upgraded": [
@@ -124,7 +124,6 @@ UPGRADE_NOTES: dict[str, dict[str, list[str]]] = {
         "migrations": [
             "FinnGen schema (app.finngen_runs, app.finngen_analysis_modules)",
             "OIDC linking (app.user_external_identities, app.oidc_email_aliases)",
-            "Sync schema (app.sync.*) for OpenProject/GSD/GitHub mapping",
             "Postgres role split: parthenon_app (DML), parthenon_migrator (DDL), parthenon_owner",
         ],
         "config_required": [

@@ -540,8 +540,8 @@ CI as the `docs-lineage-contract` job and blocks:
   `docs/lineage/plans/open/` to `docs/lineage/plans/closed/`: CDM source
   isolation, ingestion page/database connect, unified concept-set builder,
   Standard PROs Builder/Conduct, clinical groupings, Patient Similarity QA,
-  OpenProject sync, Study Designer compiler, and the April 26 Care Bundles and
-  Patient Similarity fix TODOs. The only older plan left open is signed release
+  project-management sync retirement, Study Designer compiler, and the April 26
+  Care Bundles and Patient Similarity fix TODOs. The only older plan left open is signed release
   packaging because it still needs verified signed-artifact evidence.
 - Moved shipped May lineage plans from `docs/lineage/plans/open/` to
   `docs/lineage/plans/closed/`: ingestion-template Phase 2 Plans 1-2, Phase 3
@@ -618,7 +618,6 @@ above.
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-qa-punch-list-implementation-plan.md`
 - shipped `docs/lineage/plans/closed/2026-04-11-patient-similarity-ux-alignment.md`
 - shipped `docs/lineage/plans/closed/2026-04-14-patient-similarity-saved-runs-todo.md`
-- shipped `docs/lineage/plans/closed/2026-04-15-openproject-bidirectional-sync.md`
 - superseded `docs/lineage/plans/closed/2026-04-15-study-designer-active-todo.md`
 - shipped `docs/lineage/plans/closed/2026-04-15-study-designer-ohdsi-compiler-plan.md`
 - shipped `docs/lineage/plans/closed/2026-04-15-finngen-sp2-code-explorer.md`

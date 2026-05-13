@@ -1,3 +1,16 @@
+---
+doc_type: research
+status: active
+date: 2026-05-12
+owner: acumenus
+module: hypertension-v3
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Hypertension v3 Outcomes Study — Open Questions for Dr. Bock
 
 **Protocol:** "The failure of hypertension interventions in a large study population (V3)"

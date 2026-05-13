@@ -1,3 +1,16 @@
+---
+doc_type: research
+status: active
+date: 2026-05-12
+owner: acumenus
+module: hypertension-v3
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Phase 1 — Preflight & Discovery
 
 **Run:** 2026-05-12, local environment (`beastmode`)

@@ -14,8 +14,8 @@ back-to-back stabilization releases (v1.0.4 test coverage, v1.0.5 data
 quality), the platform was ready for net-new modules. This release lands
 **four** of them at once: the FinnGen Cohort Workbench, Authentik SSO,
 first-class light mode, and a substantially reworked Patient Similarity
-explorer — plus a doubled care-bundle library, OpenProject bidirectional
-sync, and a long list of installer and CI hardening fixes.
+explorer — plus a doubled care-bundle library, a project-management handoff to
+Acumenus Data Room, and a long list of installer and CI hardening fixes.
 
 <!--truncate-->
 
@@ -138,18 +138,12 @@ eCQM bundles**, up from 10. Each bundle is structured with the correct
 measure population (initial population, denominator, numerator,
 exclusions) and references the correct OMOP concept sets.
 
-### OpenProject bidirectional sync
+### Acumenus Data Room project management
 
-A new `app.sync` schema and supporting services for bidirectional sync
-between GSD planning artifacts (`ROADMAP.md`, `STATE.md`, `PLAN.md`),
-OpenProject work packages, and GitHub Issues:
-
-- OpenProject API v3 client + `gh` CLI wrapper
-- GSD parser, sync database client, bidirectional entity mapper
-- Backfill script for GSD → OpenProject → GitHub import
-- Reconciliation HTTP server (port 9890) driven by an n8n cron workflow
-- 4 n8n workflow scaffolds for OP↔GSD↔GH sync
-- Implementation plan and design spec live in `docs/lineage/plans/closed/2026-04-15-openproject-bidirectional-sync.md` and `docs/lineage/design/specs/2026-04-15-openproject-bidirectional-sync-design.md`.
+Project-management work now points to the Acumenus Data Room application,
+served from the local Apache vhost at `https://dataroom.acumenus.net`.
+Parthenon keeps GitHub for engineering issue history and leaves portfolio,
+client, readiness, and operational boards to the Data Room app.
 
 ### Database role split (security hardening)
 
@@ -229,7 +223,7 @@ group.
   12 `docs(finngen)`, 11 `test(finngen)`, 11 `feat(code-explorer)`,
   10 `feat(darkstar)`, 9 `feat(sync)`, 6 `feat(auth)`, plus the rest)
 - **4 new modules** landed: FinnGen Workbench, Authentik SSO, Light Mode,
-  OpenProject Sync
+  Patient Similarity refresh
 - **35 new care bundles** (10 → 45)
 - **28,000+ hex values** tokenized for theming
 

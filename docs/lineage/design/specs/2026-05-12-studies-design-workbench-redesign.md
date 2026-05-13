@@ -1,6 +1,6 @@
 ---
 doc_type: spec
-status: proposed
+status: active
 date: 2026-05-12
 owner: acumenus
 module: studies
@@ -20,7 +20,7 @@ related_artifacts:
 # Studies → Design Tab Redesign — Compiler Workbench
 
 **Date:** 2026-05-12
-**Status:** Proposed
+**Status:** Active
 **Mockup:** [docs/commons/mockups/studies-design-workbench-v2.html](../../../commons/mockups/studies-design-workbench-v2.html)
 
 ## Overview
