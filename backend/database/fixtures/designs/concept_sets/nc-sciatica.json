@@ -1,0 +1,180 @@
+{
+    "id": 206,
+    "name": "NC: Sciatica",
+    "description": "OHDSI HTN negative-control outcome for empirical-null calibration (concept ancestor of SNOMED 372409).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 372409,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762107,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762108,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762280,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 763930,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1340465,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4001450,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4044021,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4143862,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4143863,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4181748,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4188350,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36712930,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37108965,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37309624,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 42535222,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            }
+        ]
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "htn-v3",
+        "negative-control"
+    ],
+    "created_at": "2026-05-13T02:54:09.000000Z",
+    "updated_at": "2026-05-13T02:54:09.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

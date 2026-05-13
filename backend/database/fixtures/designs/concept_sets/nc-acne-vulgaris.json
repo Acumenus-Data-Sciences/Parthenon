@@ -1,0 +1,60 @@
+{
+    "id": 196,
+    "name": "NC: Acne vulgaris",
+    "description": "OHDSI HTN negative-control outcome for empirical-null calibration (concept ancestor of SNOMED 4227594).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 4227594,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4293591,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4300923,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4300924,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            }
+        ]
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "htn-v3",
+        "negative-control"
+    ],
+    "created_at": "2026-05-13T02:54:06.000000Z",
+    "updated_at": "2026-05-13T02:54:06.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

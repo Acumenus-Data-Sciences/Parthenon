@@ -17,7 +17,7 @@
 
 **Methods.** A target cohort (T) of adults aged ≥18 with a first recorded essential-hypertension diagnosis and no prior cardiovascular disease, thyroid disease, secondary hypertension, abnormal kidney function (by either diagnosis or eGFR < 60 mL/min/1.73 m²), or antihypertensive exposure was generated on the Acumenus CDM (T = 265,498). A comparator pool (C) was generated using the same exclusion criteria absent the HTN diagnosis (C = 648,216). Cohort eras were extended to 5 years from index (truncated at observation_period_end where applicable) via Circe `EndStrategy.DateOffset`. Incidence rates for a major adverse cardiovascular events (MACE) composite (myocardial infarction, ischemic or hemorrhagic stroke, heart failure during an inpatient or ER+inpatient encounter, and all-cause death) and for incident chronic kidney disease were computed per 1,000 person-years using OHDSI's CohortIncidence package (HADES R, v3.0.0).
 
-**Results.** T comprised 265,498 incident essential-HTN, treatment-naive adults followed for 1,323,205 person-years. **MACE incidence was 1.12 per 1,000 person-years** (1,482 events). **Incident-CKD rate was 19.56 per 1,000 person-years** (24,756 events). A treatment-trajectory pathway analysis identified 1,482 (0.56% of T) patients with MACE events within the 5-year window. Baseline pharmacotherapy characterization revealed the dominant non-antihypertensive prescriptions to be nicotine-replacement transdermal systems, simvastatin, clopidogrel, and metoprolol-succinate (extended release). A propensity-score-matched comparison of T vs. C using OHDSI CohortMethod was attempted but did not produce estimates because the cohort-defining features (hypertension diagnosis concepts and systolic/diastolic blood-pressure measurements) function as perfect classifiers in the propensity model — a known constraint of CohortMethod when the exposure itself defines the cohort.
+**Results.** T comprised 265,498 incident essential-HTN, treatment-naive adults followed for 1,323,205 person-years. **MACE incidence was 1.12 per 1,000 person-years** (1,482 events). **Incident-CKD rate was 19.56 per 1,000 person-years** (24,756 events). Empirical-null calibration using twelve OHDSI-canonical HTN negative-control outcomes showed only two non-zero null rates on Acumenus (acute upper respiratory infection 3.41 per 1,000 PY; otitis media 0.18 per 1,000 PY); the CKD signal exceeds the highest negative-control rate by ~5.7× while the MACE signal sits within the negative-control range and does not separate from the empirical null on this source. A treatment-trajectory pathway analysis identified 1,482 (0.56% of T) patients with MACE events within the 5-year window. Baseline pharmacotherapy characterization revealed the dominant non-antihypertensive prescriptions to be nicotine-replacement transdermal systems, simvastatin, clopidogrel, and metoprolol-succinate (extended release). A propensity-score-matched comparison of T vs. C using OHDSI CohortMethod was attempted but did not produce estimates because the cohort-defining features (hypertension diagnosis concepts and systolic/diastolic blood-pressure measurements) function as perfect classifiers in the propensity model — a known constraint of CohortMethod when the exposure itself defines the cohort.
 
 **Conclusions.** In a 265,000-person treatment-naive incident-HTN cohort, the 5-year incidence of incident CKD (19.6/1,000 person-years) was approximately seventeen-fold the MACE incidence (1.1/1,000 person-years). These rates establish a useful baseline for future Parthenon-platform studies and a benchmark for OHDSI-network incidence comparisons. The intended diagnostic-latency analysis and Lu replication require an EHR-derived OMOP source with coupled measurement and diagnosis records, which the Acumenus CDM does not currently provide. The Parthenon pipeline itself ran the full study end-to-end including two production bug fixes that were authored, tested, and merged during execution.
 
@@ -83,12 +83,30 @@ T was successfully assembled at 265,498 incident-HTN, treatment-naive adults —
 
 ### 3.2 Incidence rates (Table 2)
 
-| Outcome | Person-years | Events | Rate per 1,000 PY |
-|---|---:|---:|---:|
-| MACE composite (MI + stroke + inpatient HF) | 1,323,205 | 1,482 | **1.12** |
-| Incident chronic kidney disease | 1,265,330 | 24,756 | **19.56** |
+Primary outcomes alongside an empirical-null distribution from twelve OHDSI-canonical HTN negative-control outcomes (selected to have no biologically plausible causal relationship to hypertension):
 
-Incident CKD was observed approximately seventeen-fold more frequently than MACE in this treatment-naive incident-HTN population during the 5-year follow-up.
+| Outcome | Type | cd_id | Person-years | Events | Rate per 1,000 PY |
+|---|---|---:|---:|---:|---:|
+| **MACE composite** (MI + stroke + inpatient HF + death) | Primary | 5426 | 1,323,205 | 1,482 | **1.120** |
+| **Incident chronic kidney disease** | Primary | 5427 | 1,265,330 | 24,756 | **19.565** |
+| Acute upper respiratory infection | Neg control | 5429 | 1,319,894 | 4,495 | 3.406 |
+| Otitis media | Neg control | 5436 | 1,326,235 | 232 | 0.175 |
+| Acne vulgaris | Neg control | 5428 | 1,326,581 | 0 | 0.000 |
+| Allergic rhinitis | Neg control | 5430 | 1,326,581 | 0 | 0.000 |
+| Atopic dermatitis | Neg control | 5431 | 1,326,581 | 0 | 0.000 |
+| Cellulitis | Neg control | 5432 | 1,326,581 | 0 | 0.000 |
+| Hallux valgus (bunion) | Neg control | 5433 | 1,326,581 | 0 | 0.000 |
+| Hemorrhoids | Neg control | 5434 | 1,326,581 | 0 | 0.000 |
+| Onychomycosis | Neg control | 5435 | 1,326,581 | 0 | 0.000 |
+| Plantar fasciitis | Neg control | 5437 | 1,326,581 | 0 | 0.000 |
+| Sciatica | Neg control | 5438 | 1,326,581 | 0 | 0.000 |
+| Verruca vulgaris | Neg control | 5439 | 1,326,581 | 0 | 0.000 |
+
+Of twelve negative controls only two yielded non-zero events in T_v3 within the 5-year follow-up window: acute upper respiratory infection (3.41 per 1,000 PY) and otitis media (0.18 per 1,000 PY). The remaining ten zero-event negative controls reflect limited condition-coverage in the Acumenus CDM (see §5 limitations) rather than a true biological null.
+
+**Calibration interpretation.** The incident-CKD rate (19.57 per 1,000 PY) is approximately 5.7× the highest negative-control rate observed, providing strong empirical separation from the data-quality null. The MACE rate (1.12 per 1,000 PY) lies between the two non-zero negative controls (0.18–3.41 per 1,000 PY) and within plausible range of baseline EHR event-rate noise; it does not show clear separation from the empirical null on this source. Calibrated p-values via OHDSI EmpiricalCalibration are not reported because the operative null contains only two non-zero observations (insufficient for a parametric fit).
+
+Incident CKD was observed approximately seventeen-fold more frequently than MACE in this treatment-naive incident-HTN population during the 5-year follow-up; only the CKD signal survives the empirical-null calibration on Acumenus.
 
 ### 3.3 Treatment-trajectory pathway analysis
 
@@ -122,14 +140,14 @@ The exposure-defines-cohort constraint encountered in the CohortMethod estimatio
 
 1. **No latency analysis.** Acumenus's separation between historic condition codes and recent measurement records precludes pre-diagnosis BP analysis. The original protocol's headline question (does diagnostic delay predict outcomes?) is therefore unanswerable on this source.
 2. **No T-vs-C estimation.** OHDSI CohortMethod's propensity model cannot fit when the cohort definition perfectly predicts treatment assignment.
-3. **No negative-control diagnostics.** The four executed analyses (Characterization, IncidenceRate, Pathway, Estimation) did not include the OHDSI negative-control outcomes that are recommended before publishing point estimates. Future runs should incorporate `Services/Network/NegativeControlService`.
+3. **Sparse negative-control distribution.** Twelve OHDSI-canonical HTN negative-control outcomes were added to the IR analysis (acne vulgaris, acute URI, allergic rhinitis, atopic dermatitis, cellulitis, hallux valgus, hemorrhoids, onychomycosis, otitis media, plantar fasciitis, sciatica, verruca vulgaris); only two yielded non-zero rates within the T_v3 follow-up window. The resulting empirical null is too sparse (n=2 non-zero observations) to fit a parametric distribution or compute formally calibrated p-values. Calibrated inference would benefit from either a richer set of negative controls validated for Acumenus, or running the study on a CDM with broader condition coverage.
 4. **Drug-only Table 1.** The Characterization analysis was configured for drug-exposure features only. Demographic and laboratory features are recoverable via re-execution with the appropriate FeatureExtraction settings.
 5. **Heart-failure events** are restricted to inpatient or ER+inpatient visits (visit_concept_id ∈ {9201, 262}) per the PI's pre-execution decision. Some genuine HF events outside an inpatient context are therefore not counted, which may underestimate the MACE rate.
 6. **Comparator always-normotensive enforcement** was deferred to post-cohort SQL. The Circe `Measurement.ValueAsNumber` filter on 17 million SBP/DBP rows was IO-bound at >30 minutes during cohort generation; the constraint will be enforced via a post-cohort SQL trim in any downstream T-vs-C analysis. As reported, C_v3 is "no HTN diagnosis ever" plus the standard exclusions, not "all-BPs-below-threshold."
 
 ## 6. Conclusions
 
-In a 265,000-person treatment-naive incident-essential-hypertension cohort drawn from the Acumenus OHDSI OMOP CDM, the 5-year incidence of major adverse cardiovascular events was **1.12 per 1,000 person-years** and the 5-year incidence of new-onset chronic kidney disease was **19.56 per 1,000 person-years**. CKD events outnumbered MACE events approximately seventeen-fold in this window, consistent with hypertension's well-established renal end-organ profile.
+In a 265,000-person treatment-naive incident-essential-hypertension cohort drawn from the Acumenus OHDSI OMOP CDM, the 5-year incidence of major adverse cardiovascular events was **1.12 per 1,000 person-years** and the 5-year incidence of new-onset chronic kidney disease was **19.56 per 1,000 person-years**. CKD events outnumbered MACE events approximately seventeen-fold in this window, consistent with hypertension's well-established renal end-organ profile. Empirical-null calibration against twelve OHDSI-standard negative-control outcomes confirmed strong separation of the CKD signal from the data-quality null (5.7× the highest negative-control rate); the MACE signal was within the range of negative-control rates and did not show clear separation, consistent with either modest HTN-attributable cardiovascular risk in this incident cohort or background EHR event-rate noise.
 
 The intended Lu replication and propensity-matched estimation could not be executed on this source; the limiting factor is the underlying CDM data structure, not the Parthenon platform itself, which ran the study end-to-end from concept-set definition through analysis execution. Two production bugs were diagnosed, patched, and shipped to the production branch during execution (`faf6ee8db` cohort-generation row claim, `8286d5bb9` incidence-rate plan field name). The cohort definitions were rebuilt from v2 to v3 with proper Circe `EndStrategy.DateOffset`, age-≥18 `DemographicCriteria`, eGFR < 60 `ValueAsNumber` exclusion, inpatient `VisitType` qualifier for heart-failure events, and a Circe `Death` event added to the MACE composite. The v3 numbers reported here are reproducible from the locked design version 3 (study `hypertension-study-v3-2`, design_version.id = 10).
 

@@ -1,0 +1,841 @@
+{
+    "id": 5431,
+    "name": "NC: Atopic dermatitis",
+    "description": "First occurrence of NC: Atopic dermatitis. Used as a negative-control outcome for empirical-null calibration of MACE\/CKD rates in T_v3.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "NC: Atopic dermatitis",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 133834,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 1076198,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 1076397,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 1340257,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3654806,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031012,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031013,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031016,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031017,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031630,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031631,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4031634,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4033671,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4033672,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4033769,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4033770,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4066382,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4066727,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4067178,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4080927,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4080928,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4080929,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4080931,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4206125,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4221829,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4221831,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4221832,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4223477,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4223478,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4223498,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4223639,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4223641,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290734,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290735,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290736,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290737,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290740,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4290745,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4291279,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4296190,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4296192,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4296193,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4297362,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4297478,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4297494,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4297495,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4298597,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4298598,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4298599,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4298600,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4298601,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4309200,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37110589,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165196,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165197,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165198,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165204,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165216,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165217,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165218,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165219,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165220,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165223,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165237,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165238,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165239,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165240,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165241,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37165493,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 37203896,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 40482226,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-05-13T02:54:07.000000Z",
+    "updated_at": "2026-05-13T02:54:07.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null,
+    "tenant_id": 1
+}

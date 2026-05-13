@@ -1,0 +1,180 @@
+{
+    "id": 201,
+    "name": "NC: Hallux valgus (bunion)",
+    "description": "OHDSI HTN negative-control outcome for empirical-null calibration (concept ancestor of SNOMED 4046738).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 75911,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 77968,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 603304,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 603305,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 608836,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 619200,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 760835,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 763779,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 763784,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075329,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1244442,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1244443,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4046738,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4201894,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36716452,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37018970,
+                    "CONCEPT_NAME": "",
+                    "STANDARD_CONCEPT": "S"
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": false
+            }
+        ]
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "htn-v3",
+        "negative-control"
+    ],
+    "created_at": "2026-05-13T02:54:07.000000Z",
+    "updated_at": "2026-05-13T02:54:07.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

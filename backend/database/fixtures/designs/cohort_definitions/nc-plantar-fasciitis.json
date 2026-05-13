@@ -1,0 +1,115 @@
+{
+    "id": 5437,
+    "name": "NC: Plantar fasciitis",
+    "description": "First occurrence of NC: Plantar fasciitis. Used as a negative-control outcome for empirical-null calibration of MACE\/CKD rates in T_v3.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "NC: Plantar fasciitis",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 760833,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 760898,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 760899,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4002650,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4332732,
+                                "CONCEPT_NAME": "",
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-05-13T02:54:09.000000Z",
+    "updated_at": "2026-05-13T02:54:09.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null,
+    "tenant_id": 1
+}
