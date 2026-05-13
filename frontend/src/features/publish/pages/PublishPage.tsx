@@ -2,8 +2,8 @@
 // PublishPage — 4-step publish & export wizard
 // ---------------------------------------------------------------------------
 
-import { useReducer, useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useReducer, useCallback, useEffect, useRef, useState } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
 import { HelpButton } from "@/features/help";
 import { useTranslation } from "react-i18next";
@@ -12,10 +12,15 @@ import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
 import DocumentConfigurator from "../components/DocumentConfigurator";
 import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
+import { HybridPromptModal } from "../components/PublishPage/HybridPromptModal";
+import { SaveDraftButton } from "../components/library/SaveDraftButton";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
+import { useDraft, useCreateDraft, useUpdateDraftById } from "../hooks/useDrafts";
 import { buildTableFromResults } from "../lib/tableBuilders";
 import { buildDiagramData } from "../lib/diagramBuilders";
 import { getDiagramSvgMarkup } from "../lib/svgExport";
+import { captureSnapshots } from "../lib/snapshotCapture";
+import { serializeForSave, deserializeFromLoad } from "../lib/draftSerialization";
 import {
   getPublishResultSectionTitle,
   getPublishTemplateSectionTitle,
@@ -25,6 +30,7 @@ import type {
   ReportSection,
   SelectedExecution,
   NarrativeState,
+  DraftSection,
 } from "../types/publish";
 import { TEMPLATES } from "../templates/index";
 import type { TemplateSectionDef } from "../templates/index";
@@ -38,6 +44,7 @@ interface WizardState {
   title: string;
   authors: string[];
   template: string;
+  hasMeaningfulEdit: boolean;
 }
 
 type Action =
@@ -47,35 +54,49 @@ type Action =
   | { type: "SET_TITLE"; title: string }
   | { type: "SET_AUTHORS"; authors: string[] }
   | { type: "UPDATE_SECTION"; id: string; updates: Partial<ReportSection> }
-  | { type: "SET_TEMPLATE"; template: string };
+  | { type: "SET_TEMPLATE"; template: string }
+  | { type: "REHYDRATE"; state: WizardState };
 
 function wizardReducer(state: WizardState, action: Action): WizardState {
   switch (action.type) {
     case "SET_STEP":
       return { ...state, step: action.step };
     case "SET_SELECTIONS":
-      return { ...state, selectedExecutions: action.selections };
+      return {
+        ...state,
+        selectedExecutions: action.selections,
+        hasMeaningfulEdit:
+          state.hasMeaningfulEdit || action.selections.length > 0,
+      };
     case "SET_SECTIONS":
-      return { ...state, sections: action.sections };
+      return {
+        ...state,
+        sections: action.sections,
+        hasMeaningfulEdit: state.hasMeaningfulEdit || action.sections.length > 0,
+      };
     case "SET_TITLE":
-      return { ...state, title: action.title };
+      return { ...state, title: action.title, hasMeaningfulEdit: true };
     case "SET_AUTHORS":
-      return { ...state, authors: action.authors };
+      return { ...state, authors: action.authors, hasMeaningfulEdit: true };
     case "UPDATE_SECTION":
       return {
         ...state,
         sections: state.sections.map((s) =>
           s.id === action.id ? { ...s, ...action.updates } : s,
         ),
+        hasMeaningfulEdit: true,
       };
     case "SET_TEMPLATE":
-      return { ...state, template: action.template };
+      return { ...state, template: action.template, hasMeaningfulEdit: true };
+    case "REHYDRATE":
+      return { ...action.state, hasMeaningfulEdit: false };
     default:
       return state;
   }
 }
 
 const STORAGE_KEY = "parthenon:publish-wizard";
+const PROMPT_SHOWN_KEY = "parthenon:publish-prompt-shown";
 
 const defaultState: WizardState = {
   step: 1,
@@ -84,6 +105,7 @@ const defaultState: WizardState = {
   title: "",
   authors: [],
   template: "generic-ohdsi",
+  hasMeaningfulEdit: false,
 };
 
 function loadPersistedState(): WizardState {
@@ -93,7 +115,7 @@ function loadPersistedState(): WizardState {
       const parsed = JSON.parse(stored) as WizardState;
       // Validate shape
       if (parsed.step && parsed.sections && parsed.selectedExecutions) {
-        return parsed;
+        return { ...parsed, hasMeaningfulEdit: parsed.hasMeaningfulEdit ?? false };
       }
     }
   } catch {
@@ -287,12 +309,27 @@ function captureDiagramSvgMarkup(sections: ReportSection[]): ReportSection[] {
 
 export default function PublishPage() {
   const { t } = useTranslation("app");
+  const navigate = useNavigate();
+  const { draftId: draftIdParam } = useParams<{ draftId: string }>();
+  const draftId =
+    draftIdParam && /^\d+$/.test(draftIdParam) ? Number(draftIdParam) : null;
+
   const [searchParams] = useSearchParams();
   const initialStudyId = searchParams.get("studyId")
     ? Number(searchParams.get("studyId"))
     : undefined;
 
   const [state, dispatch] = useReducer(persistingReducer, undefined, loadPersistedState);
+
+  // Server-side draft hooks
+  const draftQuery = useDraft(draftId);
+  const createDraft = useCreateDraft();
+  const updateDraft = useUpdateDraftById();
+  const hydratedRef = useRef(false);
+
+  // Hybrid prompt state
+  const [promptOpen, setPromptOpen] = useState(false);
+
   const steps = [
     { num: 1 as const, label: t("publish.steps.selectAnalyses") },
     { num: 2 as const, label: t("publish.steps.configure") },
@@ -300,8 +337,30 @@ export default function PublishPage() {
     { num: 4 as const, label: t("publish.steps.export") },
   ];
 
-  // When navigating via ?studyId, reset if it's a different study than what's persisted
+  // ── Hydrate from server-side draft when :draftId is present ─────────────
   useEffect(() => {
+    if (draftId === null) return;
+    if (!draftQuery.data || hydratedRef.current) return;
+    const d = draftQuery.data;
+    const w = deserializeFromLoad(d.document_json);
+    dispatch({
+      type: "REHYDRATE",
+      state: {
+        step: w.step,
+        selectedExecutions: w.selectedExecutions as SelectedExecution[],
+        sections: w.sections as unknown as ReportSection[],
+        title: d.title,
+        authors: w.authors,
+        template: d.template,
+        hasMeaningfulEdit: false,
+      },
+    });
+    hydratedRef.current = true;
+  }, [draftId, draftQuery.data]);
+
+  // ── When navigating via ?studyId on a new (no-draftId) flow, reset ──────
+  useEffect(() => {
+    if (draftId !== null) return; // never reset when loading an explicit draft
     if (
       initialStudyId &&
       state.selectedExecutions.length > 0 &&
@@ -312,7 +371,22 @@ export default function PublishPage() {
       dispatch({ type: "SET_SECTIONS", sections: [] });
       dispatch({ type: "SET_STEP", step: 1 });
     }
-  }, [initialStudyId, state.selectedExecutions]);
+  }, [draftId, initialStudyId, state.selectedExecutions]);
+
+  // ── Hybrid prompt: show once on first meaningful edit (new draft only) ─
+  useEffect(() => {
+    if (draftId !== null) return;
+    if (
+      state.hasMeaningfulEdit &&
+      !promptOpen &&
+      !sessionStorage.getItem(PROMPT_SHOWN_KEY)
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot modal trigger from reducer-driven edit signal
+      setPromptOpen(true);
+      sessionStorage.setItem(PROMPT_SHOWN_KEY, "1");
+    }
+  }, [draftId, state.hasMeaningfulEdit, promptOpen]);
+
   const narrativeMutation = useGenerateNarrative();
 
   // ── Step 1 handlers ─────────────────────────────────────────────────────
@@ -445,6 +519,83 @@ export default function PublishPage() {
     dispatch({ type: "SET_STEP", step });
   }, []);
 
+  // ── Save helpers ────────────────────────────────────────────────────────
+  const buildDocumentJson = useCallback(() => {
+    // Capture live SVG markup first, then capture snapshots via DOM lookup.
+    // ReportSection and DraftSection share enough shape for the persistence
+    // layer (id, title, type, content, included, diagram/table fields) —
+    // documented cast.
+    const withSvg = captureDiagramSvgMarkup(state.sections);
+    const sectionsWithSnapshots = captureSnapshots(
+      withSvg as unknown as DraftSection[],
+    );
+    return serializeForSave({
+      title: state.title,
+      authors: state.authors,
+      template: state.template,
+      step: state.step,
+      selectedExecutions: state.selectedExecutions as unknown as Parameters<
+        typeof serializeForSave
+      >[0]["selectedExecutions"],
+      sections: sectionsWithSnapshots,
+    });
+  }, [state]);
+
+  const handlePromptSave = useCallback(
+    async (title: string) => {
+      dispatch({ type: "SET_TITLE", title });
+      const documentJson = serializeForSave({
+        title,
+        authors: state.authors,
+        template: state.template,
+        step: state.step,
+        selectedExecutions: state.selectedExecutions as unknown as Parameters<
+          typeof serializeForSave
+        >[0]["selectedExecutions"],
+        sections: state.sections as unknown as DraftSection[],
+      });
+      const draft = await createDraft.mutateAsync({
+        title,
+        template: state.template,
+        document_json: documentJson,
+        study_id: state.selectedExecutions[0]?.studyId ?? null,
+      });
+      setPromptOpen(false);
+      sessionStorage.removeItem(STORAGE_KEY);
+      navigate(`/publish/library/${draft.id}`, { replace: true });
+    },
+    [state, createDraft, navigate],
+  );
+
+  const handleSaveButton = useCallback(async () => {
+    const documentJson = buildDocumentJson();
+    if (draftId === null) {
+      const title = state.title || "Untitled manuscript";
+      const draft = await createDraft.mutateAsync({
+        title,
+        template: state.template,
+        document_json: documentJson,
+        study_id: state.selectedExecutions[0]?.studyId ?? null,
+      });
+      sessionStorage.removeItem(STORAGE_KEY);
+      navigate(`/publish/library/${draft.id}`, { replace: true });
+    } else {
+      await updateDraft.mutateAsync({
+        id: draftId,
+        payload: { title: state.title, document_json: documentJson },
+      });
+    }
+  }, [
+    draftId,
+    state.title,
+    state.template,
+    state.selectedExecutions,
+    buildDocumentJson,
+    createDraft,
+    updateDraft,
+    navigate,
+  ]);
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -462,6 +613,18 @@ export default function PublishPage() {
         </div>
         <div className="flex items-center gap-2">
           <HelpButton helpKey="publish" />
+          <SaveDraftButton
+            hasDraftId={draftId !== null}
+            saving={createDraft.isPending || updateDraft.isPending}
+            onSave={handleSaveButton}
+          />
+          <button
+            type="button"
+            onClick={() => navigate("/publish/library")}
+            className="text-xs text-text-ghost hover:text-text-primary transition-colors"
+          >
+            ← Library
+          </button>
           {state.step > 1 && (
             <button
               type="button"
@@ -580,6 +743,16 @@ export default function PublishPage() {
           />
         )}
       </div>
+
+      <HybridPromptModal
+        open={promptOpen}
+        defaultTitle={
+          state.selectedExecutions[0]?.studyTitle ??
+          (state.title || "Untitled manuscript")
+        }
+        onSave={handlePromptSave}
+        onContinueWithoutSaving={() => setPromptOpen(false)}
+      />
     </div>
   );
 }
