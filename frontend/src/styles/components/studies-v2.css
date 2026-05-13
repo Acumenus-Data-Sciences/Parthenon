@@ -1,0 +1,438 @@
+/* ============================================================
+   Studies → Design tab v2 (Compiler Workbench) — scoped styles.
+   See docs/lineage/design/specs/2026-05-12-studies-design-workbench-redesign.md
+   Visual contract: docs/commons/mockups/studies-design-workbench-v2.html
+   ============================================================ */
+
+/* Workbench-specific palette tokens, scoped under .studies-v2-root so the
+   global namespace stays clean. Project tokens (--text-secondary etc.)
+   remain available elsewhere. */
+.studies-v2-root {
+  --wb-crimson: #9B1B30;
+  --wb-gold: #C9A227;
+  --wb-teal: #2DD4BF;
+  --wb-parchment: #F4EFE6;
+  --wb-bg: #0E0E11;
+  --wb-slate-1: #1E2026;
+  --wb-slate-2: #262A32;
+  --wb-slate-3: #3A3E48;
+  --wb-text-hi: #E6E4DE;
+  --wb-text-mid: #A8A89F;
+  --wb-text-low: #6E6E66;
+  --wb-hairline: rgba(255, 255, 255, 0.08);
+  --wb-hairline-strong: rgba(255, 255, 255, 0.14);
+  --wb-inset-top: rgba(255, 255, 255, 0.06);
+  --wb-shadow-active: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  --wb-font-display: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --wb-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--wb-bg);
+  color: var(--wb-text-hi);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Decorative film-grain overlay (no pointer interaction). */
+.studies-v2-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+  opacity: 0.9;
+  mix-blend-mode: screen;
+}
+
+.studies-v2-root .wb-mono { font-family: var(--wb-font-mono); font-feature-settings: "ss01", "ss02"; }
+.studies-v2-root .wb-serif { font-family: var(--wb-font-display); }
+
+/* ---------- Identity Strip (sticky 56px top bar) ---------- */
+.studies-v2-identity-strip {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 56px;
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr) 500px;
+  align-items: center;
+  padding: 0 18px;
+  background: linear-gradient(180deg, #121318 0%, #0E0E11 100%);
+  border-bottom: 0.5px solid var(--wb-hairline);
+}
+.studies-v2-identity-strip .id-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.studies-v2-identity-strip .wordmark {
+  font-family: var(--wb-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--wb-text-hi);
+}
+.studies-v2-identity-strip .wordmark .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--wb-crimson);
+  border-radius: 9999px;
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+.studies-v2-identity-strip .breadcrumb {
+  font-family: var(--wb-font-mono);
+  font-size: 10.5px;
+  color: var(--wb-text-low);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studies-v2-identity-strip .breadcrumb b { color: var(--wb-text-mid); font-weight: 500; }
+.studies-v2-identity-strip .session-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px 5px 10px;
+  border-radius: 4px;
+  border: 0.5px solid var(--wb-hairline-strong);
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 0 var(--wb-inset-top);
+  cursor: default;
+}
+.studies-v2-identity-strip .session-chip .session-name {
+  font-family: var(--wb-font-display);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--wb-text-hi);
+  letter-spacing: 0.005em;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studies-v2-identity-strip .session-chip .caret {
+  font-family: var(--wb-font-mono);
+  font-size: 10px;
+  color: var(--wb-text-low);
+  margin-top: 1px;
+}
+.studies-v2-identity-strip .id-center { min-width: 0; padding: 0 16px; text-align: center; }
+.studies-v2-identity-strip .id-title {
+  font-family: var(--wb-font-display);
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--wb-text-hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.005em;
+}
+.studies-v2-identity-strip .id-subtitle {
+  font-family: var(--wb-font-display);
+  font-style: italic;
+  font-size: 11.5px;
+  color: var(--wb-text-mid);
+  margin-top: 1px;
+}
+.studies-v2-identity-strip .id-right { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+.studies-v2-identity-strip .pill {
+  font-family: var(--wb-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  border: 0.5px solid var(--wb-hairline-strong);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--wb-text-mid);
+}
+.studies-v2-identity-strip .pill.gold {
+  color: #1B1404;
+  background: var(--wb-gold);
+  border-color: transparent;
+  font-weight: 500;
+}
+.studies-v2-identity-strip .pill.slate { background: rgba(255, 255, 255, 0.03); color: var(--wb-text-mid); }
+.studies-v2-identity-strip .pi-tag { font-family: var(--wb-font-mono); font-size: 10.5px; color: var(--wb-text-mid); }
+.studies-v2-identity-strip .icon-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.5px solid var(--wb-hairline-strong);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  color: var(--wb-text-mid);
+  cursor: default;
+  box-shadow: inset 0 1px 0 var(--wb-inset-top);
+  flex-shrink: 0;
+}
+.studies-v2-identity-strip .btn-lock {
+  font-family: var(--wb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 14px 7px 28px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #A11E34 0%, #82172A 100%);
+  color: #F6E5E9;
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 4px 14px -6px rgba(155, 27, 48, 0.6);
+  position: relative;
+  cursor: default;
+  opacity: 0.78;
+}
+.studies-v2-identity-strip .btn-lock::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 10px;
+  height: 11px;
+  transform: translateY(-50%);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14' fill='none' stroke='%23F6E5E9' stroke-width='1.25'><rect x='2' y='6' width='8' height='7' rx='1'/><path d='M4 6V4a2 2 0 1 1 4 0v2'/></svg>") center/contain no-repeat;
+}
+
+/* ---------- Workbench three-pane grid ---------- */
+.studies-v2-workbench {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 340px;
+  min-height: calc(100vh - 56px);
+  position: relative;
+  z-index: 2;
+}
+.studies-v2-workbench .pane { position: relative; }
+.studies-v2-workbench .pane + .pane { border-left: 0.5px solid var(--wb-hairline); }
+
+/* ---------- Pipeline Rail (left pane) ---------- */
+.studies-v2-rail {
+  background: linear-gradient(180deg, #101116 0%, #0C0D11 100%);
+  position: relative;
+  padding: 20px 0 24px 0;
+}
+.studies-v2-rail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+.studies-v2-rail .rail-title {
+  font-family: var(--wb-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+  padding: 0 18px 14px 18px;
+}
+.studies-v2-rail .rail-spine {
+  position: absolute;
+  left: 38px;
+  top: 50px;
+  bottom: 30px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--wb-slate-3) 0%, var(--wb-slate-2) 60%, var(--wb-slate-2) 100%);
+  pointer-events: none;
+}
+.studies-v2-rail .station {
+  position: relative;
+  padding: 11px 14px 11px 56px;
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.studies-v2-rail .station + .station { margin-top: 1px; }
+.studies-v2-rail .station:focus-visible { outline: 2px solid var(--wb-gold); outline-offset: -2px; }
+.studies-v2-rail .station-dot {
+  position: absolute;
+  left: 32px;
+  top: 14px;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  background: var(--wb-slate-3);
+  border: 1.5px solid var(--wb-bg);
+  box-shadow: 0 0 0 1px var(--wb-slate-3);
+}
+.studies-v2-rail .station-dot.teal {
+  background: var(--wb-teal);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.4), 0 0 8px rgba(45, 212, 191, 0.35);
+}
+.studies-v2-rail .station-dot.gold {
+  background: var(--wb-gold);
+  box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.4), 0 0 8px rgba(201, 162, 39, 0.35);
+}
+.studies-v2-rail .station-dot.slate { background: var(--wb-slate-3); }
+.studies-v2-rail .station.active { background: linear-gradient(90deg, rgba(201, 162, 39, 0.07) 0%, transparent 80%); }
+.studies-v2-rail .station.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 0.5px;
+  background: var(--wb-gold);
+}
+.studies-v2-rail .station.active .station-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  animation: studiesV2RailPulse 2.4s ease-in-out infinite;
+}
+@keyframes studiesV2RailPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studies-v2-rail .station.active .station-dot::after { animation: none; }
+}
+.studies-v2-rail .station-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.studies-v2-rail .station-num {
+  font-family: var(--wb-font-mono);
+  font-size: 9.5px;
+  color: var(--wb-text-low);
+  width: 12px;
+  flex-shrink: 0;
+  position: absolute;
+  left: 14px;
+  top: 13px;
+}
+.studies-v2-rail .station-name {
+  font-family: var(--wb-font-display);
+  font-size: 13.5px;
+  color: var(--wb-text-hi);
+  letter-spacing: 0.005em;
+}
+.studies-v2-rail .station.gated .station-name,
+.studies-v2-rail .station.gated .station-state { color: var(--wb-text-low); }
+.studies-v2-rail .station-state {
+  font-size: 10.5px;
+  color: var(--wb-text-mid);
+  margin-top: 2px;
+  line-height: 1.35;
+}
+.studies-v2-rail .station-state .micro {
+  font-family: var(--wb-font-mono);
+  font-size: 9.5px;
+  color: var(--wb-text-low);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.studies-v2-rail .station-arc { position: absolute; right: 12px; top: 11px; width: 14px; height: 14px; }
+.studies-v2-rail .station-time {
+  font-family: var(--wb-font-mono);
+  font-size: 9.5px;
+  color: var(--wb-text-low);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+}
+.studies-v2-rail .lock-rivet {
+  position: absolute;
+  left: 26px;
+  top: 7px;
+  width: 25px;
+  height: 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 162, 39, 0.65);
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.15);
+  background: radial-gradient(circle at 50% 35%, rgba(201, 162, 39, 0.10), transparent 70%);
+  pointer-events: none;
+}
+
+/* ---------- Center pane (wraps existing StudyDesignWorkbench) ---------- */
+.studies-v2-center {
+  padding: 22px 28px 28px 28px;
+  background: linear-gradient(180deg, #0E0E11 0%, #0B0C0F 100%);
+  min-width: 0;
+}
+
+/* ---------- Right pane: Peripheral Rail placeholder (Phase 2) ---------- */
+.studies-v2-periph {
+  background: linear-gradient(180deg, #0E0E11 0%, #0B0C0F 100%);
+  display: flex;
+  flex-direction: column;
+}
+.studies-v2-periph .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--wb-hairline); padding: 0 18px; }
+.studies-v2-periph .tab {
+  font-family: var(--wb-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 14px 12px 11px 12px;
+  color: var(--wb-text-mid);
+  border-bottom: 1.5px solid transparent;
+  cursor: default;
+}
+.studies-v2-periph .tab.active { color: var(--wb-text-hi); border-bottom-color: var(--wb-gold); }
+.studies-v2-periph .periph-body {
+  padding: 18px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+.studies-v2-periph .periph-stamp {
+  font-family: var(--wb-font-mono);
+  font-size: 10px;
+  color: var(--wb-text-low);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 24px 8px;
+  text-align: center;
+  border: 0.5px dashed var(--wb-hairline-strong);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.01);
+}
+.studies-v2-periph .periph-stamp .stamp-h {
+  font-family: var(--wb-font-display);
+  font-size: 13px;
+  color: var(--wb-text-mid);
+  letter-spacing: 0.005em;
+  text-transform: none;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ---------- Narrow viewport banner ---------- */
+.studies-v2-narrow-banner {
+  display: none;
+  padding: 12px 16px;
+  background: rgba(201, 162, 39, 0.08);
+  border-bottom: 0.5px solid rgba(201, 162, 39, 0.35);
+  color: var(--wb-text-hi);
+  font-family: var(--wb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.studies-v2-narrow-banner a { color: var(--wb-gold); text-decoration: underline; }
+
+/* ---------- Responsive breakpoints (Decision Q5) ---------- */
+@media (max-width: 1279px) {
+  .studies-v2-workbench { grid-template-columns: 220px minmax(0, 1fr); }
+  .studies-v2-periph { display: none; }
+}
+@media (max-width: 959px) {
+  .studies-v2-workbench { grid-template-columns: minmax(0, 1fr); }
+  .studies-v2-rail { display: none; }
+}
+@media (max-width: 767px) {
+  .studies-v2-narrow-banner { display: block; }
+}
+@media (max-height: 920px) {
+  .studies-v2-center { padding: 18px 24px 22px 24px; }
+  .studies-v2-periph .periph-body { padding: 14px 18px 16px 18px; gap: 11px; }
+  .studies-v2-rail .station { padding: 9px 14px 9px 56px; }
+}

@@ -13,6 +13,7 @@
 @import "./styles/components/charts.css";
 @import "./styles/components/ai.css";
 @import "./styles/components/auth.css";
+@import "./styles/components/studies-v2.css";
 
 /* ============================================================
    Tailwind v4 @theme inline — expose design tokens to utilities

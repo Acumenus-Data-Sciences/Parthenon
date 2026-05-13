@@ -32,6 +32,8 @@ import {
 import { formatDate } from "@/i18n/format";
 import { cn } from "@/lib/utils";
 import { StudyDesignWorkbench } from "../components/StudyDesignWorkbench";
+import { CompilerWorkbench } from "../components/v2/CompilerWorkbench";
+import { useStudiesWorkbenchV2 } from "../hooks/useStudiesWorkbenchV2";
 import { StudyDashboard } from "../components/StudyDashboard";
 import { StudyAnalysesTab } from "../components/StudyAnalysesTab";
 import { StudySitesTab } from "../components/StudySitesTab";
@@ -113,6 +115,7 @@ export default function StudyDetailPage() {
   const updateMutation = useUpdateStudy();
   const deleteMutation = useDeleteStudy();
   const transitionMutation = useTransitionStudy();
+  const v2Enabled = useStudiesWorkbenchV2();
 
   const slug = study?.slug ?? slugOrId ?? "";
   const { data: analyses } = useStudyAnalyses(slug || null);
@@ -427,7 +430,15 @@ export default function StudyDetailPage() {
       {activeTab === "overview" && (
         <StudyOverview study={study} analyses={analyses} progress={progress} />
       )}
-      {activeTab === "design" && <StudyDesignWorkbench study={study} />}
+      {activeTab === "design" && (
+        v2Enabled ? (
+          <CompilerWorkbench study={study}>
+            <StudyDesignWorkbench study={study} />
+          </CompilerWorkbench>
+        ) : (
+          <StudyDesignWorkbench study={study} />
+        )
+      )}
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
