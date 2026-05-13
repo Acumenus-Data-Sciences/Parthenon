@@ -226,6 +226,19 @@ Existing files **untouched**:
 
 Total ≈ 13 dev-days. Behind `studies.workbench.v2` flag throughout, with v1 view preserved until parity is signed off.
 
+### Status (as of 2026-05-13)
+
+| Phase | Status | Commit(s) |
+|---|---|---|
+| 1 — Shell | ✓ landed | `e85f70e7b`, `9a46b9bca` |
+| 2 — PICO Canvas + stage routing | ✓ landed | `6145fa7b2` |
+| 3 — Asset Matrix + Cohort Triptych | ✓ landed | `b47124840` |
+| 4 — Feasibility View (single-CDM per Decision Q4) | ✓ landed | `f3f5e3b8d` |
+| 5 — Lock Launchpad + Package Receipt + Version Timeline + motion polish | ✓ landed | `b184b06b3` |
+| 6 — A11y polish (focus rings, reduced-motion, aria-current) | ✓ landed | (this commit) |
+| 6 — Typography commercial-font swap (GT Sectra / NB International / Berkeley Mono) | **DEFERRED** — requires font-license confirmation. Current fallbacks (Source Serif 4, system-ui, JetBrains Mono) ship the aesthetic at zero license cost. |  |
+| 6 — Remove v1 `workbench/*` panels | **DEFERRED** — requires explicit parity sign-off. v1 remains the codepath when `?wb=v2` is not present, so deletion would force v2 as default. Pending visual review of all 8 stations + decision to flip default flag. |  |
+
 ## Verification
 
 ### Functional parity (must pass before flipping default flag)

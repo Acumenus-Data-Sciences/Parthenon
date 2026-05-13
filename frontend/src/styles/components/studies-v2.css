@@ -2202,3 +2202,33 @@
   .studies-v2-root .vt-diff-header-row,
   .studies-v2-root .vt-diff-row { grid-template-columns: minmax(120px, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
 }
+
+/* ============================================================
+ * Phase 6 — A11y polish: focus-visible rings on interactive
+ * elements that didn't already declare one. Rail stations,
+ * asset-matrix rows, version-timeline nodes, and the PICO
+ * empty-state textarea are covered upstream.
+ * ============================================================ */
+.studies-v2-root .btn-ghost:focus-visible,
+.studies-v2-root .btn-accept:focus-visible {
+  outline: 2px solid var(--wb-gold);
+  outline-offset: 2px;
+  border-color: rgba(201, 162, 39, 0.6);
+}
+.studies-v2-root .icon-btn:focus-visible,
+.studies-v2-root .session-chip:focus-visible {
+  outline: 2px solid var(--wb-gold);
+  outline-offset: 1px;
+}
+.studies-v2-root .lock-cta:focus-visible {
+  outline: 2px solid var(--wb-gold);
+  outline-offset: 3px;
+}
+.studies-v2-root .peripheral-tab:focus-visible {
+  outline: 2px solid var(--wb-gold);
+  outline-offset: -2px;
+}
+.studies-v2-root .pico-empty-textarea:focus-visible {
+  outline: 2px solid var(--wb-gold);
+  outline-offset: 1px;
+}
