@@ -173,7 +173,12 @@ export default function DocumentPreview({
           {numberedSections.map(({ section, figureNumber, tableNumber }) => {
             if (section.type === "diagram" && section.diagramType && figureNumber) {
               return (
-                <div key={section.id} id={`diagram-${section.id}`} className="mb-8">
+                <div
+                  key={section.id}
+                  id={`diagram-${section.id}`}
+                  data-section-id={section.id}
+                  className="mb-8"
+                >
                   <DiagramWrapper
                     title={section.title}
                     caption={section.caption}
@@ -192,7 +197,11 @@ export default function DocumentPreview({
               const hasDiagram = section.diagramIncluded !== false && section.diagramType;
 
               return (
-                <div key={section.id} className="mb-8">
+                <div
+                  key={section.id}
+                  data-section-id={section.id}
+                  className="mb-8"
+                >
                   <h2
                     className="mb-3 font-bold text-gray-900"
                     style={{ fontSize: "14pt" }}
@@ -249,7 +258,11 @@ export default function DocumentPreview({
 
             // Text sections: methods, discussion, introduction
             return (
-              <div key={section.id} className="mb-8">
+              <div
+                key={section.id}
+                data-section-id={section.id}
+                className="mb-8"
+              >
                 <h2
                   className="mb-3 font-bold text-gray-900"
                   style={{ fontSize: "14pt" }}
