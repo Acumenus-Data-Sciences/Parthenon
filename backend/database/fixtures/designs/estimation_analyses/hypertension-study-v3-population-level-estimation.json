@@ -6,7 +6,7 @@
         "model": {
             "type": "cox",
             "endAnchor": "cohort_start",
-            "timeAtRiskEnd": 365,
+            "timeAtRiskEnd": 1825,
             "timeAtRiskStart": 1
         },
         "targetCohortId": 5423,
@@ -15,17 +15,38 @@
             "enabled": true
         },
         "outcomeCohortIds": [
-            5421
+            5421,
+            5422
         ],
         "covariateSettings": {
             "useDemographicsAge": true,
             "useDemographicsGender": true,
+            "excludedCovariateConceptIds": [
+                312648,
+                317898,
+                320128,
+                4034031,
+                4058987,
+                4083723,
+                4148205,
+                4159755,
+                4180283,
+                4215640,
+                4217486,
+                4263067,
+                4269358,
+                4302591,
+                4321603,
+                45757787,
+                3012888,
+                3004249
+            ],
             "useConditionOccurrenceLongTerm": true
         },
         "comparatorCohortId": 5420
     },
     "author_id": 117,
     "created_at": "2026-05-12T22:12:07.000000Z",
-    "updated_at": "2026-05-12T22:12:07.000000Z",
+    "updated_at": "2026-05-12T19:37:51.000000Z",
     "deleted_at": null
 }

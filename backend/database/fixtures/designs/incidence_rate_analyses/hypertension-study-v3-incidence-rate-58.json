@@ -4,16 +4,29 @@
     "description": "Estimate source-specific incidence rates for linked cohorts.",
     "design_json": {
         "timeAtRisk": {
-            "end": 365,
+            "end": 1825,
             "start": 1
         },
         "targetCohortId": 5424,
         "outcomeCohortIds": [
-            5426
+            5426,
+            5427,
+            5428,
+            5429,
+            5430,
+            5431,
+            5432,
+            5433,
+            5434,
+            5435,
+            5436,
+            5437,
+            5438,
+            5439
         ]
     },
     "author_id": 117,
     "created_at": "2026-05-13T01:57:31.000000Z",
-    "updated_at": "2026-05-13T01:57:31.000000Z",
+    "updated_at": "2026-05-12T22:54:18.000000Z",
     "deleted_at": null
 }
