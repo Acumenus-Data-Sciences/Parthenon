@@ -1,4 +1,4 @@
-import { Upload, Lock } from "lucide-react";
+import { Upload } from "lucide-react";
 import { tAuto } from "@/i18n/autoUserFacing";
 import type { Study } from "../../types/study";
 
@@ -94,7 +94,6 @@ export function IdentityStrip({ study }: IdentityStripProps) {
           aria-disabled="true"
           title={tAuto("studies.v2.resolveBlockers")}
         >
-          <Lock size={11} aria-hidden="true" style={{ display: "none" }} />
           Lock {study.protocol_version ?? "v1"}
         </button>
       </div>
