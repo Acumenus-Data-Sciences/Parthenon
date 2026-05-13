@@ -419,6 +419,300 @@
 }
 .studies-v2-narrow-banner a { color: var(--wb-gold); text-decoration: underline; }
 
+/* ---------- Phase 2 fallback wrapper ---------- */
+/* When the user selects a station that hasn't been built yet (anything other
+   than 01 Intent), the center pane renders the v1 waterfall under a small
+   honest "v2 stage not yet implemented" eyebrow. */
+.studies-v2-root .phase2-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.studies-v2-root .phase2-fallback-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+  padding: 8px 12px;
+  border: 0.5px dashed var(--wb-hairline-strong);
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: 4px;
+}
+
+/* ---------- PICO Canvas (stages/PicoCanvas.tsx) ---------- */
+.studies-v2-root .pico-canvas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(180deg, #14151B 0%, #0F1014 100%);
+  border: 0.5px solid var(--wb-hairline-strong);
+  border-radius: 6px;
+  box-shadow: var(--wb-shadow-active);
+  padding: 18px 20px 18px 20px;
+  position: relative;
+}
+.studies-v2-root .pico-canvas-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6px;
+  right: 6px;
+  height: 1px;
+  background: var(--wb-inset-top);
+  pointer-events: none;
+}
+.studies-v2-root .pico-canvas-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.studies-v2-root .pico-canvas-title {
+  font-size: 15px;
+  color: var(--wb-text-hi);
+  letter-spacing: 0.005em;
+}
+.studies-v2-root .pico-canvas-title em {
+  font-style: italic;
+  color: var(--wb-text-mid);
+  font-weight: 400;
+  margin-left: 6px;
+}
+.studies-v2-root .pico-canvas-meta {
+  font-size: 9.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+}
+
+/* SVG canvas */
+.studies-v2-root .pico-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: rgba(255, 255, 255, 0.01);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 4px;
+}
+.studies-v2-root .pico-svg .pico-node {
+  cursor: pointer;
+  transition: transform 180ms ease-out;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.studies-v2-root .pico-svg .pico-node.framed {
+  cursor: pointer;
+}
+.studies-v2-root .pico-svg .pico-node.focused {
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+.studies-v2-root .pico-svg .pico-node.placeholder text {
+  font-style: italic;
+}
+@media (prefers-reduced-motion: reduce) {
+  .studies-v2-root .pico-svg .pico-node { transition: none; }
+}
+
+/* Inline edit input (foreignObject inside SVG node) */
+.studies-v2-root .pico-edit-input {
+  width: 100%;
+  height: 28px;
+  padding: 4px 8px;
+  font-size: 13.5px;
+  color: var(--wb-text-hi);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--wb-teal);
+  border-radius: 4px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+}
+.studies-v2-root .pico-edit-input::placeholder {
+  color: var(--wb-text-low);
+  font-style: italic;
+}
+.studies-v2-root .pico-edit-save {
+  width: 46px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wb-text-hi);
+  background: rgba(45, 212, 191, 0.12);
+  border: 0.5px solid rgba(45, 212, 191, 0.45);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Sub-strip: populations summary + blocker count */
+.studies-v2-root .pico-substrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 0.5px solid var(--wb-hairline);
+  border-bottom: 0.5px solid var(--wb-hairline);
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: 4px;
+}
+.studies-v2-root .pico-substrip-pop {
+  font-size: 12.5px;
+  color: var(--wb-text-hi);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.studies-v2-root .pico-substrip-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+  flex-shrink: 0;
+}
+.studies-v2-root .pico-substrip-blockers {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--wb-text-mid);
+  flex-shrink: 0;
+}
+
+/* Action bar */
+.studies-v2-root .pico-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+.studies-v2-root .pico-action-bar .pab-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.studies-v2-root .pico-action-bar .pab-status {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wb-text-mid);
+}
+.studies-v2-root .pico-action-bar .pab-meta {
+  font-size: 11px;
+  color: var(--wb-text-low);
+  font-style: italic;
+  font-family: var(--wb-font-display);
+}
+.studies-v2-root .pico-action-bar .pab-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Reusable ghost + accept buttons (scoped to v2 root) */
+.studies-v2-root .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--wb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 7px 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 0.5px solid var(--wb-hairline-strong);
+  color: var(--wb-text-hi);
+  cursor: pointer;
+  transition: background 120ms ease-out;
+}
+.studies-v2-root .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+.studies-v2-root .btn-ghost:disabled,
+.studies-v2-root .btn-ghost[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.studies-v2-root .btn-accept {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--wb-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.22) 0%, rgba(45, 212, 191, 0.10) 100%);
+  border: 0.5px solid rgba(45, 212, 191, 0.55);
+  color: var(--wb-teal);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(45, 212, 191, 0.15);
+  transition: background 120ms ease-out;
+}
+.studies-v2-root .btn-accept:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.32) 0%, rgba(45, 212, 191, 0.16) 100%);
+}
+.studies-v2-root .btn-accept.gated,
+.studies-v2-root .btn-accept:disabled,
+.studies-v2-root .btn-accept[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.studies-v2-root .pico-empty {
+  gap: 18px;
+}
+.studies-v2-root .pico-empty .pico-empty-hint {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--wb-text-low);
+}
+.studies-v2-root .pico-empty .pico-empty-eyebrow {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+  margin-top: 4px;
+}
+.studies-v2-root .pico-empty .pico-empty-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  font-family: var(--wb-font-display);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--wb-text-hi);
+  background: rgba(255, 255, 255, 0.02);
+  border: 0.5px solid var(--wb-hairline-strong);
+  border-radius: 4px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 120ms ease-out;
+}
+.studies-v2-root .pico-empty .pico-empty-textarea:focus {
+  border-color: var(--wb-teal);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+}
+.studies-v2-root .pico-empty .pico-empty-textarea::placeholder {
+  color: var(--wb-text-low);
+  font-style: italic;
+}
+.studies-v2-root .pico-empty .pico-empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
 /* ---------- Responsive breakpoints (Decision Q5) ---------- */
 @media (max-width: 1279px) {
   .studies-v2-workbench { grid-template-columns: 220px minmax(0, 1fr); }

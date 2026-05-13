@@ -432,9 +432,7 @@ export default function StudyDetailPage() {
       )}
       {activeTab === "design" && (
         v2Enabled ? (
-          <CompilerWorkbench study={study}>
-            <StudyDesignWorkbench study={study} />
-          </CompilerWorkbench>
+          <CompilerWorkbench study={study} />
         ) : (
           <StudyDesignWorkbench study={study} />
         )
