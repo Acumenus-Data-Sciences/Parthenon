@@ -1151,6 +1151,272 @@
   .studies-v2-root .cohort-triptych { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ---------- Phase 4: Single-CDM Feasibility View (station 05) ---------- */
+.studies-v2-root .feasibility-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.studies-v2-root .feasibility-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.studies-v2-root .feasibility-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.studies-v2-root .feasibility-header-eyebrow {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+}
+.studies-v2-root .feasibility-header-title {
+  font-size: 16px;
+  letter-spacing: 0.005em;
+  color: var(--wb-text-hi);
+  margin: 0;
+}
+.studies-v2-root .feasibility-header-meta {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--wb-text-mid);
+}
+.studies-v2-root .feasibility-header-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 340px;
+}
+
+.studies-v2-root .feasibility-running {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--wb-text-mid);
+  background: rgba(255, 255, 255, 0.02);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 6px;
+}
+
+.studies-v2-root .feasibility-empty {
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--wb-text-mid);
+  padding: 28px 30px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 0.5px dashed var(--wb-hairline-strong);
+  border-radius: 6px;
+}
+
+.studies-v2-root .feasibility-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.studies-v2-root .feasibility-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(180deg, var(--wb-slate-1) 0%, var(--wb-slate-2) 100%);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 6px;
+  padding: 14px 14px 36px 14px;
+  min-height: 120px;
+  box-shadow: inset 0 1px 0 var(--wb-inset-top);
+  cursor: pointer;
+  transition: border-color 120ms ease-out;
+}
+.studies-v2-root .feasibility-card:hover {
+  border-color: var(--wb-hairline-strong);
+}
+.studies-v2-root .feasibility-card-eyebrow {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--wb-text-low);
+  text-transform: uppercase;
+}
+.studies-v2-root .feasibility-card-value {
+  font-size: 24px;
+  line-height: 1.1;
+  color: var(--wb-text-hi);
+  letter-spacing: 0.005em;
+  margin-top: 2px;
+}
+.studies-v2-root .feasibility-card-sublabel {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--wb-text-mid);
+}
+.studies-v2-root .feasibility-card-status {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 0.5px solid var(--wb-hairline-strong);
+}
+.studies-v2-root .feasibility-card.ready .feasibility-card-status {
+  background: rgba(45, 212, 191, 0.10);
+  border-color: rgba(45, 212, 191, 0.4);
+  color: var(--wb-teal);
+}
+.studies-v2-root .feasibility-card.partial .feasibility-card-status {
+  background: rgba(201, 162, 39, 0.10);
+  border-color: rgba(201, 162, 39, 0.4);
+  color: var(--wb-gold);
+}
+.studies-v2-root .feasibility-card.blocked {
+  border-color: rgba(155, 27, 48, 0.5);
+}
+.studies-v2-root .feasibility-card.blocked .feasibility-card-status {
+  background: rgba(155, 27, 48, 0.12);
+  border-color: rgba(155, 27, 48, 0.5);
+  color: var(--wb-crimson);
+}
+
+.studies-v2-root .feasibility-attrition {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 6px;
+}
+.studies-v2-root .feasibility-attrition-head {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+}
+.studies-v2-root .feasibility-attrition-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.studies-v2-root .feasibility-attrition-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 4fr) minmax(70px, auto);
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.studies-v2-root .feasibility-attrition-name {
+  color: var(--wb-text-mid);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.studies-v2-root .feasibility-attrition-track {
+  display: block;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.studies-v2-root .feasibility-attrition-bar {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(45, 212, 191, 0.55) 0%, rgba(45, 212, 191, 0.85) 100%);
+}
+.studies-v2-root .feasibility-attrition-count {
+  color: var(--wb-text-hi);
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+.studies-v2-root .feasibility-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.studies-v2-root .feasibility-issues-head {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wb-text-low);
+}
+.studies-v2-root .feasibility-issues-empty {
+  font-size: 11px;
+  color: var(--wb-text-mid);
+  letter-spacing: 0.02em;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 4px;
+}
+.studies-v2-root .feasibility-issues-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.studies-v2-root .feasibility-issue-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 0.5px solid var(--wb-hairline);
+  border-radius: 4px;
+  font-size: 11.5px;
+  color: var(--wb-text-hi);
+}
+.studies-v2-root .feasibility-issue-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.studies-v2-root .feasibility-issue-dot.warning {
+  background: var(--wb-gold);
+}
+.studies-v2-root .feasibility-issue-dot.critical {
+  background: var(--wb-gold);
+}
+.studies-v2-root .feasibility-issue-message {
+  flex: 1;
+  min-width: 0;
+  letter-spacing: 0.01em;
+}
+.studies-v2-root .feasibility-issue-resolve {
+  flex-shrink: 0;
+}
+
+/* Feasibility responsive collapse */
+@media (max-width: 1279px) {
+  .studies-v2-root .feasibility-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 959px) {
+  .studies-v2-root .feasibility-grid { grid-template-columns: minmax(0, 1fr); }
+  .studies-v2-root .feasibility-attrition-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(60px, auto);
+  }
+}
+
 /* ---------- Responsive breakpoints (Decision Q5) ---------- */
 @media (max-width: 1279px) {
   .studies-v2-workbench { grid-template-columns: 220px minmax(0, 1fr); }

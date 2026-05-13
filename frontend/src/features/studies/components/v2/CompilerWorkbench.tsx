@@ -20,6 +20,7 @@ import { PicoCanvas } from "./stages/PicoCanvas";
 import { PhenotypeMatrix } from "./stages/PhenotypeMatrix";
 import { ConceptSetMatrix } from "./stages/ConceptSetMatrix";
 import { CohortTriptych } from "./stages/CohortTriptych";
+import { FeasibilityView } from "./stages/FeasibilityView";
 import { AnalysisMatrix } from "./stages/AnalysisMatrix";
 
 // Phase 2 — CompilerWorkbench now owns its data.
@@ -221,6 +222,8 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
             <ConceptSetMatrix workbench={wb} />
           ) : activeStageId === "04" ? (
             <CohortTriptych workbench={wb} />
+          ) : activeStageId === "05" ? (
+            <FeasibilityView workbench={wb} />
           ) : activeStageId === "06" ? (
             <AnalysisMatrix workbench={wb} />
           ) : (
