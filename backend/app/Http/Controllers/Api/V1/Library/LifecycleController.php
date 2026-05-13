@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Library;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Library\BulkArchiveRequest;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
@@ -61,6 +62,51 @@ class LifecycleController extends Controller
         $item->restore_lifecycle($request->user()); // @phpstan-ignore-line — trait method
 
         return response()->json(['id' => $item->id, 'status' => $item->status->value]);
+    }
+
+    public function bulkArchive(BulkArchiveRequest $request, string $entity): JsonResponse
+    {
+        return $this->bulk($request, $entity, 'archive', fn ($item, $user) => $item->archive($user));
+    }
+
+    public function bulkRestore(BulkArchiveRequest $request, string $entity): JsonResponse
+    {
+        return $this->bulk($request, $entity, 'restoreLifecycle', fn ($item, $user) => $item->restore_lifecycle($user));
+    }
+
+    private function bulk(BulkArchiveRequest $request, string $entity, string $ability, \Closure $action): JsonResponse
+    {
+        abort_unless(isset(self::ENTITY_MAP[$entity]), 404);
+
+        /** @var class-string<Model> $class */
+        $class = self::ENTITY_MAP[$entity];
+        /** @var array<int, int> $ids */
+        $ids = $request->input('ids');
+
+        $items = $class::query()
+            ->withoutGlobalScope(LibraryDefaultScope::class)
+            ->whereIn('id', $ids)
+            ->get();
+
+        $done = [];
+        $skipped = [];
+
+        foreach ($items as $item) {
+            if ($request->user()->can($ability, $item)) {
+                $action($item, $request->user());
+                $done[] = $item->id;
+            } else {
+                $skipped[] = $item->id;
+            }
+        }
+
+        $missing = array_values(array_diff($ids, $items->pluck('id')->all()));
+
+        return response()->json([
+            'done' => $done,
+            'skipped' => $skipped,
+            'missing' => $missing,
+        ]);
     }
 
     private function resolve(string $entity, int $id): Model

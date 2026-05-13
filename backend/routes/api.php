@@ -154,6 +154,7 @@ use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\VsacController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
 use App\Http\Controllers\Api\V1\WikiController as AiWikiController;
+use App\Http\Requests\Library\BulkArchiveRequest;
 use App\Services\GIS\SpatialStatsProxy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -2172,6 +2173,16 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
                         ->{$action}($request, $entity, $id),
                 )->whereNumber('id');
             }
+            Route::post(
+                "/{$entity}/bulk-archive",
+                fn (BulkArchiveRequest $request) => app(LifecycleController::class)
+                    ->bulkArchive($request, $entity),
+            );
+            Route::post(
+                "/{$entity}/bulk-restore",
+                fn (BulkArchiveRequest $request) => app(LifecycleController::class)
+                    ->bulkRestore($request, $entity),
+            );
         });
     }
 });
