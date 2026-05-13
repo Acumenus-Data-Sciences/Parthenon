@@ -17,6 +17,10 @@ import { StudyDesignWorkbench } from "../StudyDesignWorkbench";
 import { IdentityStrip } from "./IdentityStrip";
 import { PipelineRail, type PipelineStage, type PipelineStageState } from "./PipelineRail";
 import { PicoCanvas } from "./stages/PicoCanvas";
+import { PhenotypeMatrix } from "./stages/PhenotypeMatrix";
+import { ConceptSetMatrix } from "./stages/ConceptSetMatrix";
+import { CohortTriptych } from "./stages/CohortTriptych";
+import { AnalysisMatrix } from "./stages/AnalysisMatrix";
 
 // Phase 2 — CompilerWorkbench now owns its data.
 //
@@ -211,6 +215,14 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
               isGenerating={wb.generateIntent.isPending}
               generationGate={wb.intentGenerationGate}
             />
+          ) : activeStageId === "02" ? (
+            <PhenotypeMatrix workbench={wb} />
+          ) : activeStageId === "03" ? (
+            <ConceptSetMatrix workbench={wb} />
+          ) : activeStageId === "04" ? (
+            <CohortTriptych workbench={wb} />
+          ) : activeStageId === "06" ? (
+            <AnalysisMatrix workbench={wb} />
           ) : (
             <div className="phase2-fallback">
               <div className="phase2-fallback-eyebrow wb-mono">
