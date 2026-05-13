@@ -1,3 +1,9 @@
+---
+doc_type: spec
+status: active
+date: 2026-05-13
+---
+
 # Pre-Publication Library — Design Spec
 
 **Date:** 2026-05-13

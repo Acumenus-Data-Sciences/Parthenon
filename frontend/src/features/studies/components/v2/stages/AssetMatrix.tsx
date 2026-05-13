@@ -205,7 +205,7 @@ export function AssetMatrix<TRow extends { id: string | number }>(
           className="asset-matrix-grid"
         >
           <div role="row" className="asset-matrix-grid-head">
-            <span role="columnheader" scope="col" className="asset-matrix-cell asset-matrix-cell-check">
+            <span role="columnheader" className="asset-matrix-cell asset-matrix-cell-check">
               <input
                 type="checkbox"
                 aria-label={tAuto("studies.v2.assetMatrix.selectAll")}
@@ -220,7 +220,6 @@ export function AssetMatrix<TRow extends { id: string | number }>(
               <span
                 key={column.key}
                 role="columnheader"
-                scope="col"
                 className={cn(
                   "asset-matrix-cell asset-matrix-cell-th wb-mono",
                   column.align === "right" && "align-right",
@@ -233,7 +232,6 @@ export function AssetMatrix<TRow extends { id: string | number }>(
             {rowActions.length > 0 ? (
               <span
                 role="columnheader"
-                scope="col"
                 className="asset-matrix-cell asset-matrix-cell-actions wb-mono"
               >
                 {tAuto("studies.v2.assetMatrix.actions")}
