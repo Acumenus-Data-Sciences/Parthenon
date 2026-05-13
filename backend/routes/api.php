@@ -98,6 +98,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\InvestigationExportController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
+use App\Http\Controllers\Api\V1\Library\LifecycleController;
 use App\Http\Controllers\Api\V1\ManagedShinyLaunchController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\MorpheusDashboardController;
@@ -2147,6 +2148,32 @@ Route::prefix('v1/survey-conduct')->middleware(['auth:sanctum', 'permission:surv
 Route::prefix('v1/survey-public')->group(function () {
     Route::get('/{token}', [PublicSurveyController::class, 'show']);
     Route::post('/{token}/responses', [PublicSurveyController::class, 'submit']);
+});
+
+// ── Library lifecycle (promote / archive / restore) ──────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    foreach ([
+        'concept-sets' => 'concept-sets',
+        'cohort-definitions' => 'cohorts',
+        'incidence-rate-analyses' => 'analyses',
+        'pathway-analyses' => 'analyses',
+        'estimation-analyses' => 'analyses',
+        'prediction-analyses' => 'analyses',
+        'feature-analyses' => 'analyses',
+        'sccs-analyses' => 'analyses',
+        'evidence-synthesis-analyses' => 'analyses',
+        'self-controlled-cohort-analyses' => 'analyses',
+    ] as $entity => $permDomain) {
+        Route::middleware("permission:{$permDomain}.edit")->group(function () use ($entity) {
+            foreach (['promote', 'archive', 'restore'] as $action) {
+                Route::post(
+                    "/{$entity}/{id}/{$action}",
+                    fn (Request $request, int $id) => app(LifecycleController::class)
+                        ->{$action}($request, $entity, $id),
+                )->whereNumber('id');
+            }
+        });
+    }
 });
 
 // Catch-all for unknown API routes
