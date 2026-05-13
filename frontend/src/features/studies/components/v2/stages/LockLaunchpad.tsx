@@ -44,7 +44,6 @@ interface LockLaunchpadProps {
     | "lockDesignVersion"
     | "lockGateMessage"
     | "lockConfirmOpen"
-    | "setLockConfirmOpen"
   >;
   /** Study title for the headline. */
   studyTitle: string;
@@ -250,7 +249,6 @@ export function LockLaunchpad({
     lockDesignVersion,
     lockGateMessage,
     lockConfirmOpen,
-    setLockConfirmOpen,
   } = workbench;
 
   const readiness = lockReadinessQuery.data ?? null;
@@ -305,26 +303,53 @@ export function LockLaunchpad({
   const { ready, needsAcknowledge } = isReadyToLock(preflightItems, acknowledged);
   const canSubmitLock = ready && selectedSession != null && selectedVersion != null && !isLockedVersion;
 
-  // When `lockConfirmOpen` flips true the gate passed; fire the confirm
-  // mutation and schedule the seal animation timer. State updates happen
-  // inside the timeout callback (external-event handler) so we don't run
-  // afoul of react-hooks/set-state-in-effect.
-  const sealRunning = useRef(false);
+  // C-03/H-03 refactor: drive the seal animation directly off the mutation
+  // status instead of coupling an 820 ms timer to `lockConfirmOpen`.
+  //
+  // Sequence:
+  //   1. User clicks Lock → setSealPhase("stamping") + stampStartedAt timestamp + handleLockVersionRequest()
+  //   2. The hook checks readiness; if OK, sets lockConfirmOpen=true
+  //   3. Effect (A) sees lockConfirmOpen=true, fires the actual lock mutation (handleConfirmLock)
+  //   4. The hook closes lockConfirmOpen on success/error in its own onSuccess/onError callbacks
+  //   5. Effect (B) sees lockDesignVersion.isSuccess + sealPhase="stamping", waits out the
+  //      remainder of the 800 ms wax-seal animation, then advances to station 08
+  //   6. Effect (C) sees lockDesignVersion.isError + sealPhase="stamping", rewinds to idle
+  //
+  // The prev-gate-message render-time check above (lines 289-302) still
+  // catches the case where the gate refuses BEFORE the mutation runs.
+  const sealStartedAtRef = useRef<number | null>(null);
+
+  // (A) gate passed → fire the mutation
   useEffect(() => {
-    if (!lockConfirmOpen || sealRunning.current) return;
-    sealRunning.current = true;
+    if (!lockConfirmOpen) return;
     handleConfirmLock();
+  }, [lockConfirmOpen, handleConfirmLock]);
+
+  // (B) mutation success → hold for minimum animation duration, then advance
+  useEffect(() => {
+    if (!lockDesignVersion.isSuccess || sealPhase !== "stamping") return;
+    const startedAt = sealStartedAtRef.current ?? Date.now();
+    const elapsed = Date.now() - startedAt;
+    const remaining = Math.max(0, 800 - elapsed);
     const timer = window.setTimeout(() => {
       setSealPhase("done");
+      sealStartedAtRef.current = null;
       onNavigateStation("08");
-      setLockConfirmOpen(false);
-      sealRunning.current = false;
-    }, 820);
-    return () => {
-      window.clearTimeout(timer);
-      sealRunning.current = false;
-    };
-  }, [lockConfirmOpen, handleConfirmLock, onNavigateStation, setLockConfirmOpen]);
+    }, remaining);
+    return () => window.clearTimeout(timer);
+  }, [lockDesignVersion.isSuccess, sealPhase, onNavigateStation]);
+
+  // (C) mutation error → rewind the seal. Use the render-time prev-value
+  // comparison pattern (consistent with prevGateMessage above) to avoid
+  // the react-hooks/set-state-in-effect lint rule. The stale ref value is
+  // overwritten by the next `lockClicked` so we don't need to clear it here.
+  const [prevIsError, setPrevIsError] = useState(lockDesignVersion.isError);
+  if (prevIsError !== lockDesignVersion.isError) {
+    setPrevIsError(lockDesignVersion.isError);
+    if (lockDesignVersion.isError && sealPhase === "stamping") {
+      setSealPhase("idle");
+    }
+  }
 
   if (isLockedVersion) {
     return (
@@ -353,6 +378,7 @@ export function LockLaunchpad({
 
   const lockClicked = (): void => {
     if (!canSubmitLock || sealPhase !== "idle" || lockDesignVersion.isPending) return;
+    sealStartedAtRef.current = Date.now();
     setSealPhase("stamping");
     void handleLockVersionRequest();
   };

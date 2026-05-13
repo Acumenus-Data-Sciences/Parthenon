@@ -196,13 +196,24 @@ export function useStudyDesignWorkbench(study: Study) {
     [createSession, selectedSession, slug, t],
   );
 
-  const handleGenerate = async () => {
-    if (!researchQuestion.trim()) return;
+  // `questionOverride` lets v2 callers pass the textarea value directly so
+  // they don't have to call setResearchQuestion + handleGenerate in the same
+  // tick (which would read the stale `researchQuestion` from closure). v1
+  // callers wire this to onClick which passes a SyntheticEvent — we narrow
+  // to string to ignore that case and fall through to the bound state.
+  const handleGenerate = async (questionOverride?: unknown) => {
+    const override =
+      typeof questionOverride === "string" ? questionOverride : undefined;
+    const candidate = (override ?? researchQuestion).trim();
+    if (!candidate) return;
+    if (override !== undefined && override !== researchQuestion) {
+      setResearchQuestion(candidate);
+    }
     const sessionId = await ensureSession();
     const version = await generateIntent.mutateAsync({
       slug,
       sessionId,
-      researchQuestion: researchQuestion.trim(),
+      researchQuestion: candidate,
     });
     setSelectedVersionId(version.id);
   };

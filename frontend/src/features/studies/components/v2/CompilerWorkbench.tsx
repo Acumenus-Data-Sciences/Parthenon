@@ -222,9 +222,13 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
               onSave={wb.handleSaveReview}
               onAccept={wb.handleAccept}
               onGenerateIntent={(question) => {
-                wb.setResearchQuestion(question);
-                void wb.handleGenerate();
+                // Pass the question through directly; the hook syncs its own
+                // state inside handleGenerate to avoid the stale-closure bug
+                // that would have fired if we called setResearchQuestion +
+                // handleGenerate in the same tick.
+                void wb.handleGenerate(question);
               }}
+              onDirtyChange={wb.setIntentReviewDirty}
               isSaving={wb.updateVersion.isPending}
               isAccepting={wb.acceptVersion.isPending}
               isGenerating={wb.generateIntent.isPending}

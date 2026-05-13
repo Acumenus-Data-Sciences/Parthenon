@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Archive, Check, Copy, Download, ExternalLink } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Archive, Check, Copy, Download, ExternalLink, Loader2 } from "lucide-react";
 import { tAuto } from "@/i18n/autoUserFacing";
 import { cn } from "@/lib/utils";
 import type { useStudyDesignWorkbench } from "../../../hooks/useStudyDesignWorkbench";
@@ -23,7 +23,7 @@ type Workbench = ReturnType<typeof useStudyDesignWorkbench>;
 interface PackageReceiptProps {
   workbench: Pick<
     Workbench,
-    "assets" | "lockReadinessQuery" | "selectedVersion"
+    "assets" | "lockReadinessQuery" | "lockDesignVersion" | "selectedVersion"
   >;
   onNavigateStation: (stationId: "07") => void;
 }
@@ -34,12 +34,21 @@ export function PackageReceipt({
   workbench,
   onNavigateStation,
 }: PackageReceiptProps): JSX.Element {
-  const { assets, lockReadinessQuery, selectedVersion } = workbench;
+  const { assets, lockReadinessQuery, lockDesignVersion, selectedVersion } = workbench;
   const readiness = lockReadinessQuery.data ?? null;
   const manifestPreview = readiness?.manifest_preview ?? null;
 
   const isLocked = String(selectedVersion?.status ?? "").toLowerCase() === "locked"
     || selectedVersion?.locked_at != null;
+
+  // C-04: brief window between successful lock mutation and the versions
+  // query refetch propagating `locked_at` back. If we land on PackageReceipt
+  // during that window we'd otherwise show the gated "Lock the design first"
+  // message — confusing right after the user just clicked Lock. Detect the
+  // transition and show a finalizing-loading state instead.
+  const isFinalizing =
+    !isLocked
+    && (lockDesignVersion.isPending || lockDesignVersion.isSuccess || lockReadinessQuery.isFetching);
 
   const provenance = useMemo(
     () => buildProvenanceFields(selectedVersion, assets, readiness),
@@ -55,6 +64,35 @@ export function PackageReceipt({
   );
 
   const [toast, setToast] = useState<ToastState>("idle");
+  // H-09: track toast-reset timer in a ref so we can clear it on unmount and
+  // avoid setToast firing on a torn-down component.
+  const toastTimerRef = useRef<number | null>(null);
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current !== null) {
+        window.clearTimeout(toastTimerRef.current);
+        toastTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  if (isFinalizing) {
+    return (
+      <div className="package-receipt finalizing" role="status" aria-live="polite">
+        <div className="package-gated-eyebrow wb-mono">
+          {tAuto("studies.v2.package.eyebrow")}
+        </div>
+        <h2 className="package-gated-title wb-serif">
+          <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+          {" "}
+          {tAuto("studies.v2.package.finalizingTitle")}
+        </h2>
+        <p className="package-gated-body wb-mono">
+          {tAuto("studies.v2.package.finalizingBody")}
+        </p>
+      </div>
+    );
+  }
 
   if (!isLocked) {
     return (
@@ -83,7 +121,13 @@ export function PackageReceipt({
     try {
       await navigator.clipboard.writeText(text);
       setToast(state);
-      window.setTimeout(() => setToast("idle"), 1600);
+      if (toastTimerRef.current !== null) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+      toastTimerRef.current = window.setTimeout(() => {
+        setToast("idle");
+        toastTimerRef.current = null;
+      }, 1600);
     } catch {
       // Clipboard may be unavailable in tests or insecure contexts. Failing
       // silently is acceptable for this presentational stub.

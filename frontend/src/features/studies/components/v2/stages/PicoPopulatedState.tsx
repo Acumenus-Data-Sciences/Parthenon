@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, Loader2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,9 @@ interface PicoPopulatedStateProps {
   initialFormState: IntentFormState;
   onSave: (state: IntentFormState) => void;
   onAccept: () => void;
+  /** Reports unsaved-edit state up to the workbench so version/session
+   *  switches can prompt for confirm. Mirrors IntentReviewPanel's contract. */
+  onDirtyChange?: (dirty: boolean) => void;
   isSaving: boolean;
   isAccepting: boolean;
 }
@@ -31,28 +34,41 @@ export function PicoPopulatedState({
   initialFormState,
   onSave,
   onAccept,
+  onDirtyChange,
   isSaving,
   isAccepting,
 }: PicoPopulatedStateProps) {
   const { t } = useTranslation("app");
 
   const [formState, setFormState] = useState<IntentFormState>(initialFormState);
-  // Re-anchor baseline + form state when the version's updated_at changes
-  // (parent invalidates+refetches after save). Mirrors IntentReviewPanel's
-  // "storing information from previous renders" pattern.
+  // Re-anchor baseline when the version's updated_at changes (after parent's
+  // save mutation invalidates+refetches). Mirrors IntentReviewPanel's narrower
+  // pattern: only reset formState if it MATCHES the previous baseline (i.e.
+  // the user wasn't editing). Otherwise keep their in-flight edits and just
+  // bump the baseline so subsequent dirty checks measure against the
+  // server-confirmed value. Prevents the type-fast-then-save race where the
+  // user's keystrokes after Save fire would otherwise be discarded.
   const [baselineFormState, setBaselineFormState] =
     useState<IntentFormState>(initialFormState);
   const [trackedUpdatedAt, setTrackedUpdatedAt] = useState(version.updated_at);
   if (trackedUpdatedAt !== version.updated_at) {
     setTrackedUpdatedAt(version.updated_at);
+    const formMatchesBaseline = JSON.stringify(formState) === JSON.stringify(baselineFormState);
     setBaselineFormState(initialFormState);
-    setFormState(initialFormState);
+    if (formMatchesBaseline) {
+      setFormState(initialFormState);
+    }
   }
 
   const isDirty = useMemo(
     () => JSON.stringify(formState) !== JSON.stringify(baselineFormState),
     [formState, baselineFormState],
   );
+  // Report dirty state back to the workbench so version/session switches can
+  // prompt for confirm via window.confirm("Discard edits?"). Matches v1.
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
   const isImmutable = ["accepted", "compiled", "locked"].includes(version.status);
   const lintIssues = version.lint_results_json?.issues ?? [];
   const blockingLint = lintIssues.filter((issue) => issue.severity === "blocking");

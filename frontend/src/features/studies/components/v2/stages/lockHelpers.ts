@@ -6,8 +6,11 @@ import type {
 import {
   arrayValue,
   recordValue,
+  specToForm,
   textValue,
+  versionSpec,
 } from "../../workbench/studyDesignWorkbenchHelpers";
+import { buildIntentReviewAssistance } from "../../studyDesignIntentAssistance";
 
 // Pure data helpers for LockLaunchpad — preflight checklist derivation only.
 // Provenance + manifest helpers live in `./lockProvenance.ts` so each file
@@ -109,13 +112,14 @@ function countAssetsByType(
 
 function countOpenQuestions(version: StudyDesignVersion | null): number {
   if (!version) return 0;
-  // Open questions live on the version's lint or assistance payload. We
-  // probe a couple of shapes defensively because this surface has evolved.
-  const spec = recordValue(version.spec_json) ?? recordValue(version.normalized_spec_json);
-  if (!spec) return 0;
-  const open = spec.open_questions ?? spec.openQuestions;
-  if (Array.isArray(open)) return open.filter((entry) => entry != null).length;
-  return 0;
+  // Use the same pipeline v1 IntentReviewPanel uses so v2 Lock screen agrees
+  // with the v1 review screen. Going through buildIntentReviewAssistance
+  // (rather than probing spec_json.open_questions directly) is the
+  // authoritative source — open questions are derived from lint_results +
+  // assistance heuristics, not stored as a flat list on the spec.
+  const formState = specToForm(versionSpec(version));
+  const assistance = buildIntentReviewAssistance(version, formState);
+  return assistance.openQuestions.length;
 }
 
 function intentPreflight(
@@ -329,7 +333,7 @@ function analysesPreflight(
   readiness: StudyDesignLockReadiness | null,
 ): PreflightItem {
   const summaryCount = readiness?.summary?.materialized_analysis_plans;
-  const drafts = assets.filter((asset) => asset.asset_type === "analysis_plan_draft");
+  const drafts = assets.filter((asset) => asset.asset_type === "analysis_plan");
   const materialized = typeof summaryCount === "number"
     ? summaryCount
     : drafts.filter((asset) => asset.materialized_id != null).length;

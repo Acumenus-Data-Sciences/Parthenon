@@ -56,7 +56,7 @@ function deriveVocabularySnapshot(version: StudyDesignVersion | null): string {
 
 function deriveHadesVersion(assets: ReadonlyArray<StudyDesignAsset>): string {
   for (const asset of assets) {
-    if (asset.asset_type !== "analysis_plan_draft") continue;
+    if (asset.asset_type !== "analysis_plan") continue;
     const payload = recordValue(asset.draft_payload_json);
     if (!payload) continue;
     const capability = recordValue(payload.hades_capability);
@@ -83,7 +83,7 @@ function deriveProtocolFields(
     ?? textValue(provenance?.imported_at);
   return {
     file: fileName ?? "manual entry",
-    pages: typeof pageCount === "number" ? `${pageCount} pages` : (fileName ? "—" : "—"),
+    pages: typeof pageCount === "number" ? `${pageCount} pages` : "—",
     importedAt: importedAt ? fmtDate(importedAt) : fmtDate(version.created_at),
   };
 }
@@ -142,7 +142,7 @@ export function buildManifestNodes(
   const analysisCount =
     typeof contents?.analysis_plans === "number"
       ? contents.analysis_plans
-      : assets.filter((a) => a.asset_type === "analysis_plan_draft" && a.materialized_id != null).length;
+      : assets.filter((a) => a.asset_type === "analysis_plan" && a.materialized_id != null).length;
   const studyDir = `study-${version?.session_id ?? "session"}-v${version?.version_number ?? "1"}`;
   return [
     { depth: 0, label: `${studyDir}/`, meta: "ROOT" },

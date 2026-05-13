@@ -1395,7 +1395,7 @@
   background: var(--wb-gold);
 }
 .studies-v2-root .feasibility-issue-dot.critical {
-  background: var(--wb-gold);
+  background: var(--wb-crimson);
 }
 .studies-v2-root .feasibility-issue-message {
   flex: 1;

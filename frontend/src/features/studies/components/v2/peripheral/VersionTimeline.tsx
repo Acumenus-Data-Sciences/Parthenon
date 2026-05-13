@@ -7,7 +7,6 @@ import {
   buildDiffRows,
   relativeTimeFromNow,
   toneFromStatus,
-  type VersionTone,
 } from "../stages/packageHelpers";
 
 // Horizontal Version Timeline strip — rendered between the IdentityStrip
@@ -60,10 +59,6 @@ function resolvePair(
   // Left = older, right = newer.
   if (a.version_number <= b.version_number) return { left: a, right: b };
   return { left: b, right: a };
-}
-
-function toneSelector(tone: VersionTone): string {
-  return tone;
 }
 
 export function VersionTimeline({
@@ -148,7 +143,7 @@ export function VersionTimeline({
                 key={version.id}
                 className={cn(
                   "vt-node",
-                  toneSelector(tone),
+                  tone,
                   isActive && "active",
                   isSelected && "selected",
                 )}

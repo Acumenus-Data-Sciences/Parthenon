@@ -43,6 +43,9 @@ interface PicoCanvasProps {
   onSave: (state: IntentFormState) => void;
   onAccept: () => void;
   onGenerateIntent?: (researchQuestion: string) => void;
+  /** Reports unsaved-edit state up to the workbench so version/session
+   *  switches can prompt for confirm. Forwarded to PicoPopulatedState. */
+  onDirtyChange?: (dirty: boolean) => void;
   isSaving?: boolean;
   isAccepting?: boolean;
   isGenerating?: boolean;
@@ -57,6 +60,7 @@ export function PicoCanvas({
   onSave,
   onAccept,
   onGenerateIntent,
+  onDirtyChange,
   isSaving = false,
   isAccepting = false,
   isGenerating = false,
@@ -80,6 +84,7 @@ export function PicoCanvas({
       initialFormState={initialFormState}
       onSave={onSave}
       onAccept={onAccept}
+      onDirtyChange={onDirtyChange}
       isSaving={isSaving}
       isAccepting={isAccepting}
     />

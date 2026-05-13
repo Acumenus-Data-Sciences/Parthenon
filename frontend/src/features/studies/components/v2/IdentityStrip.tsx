@@ -58,12 +58,12 @@ export function IdentityStrip({ study }: IdentityStripProps) {
         <span className="breadcrumb" aria-label={tAuto("studies.v2.breadcrumb")}>
           Studies&nbsp;/&nbsp;<b>{shortName(study)}</b>&nbsp;/&nbsp;Design
         </span>
+        {/* Decorative until Phase 3 wires the session switcher menu. Plain
+            span (no role="button", no tabIndex) so screen readers and the
+            keyboard don't treat it as an actionable control. */}
         <span
           className="session-chip"
-          role="button"
-          tabIndex={0}
-          aria-label={tAuto("studies.v2.switchSession")}
-          aria-disabled="true"
+          title={tAuto("studies.v2.switchSessionComingSoon")}
         >
           <span className="session-name">{session}</span>
           <span className="caret" aria-hidden="true">▾</span>
@@ -76,23 +76,29 @@ export function IdentityStrip({ study }: IdentityStripProps) {
         </div>
       </div>
       <div className="id-right">
+        {/* Inert until Phase 3 wires the protocol upload. Using `disabled`
+            (not aria-disabled) keeps the button out of the tab order and
+            screen-reader actionables. */}
         <button
           type="button"
           className="icon-btn"
-          aria-label={tAuto("studies.v2.uploadProtocol")}
-          title={tAuto("studies.v2.uploadProtocol")}
-          aria-disabled="true"
+          aria-label={tAuto("studies.v2.uploadProtocolComingSoon")}
+          title={tAuto("studies.v2.uploadProtocolComingSoon")}
+          disabled
         >
           <Upload size={13} aria-hidden="true" />
         </button>
         <span className="pill gold">{versionLabel}</span>
         <span className="pi-tag">PI:&nbsp;{piName}</span>
         <span className="pill slate">{stateLabel}</span>
+        {/* Identity-strip Lock CTA is a status hint only — the real Lock
+            action lives on Station 07. Disabled so it doesn't compete for
+            keyboard focus with the actionable button on the launchpad. */}
         <button
           type="button"
           className="btn-lock"
-          aria-disabled="true"
-          title={tAuto("studies.v2.resolveBlockers")}
+          disabled
+          title={tAuto("studies.v2.lockHintGoToStation07")}
         >
           Lock {study.protocol_version ?? "v1"}
         </button>
