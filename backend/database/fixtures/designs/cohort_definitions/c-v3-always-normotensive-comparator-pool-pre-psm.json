@@ -1,7 +1,7 @@
 {
-    "id": 5420,
-    "name": "C - Potential normotensive comparator pool (pre-PSM)",
-    "description": null,
+    "id": 5425,
+    "name": "C_v3 - Always-normotensive comparator pool (pre-PSM)",
+    "description": "Adults >=18 with documented BP measurements; no HTN diagnosis; no prior CVD\/thyroid\/secondary HTN\/antihypertensives\/abnormal kidney\/eGFR<60. 5-year follow-up era. v3 simplification: always-normotensive (no SBP>=130, no DBP>=80) deferred to post-cohort SQL filter due to query cost on 17M BP rows. Effectively: no-HTN-dx pool with age and eGFR<60 exclusions.",
     "expression_json": {
         "ConceptSets": [
             {
@@ -25,6 +25,25 @@
             },
             {
                 "id": 1,
+                "name": "Diastolic blood pressure (LOINC)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3012888,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
                 "name": "Essential hypertension",
                 "expression": {
                     "items": [
@@ -208,7 +227,7 @@
                 }
             },
             {
-                "id": 2,
+                "id": 3,
                 "name": "Prior cardiovascular disease (composite)",
                 "expression": {
                     "items": [
@@ -11491,7 +11510,7 @@
                 }
             },
             {
-                "id": 3,
+                "id": 4,
                 "name": "Thyroid disease (hyper- and hypothyroidism)",
                 "expression": {
                     "items": [
@@ -15613,7 +15632,7 @@
                 }
             },
             {
-                "id": 4,
+                "id": 5,
                 "name": "Secondary hypertension",
                 "expression": {
                     "items": [
@@ -15929,7 +15948,7 @@
                 }
             },
             {
-                "id": 5,
+                "id": 6,
                 "name": "Antihypertensives (ATC C02-C09, broad)",
                 "expression": {
                     "items": [
@@ -17576,7 +17595,7 @@
                 }
             },
             {
-                "id": 6,
+                "id": 7,
                 "name": "Abnormal kidney function (CKD + AKI)",
                 "expression": {
                     "items": [
@@ -19892,6 +19911,190 @@
                         }
                     ]
                 }
+            },
+            {
+                "id": 8,
+                "name": "eGFR (estimated glomerular filtration rate, LOINC)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 1619025,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 1619026,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3016723,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3029829,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3029859,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3030104,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3045262,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3049187,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 3053283,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 36303797,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 36306178,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 36660257,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 40764999,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 40771922,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 42869913,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 46236952,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
             }
         ],
         "EndStrategy": {
@@ -19902,41 +20105,24 @@
         },
         "InclusionRules": [
             {
-                "name": "No Essential HTN diagnosis ever",
+                "name": "Age >= 18 at index",
                 "expression": {
                     "Type": "ALL",
-                    "Count": 0,
+                    "Count": 1,
                     "Groups": [],
-                    "CriteriaList": [
+                    "CriteriaList": [],
+                    "DemographicCriteriaList": [
                         {
-                            "Criteria": {
-                                "ConditionOccurrence": {
-                                    "CodesetId": 1
-                                }
-                            },
-                            "Occurrence": {
-                                "Type": 0,
-                                "Count": 0
-                            },
-                            "StartWindow": {
-                                "End": {
-                                    "Days": 0,
-                                    "Coeff": -1
-                                },
-                                "Start": {
-                                    "Days": null,
-                                    "Coeff": -1
-                                },
-                                "UseEventEnd": false
-                            },
-                            "IgnoreObservationPeriod": true
+                            "Age": {
+                                "Op": "gte",
+                                "Value": 18
+                            }
                         }
-                    ],
-                    "DemographicCriteriaList": []
+                    ]
                 }
             },
             {
-                "name": "No prior cardiovascular disease",
+                "name": "No Essential HTN diagnosis ever",
                 "expression": {
                     "Type": "ALL",
                     "Count": 0,
@@ -19970,7 +20156,7 @@
                 }
             },
             {
-                "name": "No prior thyroid disease",
+                "name": "No prior cardiovascular disease",
                 "expression": {
                     "Type": "ALL",
                     "Count": 0,
@@ -20004,7 +20190,7 @@
                 }
             },
             {
-                "name": "No prior secondary hypertension",
+                "name": "No prior thyroid disease",
                 "expression": {
                     "Type": "ALL",
                     "Count": 0,
@@ -20038,6 +20224,40 @@
                 }
             },
             {
+                "name": "No prior secondary hypertension",
+                "expression": {
+                    "Type": "ALL",
+                    "Count": 0,
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "CodesetId": 5
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 0,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": null,
+                                    "Coeff": -1
+                                },
+                                "UseEventEnd": false
+                            },
+                            "IgnoreObservationPeriod": true
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                }
+            },
+            {
                 "name": "No prior antihypertensive drug exposure",
                 "expression": {
                     "Type": "ALL",
@@ -20047,7 +20267,7 @@
                         {
                             "Criteria": {
                                 "DrugExposure": {
-                                    "CodesetId": 5
+                                    "CodesetId": 6
                                 }
                             },
                             "Occurrence": {
@@ -20081,7 +20301,45 @@
                         {
                             "Criteria": {
                                 "ConditionOccurrence": {
-                                    "CodesetId": 6
+                                    "CodesetId": 7
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 0,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": null,
+                                    "Coeff": -1
+                                },
+                                "UseEventEnd": false
+                            },
+                            "IgnoreObservationPeriod": true
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                }
+            },
+            {
+                "name": "No prior eGFR < 60",
+                "expression": {
+                    "Type": "ALL",
+                    "Count": 0,
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "Measurement": {
+                                    "CodesetId": 8,
+                                    "ValueAsNumber": {
+                                        "Op": "lt",
+                                        "Value": 60
+                                    }
                                 }
                             },
                             "Occurrence": {
@@ -20137,9 +20395,9 @@
     },
     "author_id": 117,
     "is_public": false,
-    "version": 2,
-    "created_at": "2026-05-12T20:59:02.000000Z",
-    "updated_at": "2026-05-13T01:10:00.000000Z",
+    "version": 1,
+    "created_at": "2026-05-13T01:09:11.000000Z",
+    "updated_at": "2026-05-13T01:41:57.000000Z",
     "deleted_at": null,
     "tags": [
         "study-designer"
@@ -20147,8 +20405,8 @@
     "share_token": null,
     "share_expires_at": null,
     "domain": "general",
-    "quality_tier": "study-ready",
-    "deprecated_at": "2026-05-13T01:10:00.000000Z",
+    "quality_tier": "draft",
+    "deprecated_at": null,
     "superseded_by": null,
     "tenant_id": 1
 }

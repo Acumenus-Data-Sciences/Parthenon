@@ -1,6 +1,6 @@
 {
-    "id": 5421,
-    "name": "O1 - MACE composite (MI + stroke + HF + death)",
+    "id": 5426,
+    "name": "O1_v3 - MACE composite (MI + stroke + inpatient HF + death)",
     "description": null,
     "expression_json": {
         "ConceptSets": [
@@ -8017,7 +8017,34 @@
                 {
                     "ConditionOccurrence": {
                         "First": true,
-                        "CodesetId": 2
+                        "CodesetId": 2,
+                        "VisitType": [
+                            {
+                                "DOMAIN_ID": "Visit",
+                                "CONCEPT_ID": 9201,
+                                "CONCEPT_CODE": "IP",
+                                "CONCEPT_NAME": "Inpatient Visit",
+                                "VOCABULARY_ID": "Visit",
+                                "INVALID_REASON": null,
+                                "CONCEPT_CLASS_ID": "Visit",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            {
+                                "DOMAIN_ID": "Visit",
+                                "CONCEPT_ID": 262,
+                                "CONCEPT_CODE": "ERIP",
+                                "CONCEPT_NAME": "Emergency Room and Inpatient Visit",
+                                "VOCABULARY_ID": "Visit",
+                                "INVALID_REASON": null,
+                                "CONCEPT_CLASS_ID": "Visit",
+                                "STANDARD_CONCEPT": "S"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Death": {
+                        "First": true
                     }
                 }
             ],
@@ -8038,8 +8065,8 @@
     "author_id": 117,
     "is_public": false,
     "version": 1,
-    "created_at": "2026-05-12T20:59:03.000000Z",
-    "updated_at": "2026-05-13T01:10:00.000000Z",
+    "created_at": "2026-05-13T01:09:11.000000Z",
+    "updated_at": "2026-05-13T01:09:11.000000Z",
     "deleted_at": null,
     "tags": [
         "study-designer"
@@ -8048,7 +8075,7 @@
     "share_expires_at": null,
     "domain": "general",
     "quality_tier": "draft",
-    "deprecated_at": "2026-05-13T01:10:00.000000Z",
+    "deprecated_at": null,
     "superseded_by": null,
     "tenant_id": 1
 }

@@ -1,0 +1,18 @@
+{
+    "id": 20,
+    "name": "Hypertension Study (V3): Treatment Pathways",
+    "description": "Describe treatment sequence patterns with TreatmentPatterns.",
+    "design_json": {
+        "eventCohortIds": [
+            5425,
+            5426
+        ],
+        "minEraDuration": 0,
+        "targetCohortId": 5424,
+        "periodPriorToIndex": 0
+    },
+    "author_id": 117,
+    "created_at": "2026-05-13T01:57:31.000000Z",
+    "updated_at": "2026-05-13T01:57:31.000000Z",
+    "deleted_at": null
+}

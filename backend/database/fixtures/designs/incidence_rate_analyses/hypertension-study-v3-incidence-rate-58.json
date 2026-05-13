@@ -1,0 +1,19 @@
+{
+    "id": 58,
+    "name": "Hypertension Study (V3): Incidence Rate",
+    "description": "Estimate source-specific incidence rates for linked cohorts.",
+    "design_json": {
+        "timeAtRisk": {
+            "end": 365,
+            "start": 1
+        },
+        "targetCohortId": 5424,
+        "outcomeCohortIds": [
+            5426
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-05-13T01:57:31.000000Z",
+    "updated_at": "2026-05-13T01:57:31.000000Z",
+    "deleted_at": null
+}

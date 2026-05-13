@@ -1,0 +1,52 @@
+{
+    "id": 63,
+    "name": "Hypertension Study (V3): Population-Level Estimation",
+    "description": "Estimate the target-comparator effect on linked outcomes using CohortMethod.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "endAnchor": "cohort_start",
+            "timeAtRiskEnd": 1825,
+            "timeAtRiskStart": 1
+        },
+        "targetCohortId": 5424,
+        "propensityScore": {
+            "method": "matching",
+            "enabled": true
+        },
+        "outcomeCohortIds": [
+            5426,
+            5427
+        ],
+        "covariateSettings": {
+            "useDemographicsAge": true,
+            "useDemographicsGender": true,
+            "excludedCovariateConceptIds": [
+                312648,
+                317898,
+                320128,
+                4034031,
+                4058987,
+                4083723,
+                4148205,
+                4159755,
+                4180283,
+                4215640,
+                4217486,
+                4263067,
+                4269358,
+                4302591,
+                4321603,
+                45757787,
+                3012888,
+                3004249
+            ],
+            "useConditionOccurrenceLongTerm": true
+        },
+        "comparatorCohortId": 5425
+    },
+    "author_id": 117,
+    "created_at": "2026-05-13T01:57:32.000000Z",
+    "updated_at": "2026-05-13T01:57:32.000000Z",
+    "deleted_at": null
+}
