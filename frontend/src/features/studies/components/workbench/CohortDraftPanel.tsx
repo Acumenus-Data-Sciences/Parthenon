@@ -299,6 +299,7 @@ function CohortDraftCard({
   );
   const linkRoleOptions = Array.from(new Set([selectedLinkRole, ...roleOptions].filter(Boolean)));
   const verified = asset.verification_status === "verified";
+  const canAccept = verified || asset.verification_status === "partial";
   const accepted = asset.status === "accepted";
   const materialized = asset.status === "materialized" && asset.materialized_id != null;
   const studyCohortId = typeof asset.provenance_json?.study_cohort_id === "number" ? asset.provenance_json.study_cohort_id : null;
@@ -384,10 +385,11 @@ function CohortDraftCard({
               <button
                 type="button"
                 onClick={() => onReview(asset, "accept")}
-                disabled={isReviewing || !verified}
+                disabled={isReviewing || !canAccept}
                 className="btn btn-primary btn-sm"
+                title={!verified && canAccept ? "Accept with verification warnings acknowledged" : undefined}
               >
-                {t("studies.workbench.actions.accept")}
+                {!verified && canAccept ? `${t("studies.workbench.actions.accept")} (with warnings)` : t("studies.workbench.actions.accept")}
               </button>
               <button type="button" onClick={() => onReview(asset, "defer")} disabled={isReviewing} className="btn btn-ghost btn-sm">
                 {t("studies.workbench.actions.defer")}

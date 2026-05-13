@@ -254,6 +254,7 @@ export function AnalysisPlanPanel({
             const warnings = analysisPlanIssues(payload.warnings, asset.verification_json?.warnings);
             const parameterRows = analysisPlanParameterRows(payload);
             const verified = asset.verification_status === "verified";
+            const canAccept = verified || asset.verification_status === "partial";
             const accepted = asset.status === "accepted";
             const rejected = asset.status === "rejected";
             const materialized = asset.status === "materialized" && asset.materialized_id != null;
@@ -335,10 +336,11 @@ export function AnalysisPlanPanel({
                         <button
                           type="button"
                           onClick={() => onReview(asset, "accept")}
-                          disabled={isReviewing || !verified}
+                          disabled={isReviewing || !canAccept}
                           className="btn btn-primary btn-sm"
+                          title={!verified && canAccept ? "Accept with verification warnings acknowledged" : undefined}
                         >
-                          {t("studies.workbench.actions.accept")}
+                          {!verified && canAccept ? `${t("studies.workbench.actions.accept")} (with warnings)` : t("studies.workbench.actions.accept")}
                         </button>
                         <button
                           type="button"

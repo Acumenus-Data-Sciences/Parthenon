@@ -2272,7 +2272,7 @@ it('blocks analysis plan acceptance for missing HADES packages and materializes 
             'decision' => 'accept',
         ])
         ->assertStatus(422)
-        ->assertJsonPath('message', 'Only deterministically verified Study Design assets can be accepted.');
+        ->assertJsonPath('message', 'Only verified Study Design assets can be accepted. Resolve blocking issues first.');
 
     $this->actingAs($this->user)
         ->postJson("/api/v1/studies/{$this->study->slug}/design-sessions/{$sessionId}/assets/{$assetId}/analysis-plans/materialize")
@@ -2459,4 +2459,121 @@ it('rejects locked version edits and cross-study package downloads', function ()
         ->assertNotFound();
 
     expect(StudyArtifact::find($artifactId)?->metadata['sha256'] ?? null)->not->toBeNull();
+});
+
+it('rejects accept on a partial-verification asset without acknowledge_warnings', function () {
+    $session = $this->study->designSessions()->create([
+        'created_by' => $this->user->id,
+        'title' => 'Partial accept gate',
+        'source_mode' => 'protocol_upload',
+        'status' => 'reviewing',
+    ]);
+    $version = $session->versions()->create([
+        'version_number' => 1,
+        'status' => 'reviewing',
+        'intent_json' => ['research_question' => 'Q'],
+        'provenance_json' => ['source' => 'test'],
+    ]);
+    $session->update(['active_version_id' => $version->id]);
+
+    $asset = StudyDesignAsset::create([
+        'session_id' => $session->id,
+        'version_id' => $version->id,
+        'asset_type' => 'analysis_plan',
+        'status' => 'needs_review',
+        'verification_status' => 'partial',
+        'draft_payload_json' => ['title' => 'Plan with warnings'],
+        'verification_json' => [
+            'warnings' => ['Feasibility evidence is limited.'],
+            'blocking_reasons' => [],
+        ],
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson("/api/v1/studies/{$this->study->slug}/design-sessions/{$session->id}/assets/{$asset->id}/review", [
+            'decision' => 'accept',
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('message', 'This asset has verification warnings. Re-submit with acknowledge_warnings=true to accept anyway.');
+
+    expect($asset->fresh()->status->value)->toBe('needs_review');
+});
+
+it('accepts a partial-verification asset when acknowledge_warnings is true and records the acknowledgement', function () {
+    $session = $this->study->designSessions()->create([
+        'created_by' => $this->user->id,
+        'title' => 'Partial accept ack',
+        'source_mode' => 'protocol_upload',
+        'status' => 'reviewing',
+    ]);
+    $version = $session->versions()->create([
+        'version_number' => 1,
+        'status' => 'reviewing',
+        'intent_json' => ['research_question' => 'Q'],
+        'provenance_json' => ['source' => 'test'],
+    ]);
+    $session->update(['active_version_id' => $version->id]);
+
+    $asset = StudyDesignAsset::create([
+        'session_id' => $session->id,
+        'version_id' => $version->id,
+        'asset_type' => 'analysis_plan',
+        'status' => 'needs_review',
+        'verification_status' => 'partial',
+        'draft_payload_json' => ['title' => 'Plan with warnings'],
+        'verification_json' => [
+            'warnings' => ['Feasibility evidence is limited.', 'HADES package version is older than recommended.'],
+            'blocking_reasons' => [],
+        ],
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson("/api/v1/studies/{$this->study->slug}/design-sessions/{$session->id}/assets/{$asset->id}/review", [
+            'decision' => 'accept',
+            'acknowledge_warnings' => true,
+            'review_notes' => 'Warnings reviewed; proceeding.',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.status', 'accepted')
+        ->assertJsonPath('data.verification_json.acknowledged_warnings.by', $this->user->id)
+        ->assertJsonPath('data.verification_json.acknowledged_warnings.warning_count', 2);
+});
+
+it('rejects accept on a blocked-verification asset regardless of acknowledge_warnings', function () {
+    $session = $this->study->designSessions()->create([
+        'created_by' => $this->user->id,
+        'title' => 'Blocked accept gate',
+        'source_mode' => 'protocol_upload',
+        'status' => 'reviewing',
+    ]);
+    $version = $session->versions()->create([
+        'version_number' => 1,
+        'status' => 'reviewing',
+        'intent_json' => ['research_question' => 'Q'],
+        'provenance_json' => ['source' => 'test'],
+    ]);
+    $session->update(['active_version_id' => $version->id]);
+
+    $asset = StudyDesignAsset::create([
+        'session_id' => $session->id,
+        'version_id' => $version->id,
+        'asset_type' => 'analysis_plan',
+        'status' => 'needs_review',
+        'verification_status' => 'blocked',
+        'draft_payload_json' => ['title' => 'Plan with blockers'],
+        'verification_json' => [
+            'warnings' => [],
+            'blocking_reasons' => ['CohortMethod is not installed.'],
+        ],
+    ]);
+
+    $this->actingAs($this->user)
+        ->postJson("/api/v1/studies/{$this->study->slug}/design-sessions/{$session->id}/assets/{$asset->id}/review", [
+            'decision' => 'accept',
+            'acknowledge_warnings' => true,
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('message', 'Only verified Study Design assets can be accepted. Resolve blocking issues first.');
+
+    expect($asset->fresh()->status->value)->toBe('needs_review');
 });
