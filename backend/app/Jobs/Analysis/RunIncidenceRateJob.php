@@ -3,22 +3,30 @@
 namespace App\Jobs\Analysis;
 
 use App\Enums\ExecutionStatus;
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
 use App\Services\Analysis\IncidenceRateService;
 use App\Traits\NotifiesOnCompletion;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class RunIncidenceRateJob implements ShouldQueue
+class RunIncidenceRateJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use NotifiesOnCompletion;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'incidence_rate:execution:'.$this->execution->id;
+    }
 
     /**
      * The number of seconds the job can run before timing out.

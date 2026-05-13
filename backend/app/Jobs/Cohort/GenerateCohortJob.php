@@ -3,20 +3,28 @@
 namespace App\Jobs\Cohort;
 
 use App\Enums\ExecutionStatus;
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
 use App\Notifications\CohortGeneratedNotification;
 use App\Services\Cohort\CohortGenerationService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class GenerateCohortJob implements ShouldQueue
+class GenerateCohortJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'cohort_generation:'.$this->cohortDefinition->id.':source:'.$this->source->id;
+    }
 
     /**
      * The number of seconds the job can run before timing out.
