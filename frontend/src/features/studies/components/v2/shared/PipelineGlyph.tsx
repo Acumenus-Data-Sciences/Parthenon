@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 // 4-stop micro-pipeline glyph used in Asset Matrix rows and Cohort Triptych
@@ -49,6 +50,22 @@ export function PipelineGlyph({ state, blocked = false, size = "sm" }: PipelineG
     ? `Pipeline blocked at ${STOPS[reachedIndex].label}`
     : `Pipeline reached ${STOPS[reachedIndex].label}`;
 
+  // Phase 5 motion polish: when the glyph's state advances, animate the
+  // newly-reached dot with a 300 ms materialize sweep. Purely visual.
+  const previousState = useRef<PipelineGlyphState | null>(null);
+  const [sweeping, setSweeping] = useState(false);
+  useEffect(() => {
+    const prev = previousState.current;
+    if (prev != null && STATE_INDEX[state] > STATE_INDEX[prev]) {
+      setSweeping(true);
+      const timer = window.setTimeout(() => setSweeping(false), 320);
+      previousState.current = state;
+      return () => window.clearTimeout(timer);
+    }
+    previousState.current = state;
+    return undefined;
+  }, [state]);
+
   return (
     <span
       className={cn("pipeline-glyph", size === "md" ? "md" : "sm")}
@@ -65,10 +82,11 @@ export function PipelineGlyph({ state, blocked = false, size = "sm" }: PipelineG
             : isReached
               ? "done"
               : "todo";
+        const showSweep = sweeping && isActive && !blocked;
 
         return (
           <span key={stop.key} className="stop">
-            <span className={cn("dot", dotClass)} aria-hidden="true" />
+            <span className={cn("dot", dotClass, showSweep && "sweeping")} aria-hidden="true" />
             <span className="label wb-mono" aria-hidden="true">{stop.glyph}</span>
             {index < STOPS.length - 1 ? (
               <span

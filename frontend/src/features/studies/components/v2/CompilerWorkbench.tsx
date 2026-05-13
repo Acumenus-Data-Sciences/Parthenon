@@ -22,6 +22,9 @@ import { ConceptSetMatrix } from "./stages/ConceptSetMatrix";
 import { CohortTriptych } from "./stages/CohortTriptych";
 import { FeasibilityView } from "./stages/FeasibilityView";
 import { AnalysisMatrix } from "./stages/AnalysisMatrix";
+import { LockLaunchpad } from "./stages/LockLaunchpad";
+import { PackageReceipt } from "./stages/PackageReceipt";
+import { VersionTimeline } from "./peripheral/VersionTimeline";
 
 // Phase 2 — CompilerWorkbench now owns its data.
 //
@@ -31,7 +34,10 @@ import { AnalysisMatrix } from "./stages/AnalysisMatrix";
 // every other station renders the existing v1 `<StudyDesignWorkbench/>` as an
 // honest "v2 stage not yet implemented" fallback until subsequent phases land.
 //
-// TODO: Phase 5 — version timeline above canvas
+// Phase 5: stations 07/08 land (LockLaunchpad + PackageReceipt) and a
+// horizontal VersionTimeline strip renders between IdentityStrip and the
+// active editor when the session has at least one version.
+//
 // TODO: Phase 3 — Upload-protocol icon wiring + session switcher menu
 // TODO: Phase 3+ — Peripheral Rail tabs become live (Evidence / Lint / etc.)
 
@@ -199,6 +205,14 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
           className="pane studies-v2-center"
           aria-label={tAuto("studies.v2.activeEditor")}
         >
+          {wb.versions.length > 0 ? (
+            <VersionTimeline
+              versions={wb.versions}
+              activeVersionId={wb.selectedVersion?.id ?? null}
+              onSelectVersion={(id) => wb.guardedSetSelectedVersion(id)}
+            />
+          ) : null}
+
           {activeStageId === "01" ? (
             <PicoCanvas
               session={wb.selectedSession}
@@ -226,6 +240,17 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
             <FeasibilityView workbench={wb} />
           ) : activeStageId === "06" ? (
             <AnalysisMatrix workbench={wb} />
+          ) : activeStageId === "07" ? (
+            <LockLaunchpad
+              workbench={wb}
+              studyTitle={study.short_title?.trim() || study.title}
+              onNavigateStation={(id) => setActiveStageId(id)}
+            />
+          ) : activeStageId === "08" ? (
+            <PackageReceipt
+              workbench={wb}
+              onNavigateStation={(id) => setActiveStageId(id)}
+            />
           ) : (
             <div className="phase2-fallback">
               <div className="phase2-fallback-eyebrow wb-mono">

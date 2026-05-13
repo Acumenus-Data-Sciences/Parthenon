@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tAuto } from "@/i18n/autoUserFacing";
@@ -48,6 +48,23 @@ export function PicoNode({
   const placeholder = value.trim().length === 0;
   const displayValue = placeholder ? meta.placeholder : value;
 
+  // Phase 5 motion polish: when a node's provenance tone transitions from
+  // `gold` (lint warning) to `teal` (cleared), play the breathing keyframe
+  // once. Strictly visual — does not affect interactivity.
+  const previousTone = useRef<ProvenanceEntry["tone"] | null>(null);
+  const [breathing, setBreathing] = useState(false);
+  useEffect(() => {
+    const prev = previousTone.current;
+    if (prev === "gold" && provenance.tone === "teal") {
+      setBreathing(true);
+      const timer = window.setTimeout(() => setBreathing(false), 220);
+      previousTone.current = provenance.tone;
+      return () => window.clearTimeout(timer);
+    }
+    previousTone.current = provenance.tone;
+    return undefined;
+  }, [provenance.tone]);
+
   // For the dashed Population frame we don't draw an inner rect — the dashed
   // border is the only chrome. For the other nodes, draw the filled card.
   const interactionX = isFramed ? frame.x + 16 : frame.x;
@@ -73,6 +90,7 @@ export function PicoNode({
         placeholder && "placeholder",
         isFramed && "framed",
         id === "outcome" && focused && "outcome-focused",
+        breathing && "breathing",
       )}
       onClick={() => onFocus(id)}
     >
