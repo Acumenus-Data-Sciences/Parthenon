@@ -1,0 +1,1240 @@
+{
+    "id": 168,
+    "name": "Chronic kidney disease",
+    "description": "Incident-CKD outcome (O2). Co-equal with MACE.",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 193782
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 197921
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 198185
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443597
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443601
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443611
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443612
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443614
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443961
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601161
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601162
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601163
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601164
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601165
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 601166
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 619681
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 619682
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 619683
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 760850
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762000
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762001
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762033
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 762034
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 765535
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 765536
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075886
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075887
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075888
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075903
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075904
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075905
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075906
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075907
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075908
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075909
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075910
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1075911
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1245004
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1340282
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4030520
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4125970
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4126449
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4128067
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4128200
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4239804
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4322556
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36679002
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36716184
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36716455
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36716947
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36717349
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 36717534
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37017104
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37017813
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37018761
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37018886
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37019193
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37163330
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37163454
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 42872405
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43020437
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43020455
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43020456
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43020457
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021835
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021836
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021852
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021853
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021854
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43021864
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531559
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531562
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531566
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531577
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531578
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 43531653
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782429
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782689
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782690
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782691
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782692
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782703
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44782717
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44784621
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44784637
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44784638
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44784639
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44784640
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792226
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792227
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792228
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792229
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792230
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792231
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792232
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792249
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792250
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792251
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792252
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792253
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792254
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44792255
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757137
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757139
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757356
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757392
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757393
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757444
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757445
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757446
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757447
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45763854
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45763855
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45768813
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45769901
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45769902
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45769903
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45769904
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45769906
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45771064
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45771067
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45771075
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45772751
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45773576
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45773688
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46270353
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46270354
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46270355
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46270356
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46270969
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46271022
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46273164
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46273514
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46273636
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284566
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284567
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284570
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284572
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284575
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284587
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284588
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284591
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284592
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284593
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284597
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284598
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284599
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284600
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284602
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46284603
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46286992
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 46287169
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "outcome",
+            "materialized_at": "2026-05-12T19:46:58+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:46:58.000000Z",
+    "updated_at": "2026-05-12T19:46:58.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

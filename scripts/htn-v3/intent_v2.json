@@ -1,0 +1,213 @@
+{
+  "study_title": "Hypertension Study (V3)",
+  "study_title_alt": "Failure of Hypertension Interventions in a Large Study Population (V3)",
+  "research_question": "Among adults aged 18 years and older with two consecutive elevated office blood pressure measurements (SBP >= 130 mmHg OR DBP >= 80 mmHg per ACC/AHA 2017) within a 24-month window and no prior cardiovascular disease, chronic kidney disease, thyroid disease, secondary hypertension, or antihypertensive exposure, does the latency from first elevated blood pressure to recorded hypertension diagnosis predict major adverse cardiovascular events (myocardial infarction, ischemic or hemorrhagic stroke, heart failure hospitalization, or all-cause death) and incident chronic kidney disease compared to a propensity-matched normotensive comparator? Secondary aims: (a) reproduce Lu 2025's reported 29 percent higher cardiovascular risk score among patients with diagnostic delay greater than 12 months; (b) characterize antihypertensive treatment trajectories; (c) describe apparent treatment-resistant hypertension class composition and renal-sympathetic-denervation eligibility; (d) measure baseline laboratory ordering frequency including CBC, CMP, lipid panel, TSH, and serum aldosterone.",
+  "primary_objective": "Quantify the association between diagnostic latency in incident hypertension and downstream MACE plus incident CKD, and reproduce Lu et al. 2025's reported 29% higher cardiovascular risk score for patients with diagnostic delay > 12 months.",
+  "scientific_rationale": "Diagnostic delay in hypertension is hypothesized to allow subclinical end-organ damage to accrue before treatment, raising long-term cardiovascular and renal risk. Lu et al. 2025 reported a median diagnostic delay of 16-18 months and a 29% higher cardiovascular risk score in delayed-diagnosis patients. This study reproduces that finding on the Acumenus OMOP CDM (~1M adults) and extends it with: co-equal CKD outcome; two-component latency decomposition (first-elevated to second-elevated, and second-elevated to recorded diagnosis); apparent treatment-resistant hypertension class composition; renal-sympathetic-denervation eligibility; baseline lab ordering including serum aldosterone.",
+  "hypothesis": "Patients with a recorded hypertension diagnosis more than 12 months after their second consecutive elevated office BP measurement experience higher incidence of major adverse cardiovascular events (MI, ischemic or hemorrhagic stroke, heart failure hospitalization, all-cause death) and incident chronic kidney disease compared to (a) patients with timely diagnosis and (b) a propensity-matched normotensive comparator.",
+  "analysis_family": "outcomes",
+  "pico": {
+    "population": "Adults aged 18+ with two consecutive elevated office BPs (SBP >= 130 OR DBP >= 80, ACC/AHA 2017) on distinct calendar days within a 24-month window; >=365 days of prior observation; no prior cardiovascular disease, chronic kidney disease, thyroid disease, secondary hypertension, or antihypertensive exposure.",
+    "intervention": "Diagnostic latency: time from the second consecutive elevated BP (index date) to first recorded HTN diagnosis, stratified by tertile cutoffs at 6 and 12 months; sensitivity at the Lu 2025 16-month cutoff.",
+    "comparator": "1:1 propensity-score-matched normotensive cohort from the same source (>=3 BPs in the same 24-mo window, all SBP <= 130 AND DBP <= 80, identical exclusions). Matched on age (+/-2yr), sex, race, calendar quarter of index. Sensitivity: greedy 1:1.",
+    "outcome": "Co-equal primary outcomes: (1) Composite MACE = first MI, ischemic/hemorrhagic stroke, HF hospitalization (inpatient visit_occurrence required), or all-cause death; (2) Incident CKD (first dx_ckd after index with no prior CKD code).",
+    "time_at_risk": "Index through earliest of: 5-year follow-up (primary), end of observation, death (for non-death outcomes), or last available follow-up (sensitivity). Symmetric censoring T vs C."
+  },
+  "pi": {
+    "name": "Glenn H. Bock, MD"
+  },
+  "sources": [
+    "ACUMENUS"
+  ],
+  "protocol_version": "v3",
+  "lu_reference": {
+    "authors": [
+      "Lu Y",
+      "Brush J Jr",
+      "Kim C",
+      "et al."
+    ],
+    "title": "Delayed Hypertension Diagnosis and Its Association With Cardiovascular Treatment and Outcomes",
+    "journal": "JAMA Network Open",
+    "year": 2025,
+    "volume": 8,
+    "issue": 7,
+    "article_id": "e2520498",
+    "doi": "10.1001/jamanetworkopen.2025.20498",
+    "url": "https://doi.org/10.1001/jamanetworkopen.2025.20498",
+    "pmid": null,
+    "claim": "Median diagnostic delay 16-18 months; 29% higher CV risk score when delay > 1 year",
+    "status": "confirmed_methodology_reviewed",
+    "confirmed_by": "Glenn H. Bock, MD",
+    "confirmed_at": "2026-05-12",
+    "replication_via": "dedicated T_lu sub-cohort (see replication_subdesign)"
+  },
+  "known_gaps": [
+    "IRB / data governance confirmation deferred until pre-publication review (Q15)."
+  ],
+  "open_questions": [
+    {
+      "slug": "bp_threshold_operator",
+      "default": ">=",
+      "status": "answered",
+      "answer": ">= (ACC/AHA 2017)"
+    },
+    {
+      "slug": "max_gap_consecutive_bps",
+      "default": "365 days",
+      "status": "answered",
+      "answer": "365 days"
+    },
+    {
+      "slug": "latency_cutoff_scheme",
+      "default": "tertiles [6,12] primary; 16mo sensitivity",
+      "status": "answered",
+      "answer": "tertiles [6,12] primary; 16-mo sensitivity (PI commented on BP temporal window, no objection to cutoff scheme)"
+    },
+    {
+      "slug": "lu_citation",
+      "default": "unconfirmed",
+      "status": "answered",
+      "answer": "Lu Y, Brush J Jr, Kim C, et al. Delayed Hypertension Diagnosis and Its Association With Cardiovascular Treatment and Outcomes. JAMA Network Open 2025;8(7):e2520498. doi:10.1001/jamanetworkopen.2025.20498"
+    },
+    {
+      "slug": "antihypertensive_scope",
+      "default": "RxNorm C02-C09",
+      "status": "answered",
+      "answer": "broad ATC C02-C09; include all antihypertensive agents"
+    },
+    {
+      "slug": "comparator_match_method",
+      "default": "PSM caliper 0.2 SD",
+      "status": "answered",
+      "answer": "PSM (logistic + 0.2 SD caliper)"
+    },
+    {
+      "slug": "resistant_htn_diuretic_required",
+      "default": "no (apparent)",
+      "status": "answered",
+      "answer": "no (apparent treatment-resistant HTN)"
+    },
+    {
+      "slug": "hf_outcome_visit_qualified",
+      "default": "yes (inpatient)",
+      "status": "answered",
+      "answer": "yes - inpatient visit_occurrence required"
+    },
+    {
+      "slug": "treatment_naive_lookback",
+      "default": "ever-before-index primary; 12mo sensitivity",
+      "status": "answered",
+      "answer": "ever-before-index"
+    },
+    {
+      "slug": "latency_b_null_handling",
+      "default": "competing-risk, Dx as event",
+      "status": "answered",
+      "answer": "competing-risk model (diagnosis as event)"
+    },
+    {
+      "slug": "ckd_baseline_treatment",
+      "default": "exclude baseline CKD primary; covariate sensitivity",
+      "status": "answered_changed",
+      "answer": "Exclude eGFR < 60 (measured or estimated); broader than original default. Added lab_egfr concept set (ID 193). PI specified Stage 2 CKD with eGFR < 60 -- operationally exclude any pre-index eGFR < 60 OR CKD Stage 3+ diagnosis."
+    },
+    {
+      "slug": "censoring_window",
+      "default": "5 years primary; all-available sensitivity",
+      "status": "answered",
+      "answer": "5 years from index"
+    },
+    {
+      "slug": "cost_data_availability",
+      "default": "demote to encounter-counts if cost sparse",
+      "status": "answered_dropped",
+      "answer": "PAUSED. Drop analysis L (cost/HEOR) from analysis plan entirely."
+    },
+    {
+      "slug": "sample_size_pre_registration",
+      "default": "feasibility-first, retrospective power",
+      "status": "answered",
+      "answer": "feasibility-first; retrospective power in manuscript"
+    },
+    {
+      "slug": "irb_data_governance",
+      "default": "capture in study_artifacts",
+      "status": "deferred",
+      "answer": "Skip for now; required before publication, not before analysis run"
+    },
+    {
+      "slug": "rdn_procedure_completeness",
+      "default": "accept low recall, document",
+      "status": "answered",
+      "answer": "accept low recall, document limitation"
+    }
+  ],
+  "risk_notes": [
+    "PHI/HIPAA: Acumenus OMOP CDM uses pseudonymized person_id; no MRNs or direct identifiers persisted in study outputs.",
+    "Residual confounding from EHR data quality - mitigated via empirical calibration on OHDSI negative-control outcomes.",
+    "Incomplete death capture in OMOP death table - sensitivity analysis excluding death from MACE composite.",
+    "BP measurement context (office vs ED vs inpatient) not always recorded - filter via visit_concept_id."
+  ],
+  "provenance": {
+    "source": "claude-code htn-v3 runner",
+    "operator": "admin@acumenus.net",
+    "protocol_doc": "Hypertension study (v3).docx (sha256 544c64...)",
+    "execution_plan": "docs/research/hypertension-v3/EXECUTION_PLAN.md",
+    "claude_prompt": "docs/research/hypertension-v3/CLAUDE_PROMPT.md"
+  },
+  "changes_from_v3_protocol": [
+    "Q11: Baseline kidney exclusion is eGFR < 60 (measured or estimated), NOT any CKD diagnosis code. Added lab_egfr concept set (ID 193).",
+    "Q13: Cost analysis (analysis L / Goal G) PAUSED per PI request -- removed from analysis plan."
+  ],
+  "pi_review": {
+    "reviewer": "Glenn H. Bock, MD",
+    "reviewed_at": "2026-05-12",
+    "decisions_recorded": 16,
+    "changes_from_defaults": 2,
+    "still_pending": [],
+    "replication_decision": "Option A (two-design)"
+  },
+  "replication_subdesign": {
+    "decision": "Two-design plan (Option A) per PI + user 2026-05-12",
+    "primary_design": "T / C / S1 / S2 / O1-MACE / O2-CKD with PI-confirmed parameters (AHA 2017 thresholds, PSM normotensive C, eGFR <60 exclusion, co-equal CKD outcome, MACE includes all-cause death + hemorrhagic stroke)",
+    "lu_replication_subdesign": {
+      "cohort_t_lu": {
+        "label": "T_lu - Lu 2025 replication cohort",
+        "age_range": [
+          18,
+          85
+        ],
+        "bp_threshold": "SBP >= 140 OR DBP >= 90 (Lu JNC 7-era)",
+        "bp_count": "2 consecutive elevated outpatient BPs",
+        "gap_days": ">= 30 and <= 730 (Lu's 2y window)",
+        "bp_aggregation": "drop first reading per visit, average rest; same-day multi-visit averaged",
+        "bp_setting": "outpatient only (exclude inpatient, ED, surgery center)",
+        "treatment_naive": "active Rx between -180d and +30d from 2nd BP",
+        "exclusions": [
+          "pregnancy",
+          "dialysis"
+        ],
+        "no_exclusions_for": [
+          "prior CVD (handled as covariate)",
+          "thyroid",
+          "secondary HTN",
+          "baseline kidney function"
+        ]
+      },
+      "reference_group": "Diagnosed between 1st and 2nd elevated BP (within-cohort)",
+      "latency_categories": [
+        "pre-2nd-BP (ref)",
+        "1-90d",
+        "91-365d",
+        ">365d",
+        "no diagnosis / >5y"
+      ],
+      "primary_outcome_lu": "Antihypertensive Rx within 30d of HTN diagnosis (binary)",
+      "secondary_outcome_lu_mace": "Composite of inpatient/ED MI + HF + ischemic stroke (5y from diagnosis date)",
+      "statistical_model": "Multivariable Cox PH adjusted for age, race/ethnicity, sex, BP, comorbidities",
+      "reproduction_target": "HR 1.29 [95% CI 1.23-1.36] for >365d vs. pre-2nd-BP reference, p<0.001"
+    },
+    "rationale": "Faithful head-to-head Lu replication needs Lu's exact methodology; our enhanced primary design uses AHA 2017 + PSM + co-equal CKD which Lu did not. Two-design lets us report both: Lu-replicated HR vs ours-observed HR side-by-side."
+  }
+}

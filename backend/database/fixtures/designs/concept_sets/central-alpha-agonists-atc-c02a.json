@@ -1,0 +1,112 @@
+{
+    "id": 192,
+    "name": "Central alpha-agonists (ATC C02A)",
+    "description": "Resistant-HTN add-on class (S1).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 1305447
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1326378
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1344965
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1362225
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1387219
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 1398937
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 19011021
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 19055531
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 19062195
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 19115050
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 19135932
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "subgroup",
+            "materialized_at": "2026-05-12T19:50:20+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:50:20.000000Z",
+    "updated_at": "2026-05-12T19:50:20.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

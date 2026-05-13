@@ -1,0 +1,88 @@
+{
+    "id": 187,
+    "name": "Lipid panel (LOINC)",
+    "description": "Baseline lab ordering analysis (J).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 3002109
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3007070
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3009596
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3010946
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3011163
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3022192
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3027114
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3028288
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "exposure",
+            "materialized_at": "2026-05-12T19:50:19+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:50:19.000000Z",
+    "updated_at": "2026-05-12T19:50:19.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

@@ -1,0 +1,152 @@
+{
+    "id": 169,
+    "name": "Essential hypertension",
+    "description": "Defines the primary diagnosis used to set tdx (latency endpoint) for target cohort T.",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 312648
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 317898
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 320128
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4034031
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4058987
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4083723
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4148205
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4159755
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4180283
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4215640
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4217486
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4263067
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4269358
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4302591
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4321603
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45757787
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "population",
+            "materialized_at": "2026-05-12T19:46:58+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:46:58.000000Z",
+    "updated_at": "2026-05-12T19:46:58.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

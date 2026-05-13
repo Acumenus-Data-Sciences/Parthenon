@@ -1,0 +1,120 @@
+{
+    "id": 181,
+    "name": "Complete blood count panel (LOINC)",
+    "description": "Baseline lab ordering analysis (J).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 3000905
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3000963
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3002736
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3009744
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3012030
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3019897
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3020416
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3023314
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3023599
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3024929
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3043111
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 40761511
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "exposure",
+            "materialized_at": "2026-05-12T19:50:19+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:50:19.000000Z",
+    "updated_at": "2026-05-12T19:50:19.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

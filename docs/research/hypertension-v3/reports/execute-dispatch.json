@@ -1,0 +1,1 @@
+{"message":"Study execution started. All analyses have been queued.","message_key":"study.execution_started","message_meta":{"requested_locale":"en-US","message_locale":"en-US","fallback_locale":"en-US","fallback_used":false,"translation_missing":false},"data":{"total":4,"pending":0,"queued":4,"running":0,"completed":0,"failed":0,"overall_status":"running"}}

@@ -1,0 +1,608 @@
+{
+  "dx_essential_hypertension": {
+    "title": "Essential hypertension",
+    "role": "population",
+    "domain": "Condition",
+    "description": "SNOMED essential (primary) hypertension and all standard descendants. Excludes secondary hypertension.",
+    "clinical_rationale": "Defines the primary diagnosis used to set tdx (latency endpoint) for target cohort T.",
+    "search_terms": [
+      "essential hypertension",
+      "primary hypertension",
+      "HTN"
+    ],
+    "seed_concept_ids": [
+      320128
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_secondary_hypertension": {
+    "title": "Secondary hypertension",
+    "role": "exclusion",
+    "domain": "Condition",
+    "description": "SNOMED Secondary hypertension parent and descendants (renovascular, endocrine, drug-induced).",
+    "clinical_rationale": "Excluded from target cohort T to keep the population to incident essential HTN.",
+    "search_terms": [
+      "secondary hypertension",
+      "renovascular hypertension",
+      "endocrine hypertension"
+    ],
+    "seed_concept_ids": [
+      319826,
+      317895,
+      4110948
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_primary_aldosteronism": {
+    "title": "Primary aldosteronism",
+    "role": "subgroup",
+    "domain": "Condition",
+    "description": "SNOMED primary hyperaldosteronism subtypes (adrenal adenoma, hyperplasia, malignant) and descendants.",
+    "clinical_rationale": "Outcome of the aldosterone-testing follow-up analysis (J).",
+    "search_terms": [
+      "primary aldosteronism",
+      "Conn syndrome",
+      "primary hyperaldosteronism"
+    ],
+    "seed_concept_ids": [
+      4028806,
+      4028807,
+      45766195
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_ckd": {
+    "title": "Chronic kidney disease",
+    "role": "outcome",
+    "domain": "Condition",
+    "description": "SNOMED Chronic kidney disease (parent) and all standard descendants including ESRD.",
+    "clinical_rationale": "Incident-CKD outcome (O2). Co-equal with MACE.",
+    "search_terms": [
+      "chronic kidney disease",
+      "CKD",
+      "ESRD",
+      "N18"
+    ],
+    "seed_concept_ids": [
+      46271022
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_abnormal_kidney_function": {
+    "title": "Abnormal kidney function (CKD + AKI)",
+    "role": "exclusion",
+    "domain": "Condition",
+    "description": "Composite of chronic kidney disease (CKD parent) and acute kidney injury, with descendants.",
+    "clinical_rationale": "Target cohort T excludes patients with any prior abnormal kidney function (CKD + AKI).",
+    "search_terms": [
+      "chronic kidney disease",
+      "acute kidney injury",
+      "renal failure"
+    ],
+    "seed_concept_ids": [
+      46271022,
+      197320
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_mi": {
+    "title": "Myocardial infarction",
+    "role": "outcome",
+    "domain": "Condition",
+    "description": "SNOMED Myocardial infarction (parent) and standard descendants including acute MI subtypes (STEMI, NSTEMI).",
+    "clinical_rationale": "MACE composite outcome component (O1).",
+    "search_terms": [
+      "myocardial infarction",
+      "MI",
+      "STEMI",
+      "NSTEMI",
+      "heart attack"
+    ],
+    "seed_concept_ids": [
+      4329847
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_stroke": {
+    "title": "Stroke (ischemic and hemorrhagic)",
+    "role": "outcome",
+    "domain": "Condition",
+    "description": "SNOMED Cerebrovascular accident, Cerebral infarction, Subarachnoid hemorrhage, Intracranial hemorrhage parents and descendants.",
+    "clinical_rationale": "MACE composite outcome component (O1).",
+    "search_terms": [
+      "stroke",
+      "cerebral infarction",
+      "intracranial hemorrhage",
+      "CVA"
+    ],
+    "seed_concept_ids": [
+      381316,
+      443454,
+      432923,
+      439847
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_heart_failure": {
+    "title": "Heart failure",
+    "role": "outcome",
+    "domain": "Condition",
+    "description": "SNOMED Heart failure parent (includes chronic HF, acute HF, HF with reduced/preserved ejection fraction) and descendants. Visit qualifier (inpatient) applied at the cohort SQL level.",
+    "clinical_rationale": "MACE composite outcome component (O1) — visit-qualified inpatient hospitalization required at cohort level per open question Q8 default.",
+    "search_terms": [
+      "heart failure",
+      "congestive heart failure",
+      "CHF",
+      "HFrEF",
+      "HFpEF"
+    ],
+    "seed_concept_ids": [
+      316139
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_thyroid_disease": {
+    "title": "Thyroid disease (hyper- and hypothyroidism)",
+    "role": "exclusion",
+    "domain": "Condition",
+    "description": "SNOMED Disorder of thyroid gland parent and descendants (hyper-, hypothyroidism, thyroiditis).",
+    "clinical_rationale": "Target cohort T excludes thyroid disease (secondary HTN cause).",
+    "search_terms": [
+      "thyroid",
+      "hyperthyroidism",
+      "hypothyroidism"
+    ],
+    "seed_concept_ids": [
+      141253
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "dx_prior_cv_disease": {
+    "title": "Prior cardiovascular disease (composite)",
+    "role": "exclusion",
+    "domain": "Condition",
+    "description": "Composite of MI, stroke (ischemic/hemorrhagic), heart failure, peripheral vascular disease, and post-CABG/PCI status. Conditions only; CABG and PCI procedures are tracked separately.",
+    "clinical_rationale": "Target cohort T excludes patients with any prior CVD to ensure incident-event interpretation of outcomes.",
+    "search_terms": [
+      "prior MI",
+      "prior stroke",
+      "prior heart failure",
+      "PVD",
+      "CABG",
+      "PCI"
+    ],
+    "seed_concept_ids": [
+      4329847,
+      381316,
+      443454,
+      432923,
+      439847,
+      316139,
+      321052
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "lab_sbp": {
+    "title": "Systolic blood pressure (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "Systolic blood pressure LOINC concept and standard descendants.",
+    "clinical_rationale": "Defines the index-event measurement (one half of the consecutive-elevated-BP rule).",
+    "search_terms": [
+      "systolic blood pressure",
+      "SBP",
+      "8480-6"
+    ],
+    "seed_concept_ids": [
+      3004249
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_dbp": {
+    "title": "Diastolic blood pressure (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "Diastolic blood pressure LOINC concept and standard descendants.",
+    "clinical_rationale": "Defines the index-event measurement (other half of the consecutive-elevated-BP rule).",
+    "search_terms": [
+      "diastolic blood pressure",
+      "DBP",
+      "8462-4"
+    ],
+    "seed_concept_ids": [
+      3012888
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_cbc_panel": {
+    "title": "Complete blood count panel (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "LOINC CBC panel parent and descendants.",
+    "clinical_rationale": "Baseline lab ordering analysis (J).",
+    "search_terms": [
+      "complete blood count",
+      "CBC",
+      "58410-2"
+    ],
+    "seed_concept_ids": [
+      40761511
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_cmp_panel": {
+    "title": "Comprehensive metabolic panel (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "LOINC CMP panel parent and descendants (sodium, potassium, creatinine, eGFR, BUN, glucose, calcium, liver enzymes).",
+    "clinical_rationale": "Baseline lab ordering analysis (J).",
+    "search_terms": [
+      "comprehensive metabolic panel",
+      "CMP",
+      "BMP",
+      "chem panel"
+    ],
+    "seed_concept_ids": [
+      3026023
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_lipid_panel": {
+    "title": "Lipid panel (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "LOINC Lipid panel parent and descendants (LDL, HDL, total cholesterol, triglycerides).",
+    "clinical_rationale": "Baseline lab ordering analysis (J).",
+    "search_terms": [
+      "lipid panel",
+      "cholesterol",
+      "LDL",
+      "HDL",
+      "triglycerides"
+    ],
+    "seed_concept_ids": [
+      3010946
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_aldosterone": {
+    "title": "Aldosterone and plasma renin activity (LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "Aldosterone serum (LOINC 1763-2) and plasma renin activity (LOINC 2915-7) — both needed for ARR.",
+    "clinical_rationale": "Baseline lab ordering and aldosterone-to-PA follow-up analysis (J).",
+    "search_terms": [
+      "aldosterone",
+      "renin",
+      "ARR",
+      "1763-2",
+      "2915-7"
+    ],
+    "seed_concept_ids": [
+      3011337,
+      3007808
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "lab_tsh": {
+    "title": "TSH (Thyrotropin, LOINC)",
+    "role": "exposure",
+    "domain": "Measurement",
+    "description": "LOINC TSH and descendants.",
+    "clinical_rationale": "Baseline lab ordering analysis (J) — screens for thyroid disease.",
+    "search_terms": [
+      "TSH",
+      "thyrotropin",
+      "3016-3"
+    ],
+    "seed_concept_ids": [
+      3009201
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "rx_antihypertensives_all": {
+    "title": "Antihypertensives (ATC C02-C09, broad)",
+    "role": "exclusion",
+    "domain": "Drug",
+    "description": "Standard drug concepts descending from ATC C02 (antihypertensives), C03 (diuretics), C07 (beta-blockers), C08 (CCB), C09 (RAAS agents). Broad scope per open question Q5 default.",
+    "clinical_rationale": "Target cohort T excludes any prior antihypertensive exposure (treatment-naive criterion).",
+    "search_terms": [
+      "antihypertensive",
+      "ACE inhibitor",
+      "ARB",
+      "diuretic",
+      "beta blocker",
+      "CCB"
+    ],
+    "seed_concept_ids": [
+      21600381,
+      21601461,
+      21601664,
+      21601744,
+      21601782
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_diuretics": {
+    "title": "Diuretics (ATC C03)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C03 diuretics — thiazides, loops, K-sparing, MRA.",
+    "clinical_rationale": "Resistant-HTN class composition (S1 analysis E).",
+    "search_terms": [
+      "diuretic",
+      "thiazide",
+      "furosemide",
+      "spironolactone"
+    ],
+    "seed_concept_ids": [
+      21601461
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_acei_arb": {
+    "title": "ACE inhibitors and ARBs (ATC C09)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C09 — agents acting on the renin-angiotensin system.",
+    "clinical_rationale": "Resistant-HTN class composition (S1 analysis E).",
+    "search_terms": [
+      "ACE inhibitor",
+      "ARB",
+      "lisinopril",
+      "losartan"
+    ],
+    "seed_concept_ids": [
+      21601782
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_ccb": {
+    "title": "Calcium channel blockers (ATC C08)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C08 calcium channel blockers — dihydropyridines and non-dihydropyridines.",
+    "clinical_rationale": "Resistant-HTN class composition (S1 analysis E).",
+    "search_terms": [
+      "CCB",
+      "amlodipine",
+      "diltiazem",
+      "verapamil"
+    ],
+    "seed_concept_ids": [
+      21601744
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_beta_blocker": {
+    "title": "Beta-blockers (ATC C07)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C07 beta-blocking agents — selective and non-selective.",
+    "clinical_rationale": "Resistant-HTN class composition (S1 analysis E).",
+    "search_terms": [
+      "beta blocker",
+      "metoprolol",
+      "atenolol",
+      "carvedilol"
+    ],
+    "seed_concept_ids": [
+      21601664
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_mra": {
+    "title": "Mineralocorticoid receptor antagonists (ATC C03DA)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C03DA aldosterone antagonists — spironolactone, eplerenone.",
+    "clinical_rationale": "Resistant-HTN add-on class (S1) and primary aldosteronism treatment.",
+    "search_terms": [
+      "spironolactone",
+      "eplerenone",
+      "MRA",
+      "aldosterone antagonist"
+    ],
+    "seed_concept_ids": [
+      21601533
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "rx_central_alpha_agonist": {
+    "title": "Central alpha-agonists (ATC C02A)",
+    "role": "subgroup",
+    "domain": "Drug",
+    "description": "ATC C02A centrally acting antiadrenergic agents — clonidine, methyldopa, guanfacine.",
+    "clinical_rationale": "Resistant-HTN add-on class (S1).",
+    "search_terms": [
+      "clonidine",
+      "methyldopa",
+      "central alpha-agonist"
+    ],
+    "seed_concept_ids": [
+      21600382
+    ],
+    "filter": {
+      "domain_id": "Drug",
+      "standard_concept": "S",
+      "concept_class_id": "Ingredient",
+      "vocabulary_id": "RxNorm"
+    }
+  },
+  "device_home_bp_monitor": {
+    "title": "Home blood pressure monitor (HCPCS)",
+    "role": "subgroup",
+    "domain": "Device",
+    "description": "HCPCS automatic BP monitor device code (A4670) and descendants.",
+    "clinical_rationale": "Home BP monitoring as evidence of clinician awareness of BP elevation (informs latency analysis).",
+    "search_terms": [
+      "home BP monitor",
+      "automatic blood pressure"
+    ],
+    "seed_concept_ids": [
+      2614969
+    ],
+    "filter": {
+      "domain_id": "Device",
+      "standard_concept": "S"
+    }
+  },
+  "lab_egfr": {
+    "title": "eGFR (estimated glomerular filtration rate, LOINC)",
+    "role": "exclusion",
+    "domain": "Measurement",
+    "description": "All standard eGFR LOINC concepts: MDRD (race- and sex-stratified), CKD-EPI, CKD-EPI 2021, Cystatin-C based, panel concepts. Cohort SQL applies value_as_number < 60 threshold.",
+    "clinical_rationale": "Baseline kidney exclusion per Dr. Bock (Q11): exclude any pre-index eGFR < 60 (Stage 3+ CKD).",
+    "search_terms": [
+      "eGFR",
+      "estimated GFR",
+      "glomerular filtration rate",
+      "MDRD",
+      "CKD-EPI"
+    ],
+    "seed_concept_ids": [
+      3049187,
+      3053283,
+      3029829,
+      42869913,
+      46236952,
+      40764999,
+      36306178,
+      36303797,
+      1619025,
+      1619026,
+      40771922,
+      3045262,
+      36660257,
+      3030104,
+      3029859
+    ],
+    "filter": {
+      "domain_id": "Measurement",
+      "standard_concept": "S"
+    }
+  },
+  "dx_pregnancy": {
+    "title": "Pregnancy (diagnosis)",
+    "role": "exclusion",
+    "domain": "Condition",
+    "description": "SNOMED Pregnancy parent and standard descendants (gestational states, normal pregnancy variants).",
+    "clinical_rationale": "Lu 2025 replication exclusion (T_lu). Not used in primary T cohort.",
+    "search_terms": [
+      "pregnancy",
+      "pregnant",
+      "gestational"
+    ],
+    "seed_concept_ids": [
+      4299535,
+      4217975
+    ],
+    "filter": {
+      "domain_id": "Condition",
+      "standard_concept": "S"
+    }
+  },
+  "proc_dialysis": {
+    "title": "Dialysis procedures",
+    "role": "exclusion",
+    "domain": "Procedure",
+    "description": "SNOMED Renal dialysis, hemodialysis, peritoneal dialysis procedures and descendants.",
+    "clinical_rationale": "Lu 2025 replication exclusion (T_lu). Also a stronger marker of advanced CKD for the primary cohort kidney exclusion.",
+    "search_terms": [
+      "dialysis",
+      "hemodialysis",
+      "peritoneal dialysis",
+      "renal dialysis"
+    ],
+    "seed_concept_ids": [
+      4146536,
+      4120120,
+      4324124
+    ],
+    "filter": {
+      "domain_id": "Procedure",
+      "standard_concept": "S"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+    "id": 191,
+    "name": "Primary aldosteronism",
+    "description": "Outcome of the aldosterone-testing follow-up analysis (J).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 4028806
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4028807
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45766195
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "subgroup",
+            "materialized_at": "2026-05-12T19:50:20+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:50:20.000000Z",
+    "updated_at": "2026-05-12T19:50:20.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}

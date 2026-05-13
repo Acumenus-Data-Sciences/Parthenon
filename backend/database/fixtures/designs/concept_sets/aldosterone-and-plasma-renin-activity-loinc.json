@@ -1,0 +1,40 @@
+{
+    "id": 173,
+    "name": "Aldosterone and plasma renin activity (LOINC)",
+    "description": "Baseline lab ordering and aldosterone-to-PA follow-up analysis (J).",
+    "expression_json": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 3007808
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 3011337
+                },
+                "isExcluded": false,
+                "includeMapped": false,
+                "includeDescendants": true
+            }
+        ],
+        "study_designer": {
+            "role": "exposure",
+            "materialized_at": "2026-05-12T19:50:18+00:00",
+            "source_concept_set_references": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "tags": [
+        "study-designer"
+    ],
+    "created_at": "2026-05-12T19:50:18.000000Z",
+    "updated_at": "2026-05-12T19:50:18.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "items": []
+}
