@@ -17,6 +17,7 @@ use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EtlProject;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\FeatureAnalysis;
 use App\Models\App\FinnGen\GwasCovariateSet;
 use App\Models\App\FinnGen\Run;
 use App\Models\App\HeorAnalysis;
@@ -25,6 +26,7 @@ use App\Models\App\IngestionProject;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
+use App\Models\App\SelfControlledCohortAnalysis;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\App\StudyCohort;
@@ -52,8 +54,11 @@ use App\Observers\FinnGen\FinnGenGwasRunObserver;
 use App\Observers\FinnGen\GwasCovariateSetObserver;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
+use App\Policies\AnalysisPolicy;
+use App\Policies\CohortDefinitionPolicy;
 use App\Policies\Commons\ChannelPolicy;
 use App\Policies\Commons\MessagePolicy;
+use App\Policies\ConceptSetPolicy;
 use App\Policies\EtlProjectPolicy;
 use App\Policies\FinnGen\RunPolicy as FinnGenRunPolicy;
 use App\Policies\IngestionProjectPolicy;
@@ -310,6 +315,18 @@ class AppServiceProvider extends ServiceProvider
 
         // FinnGen run policies
         Gate::policy(Run::class, FinnGenRunPolicy::class);
+
+        // Library lifecycle policies (concept sets, cohort definitions, 8 analyses)
+        Gate::policy(ConceptSet::class, ConceptSetPolicy::class);
+        Gate::policy(CohortDefinition::class, CohortDefinitionPolicy::class);
+        Gate::policy(IncidenceRateAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(PathwayAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(EstimationAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(PredictionAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(FeatureAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(SccsAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(EvidenceSynthesisAnalysis::class, AnalysisPolicy::class);
+        Gate::policy(SelfControlledCohortAnalysis::class, AnalysisPolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
