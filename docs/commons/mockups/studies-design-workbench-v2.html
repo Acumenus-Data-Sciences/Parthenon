@@ -46,7 +46,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- Identity Strip ---------- */
 .identity-strip{
   position:sticky;top:0;z-index:40;height:56px;
-  display:grid;grid-template-columns:300px 1fr 460px;align-items:center;
+  display:grid;grid-template-columns:420px minmax(0,1fr) 500px;align-items:center;
   padding:0 18px;background:linear-gradient(180deg,#121318 0%,#0E0E11 100%);
   border-bottom:.5px solid var(--hairline);
 }
@@ -248,6 +248,68 @@ a{color:inherit;text-decoration:none}
   .periph-body{padding:14px 18px 16px 18px;gap:11px}
   .station{padding:9px 14px 9px 56px}
 }
+
+/* ---------- Identity Strip additions: session switcher + icon buttons ---------- */
+.session-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 9px 5px 10px;border-radius:4px;
+  border:.5px solid var(--hairline-strong);background:rgba(255,255,255,.02);
+  cursor:default;
+  box-shadow:inset 0 1px 0 var(--inset-top);
+}
+.session-chip:hover{border-color:rgba(255,255,255,.20)}
+.session-chip .session-name{font-family:var(--font-display);font-style:italic;font-size:12px;color:var(--text-hi);letter-spacing:.005em}
+.session-chip .caret{font-family:var(--font-mono);font-size:10px;color:var(--text-low);margin-top:1px}
+.icon-btn{
+  width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+  border:.5px solid var(--hairline-strong);background:rgba(255,255,255,.02);
+  border-radius:6px;color:var(--text-mid);cursor:default;
+  box-shadow:inset 0 1px 0 var(--inset-top);
+  flex-shrink:0;
+}
+.icon-btn:hover{color:var(--text-hi);border-color:rgba(255,255,255,.22)}
+.icon-btn svg{width:13px;height:13px;display:block}
+
+/* ---------- Versions head row (eyebrow + canvas toolbar) ---------- */
+.versions-head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-right:2px}
+.versions-head > .versions-col{display:flex;flex-direction:column;gap:0}
+.canvas-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.canvas-toolbar .btn-ghost{padding:5px 9px;font-size:9.5px}
+.canvas-toolbar .btn-ghost .sym{margin-right:5px;color:var(--text-low)}
+
+/* ---------- Research-question / primary-objective strip ---------- */
+.rq-strip{
+  display:flex;flex-direction:column;
+  background:var(--slate-1);border:.5px solid var(--hairline);border-radius:6px;
+  box-shadow:inset 0 1px 0 var(--inset-top);overflow:hidden;
+}
+.rq-row{display:grid;grid-template-columns:140px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 14px}
+.rq-row + .rq-row{border-top:.5px solid var(--hairline)}
+.rq-label{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-low)}
+.rq-value{font-family:var(--font-display);font-style:italic;font-size:13px;color:var(--text-hi);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rq-expand{font-family:var(--font-mono);font-size:9.5px;color:var(--text-low);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;cursor:default}
+.rq-expand:hover{color:var(--text-mid)}
+
+/* ---------- Sticky action bar (Save / Accept) ---------- */
+.action-bar{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;
+  padding:11px 16px;background:linear-gradient(180deg,#13141A 0%,#0E0E11 100%);
+  border:.5px solid var(--hairline);border-radius:6px;
+  box-shadow:inset 0 1px 0 var(--inset-top);
+}
+.ab-left{display:flex;align-items:baseline;gap:14px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;min-width:0}
+.ab-left .ab-status{color:var(--gold);text-transform:uppercase;letter-spacing:.10em;font-size:9.5px}
+.ab-left .ab-meta{color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-accept{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+  padding:7px 14px;border-radius:6px;color:#062520;
+  background:linear-gradient(180deg,#3EE3CC 0%,#1FB7A1 100%);
+  border:.5px solid rgba(45,212,191,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 4px 12px -6px rgba(45,212,191,.45);
+  cursor:default;
+}
+.btn-accept.gated{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -282,12 +344,19 @@ a{color:inherit;text-decoration:none}
   <div class="id-left">
     <span class="wordmark"><span class="dot"></span>Parthenon</span>
     <span class="breadcrumb">Studies&nbsp;/&nbsp;<b>ACE vs ARB · HFrEF</b>&nbsp;/&nbsp;Design</span>
+    <span class="session-chip" role="button" tabindex="0" aria-label="Switch session — currently Initial draft">
+      <span class="session-name">Initial draft</span>
+      <span class="caret" aria-hidden="true">▾</span>
+    </span>
   </div>
   <div class="id-center">
     <div class="id-title">Effect of ACE inhibitors vs ARBs on heart-failure hospitalization in HFrEF patients</div>
     <div class="id-subtitle">Comparative effectiveness · observational</div>
   </div>
   <div class="id-right">
+    <button class="icon-btn" type="button" title="Upload protocol PDF — start a new session" aria-label="Upload protocol PDF — start a new session">
+      <svg viewBox="0 0 12 14" aria-hidden="true"><use href="#i-doc"/></svg>
+    </button>
     <span class="pill gold">v3 · review</span>
     <span class="pi-tag">PI:&nbsp;S. Udoshi, MD</span>
     <span class="pill slate">design · unlocked</span>
@@ -383,13 +452,34 @@ a{color:inherit;text-decoration:none}
   <!-- ============ CENTER: PICO Canvas ============ -->
   <section class="pane center" aria-label="Active Editor — PICO Canvas">
 
-    <!-- Version timeline -->
-    <div>
-      <div class="section-eyebrow">Versions</div>
-      <div class="versions">
-        <div class="vnode"><span class="vdot"></span><span class="vlabel">v1</span><span class="vmeta">draft · 3d ago</span></div>
-        <div class="vnode"><span class="vdot"></span><span class="vlabel">v2</span><span class="vmeta">accepted · 1d ago</span></div>
-        <div class="vnode active"><span class="vdot"></span><span class="vlabel">v3</span><span class="vmeta">review · 4h ago</span></div>
+    <!-- Version timeline + canvas-level actions -->
+    <div class="versions-head">
+      <div class="versions-col">
+        <div class="section-eyebrow">Versions</div>
+        <div class="versions">
+          <div class="vnode"><span class="vdot"></span><span class="vlabel">v1</span><span class="vmeta">draft · 3d ago</span></div>
+          <div class="vnode"><span class="vdot"></span><span class="vlabel">v2</span><span class="vmeta">accepted · 1d ago</span></div>
+          <div class="vnode active"><span class="vdot"></span><span class="vlabel">v3</span><span class="vmeta">review · 4h ago</span></div>
+        </div>
+      </div>
+      <div class="canvas-toolbar" role="toolbar" aria-label="Design actions">
+        <button class="btn-ghost" type="button" title="Import target, comparator, or outcome assets from a prior accepted study"><span class="sym">↘</span>Import prior study</button>
+        <button class="btn-ghost" type="button" title="Run an AI consistency critique across PICO, cohorts, and analyses"><span class="sym">⚖</span>Critique design</button>
+        <button class="btn-ghost" type="button" title="Side-by-side diff of v2 vs v3"><span class="sym">⇄</span>Compare v2 ↔ v3</button>
+      </div>
+    </div>
+
+    <!-- Research question + Primary objective (one-line fields with click-to-expand) -->
+    <div class="rq-strip" aria-label="Research question and primary objective">
+      <div class="rq-row">
+        <span class="rq-label">Research question</span>
+        <span class="rq-value">Do ACE inhibitors reduce 1-year heart-failure hospitalization compared with ARBs in incident-user adults with HFrEF (EF&lt;40%)?</span>
+        <span class="rq-expand" role="button" tabindex="0">↕ expand</span>
+      </div>
+      <div class="rq-row">
+        <span class="rq-label">Primary objective</span>
+        <span class="rq-value">Estimate comparative effectiveness of ACE-i vs ARB on 1-year HF rehospitalization among HFrEF incident users using propensity-score-stratified Cox models.</span>
+        <span class="rq-expand" role="button" tabindex="0">↕ expand</span>
       </div>
     </div>
 
@@ -492,6 +582,19 @@ a{color:inherit;text-decoration:none}
       <div class="blockers"><b>2&nbsp;blockers</b>&nbsp;·&nbsp;1 lint · 1 site</div>
     </div>
 
+    <!-- Sticky action bar — Save / Accept (mirrors v1 Intent panel buttons) -->
+    <div class="action-bar" aria-label="Version actions">
+      <div class="ab-left">
+        <span class="ab-status">v3 · review</span>
+        <span class="ab-meta">last saved 2h ago · all changes synced · 2 blockers unresolved</span>
+      </div>
+      <div class="ab-right">
+        <button class="btn-ghost" type="button">Discard</button>
+        <button class="btn-ghost" type="button">Save draft</button>
+        <button class="btn-accept gated" type="button" title="Resolve 2 blockers to accept v4">Accept v4 →</button>
+      </div>
+    </div>
+
   </section>
 
   <!-- ============ RIGHT: Peripheral Rail ============ -->
@@ -499,6 +602,7 @@ a{color:inherit;text-decoration:none}
     <div class="tabs" role="tablist">
       <div class="tab active" role="tab" aria-selected="true">Evidence</div>
       <div class="tab" role="tab">Lint</div>
+      <div class="tab" role="tab">Notes</div>
       <div class="tab" role="tab">Sites</div>
       <div class="tab" role="tab">Versions</div>
       <div class="tab" role="tab">Abby</div>
