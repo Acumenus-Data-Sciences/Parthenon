@@ -204,5 +204,240 @@
     "updated_at": "2026-05-12T19:50:18.000000Z",
     "deleted_at": null,
     "tenant_id": 1,
-    "items": []
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "items": [
+        {
+            "id": 1791,
+            "concept_set_id": 175,
+            "concept_id": 1146278,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1792,
+            "concept_set_id": 175,
+            "concept_id": 1307863,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1793,
+            "concept_set_id": 175,
+            "concept_id": 1318137,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1794,
+            "concept_set_id": 175,
+            "concept_id": 1318853,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1795,
+            "concept_set_id": 175,
+            "concept_id": 1319133,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1796,
+            "concept_set_id": 175,
+            "concept_id": 1319751,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1797,
+            "concept_set_id": 175,
+            "concept_id": 1319880,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1798,
+            "concept_set_id": 175,
+            "concept_id": 1326012,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1799,
+            "concept_set_id": 175,
+            "concept_id": 1328165,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1800,
+            "concept_set_id": 175,
+            "concept_id": 1332418,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1801,
+            "concept_set_id": 175,
+            "concept_id": 1345141,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1802,
+            "concept_set_id": 175,
+            "concept_id": 1353776,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1803,
+            "concept_set_id": 175,
+            "concept_id": 19004539,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1804,
+            "concept_set_id": 175,
+            "concept_id": 19015802,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1805,
+            "concept_set_id": 175,
+            "concept_id": 19020061,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1806,
+            "concept_set_id": 175,
+            "concept_id": 19032359,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1807,
+            "concept_set_id": 175,
+            "concept_id": 19053866,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1808,
+            "concept_set_id": 175,
+            "concept_id": 19057715,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1809,
+            "concept_set_id": 175,
+            "concept_id": 19071995,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1810,
+            "concept_set_id": 175,
+            "concept_id": 19089969,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1811,
+            "concept_set_id": 175,
+            "concept_id": 19102106,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1812,
+            "concept_set_id": 175,
+            "concept_id": 19113063,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        },
+        {
+            "id": 1813,
+            "concept_set_id": 175,
+            "concept_id": 19124331,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:18.000000Z",
+            "updated_at": "2026-05-12T19:50:18.000000Z"
+        }
+    ]
 }

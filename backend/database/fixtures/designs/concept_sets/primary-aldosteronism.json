@@ -44,5 +44,40 @@
     "updated_at": "2026-05-12T19:50:20.000000Z",
     "deleted_at": null,
     "tenant_id": 1,
-    "items": []
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "items": [
+        {
+            "id": 4306,
+            "concept_set_id": 191,
+            "concept_id": 4028806,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4307,
+            "concept_set_id": 191,
+            "concept_id": 4028807,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4308,
+            "concept_set_id": 191,
+            "concept_id": 45766195,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        }
+    ]
 }

@@ -108,5 +108,120 @@
     "updated_at": "2026-05-12T19:50:20.000000Z",
     "deleted_at": null,
     "tenant_id": 1,
-    "items": []
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "items": [
+        {
+            "id": 4309,
+            "concept_set_id": 192,
+            "concept_id": 1305447,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4310,
+            "concept_set_id": 192,
+            "concept_id": 1326378,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4311,
+            "concept_set_id": 192,
+            "concept_id": 1344965,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4312,
+            "concept_set_id": 192,
+            "concept_id": 1362225,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4313,
+            "concept_set_id": 192,
+            "concept_id": 1387219,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4314,
+            "concept_set_id": 192,
+            "concept_id": 1398937,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4315,
+            "concept_set_id": 192,
+            "concept_id": 19011021,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4316,
+            "concept_set_id": 192,
+            "concept_id": 19055531,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4317,
+            "concept_set_id": 192,
+            "concept_id": 19062195,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4318,
+            "concept_set_id": 192,
+            "concept_id": 19115050,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4319,
+            "concept_set_id": 192,
+            "concept_id": 19135932,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        }
+    ]
 }

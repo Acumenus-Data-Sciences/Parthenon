@@ -8050,5 +8050,9 @@
     "quality_tier": "draft",
     "deprecated_at": "2026-05-13T01:10:00.000000Z",
     "superseded_by": null,
-    "tenant_id": 1
+    "tenant_id": 1,
+    "status": "archived",
+    "archived_at": "2026-05-13 01:10:00",
+    "archived_by": null,
+    "promoted_at": null
 }

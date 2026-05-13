@@ -9,5 +9,10 @@
     "created_at": "2026-04-22T17:33:20.000000Z",
     "updated_at": "2026-04-22T17:33:20.000000Z",
     "deleted_at": null,
+    "tenant_id": 1,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
     "items": []
 }

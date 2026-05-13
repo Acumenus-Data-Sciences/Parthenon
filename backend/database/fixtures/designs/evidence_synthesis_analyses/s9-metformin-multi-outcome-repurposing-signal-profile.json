@@ -15,5 +15,9 @@
     "author_id": 117,
     "created_at": "2026-03-20T00:29:27.000000Z",
     "updated_at": "2026-03-20T00:35:33.000000Z",
-    "deleted_at": null
+    "deleted_at": null,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null
 }

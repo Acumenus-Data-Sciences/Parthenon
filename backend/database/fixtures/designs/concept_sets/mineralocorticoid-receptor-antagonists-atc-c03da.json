@@ -60,5 +60,60 @@
     "updated_at": "2026-05-12T19:50:20.000000Z",
     "deleted_at": null,
     "tenant_id": 1,
-    "items": []
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "items": [
+        {
+            "id": 4301,
+            "concept_set_id": 190,
+            "concept_id": 970250,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4302,
+            "concept_set_id": 190,
+            "concept_id": 1309799,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4303,
+            "concept_set_id": 190,
+            "concept_id": 1537451,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4304,
+            "concept_set_id": 190,
+            "concept_id": 19019698,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        },
+        {
+            "id": 4305,
+            "concept_set_id": 190,
+            "concept_id": 19123864,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-05-12T19:50:20.000000Z",
+            "updated_at": "2026-05-12T19:50:20.000000Z"
+        }
+    ]
 }
