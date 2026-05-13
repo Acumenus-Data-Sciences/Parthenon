@@ -47,4 +47,23 @@ class LibraryLifecycleColumnsTest extends TestCase
         // via the Task D8 backfill command on real data.
         $this->markTestSkipped('Data fold tested via Task D8 backfill command on real data.');
     }
+
+    public function test_all_analyses_tables_have_lifecycle_columns(): void
+    {
+        foreach ([
+            'incidence_rate_analyses',
+            'pathway_analyses',
+            'estimation_analyses',
+            'prediction_analyses',
+            'feature_analyses',
+            'sccs_analyses',
+            'evidence_synthesis_analyses',
+            'self_controlled_cohort_analyses',
+        ] as $table) {
+            $this->assertTrue(
+                Schema::hasColumns($table, ['status', 'archived_at', 'archived_by', 'promoted_at']),
+                "{$table} missing lifecycle columns"
+            );
+        }
+    }
 }
