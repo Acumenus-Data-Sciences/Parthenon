@@ -93,8 +93,8 @@ const navItems: NavItem[] = [
     labelKey: "nav.research",
     icon: FlaskRound,
     children: [
-      { path: "/cohort-definitions", labelKey: "nav.cohortDefinitions", icon: Users },
       { path: "/concept-sets", labelKey: "nav.conceptSets", icon: FlaskConical },
+      { path: "/cohort-definitions", labelKey: "nav.cohortDefinitions", icon: Users },
       { path: "/analyses", labelKey: "nav.analyses", icon: Workflow },
       { path: "/studies", labelKey: "nav.studies", icon: Briefcase },
       ...(studyAgentEnabled
