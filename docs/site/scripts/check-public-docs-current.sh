@@ -2,7 +2,29 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+DOCS_SITE_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
+
+path_or_fallback() {
+  primary="$1"
+  fallback="$2"
+  if [ -e "$primary" ]; then
+    printf '%s\n' "$primary"
+  else
+    printf '%s\n' "$fallback"
+  fi
+}
+
+display_path() {
+  path="$1"
+  case "$path" in
+    "$REPO_ROOT"/*) printf '%s\n' "${path#$REPO_ROOT/}" ;;
+    "$DOCS_SITE_ROOT"/*) printf 'docs/site/%s\n' "${path#$DOCS_SITE_ROOT/}" ;;
+    /frontend/*) printf 'frontend/%s\n' "${path#/frontend/}" ;;
+    /installer/*) printf 'installer/%s\n' "${path#/installer/}" ;;
+    *) printf '%s\n' "$path" ;;
+  esac
+}
 
 FAILED=0
 
@@ -22,13 +44,13 @@ require_file_contains() {
   pattern="$2"
   description="$3"
   if [ ! -f "$file" ]; then
-    printf 'Missing required public docs file: %s\n\n' "${file#$REPO_ROOT/}" >&2
+    printf 'Missing required public docs file: %s\n\n' "$(display_path "$file")" >&2
     FAILED=1
     return
   fi
   if ! grep -Eq -- "$pattern" "$file"; then
     printf 'Public docs guard failed: %s\n' "$description" >&2
-    printf '  File: %s\n\n' "${file#$REPO_ROOT/}" >&2
+    printf '  File: %s\n\n' "$(display_path "$file")" >&2
     FAILED=1
   fi
 }
@@ -43,20 +65,28 @@ forbid_file_contains() {
   matches=$(grep -nE -- "$pattern" "$file" 2>/dev/null || true)
   if [ -n "$matches" ]; then
     printf 'Public docs guard failed: %s\n' "$description" >&2
-    printf '  File: %s\n' "${file#$REPO_ROOT/}" >&2
+    printf '  File: %s\n' "$(display_path "$file")" >&2
     printf '%s\n\n' "$matches" >&2
     FAILED=1
   fi
 }
 
+DOCS_CONTENT_ROOT="$DOCS_SITE_ROOT/docs"
+BLOG_ROOT=$(path_or_fallback "$REPO_ROOT/docs/blog" "$DOCS_SITE_ROOT/blog")
+FRONTEND_PUBLIC_INSTALL_ROOT=$(path_or_fallback "$REPO_ROOT/frontend/public/install" "/frontend/public/install")
+INSTALLER_WEB_ROOT=$(path_or_fallback "$REPO_ROOT/installer/web" "/installer/web")
+INSTALLER_RUST_MAIN=$(path_or_fallback "$REPO_ROOT/installer/rust-gui/src/main.rs" "/installer/rust-gui/src/main.rs")
+INSTALLER_RUST_UI=$(path_or_fallback "$REPO_ROOT/installer/rust-gui/ui" "/installer/rust-gui/ui")
+INSTALLER_RUST_POLKIT=$(path_or_fallback "$REPO_ROOT/installer/rust-gui/polkit" "/installer/rust-gui/polkit")
+
 ACTIVE_PUBLIC_PATHS="
-$REPO_ROOT/docs/site/docs
-$REPO_ROOT/docs/blog
-$REPO_ROOT/frontend/public/install
-$REPO_ROOT/installer/web
-$REPO_ROOT/installer/rust-gui/src/main.rs
-$REPO_ROOT/installer/rust-gui/ui
-$REPO_ROOT/installer/rust-gui/polkit
+$DOCS_CONTENT_ROOT
+$BLOG_ROOT
+$FRONTEND_PUBLIC_INSTALL_ROOT
+$INSTALLER_WEB_ROOT
+$INSTALLER_RUST_MAIN
+$INSTALLER_RUST_UI
+$INSTALLER_RUST_POLKIT
 "
 
 STALE_ORG=$(grep -RInE \
@@ -70,20 +100,20 @@ report_matches \
 
 STALE_LICENSE=$(grep -RInE \
   'Source code:.*Apache 2\.0|free under Apache 2\.0|open[- ]source under( the)? Apache 2\.0( license)?|licensed under Apache 2\.0' \
-  "$REPO_ROOT/docs/site/docs" "$REPO_ROOT/docs/blog" 2>/dev/null \
+  "$DOCS_CONTENT_ROOT" "$BLOG_ROOT" 2>/dev/null \
   || true)
 report_matches \
   'Found stale public Apache 2.0 license claims. Current CE releases are AGPL-3.0-only; historical posts may mention Apache 2.0 only with current-license context.' \
   "$STALE_LICENSE"
 
-INSTALL_WALKTHROUGH="$REPO_ROOT/docs/site/docs/install/community-installer-walkthrough.mdx"
-VERIFY_SOURCE="$REPO_ROOT/docs/site/docs/install/verifying-signatures.mdx"
-NO_TELEMETRY="$REPO_ROOT/docs/site/docs/install/no-telemetry.mdx"
-TRUST_CHECKS="$REPO_ROOT/docs/site/docs/install/first-launch-trust.mdx"
-KEY_ROTATION="$REPO_ROOT/docs/site/docs/install/key-rotation.mdx"
-GETTING_STARTED="$REPO_ROOT/docs/site/docs/part1-getting-started/00b-installation.mdx"
-PUBLIC_INSTALL="$REPO_ROOT/frontend/public/install/index.html"
-PACKAGED_INSTALL="$REPO_ROOT/installer/web/install-landing.html"
+INSTALL_WALKTHROUGH="$DOCS_CONTENT_ROOT/install/community-installer-walkthrough.mdx"
+VERIFY_SOURCE="$DOCS_CONTENT_ROOT/install/verifying-signatures.mdx"
+NO_TELEMETRY="$DOCS_CONTENT_ROOT/install/no-telemetry.mdx"
+TRUST_CHECKS="$DOCS_CONTENT_ROOT/install/first-launch-trust.mdx"
+KEY_ROTATION="$DOCS_CONTENT_ROOT/install/key-rotation.mdx"
+GETTING_STARTED="$DOCS_CONTENT_ROOT/part1-getting-started/00b-installation.mdx"
+PUBLIC_INSTALL="$FRONTEND_PUBLIC_INSTALL_ROOT/index.html"
+PACKAGED_INSTALL="$INSTALLER_WEB_ROOT/install-landing.html"
 
 require_file_contains "$INSTALL_WALKTHROUGH" 'Public Community releases are source-only' 'install walkthrough must identify current Community releases as source-only'
 require_file_contains "$INSTALL_WALKTHROUGH" 'https://parthenon\.acumenus\.net/install\.sh \| sh' 'install walkthrough must include the supported public bootstrap command'

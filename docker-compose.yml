@@ -750,14 +750,21 @@ services:
       - ./docs/blog:/docs/blog:ro
       - ./docs/site/build:/dist
       - ./backend/public/docs/openapi.yaml:/docs/openapi.yaml:ro
+      - ./frontend/public/install:/frontend/public/install:ro
+      - ./installer/web:/installer/web:ro
+      - ./installer/rust-gui/src/main.rs:/installer/rust-gui/src/main.rs:ro
+      - ./installer/rust-gui/ui:/installer/rust-gui/ui:ro
+      - ./installer/rust-gui/polkit:/installer/rust-gui/polkit:ro
       - docs_site_npm_cache:/tmp/npm-cache
     command: >
       sh -c "
         mkdir -p /tmp/npm-cache /dist /tmp/docs-build &&
-        chown -R node:node /docs/node_modules /tmp/npm-cache /dist /tmp/docs-build &&
+        chmod 755 /dist &&
+        chown -R node:node /docs/node_modules /tmp/npm-cache /tmp/docs-build &&
         su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline --ignore-scripts && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
         rm -rf /dist/* &&
-        cp -a /tmp/docs-build/. /dist/
+        cp -a /tmp/docs-build/. /dist/ &&
+        chmod -R o+rX /dist
       "
     deploy:
       resources:
