@@ -242,3 +242,49 @@ it('exports and imports OHDSI report bundles from the publish API', function () 
 
     expect(PublicationReportBundle::query()->where('direction', 'import')->exists())->toBeTrue();
 });
+
+it('round-trips document_json with frozen SVG and tableData intact', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+
+    $document = [
+        'version' => 1,
+        'title' => 'Round-trip Test',
+        'authors' => ['Test Author'],
+        'template' => 'generic-ohdsi',
+        'step' => 2,
+        'selectedExecutions' => [
+            ['studyId' => 1, 'analysisId' => 42, 'executionId' => 99, 'analysisType' => 'characterization', 'designJson' => ['k' => 'v']],
+        ],
+        'sections' => [
+            [
+                'id' => 'results-characterization',
+                'type' => 'results',
+                'title' => 'Results',
+                'content' => 'narrative',
+                'included' => true,
+                'tableData' => ['headers' => ['A', 'B'], 'rows' => [['A' => 1, 'B' => 2]], 'caption' => 'Cohort A'],
+                'svgMarkup' => '<svg xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="3" height="4"/></svg>',
+                'diagramType' => 'kaplan-meier',
+            ],
+        ],
+    ];
+
+    $created = $this->actingAs($user)
+        ->postJson('/api/v1/publish/drafts', [
+            'title' => 'Round-trip Test',
+            'template' => 'generic-ohdsi',
+            'document_json' => $document,
+        ])
+        ->assertCreated()
+        ->json('data');
+
+    $loaded = $this->actingAs($user)
+        ->getJson('/api/v1/publish/drafts/'.$created['id'])
+        ->assertOk()
+        ->json('data');
+
+    expect($loaded['document_json'])->toEqual($document);
+    expect($loaded['document_json']['sections'][0]['svgMarkup'])->toContain('<svg');
+    expect($loaded['document_json']['sections'][0]['tableData']['rows'][0]['A'])->toBe(1);
+});
