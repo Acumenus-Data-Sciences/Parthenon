@@ -7,7 +7,7 @@ import {
   recordValue,
   textValue,
 } from "../../workbench/studyDesignWorkbenchHelpers";
-import type { ManifestNode, ProvenanceFields } from "./lockHelpers";
+import type { ManifestNode, ProvenanceFields } from "./lockProvenance";
 
 // Phase 5 helpers split out from lockHelpers.ts to keep each file under the
 // 500-line project budget. Owns:

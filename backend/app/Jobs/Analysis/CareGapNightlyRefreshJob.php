@@ -3,9 +3,11 @@
 namespace App\Jobs\Analysis;
 
 use App\Enums\DaimonType;
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\Source;
 use App\Services\Analysis\CareGapRefreshService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,9 +22,15 @@ use Illuminate\Support\Facades\Log;
  * Dispatched by the scheduler daily at 02:00 AM.
  * Can also be triggered manually via: php artisan care-gaps:refresh
  */
-class CareGapNightlyRefreshJob implements ShouldQueue
+class CareGapNightlyRefreshJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'care_gap_nightly_refresh';
+    }
 
     public int $timeout = 3600; // 1 hour max
 

@@ -530,10 +530,33 @@ export const router = createBrowserRouter(
       },
       {
         path: "publish",
-        lazy: () =>
-          import("@/features/publish/pages/PublishPage").then((m) => ({
-            Component: m.default,
-          })),
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/publish/library" replace />,
+          },
+          {
+            path: "library",
+            lazy: () =>
+              import("@/features/publish/pages/PublicationLibraryPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "library/new",
+            lazy: () =>
+              import("@/features/publish/pages/PublishPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: "library/:draftId",
+            lazy: () =>
+              import("@/features/publish/pages/PublishPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+        ],
       },
       {
         path: "profiles",

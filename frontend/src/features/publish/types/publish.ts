@@ -63,27 +63,6 @@ export interface NarrativeResponse {
   error?: string;
 }
 
-export interface PublicationDraft {
-  id: number;
-  user_id: number;
-  study_id: number | null;
-  title: string;
-  template: string;
-  document_json: Partial<PublishState> & Record<string, unknown>;
-  status: "draft" | "ready" | "archived";
-  last_opened_at: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-export interface PublicationDraftInput {
-  study_id?: number | null;
-  title: string;
-  template?: string;
-  document_json: Partial<PublishState> & Record<string, unknown>;
-  status?: PublicationDraft["status"];
-}
-
 export interface PublicationReportBundleArtifact {
   format: "ohdsi_report_bundle" | "ohdsi_report_generator_r" | "ohdsi_sharing_bundle";
   mime_type: string;
@@ -120,4 +99,73 @@ export interface ImportPublicationReportBundleResult {
     created_at: string | null;
     updated_at: string | null;
   };
+}
+
+// ── Persisted draft types (Phase 1) ─────────────────────────────────────────
+
+export interface DraftSelectedExecution {
+  studyId?: number;
+  studyTitle?: string;
+  analysisId?: number;
+  executionId?: number;
+  analysisType: string;
+  analysisName?: string;
+  designJson?: Record<string, unknown>;
+  // resultJson is NEVER persisted — re-fetched on demand
+}
+
+export interface DraftSectionTableData {
+  caption?: string;
+  headers: string[];
+  rows: Array<Record<string, string | number>>;
+  footnotes?: string[];
+}
+
+export interface DraftSection {
+  id: string;
+  type: "introduction" | "methods" | "results" | "discussion" | "diagram";
+  analysisType?: string;
+  title: string;
+  content: string;
+  included: boolean;
+  narrativeIncluded?: boolean;
+  tableIncluded?: boolean;
+  diagramIncluded?: boolean;
+  diagramType?: string;
+  tableData?: DraftSectionTableData;
+  svgMarkup?: string;
+  executionId?: number;
+}
+
+export interface DocumentJson {
+  version: 1;
+  title: string;
+  authors: string[];
+  template: string;
+  step: 1 | 2 | 3 | 4;
+  selectedExecutions: DraftSelectedExecution[];
+  sections: DraftSection[];
+}
+
+export type PublicationDraftStatus = "draft" | "ready" | "archived";
+
+export interface PublicationDraft {
+  id: number;
+  user_id: number;
+  study_id: number | null;
+  title: string;
+  template: string;
+  document_json: DocumentJson;
+  status: PublicationDraftStatus;
+  last_opened_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublicationDraftInput {
+  study_id?: number | null;
+  title: string;
+  template: string;
+  document_json: DocumentJson;
+  status?: PublicationDraftStatus;
 }

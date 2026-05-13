@@ -3,21 +3,29 @@
 namespace App\Jobs\Analysis;
 
 use App\Enums\ExecutionStatus;
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EvidenceSynthesisAnalysis;
 use App\Services\Analysis\EvidenceSynthesisService;
 use App\Traits\NotifiesOnCompletion;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class RunEvidenceSynthesisJob implements ShouldQueue
+class RunEvidenceSynthesisJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use NotifiesOnCompletion;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'evidence_synthesis:execution:'.$this->execution->id;
+    }
 
     public int $timeout = 14400;
 

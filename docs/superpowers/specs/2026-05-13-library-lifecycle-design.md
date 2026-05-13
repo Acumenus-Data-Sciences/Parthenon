@@ -1,3 +1,9 @@
+---
+doc_type: spec
+status: active
+date: 2026-05-13
+---
+
 # Library Lifecycle — Concept Sets, Cohort Definitions, Analyses
 
 **Date:** 2026-05-13

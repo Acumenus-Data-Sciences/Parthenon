@@ -140,14 +140,17 @@ function RecommendationCard({
   const typeLabel = asset.asset_type.replace(/_/g, " ");
   const reviewed = ["accepted", "rejected", "deferred"].includes(asset.status);
   const verified = asset.verification_status === "verified";
+  const canAccept = verified || asset.verification_status === "partial";
   const verification = recordValue(asset.verification_json);
   const verificationChecks = verificationCheckRows(verification);
   const blockers = issueMessages(verification?.blocking_reasons);
   const warnings = issueMessages(verification?.warnings);
   const rawSource = valueAt(verification, "source_summary.source") ?? asset.rank_score_json?.source ?? asset.provenance_json?.source;
   const source = rawSource == null ? null : String(rawSource);
-  const acceptDisabledReason = verified
-    ? null
+  const acceptDisabledReason = canAccept
+    ? !verified
+      ? "Accept with verification warnings acknowledged"
+      : null
     : textAt(verification, "eligibility.reason") || t("studies.workbench.messages.onlyVerifiedRecommendations");
   const title = textValue(payload.title) || `Recommendation #${asset.id}`;
   const description = textValue(payload.description);
@@ -219,11 +222,11 @@ function RecommendationCard({
             <button
               type="button"
               onClick={() => onReview(asset, "accept", reviewNotes())}
-              disabled={isReviewing || !verified}
+              disabled={isReviewing || !canAccept}
               title={acceptDisabledReason ?? undefined}
               className="btn btn-primary btn-sm"
             >
-              {t("studies.workbench.actions.accept")}
+              {!verified && canAccept ? `${t("studies.workbench.actions.accept")} (with warnings)` : t("studies.workbench.actions.accept")}
             </button>
             <button
               type="button"

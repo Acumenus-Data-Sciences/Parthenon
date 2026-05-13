@@ -2,20 +2,28 @@
 
 namespace App\Jobs\Analysis;
 
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\CareGapEvaluation;
 use App\Models\App\ConditionBundle;
 use App\Models\App\Source;
 use App\Services\Analysis\CareGapService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class RunCareGapEvaluationJob implements ShouldQueue
+class RunCareGapEvaluationJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'care_gap_evaluation:'.$this->evaluation->id;
+    }
 
     /**
      * The number of seconds the job can run before timing out.

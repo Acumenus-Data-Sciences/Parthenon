@@ -503,15 +503,18 @@ export function useReviewStudyDesignAsset() {
       assetId,
       decision,
       reviewNotes,
+      acknowledgeWarnings,
     }: {
       slug: string;
       sessionId: number;
       assetId: number;
       decision: "accept" | "reject" | "defer";
       reviewNotes?: string | null;
+      acknowledgeWarnings?: boolean;
     }) => reviewStudyDesignAsset(slug, sessionId, assetId, {
       decision,
       review_notes: reviewNotes,
+      ...(acknowledgeWarnings === true ? { acknowledge_warnings: true } : {}),
     }),
     onSuccess: (_data, variables) => {
       invalidateStudyDesignCompiler(queryClient, variables.slug, variables.sessionId);

@@ -181,6 +181,23 @@ vi.mock("../../api/publishApi", () => ({
   exportAsPdf: vi.fn(),
   exportAsImageBundle: vi.fn(),
   exportPlaceholder: vi.fn(),
+  // Publication-draft API surface (Phase 1 library work)
+  fetchPublicationDrafts: vi.fn(async () => []),
+  fetchPublicationDraft: vi.fn(async () => null),
+  createPublicationDraft: vi.fn(async (input: unknown) => ({
+    id: 1,
+    user_id: 1,
+    study_id: null,
+    title: (input as { title?: string }).title ?? "Untitled",
+    template: (input as { template?: string }).template ?? "generic-ohdsi",
+    document_json: (input as { document_json: unknown }).document_json,
+    status: "draft",
+    last_opened_at: null,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  })),
+  updatePublicationDraft: vi.fn(async () => null),
+  deletePublicationDraft: vi.fn(async () => undefined),
 }));
 
 // ---------------------------------------------------------------------------

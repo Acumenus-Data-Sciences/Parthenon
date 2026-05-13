@@ -65,6 +65,7 @@ APPROVED_DOC_PREFIXES = (
     "docs/research/",
     "docs/reference/",
     "docs/demo/",
+    "docs/superpowers/",  # design/plan working docs for in-flight phases
 )
 
 APPROVED_DOC_PATHS = {

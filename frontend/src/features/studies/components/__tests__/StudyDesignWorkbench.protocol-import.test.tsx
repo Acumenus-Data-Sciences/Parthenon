@@ -405,6 +405,7 @@ describe("StudyDesignWorkbench protocol import", () => {
       assetId: 44,
       decision: "accept",
       reviewNotes: "Use this as the population reuse anchor.",
+      acknowledgeWarnings: false,
     });
   });
 
@@ -989,6 +990,7 @@ describe("StudyDesignWorkbench protocol import", () => {
       assetId: 190,
       decision: "reject",
       reviewNotes: undefined,
+      acknowledgeWarnings: false,
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Re-draft family" }));

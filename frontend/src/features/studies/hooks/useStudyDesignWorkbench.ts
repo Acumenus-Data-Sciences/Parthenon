@@ -310,12 +310,14 @@ export function useStudyDesignWorkbench(study: Study) {
     reviewNotes?: string | null,
   ) => {
     if (!selectedSession) return;
+    const acknowledgeWarnings = decision === "accept" && asset.verification_status === "partial";
     reviewAsset.mutate({
       slug,
       sessionId: selectedSession.id,
       assetId: asset.id,
       decision,
       reviewNotes,
+      acknowledgeWarnings,
     });
   };
 

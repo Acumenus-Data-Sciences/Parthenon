@@ -481,12 +481,32 @@ class StudyDesignController extends Controller
         $validated = $request->validate([
             'decision' => ['required', Rule::in(['accept', 'reject', 'defer'])],
             'review_notes' => ['nullable', 'string', 'max:5000'],
+            'acknowledge_warnings' => ['nullable', 'boolean'],
         ]);
 
-        if ($validated['decision'] === 'accept' && $this->requiresVerifiedAcceptance($asset) && $this->verificationValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value) {
-            return response()->json([
-                'message' => 'Only deterministically verified Study Design assets can be accepted.',
-            ], 422);
+        if ($validated['decision'] === 'accept' && $this->requiresVerifiedAcceptance($asset)) {
+            $vstatus = $this->verificationValue($asset);
+            $verified = $vstatus === StudyDesignVerificationStatus::VERIFIED->value;
+            $partialAck = $vstatus === StudyDesignVerificationStatus::PARTIAL->value
+                && ($validated['acknowledge_warnings'] ?? false) === true;
+
+            if (! $verified && ! $partialAck) {
+                $message = $vstatus === StudyDesignVerificationStatus::PARTIAL->value
+                    ? 'This asset has verification warnings. Re-submit with acknowledge_warnings=true to accept anyway.'
+                    : 'Only verified Study Design assets can be accepted. Resolve blocking issues first.';
+
+                return response()->json(['message' => $message], 422);
+            }
+
+            if ($partialAck) {
+                $verificationJson = is_array($asset->verification_json) ? $asset->verification_json : [];
+                $verificationJson['acknowledged_warnings'] = [
+                    'by' => $request->user()?->id,
+                    'at' => now()->toIso8601String(),
+                    'warning_count' => count($verificationJson['warnings'] ?? []),
+                ];
+                $asset->verification_json = $verificationJson;
+            }
         }
 
         $asset->update([

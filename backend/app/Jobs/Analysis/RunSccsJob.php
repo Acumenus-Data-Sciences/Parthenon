@@ -3,22 +3,30 @@
 namespace App\Jobs\Analysis;
 
 use App\Enums\ExecutionStatus;
+use App\Jobs\Concerns\UniqueByExecutionKey;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
 use App\Services\Analysis\SccsService;
 use App\Traits\NotifiesOnCompletion;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class RunSccsJob implements ShouldQueue
+class RunSccsJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use NotifiesOnCompletion;
+    use UniqueByExecutionKey;
+
+    public function uniqueId(): string
+    {
+        return 'sccs:execution:'.$this->execution->id;
+    }
 
     public int $timeout = 14400;
 

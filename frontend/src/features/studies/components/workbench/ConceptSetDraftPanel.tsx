@@ -156,6 +156,7 @@ function ConceptSetDraftCard({
   const [searchError, setSearchError] = useState<string | null>(null);
   const payload = draftPayloadRecord(asset);
   const verified = asset.verification_status === "verified";
+  const canAccept = verified || asset.verification_status === "partial";
   const accepted = asset.status === "accepted";
   const materialized = asset.materialized_id != null;
   const verification = recordValue(asset.verification_json);
@@ -290,11 +291,17 @@ function ConceptSetDraftCard({
               <button
                 type="button"
                 onClick={() => onReview(asset, "accept")}
-                disabled={isReviewing || !verified}
-                title={verified ? undefined : textAt(verification, "eligibility.reason") || t("studies.workbench.messages.onlyVerifiedConceptSetDrafts")}
+                disabled={isReviewing || !canAccept}
+                title={
+                  canAccept && !verified
+                    ? "Accept with verification warnings acknowledged"
+                    : canAccept
+                      ? undefined
+                      : textAt(verification, "eligibility.reason") || t("studies.workbench.messages.onlyVerifiedConceptSetDrafts")
+                }
                 className="btn btn-primary btn-sm"
               >
-                {t("studies.workbench.actions.accept")}
+                {!verified && canAccept ? `${t("studies.workbench.actions.accept")} (with warnings)` : t("studies.workbench.actions.accept")}
               </button>
               <button
                 type="button"

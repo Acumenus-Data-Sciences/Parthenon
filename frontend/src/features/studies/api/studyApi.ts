@@ -377,7 +377,11 @@ export async function reviewStudyDesignAsset(
   slug: string,
   sessionId: number,
   assetId: number,
-  payload: { decision: "accept" | "reject" | "defer"; review_notes?: string | null },
+  payload: {
+    decision: "accept" | "reject" | "defer";
+    review_notes?: string | null;
+    acknowledge_warnings?: boolean;
+  },
 ): Promise<StudyDesignAsset> {
   const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/assets/${assetId}/review`, payload);
   return data.data ?? data;
