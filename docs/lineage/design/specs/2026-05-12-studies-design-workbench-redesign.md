@@ -252,13 +252,17 @@ Total ≈ 13 dev-days. Behind `studies.workbench.v2` flag throughout, with v1 vi
 - [ ] All 6 peripheral tabs have visible focus rings
 - [ ] All icon-only buttons (Upload, session caret) have `aria-label`
 
-## Open questions
+## Decisions (resolved 2026-05-12)
 
-1. **Session-chip placement** — left-side of Identity Strip or middle? Mockup puts it left. If the breadcrumb's middle segment grows (long study slug), left position truncates. May want to swap to a button under the title in the center group.
-2. **Compare-versions UX** — current spec is shift-click two version nodes. Confirm this is discoverable; consider an explicit "Compare" mode toggle next to the version timeline if not.
-3. **Notes tab vs. inline notes** — should risk notes / design assumptions appear in the Peripheral Rail tab, or pinned under the relevant PICO node? Mockup currently has both possible; final implementation should choose one.
-4. **Federation Heatmap density** — for studies bound to 8+ sites, the heatmap stretches vertically. Cap at 6 visible rows with virtual scroll, or move to a smaller compact glyph view above 6 sites?
-5. **Mobile / narrow viewport** — Design tab is desktop-first. At <1024 px width, collapse Peripheral Rail by default? Stack rails as drawers? Currently undefined.
+The five open questions below were resolved before Phase 1 implementation. Each decision is binding on the implementation; deviations require a new ADR-style entry under this section.
+
+| # | Question | Decision | Implementation impact |
+|---|---|---|---|
+| 1 | Session-chip placement | **Left of breadcrumb (current mockup)** | `IdentityStrip` keeps breadcrumb middle segment capped with `max-width` + ellipsis so the chip and breadcrumb don't compete |
+| 2 | Compare-versions UX | **Canvas-toolbar `Compare v2 ↔ v3` button** is canonical entry, opens a side-by-side diff drawer in the Peripheral Rail. Shift-click on timeline nodes works as a power-user shortcut in parallel | `VersionTimeline` exposes both affordances; Phase 5 wires the diff drawer |
+| 3 | Risk notes / design assumptions placement | **Hybrid: Notes tab on Peripheral Rail (master list) + per-node count badges on PICO nodes and asset rows that hop to the filtered Notes tab** | `NotesPanel` is the canonical view; canvas nodes carry a `noteCount` indicator with deep-link behavior |
+| 4 | Federation Heatmap density (8+ sites) | **Scope reset: single-CDM focus (Acumenus OHDSI) for v2.** No federation matrix to size. Stage 5 (Feasibility) renders as a single-source readiness view — target / comparator / outcome / PS covariate / DQD readiness for the bound CDM. The `FederationHeatmap` design remains documented above as **future scope**, to be revived when multi-site federation returns to the roadmap. | `stages/FeasibilityView.tsx` (new, simpler) replaces `FederationHeatmap.tsx` in the Phase 4 deliverable. Federation chips in the mockup illustrate the *future* shape but the production Phase 4 rendering shows a single CDM. |
+| 5 | Mobile / narrow viewport | **Tiered drawer collapse.** Breakpoints: `<1280px` Peripheral Rail collapses to a slide-in drawer (toggle in the editor header); `<960px` Pipeline Rail also collapses to a slide-in drawer; `<768px` render a "Best viewed on desktop" banner with a link back to the Studies list. | `CompilerWorkbench` ships responsive CSS with these three breakpoints; both rails accept a `collapsed` boolean prop that defaults from the matched media query |
 
 ## References
 
