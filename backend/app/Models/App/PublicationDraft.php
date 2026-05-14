@@ -16,6 +16,8 @@ class PublicationDraft extends Model
         'template',
         'document_json',
         'status',
+        'visibility',
+        'updated_by_user_id',
         'last_opened_at',
     ];
 
