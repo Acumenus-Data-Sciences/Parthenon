@@ -20,6 +20,7 @@ import { SnapshotsPanel } from "../components/library/SnapshotsPanel";
 import { useAutosave } from "../hooks/useAutosave";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { useDraft, useCreateDraft, useUpdateDraftById } from "../hooks/useDrafts";
+import { useAuthStore } from "@/stores/authStore";
 import { buildTableFromResults } from "../lib/tableBuilders";
 import { buildDiagramData } from "../lib/diagramBuilders";
 import { getDiagramSvgMarkup } from "../lib/svgExport";
@@ -332,6 +333,24 @@ export default function PublishPage() {
   const updateDraft = useUpdateDraftById();
   const hydratedRef = useRef(false);
 
+  // ── Read-only detection (Task 39) ───────────────────────────────────────
+  // A loaded draft is read-only when (a) it belongs to a different user and
+  // (b) the current user lacks `studies.edit`. The check defaults to editable
+  // until the draft data arrives to avoid flashing a read-only banner. The
+  // backend (Task 35 PublicationDraftPolicy) is the source of truth — this is
+  // purely a UX surface that disables save affordances + offers a duplicate.
+  const currentUser = useAuthStore((s) => s.user);
+  const isOwner =
+    currentUser?.id != null && draftQuery.data?.user_id === currentUser.id;
+  const hasStudiesEdit = (currentUser?.permissions ?? []).includes(
+    "studies.edit",
+  );
+  const readOnly =
+    draftId !== null &&
+    draftQuery.data !== undefined &&
+    !isOwner &&
+    !hasStudiesEdit;
+
   // Hybrid prompt state
   const [promptOpen, setPromptOpen] = useState(false);
 
@@ -557,7 +576,9 @@ export default function PublishPage() {
   const ifUnmodifiedSince = draftQuery.data?.updated_at ?? null;
   const documentJsonForSave = buildDocumentJson();
   const autosave = useAutosave({
-    draftId,
+    // Pass null when read-only so the hook short-circuits and never PATCHes.
+    // (Backend would 403 anyway via PublicationDraftPolicy::update.)
+    draftId: readOnly ? null : draftId,
     title: state.title,
     document: documentJsonForSave,
     ifUnmodifiedSince,
@@ -613,6 +634,22 @@ export default function PublishPage() {
     });
   };
 
+  // ── Duplicate-to-my-drafts (Task 39) ────────────────────────────────────
+  // Viewers who cannot edit can still fork a private copy attributed to
+  // themselves. The new draft starts unlinked (study_id: null, default
+  // visibility = "private") so it lives in the viewer's personal drafts.
+  const handleDuplicateToMyDrafts = useCallback(async () => {
+    const documentJson = buildDocumentJson();
+    const draft = await createDraft.mutateAsync({
+      title: `${state.title || "Untitled manuscript"} (copy)`,
+      template: state.template,
+      document_json: documentJson,
+      study_id: null,
+    });
+    sessionStorage.removeItem(STORAGE_KEY);
+    navigate(`/publish/library/${draft.id}`, { replace: true });
+  }, [state.title, state.template, buildDocumentJson, createDraft, navigate]);
+
   const handleSaveButton = useCallback(async () => {
     const documentJson = buildDocumentJson();
     if (draftId === null) {
@@ -659,7 +696,27 @@ export default function PublishPage() {
         </div>
         <div className="flex items-center gap-2">
           <HelpButton helpKey="publish" />
-          {draftId === null ? (
+          {readOnly ? (
+            <>
+              <span
+                className="inline-flex items-center gap-1 rounded-md bg-surface-elevated px-3 py-1.5 text-xs text-text-primary/60"
+                data-testid="publish-readonly-pill"
+              >
+                View only — request edit access from owner
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  void handleDuplicateToMyDrafts();
+                }}
+                disabled={createDraft.isPending}
+                className="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-accent/90 disabled:opacity-60"
+                data-testid="publish-duplicate-button"
+              >
+                {createDraft.isPending ? "Duplicating…" : "Duplicate to my drafts"}
+              </button>
+            </>
+          ) : draftId === null ? (
             <SaveDraftButton
               hasDraftId={false}
               saving={createDraft.isPending || updateDraft.isPending}
@@ -674,7 +731,7 @@ export default function PublishPage() {
               }}
             />
           )}
-          {draftId !== null && (
+          {draftId !== null && isOwner && (
             <ShareDropdown
               visibility={visibility}
               studyLinked={studyIdForShare !== null}
@@ -809,7 +866,8 @@ export default function PublishPage() {
       </div>
 
       {/* Snapshots panel — visible on Steps 2 and 3 when editing an existing draft */}
-      {draftId !== null && (state.step === 2 || state.step === 3) && (
+      {/* Hide for non-owners; backend policy would reject snapshot writes anyway. */}
+      {draftId !== null && isOwner && (state.step === 2 || state.step === 3) && (
         <SnapshotsPanel
           draftId={draftId}
           defaultLabel={`Snapshot ${new Date().toISOString().slice(0, 10)}`}
