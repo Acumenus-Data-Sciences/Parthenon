@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { updatePublicationDraftWithEtag } from "../api/publishApi";
 import { documentHash } from "../lib/documentHash";
-import type { DocumentJson, PublicationDraftInput } from "../types/publish";
+import type {
+  DocumentJson,
+  PublicationDraft,
+  PublicationDraftInput,
+} from "../types/publish";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "unsaved" | "error";
 
@@ -22,6 +27,7 @@ export function useAutosave({
   debounceMs = 2000,
   onStaleConflict,
 }: UseAutosaveOptions) {
+  const qc = useQueryClient();
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const lastSavedHash = useRef<string | null>(null);
@@ -39,6 +45,7 @@ export function useAutosave({
   // current state. Without this the second autosave would always 412
   // because the prop-level `ifUnmodifiedSince` never refreshes.
   const currentIfUnmodifiedSince = useRef<string | null>(ifUnmodifiedSince);
+  const initialBaselineSeeded = useRef(false);
   useEffect(() => {
     // Only honor the prop value when we haven't observed a newer one ourselves.
     if (currentIfUnmodifiedSince.current === null) {
@@ -47,6 +54,17 @@ export function useAutosave({
   }, [ifUnmodifiedSince]);
 
   const currentHash = documentHash({ title, document });
+
+  // Seed the saved-hash baseline once when the draft is first loaded from
+  // the server. Without this, every mount with an unchanged document would
+  // schedule a redundant PATCH (lastSavedHash=null !== currentHash).
+  useEffect(() => {
+    if (initialBaselineSeeded.current) return;
+    if (draftId !== null && ifUnmodifiedSince !== null) {
+      lastSavedHash.current = currentHash;
+      initialBaselineSeeded.current = true;
+    }
+  }, [draftId, ifUnmodifiedSince, currentHash]);
 
   const performSave = useCallback(async () => {
     if (draftId === null) return;
@@ -69,6 +87,11 @@ export function useAutosave({
       // Advance the optimistic-lock baseline to the row's new updated_at so
       // the next autosave doesn't 412 against our own previous write.
       currentIfUnmodifiedSince.current = updated.updated_at ?? baseline;
+      // Refresh the TanStack cache so any consumer of useDraft (e.g. library
+      // page card, snapshots panel) sees the new updated_at and avoids
+      // re-rendering with a stale draft on navigation.
+      qc.setQueryData<PublicationDraft>(["publish", "drafts", draftId], updated);
+      qc.invalidateQueries({ queryKey: ["publish", "drafts"], exact: true });
       setLastSavedAt(new Date().toISOString());
       setStatus("saved");
       inFlightAttempts.current = 0;
@@ -97,7 +120,7 @@ export function useAutosave({
         setTimeout(() => { void performSaveRef.current(); }, 0);
       }
     }
-  }, [draftId, currentHash, ifUnmodifiedSince, title, document, onStaleConflict]);
+  }, [draftId, currentHash, ifUnmodifiedSince, title, document, onStaleConflict, qc]);
 
   useEffect(() => {
     performSaveRef.current = performSave;
