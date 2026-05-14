@@ -16,6 +16,8 @@ import { useStudyDesignWorkbench } from "../../hooks/useStudyDesignWorkbench";
 import { StudyDesignWorkbench } from "../StudyDesignWorkbench";
 import { IdentityStrip } from "./IdentityStrip";
 import { PipelineRail, type PipelineStage, type PipelineStageState } from "./PipelineRail";
+import { ProtocolImportProgress } from "../ProtocolImportProgress";
+import { BottomUpCompatibilityPanel } from "../workbench/BottomUpCompatibilityPanel";
 import { PicoCanvas } from "./stages/PicoCanvas";
 import { PhenotypeMatrix } from "./stages/PhenotypeMatrix";
 import { ConceptSetMatrix } from "./stages/ConceptSetMatrix";
@@ -186,7 +188,22 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
 
   return (
     <div className="studies-v2-root">
-      <IdentityStrip study={study} />
+      <IdentityStrip
+        study={study}
+        protocolInputRef={wb.protocolInputRef}
+        onProtocolUpload={wb.handleProtocolUpload}
+        protocolBusy={wb.protocolBusy}
+      />
+
+      {/* Protocol import progress strip — shows underneath the identity strip
+          while an import is in flight (or just-completed/failed so the user
+          sees the result). Wraps the v1 ProtocolImportProgress unchanged. */}
+      <ProtocolImportProgress
+        phase={wb.protocolImportPhase}
+        elapsedSeconds={wb.protocolElapsedSeconds}
+        fileName={wb.protocolFileName}
+        className="studies-v2-import-progress"
+      />
 
       {/* <768px banner — per Decision Q5; CSS toggles visibility. */}
       <div className="studies-v2-narrow-banner" role="note">
@@ -214,26 +231,41 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
           ) : null}
 
           {activeStageId === "01" ? (
-            <PicoCanvas
-              session={wb.selectedSession}
-              version={wb.selectedVersion}
-              assistance={assistance}
-              initialFormState={initialFormState}
-              onSave={wb.handleSaveReview}
-              onAccept={wb.handleAccept}
-              onGenerateIntent={(question) => {
-                // Pass the question through directly; the hook syncs its own
-                // state inside handleGenerate to avoid the stale-closure bug
-                // that would have fired if we called setResearchQuestion +
-                // handleGenerate in the same tick.
-                void wb.handleGenerate(question);
-              }}
-              onDirtyChange={wb.setIntentReviewDirty}
-              isSaving={wb.updateVersion.isPending}
-              isAccepting={wb.acceptVersion.isPending}
-              isGenerating={wb.generateIntent.isPending}
-              generationGate={wb.intentGenerationGate}
-            />
+            <>
+              <PicoCanvas
+                session={wb.selectedSession}
+                version={wb.selectedVersion}
+                assistance={assistance}
+                initialFormState={initialFormState}
+                onSave={wb.handleSaveReview}
+                onAccept={wb.handleAccept}
+                onGenerateIntent={(question) => {
+                  // Pass the question through directly; the hook syncs its own
+                  // state inside handleGenerate to avoid the stale-closure bug
+                  // that would have fired if we called setResearchQuestion +
+                  // handleGenerate in the same tick.
+                  void wb.handleGenerate(question);
+                }}
+                onDirtyChange={wb.setIntentReviewDirty}
+                isSaving={wb.updateVersion.isPending}
+                isAccepting={wb.acceptVersion.isPending}
+                isGenerating={wb.generateIntent.isPending}
+                generationGate={wb.intentGenerationGate}
+              />
+              {/* v1 parity: import an existing study as a starting point or
+                  run an AI critique against the current design. Rendered only
+                  when a version exists (panel is meaningless before that). */}
+              {wb.selectedVersion ? (
+                <BottomUpCompatibilityPanel
+                  assets={wb.assets}
+                  isImporting={wb.importExistingStudy.isPending}
+                  isCritiquing={wb.critiqueStudyDesign.isPending}
+                  canCritique={wb.selectedVersion.status !== "locked"}
+                  onImport={wb.handleImportExistingStudy}
+                  onCritique={wb.handleCritiqueStudyDesign}
+                />
+              ) : null}
+            </>
           ) : activeStageId === "02" ? (
             <PhenotypeMatrix workbench={wb} />
           ) : activeStageId === "03" ? (

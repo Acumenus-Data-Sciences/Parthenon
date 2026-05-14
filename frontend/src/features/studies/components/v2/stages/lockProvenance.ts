@@ -121,6 +121,12 @@ export function buildProvenanceFields(
 // Manifest tree
 // ----------------------------------------------------------------------
 
+export function selectManifestForVersion(
+  readiness: StudyDesignLockReadiness | null,
+): StudyDesignManifestPreview | null {
+  return readiness?.manifest_preview ?? null;
+}
+
 export function buildManifestNodes(
   version: StudyDesignVersion | null,
   manifest: StudyDesignManifestPreview | null,

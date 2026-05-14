@@ -1,26 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Lock, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Loader2, Lock } from "lucide-react";
 import { tAuto } from "@/i18n/autoUserFacing";
-import { cn } from "@/lib/utils";
-import type {
-  StudyDesignAsset,
-  StudyDesignLockReadiness,
-  StudyDesignManifestPreview,
-  StudyDesignSession,
-  StudyDesignVersion,
-} from "../../../types/study";
+import { Modal } from "@/components/ui/Modal";
 import type { useStudyDesignWorkbench } from "../../../hooks/useStudyDesignWorkbench";
 import {
   buildPreflightItems,
   hasOpenQuestions,
   isReadyToLock,
   type PreflightItem,
-  type PreflightStatus,
 } from "./lockHelpers";
 import {
   buildManifestNodes,
   buildProvenanceFields,
+  selectManifestForVersion,
 } from "./lockProvenance";
+import {
+  LockedReadOnlyView,
+  PreflightRow,
+  ProvenanceList,
+} from "./LockLaunchpadParts";
 
 // Station 07 — Lock. The ceremonial moment.
 //
@@ -44,6 +43,7 @@ interface LockLaunchpadProps {
     | "lockDesignVersion"
     | "lockGateMessage"
     | "lockConfirmOpen"
+    | "setLockConfirmOpen"
   >;
   /** Study title for the headline. */
   studyTitle: string;
@@ -53,192 +53,12 @@ interface LockLaunchpadProps {
 
 type SealPhase = "idle" | "stamping" | "done";
 
-function statusGlyph(status: PreflightStatus): string {
-  if (status === "satisfied") return "✓";
-  if (status === "warning") return "⚠";
-  return "—";
-}
-
-function PreflightRow({
-  item,
-  onResolve,
-}: {
-  item: PreflightItem;
-  onResolve: (target: NonNullable<PreflightItem["resolveStationId"]> | "notes") => void;
-}): JSX.Element {
-  const showResolve =
-    item.status === "warning"
-    && (item.resolveStationId != null || item.notesDeepLink === true);
-  return (
-    <li
-      className={cn("lock-preflight-row", item.status)}
-      aria-label={tAuto("studies.v2.lock.preflightRowAria", { label: item.label })}
-    >
-      <span
-        className={cn("lock-preflight-status", item.status)}
-        aria-hidden="true"
-      >
-        {statusGlyph(item.status)}
-      </span>
-      <div className="lock-preflight-text">
-        <div className="lock-preflight-label wb-serif">{item.label}</div>
-        <div className="lock-preflight-desc wb-mono">{item.description}</div>
-      </div>
-      {showResolve ? (
-        <button
-          type="button"
-          className="btn-ghost lock-preflight-resolve"
-          onClick={() => {
-            if (item.notesDeepLink === true) {
-              onResolve("notes");
-              return;
-            }
-            if (item.resolveStationId) onResolve(item.resolveStationId);
-          }}
-        >
-          {item.notesDeepLink === true
-            ? tAuto("studies.v2.lock.viewNotes")
-            : tAuto("studies.v2.lock.resolve")}
-        </button>
-      ) : null}
-    </li>
-  );
-}
-
-function selectManifestPreview(
-  readiness: StudyDesignLockReadiness | null,
-): StudyDesignManifestPreview | null {
-  return readiness?.manifest_preview ?? null;
-}
-
-interface LockedReadOnlyViewProps {
-  preflightItems: ReadonlyArray<PreflightItem>;
-  manifestNodes: ReturnType<typeof buildManifestNodes>;
-  provenance: ReturnType<typeof buildProvenanceFields>;
-  studyTitle: string;
-  version: StudyDesignVersion | null;
-  onNavigateStation: LockLaunchpadProps["onNavigateStation"];
-}
-
-function LockedReadOnlyView({
-  preflightItems,
-  manifestNodes,
-  provenance,
-  studyTitle,
-  version,
-  onNavigateStation,
-}: LockedReadOnlyViewProps): JSX.Element {
-  return (
-    <div className="lock-launchpad locked">
-      <header className="lock-header">
-        <div className="lock-header-eyebrow wb-mono">
-          {tAuto("studies.v2.lock.eyebrowLocked")}
-        </div>
-        <h2 className="lock-header-title wb-serif">
-          {tAuto("studies.v2.lock.titleLocked", { title: studyTitle })}
-        </h2>
-        <p className="lock-header-meta wb-mono">
-          {tAuto("studies.v2.lock.lockedSubtitle", {
-            version: version?.version_number ?? "—",
-          })}
-        </p>
-      </header>
-
-      <section className="lock-preflight-panel" aria-label={tAuto("studies.v2.lock.preflightAria")}>
-        <div className="lock-preflight-head wb-mono">
-          {tAuto("studies.v2.lock.preflightTitle")}
-        </div>
-        <ul className="lock-preflight-list">
-          {preflightItems.map((item) => (
-            <PreflightRow
-              key={item.id}
-              item={{ ...item, status: "satisfied" }}
-              onResolve={() => undefined}
-            />
-          ))}
-        </ul>
-      </section>
-
-      <section className="lock-preview-row" aria-label={tAuto("studies.v2.lock.previewAria")}>
-        <div className="lock-package-preview">
-          <div className="lock-preview-head wb-mono">
-            {tAuto("studies.v2.lock.manifestTitle")}
-          </div>
-          <pre className="lock-manifest-tree wb-mono" aria-hidden="false">
-            {manifestNodes.map((node) => (
-              <span key={node.label} className="lock-manifest-line">
-                <span className="lock-manifest-label">{node.label}</span>
-                {node.meta ? <span className="lock-manifest-meta">{node.meta}</span> : null}
-              </span>
-            ))}
-          </pre>
-        </div>
-        <div className="lock-provenance-card">
-          <div className="lock-preview-head wb-mono">
-            {tAuto("studies.v2.lock.provenanceTitle")}
-          </div>
-          <ProvenanceList provenance={provenance} />
-        </div>
-      </section>
-
-      <footer className="lock-footer">
-        <button
-          type="button"
-          className="btn-ghost teal lock-already-locked"
-          onClick={() => onNavigateStation("08")}
-        >
-          <ShieldCheck size={13} aria-hidden="true" />
-          {tAuto("studies.v2.lock.alreadyLocked")}
-        </button>
-      </footer>
-    </div>
-  );
-}
-
-function ProvenanceList({
-  provenance,
-}: {
-  provenance: ReturnType<typeof buildProvenanceFields>;
-}): JSX.Element {
-  const rows: ReadonlyArray<{ label: string; value: string }> = [
-    {
-      label: tAuto("studies.v2.lock.prov.protocol"),
-      value: `${provenance.protocolFile} · ${provenance.protocolPages} · imported ${provenance.protocolImportedAt}`,
-    },
-    {
-      label: tAuto("studies.v2.lock.prov.vocabulary"),
-      value: provenance.vocabularyVersion,
-    },
-    {
-      label: tAuto("studies.v2.lock.prov.hades"),
-      value: provenance.hadesVersion,
-    },
-    {
-      label: tAuto("studies.v2.lock.prov.sites"),
-      value: provenance.sitesBound,
-    },
-    {
-      label: tAuto("studies.v2.lock.prov.signingKey"),
-      value: provenance.signingKeyHint,
-    },
-  ];
-  return (
-    <ul className="lock-provenance-list">
-      {rows.map((row) => (
-        <li key={row.label} className="lock-provenance-item">
-          <span className="lock-provenance-label wb-mono">{row.label}</span>
-          <span className="lock-provenance-value">{row.value}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function LockLaunchpad({
   workbench,
   studyTitle,
   onNavigateStation,
 }: LockLaunchpadProps): JSX.Element {
+  const { t } = useTranslation("app");
   const {
     assets,
     lockReadinessQuery,
@@ -249,6 +69,7 @@ export function LockLaunchpad({
     lockDesignVersion,
     lockGateMessage,
     lockConfirmOpen,
+    setLockConfirmOpen,
   } = workbench;
 
   const readiness = lockReadinessQuery.data ?? null;
@@ -264,7 +85,7 @@ export function LockLaunchpad({
     [selectedVersion, assets, readiness],
   );
   const manifestNodes = useMemo(
-    () => buildManifestNodes(selectedVersion, selectMan(readiness), assets),
+    () => buildManifestNodes(selectedVersion, selectManifestForVersion(readiness), assets),
     [selectedVersion, readiness, assets],
   );
 
@@ -303,27 +124,26 @@ export function LockLaunchpad({
   const { ready, needsAcknowledge } = isReadyToLock(preflightItems, acknowledged);
   const canSubmitLock = ready && selectedSession != null && selectedVersion != null && !isLockedVersion;
 
-  // C-03/H-03 refactor: drive the seal animation directly off the mutation
-  // status instead of coupling an 820 ms timer to `lockConfirmOpen`.
+  // Lock animation choreography:
   //
-  // Sequence:
-  //   1. User clicks Lock → setSealPhase("stamping") + stampStartedAt timestamp + handleLockVersionRequest()
-  //   2. The hook checks readiness; if OK, sets lockConfirmOpen=true
-  //   3. Effect (A) sees lockConfirmOpen=true, fires the actual lock mutation (handleConfirmLock)
-  //   4. The hook closes lockConfirmOpen on success/error in its own onSuccess/onError callbacks
-  //   5. Effect (B) sees lockDesignVersion.isSuccess + sealPhase="stamping", waits out the
-  //      remainder of the 800 ms wax-seal animation, then advances to station 08
-  //   6. Effect (C) sees lockDesignVersion.isError + sealPhase="stamping", rewinds to idle
+  //   1. User clicks Lock CTA → handleLockVersionRequest checks readiness;
+  //      if OK, the hook flips lockConfirmOpen=true.
+  //   2. We render an explicit "Confirm Lock" Modal (v1 fidelity — locking
+  //      is irreversible, the user must confirm with full context).
+  //   3. User clicks Confirm in the Modal → setSealPhase("stamping") +
+  //      handleConfirmLock fires the mutation. The wax-seal animation
+  //      begins as visual feedback for the in-flight mutation.
+  //   4. Effect (B) sees lockDesignVersion.isSuccess + sealPhase="stamping",
+  //      waits out the minimum 800 ms wax-seal duration, then advances to
+  //      station 08.
+  //   5. Effect (C) sees lockDesignVersion.isError + sealPhase="stamping"
+  //      and rewinds via render-time prev-value pattern.
+  //   6. User clicks Cancel in the Modal → setLockConfirmOpen(false) →
+  //      seal stays idle (it was never started).
   //
-  // The prev-gate-message render-time check above (lines 289-302) still
-  // catches the case where the gate refuses BEFORE the mutation runs.
+  // The prev-gate-message render-time check above also catches the case
+  // where the gate refuses BEFORE the Modal opens.
   const sealStartedAtRef = useRef<number | null>(null);
-
-  // (A) gate passed → fire the mutation
-  useEffect(() => {
-    if (!lockConfirmOpen) return;
-    handleConfirmLock();
-  }, [lockConfirmOpen, handleConfirmLock]);
 
   // (B) mutation success → hold for minimum animation duration, then advance
   useEffect(() => {
@@ -376,11 +196,27 @@ export function LockLaunchpad({
     onNavigateStation(target);
   };
 
+  // First click on the Lock CTA — does NOT start the seal animation yet.
+  // The wax-seal only fires after the user clicks Confirm in the Modal.
   const lockClicked = (): void => {
     if (!canSubmitLock || sealPhase !== "idle" || lockDesignVersion.isPending) return;
+    void handleLockVersionRequest();
+  };
+
+  // User clicked Confirm in the Modal — now fire the mutation and start
+  // the seal animation. The Modal stays open during the mutation; it closes
+  // automatically when the hook's onSuccess/onError callbacks resolve.
+  const handleUserConfirmLock = (): void => {
+    if (lockDesignVersion.isPending || sealPhase !== "idle") return;
     sealStartedAtRef.current = Date.now();
     setSealPhase("stamping");
-    void handleLockVersionRequest();
+    handleConfirmLock();
+  };
+
+  // User clicked Cancel in the Modal — close it; seal never started.
+  const handleUserCancelLock = (): void => {
+    if (lockDesignVersion.isPending) return;
+    setLockConfirmOpen(false);
   };
 
   const acknowledgeClicked = (): void => {
@@ -484,15 +320,52 @@ export function LockLaunchpad({
           </span>
         </button>
       </footer>
+
+      {/* Explicit confirm Modal — preserves v1 fidelity. Locking is
+          irreversible; the user must explicitly confirm before the mutation
+          fires. The wax-seal animation begins only after Confirm is clicked. */}
+      <Modal
+        open={lockConfirmOpen}
+        onClose={handleUserCancelLock}
+        title={t("studies.workbench.lockConfirm.title")}
+        size="md"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              disabled={lockDesignVersion.isPending}
+              onClick={handleUserCancelLock}
+            >
+              {t("studies.workbench.actions.cancel")}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={lockDesignVersion.isPending}
+              onClick={handleUserConfirmLock}
+            >
+              {lockDesignVersion.isPending ? (
+                <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Lock size={14} aria-hidden="true" />
+              )}
+              {t("studies.workbench.lockConfirm.confirm")}
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-text-primary">
+          {t("studies.workbench.lockConfirm.body", {
+            version: selectedVersion?.version_number ?? "",
+            updatedAt: selectedVersion?.updated_at ?? "",
+          })}
+        </p>
+        <p className="mt-2 text-xs text-warning">
+          {t("studies.workbench.lockConfirm.irreversibleWarning")}
+        </p>
+      </Modal>
     </div>
   );
 }
 
-function selectMan(
-  readiness: StudyDesignLockReadiness | null,
-): StudyDesignManifestPreview | null {
-  return selectManifestPreview(readiness);
-}
-
-// Re-export StudyDesignAsset / StudyDesignSession for downstream typings.
-export type { StudyDesignAsset, StudyDesignSession };
