@@ -255,4 +255,32 @@ class Study extends Model
                 ->orWhere('description', 'ilike', "%{$term}%");
         });
     }
+
+    /**
+     * Limit to studies accessible by a given user. A user is considered
+     * a collaborator if they are the creator, principal investigator,
+     * lead data scientist, lead statistician, or an explicit team member
+     * recorded in `study_team_members`.
+     *
+     * Used by PublicationDraftPolicy and other authorization helpers that
+     * need to distinguish "study collaborators" from arbitrary readers.
+     *
+     * @param  Builder<Study>  $query
+     * @return Builder<Study>
+     */
+    public function scopeAccessibleBy($query, int $userId)
+    {
+        return $query->where(function ($q) use ($userId) {
+            $q->where('created_by', $userId)
+                ->orWhere('principal_investigator_id', $userId)
+                ->orWhere('lead_data_scientist_id', $userId)
+                ->orWhere('lead_statistician_id', $userId)
+                ->orWhereExists(function ($sub) use ($userId) {
+                    $sub->select(\DB::raw(1))
+                        ->from('study_team_members')
+                        ->whereColumn('study_team_members.study_id', 'studies.id')
+                        ->where('study_team_members.user_id', $userId);
+                });
+        });
+    }
 }
