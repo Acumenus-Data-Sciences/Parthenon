@@ -13,6 +13,7 @@ import DocumentConfigurator from "../components/DocumentConfigurator";
 import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
 import { HybridPromptModal } from "../components/PublishPage/HybridPromptModal";
+import { ShareDropdown } from "../components/PublishPage/ShareDropdown";
 import { SaveDraftButton } from "../components/library/SaveDraftButton";
 import { SaveStatusIndicator } from "../components/PublishPage/SaveStatusIndicator";
 import { SnapshotsPanel } from "../components/library/SnapshotsPanel";
@@ -34,6 +35,7 @@ import type {
   SelectedExecution,
   NarrativeState,
   DraftSection,
+  PublicationDraftVisibility,
 } from "../types/publish";
 import { TEMPLATES } from "../templates/index";
 import type { TemplateSectionDef } from "../templates/index";
@@ -596,6 +598,21 @@ export default function PublishPage() {
     [state, createDraft, navigate],
   );
 
+  // ── Visibility / Share wiring (Task 38) ─────────────────────────────────
+  const visibility: PublicationDraftVisibility =
+    draftQuery.data?.visibility ?? "private";
+  const studyIdForShare =
+    state.selectedExecutions[0]?.studyId ?? draftQuery.data?.study_id ?? null;
+  const studyTitle = state.selectedExecutions[0]?.studyTitle ?? undefined;
+
+  const handleVisibilityChange = (next: PublicationDraftVisibility) => {
+    if (draftId === null) return;
+    updateDraft.mutate({
+      id: draftId,
+      payload: { visibility: next, study_id: studyIdForShare },
+    });
+  };
+
   const handleSaveButton = useCallback(async () => {
     const documentJson = buildDocumentJson();
     if (draftId === null) {
@@ -655,6 +672,14 @@ export default function PublishPage() {
               onRetry={() => {
                 void autosave.retry();
               }}
+            />
+          )}
+          {draftId !== null && (
+            <ShareDropdown
+              visibility={visibility}
+              studyLinked={studyIdForShare !== null}
+              studyName={studyTitle}
+              onChange={handleVisibilityChange}
             />
           )}
           <button

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MoreHorizontal, Calendar, FileText } from "lucide-react";
+import { useAuthStore } from "@/stores/authStore";
 import type { PublicationDraft } from "../../types/publish";
+import { VisibilityBadge } from "./VisibilityBadge";
 
 interface DraftCardProps {
   draft: PublicationDraft;
@@ -35,6 +37,7 @@ function statusClass(status: string): string {
 
 export function DraftCard({ draft, onArchive, onDelete, onDuplicate, onRename }: DraftCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const currentUserId = useAuthStore((s) => s.user?.id ?? null);
   const sections = draft.document_json?.sections ?? [];
   const tableCount = sections.filter((s) => s.tableIncluded).length;
   const figureCount = sections.filter((s) => s.diagramIncluded).length;
@@ -109,6 +112,10 @@ export function DraftCard({ draft, onArchive, onDelete, onDuplicate, onRename }:
       <div className="flex flex-wrap gap-2 text-xs text-text-primary/60">
         <span className="rounded-full bg-surface-elevated px-2 py-0.5">{draft.template}</span>
         <span className={`rounded-full px-2 py-0.5 ${statusClass(draft.status)}`}>{draft.status}</span>
+        <VisibilityBadge visibility={draft.visibility} />
+        {currentUserId !== null && currentUserId !== draft.user_id && (
+          <span className="text-xs text-text-primary/50">by user #{draft.user_id}</span>
+        )}
       </div>
       <div className="mt-3 flex items-center gap-3 text-xs text-text-primary/50">
         <span className="flex items-center gap-1">
