@@ -144,16 +144,19 @@ interface Props {
   isPublic?: boolean;
   withGenerations?: boolean;
   lifecycleStatus?: "active" | "draft" | "archived" | "all";
+  /** Super-admin "All users" scope (Phase D §6.5). Bypasses owner restriction. */
+  allUsers?: boolean;
   onCreateFromBundle?: () => void;
   groupBy?: "domain" | null;
   tierFilter?: string | null;
 }
 
-export function CohortDefinitionList({ tags, search, isPublic, withGenerations, lifecycleStatus, onCreateFromBundle, groupBy, tierFilter }: Props) {
+export function CohortDefinitionList({ tags, search, isPublic, withGenerations, lifecycleStatus, allUsers, onCreateFromBundle, groupBy, tierFilter }: Props) {
   const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [myOnly, setMyOnly] = useState(true);
+  const effectiveMyOnly = allUsers ? false : myOnly;
   const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
 
@@ -175,7 +178,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     quality_tier: (tierFilter as QualityTier) ?? undefined,
     search: search || undefined,
     tags: tags && tags.length > 0 ? tags : undefined,
-    author_id: myOnly && currentUser ? currentUser.id : undefined,
+    author_id: effectiveMyOnly && currentUser ? currentUser.id : undefined,
     enabled: isGrouped,
   });
 
@@ -183,6 +186,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   useEffect(() => {
     if (groupedData?.data?.groups && expandedGroups.size === 0) {
       const firstThree = groupedData.data.groups.slice(0, 3).map((g) => g.key);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpandedGroups(new Set(firstThree));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,8 +194,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
 
   // Reset page when filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, tags, isPublic, withGenerations, myOnly]);
+  }, [search, tags, isPublic, withGenerations, myOnly, allUsers]);
 
   const { data, isLoading, error } = useCohortDefinitions({
     page,
@@ -200,8 +205,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     search,
     is_public: isPublic || undefined,
     with_generations: withGenerations || undefined,
-    author_id: myOnly && currentUser ? currentUser.id : undefined,
+    author_id: effectiveMyOnly && currentUser ? currentUser.id : undefined,
     status: lifecycleStatus,
+    scope: allUsers ? "all" : undefined,
     enabled: !isGrouped,
   });
 
@@ -221,35 +227,37 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
 
     return (
       <div className="space-y-4">
-        {/* My / All toggle */}
-        <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
-          <button
-            type="button"
-            onClick={() => setMyOnly(true)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-              myOnly
-                ? "bg-surface-elevated text-text-primary shadow-sm"
-                : "text-text-muted hover:text-text-secondary",
-            )}
-          >
-            <User size={12} />
-            {t("cohortDefinitions.auto.myDefinitions_5c115e")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMyOnly(false)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-              !myOnly
-                ? "bg-surface-elevated text-text-primary shadow-sm"
-                : "text-text-muted hover:text-text-secondary",
-            )}
-          >
-            <Globe size={12} />
-            {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
-          </button>
-        </div>
+        {/* My / All toggle — hidden in super-admin "All users" mode */}
+        {!allUsers && (
+          <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
+            <button
+              type="button"
+              onClick={() => setMyOnly(true)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                myOnly
+                  ? "bg-surface-elevated text-text-primary shadow-sm"
+                  : "text-text-muted hover:text-text-secondary",
+              )}
+            >
+              <User size={12} />
+              {t("cohortDefinitions.auto.myDefinitions_5c115e")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMyOnly(false)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                !myOnly
+                  ? "bg-surface-elevated text-text-primary shadow-sm"
+                  : "text-text-muted hover:text-text-secondary",
+              )}
+            >
+              <Globe size={12} />
+              {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
+            </button>
+          </div>
+        )}
 
         {groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
@@ -433,35 +441,37 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
 
   return (
     <div className="space-y-4">
-      {/* My / All toggle */}
-      <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
-        <button
-          type="button"
-          onClick={() => setMyOnly(true)}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            myOnly
-              ? "bg-surface-elevated text-text-primary shadow-sm"
-              : "text-text-muted hover:text-text-secondary",
-          )}
-        >
-          <User size={12} />
-          {t("cohortDefinitions.auto.myDefinitions_5c115e")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setMyOnly(false)}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            !myOnly
-              ? "bg-surface-elevated text-text-primary shadow-sm"
-              : "text-text-muted hover:text-text-secondary",
-          )}
-        >
-          <Globe size={12} />
-          {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
-        </button>
-      </div>
+      {/* My / All toggle — hidden in super-admin "All users" mode */}
+      {!allUsers && (
+        <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
+          <button
+            type="button"
+            onClick={() => setMyOnly(true)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              myOnly
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
+            )}
+          >
+            <User size={12} />
+            {t("cohortDefinitions.auto.myDefinitions_5c115e")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMyOnly(false)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              !myOnly
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
+            )}
+          >
+            <Globe size={12} />
+            {t("cohortDefinitions.auto.allDefinitions_39f3bd")}
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
@@ -474,7 +484,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 {t("cohortDefinitions.auto.tier_9483f1")}
               </th>
-              {!myOnly && (
+              {!effectiveMyOnly && (
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   {t("cohortDefinitions.auto.author_a51774")}
                 </th>
@@ -530,7 +540,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 <td className="px-4 py-3">
                   <TierBadge tier={def.quality_tier} />
                 </td>
-                {!myOnly && (
+                {!effectiveMyOnly && (
                   <td className="px-4 py-3">
                     <p className="text-xs text-text-muted">
                       {def.author?.name ?? "--"}
