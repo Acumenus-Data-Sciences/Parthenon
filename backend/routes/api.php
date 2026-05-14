@@ -98,6 +98,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\InvestigationExportController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
+use App\Http\Controllers\Api\V1\Library\CleanupSuggestionsController;
 use App\Http\Controllers\Api\V1\Library\LifecycleController;
 use App\Http\Controllers\Api\V1\ManagedShinyLaunchController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -2188,6 +2189,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
             );
         });
     }
+});
+
+// ── Library cleanup suggestions (Phase C / spec §6.2) ───────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::get(
+        '/library/cleanup',
+        [CleanupSuggestionsController::class, 'index'],
+    );
 });
 
 // Catch-all for unknown API routes
