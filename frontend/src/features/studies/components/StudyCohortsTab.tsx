@@ -9,6 +9,8 @@ import {
   useRemoveStudyCohort,
 } from "../hooks/useStudies";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
+import { AutoPromoteModal } from "@/features/library/components/AutoPromoteModal";
+import { useAutoPromoteOn409 } from "@/features/library/hooks/useAutoPromoteOn409";
 import type { StudyCohort } from "../types/study";
 
 const COHORT_ROLES = ["target", "comparator", "outcome", "exclusion", "subgroup", "event"] as const;
@@ -29,10 +31,19 @@ interface StudyCohortsTabProps {
 export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
   const { t } = useTranslation("app");
   const { data: cohorts, isLoading } = useStudyCohorts(slug);
-  const { data: cohortsData } = useCohortDefinitions();
+  const [showDrafts, setShowDrafts] = useState(false);
+  const { data: cohortsData } = useCohortDefinitions({
+    status: showDrafts ? "all" : "active",
+  });
   const addMutation = useAddStudyCohort();
   const updateMutation = useUpdateStudyCohort();
   const removeMutation = useRemoveStudyCohort();
+
+  // Auto-promote 409 handler for Draft cohort attachments.
+  const autoPromote = useAutoPromoteOn409<{
+    slug: string;
+    payload: Partial<StudyCohort>;
+  }>("cohort-definitions", (args) => addMutation.mutateAsync(args));
 
   // Add form state
   const [showAdd, setShowAdd] = useState(false);
@@ -48,7 +59,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
 
   // Filter out cohorts already assigned
   const assignedCohortIds = new Set(cohorts?.map((c) => c.cohort_definition_id) ?? []);
-  const allCohortDefs = (cohortsData as { items?: { id: number; name: string }[] })?.items ?? [];
+  const allCohortDefs = (cohortsData as { items?: { id: number; name: string; status?: string }[] })?.items ?? [];
   const availableCohorts = allCohortDefs.filter((c) => !assignedCohortIds.has(c.id));
   const filteredCohorts = cohortSearch
     ? availableCohorts.filter((c) =>
@@ -56,10 +67,10 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
       )
     : availableCohorts;
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!selectedCohortId || !newLabel.trim()) return;
-    addMutation.mutate(
-      {
+    try {
+      await autoPromote.attempt({
         slug,
         payload: {
           cohort_definition_id: selectedCohortId as number,
@@ -68,18 +79,20 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
           description: newDescription || null,
           sort_order: (cohorts?.length ?? 0) + 1,
         },
-      },
-      {
-        onSuccess: () => {
-          setShowAdd(false);
-          setSelectedCohortId("");
-          setSelectedRole("target");
-          setNewLabel("");
-          setNewDescription("");
-          setCohortSearch("");
-        },
-      },
-    );
+      });
+      // If a 409 was raised, attempt() returns silently and pendingPayload is set;
+      // the modal will fire confirm()/cancel() which finishes the flow.
+      if (autoPromote.pendingPayload === null) {
+        setShowAdd(false);
+        setSelectedCohortId("");
+        setSelectedRole("target");
+        setNewLabel("");
+        setNewDescription("");
+        setCohortSearch("");
+      }
+    } catch {
+      // Mutation errors other than 409 surface through TanStack Query's error state.
+    }
   };
 
   const startEdit = (c: StudyCohort) => {
@@ -122,9 +135,20 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
 
           {/* Cohort search + select */}
           <div className="space-y-2">
-            <label className="text-[10px] text-text-ghost uppercase tracking-wider block">
-              {t("studies.cohorts.form.cohortDefinition")}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider block">
+                {t("studies.cohorts.form.cohortDefinition")}
+              </label>
+              <label className="flex items-center gap-1.5 text-[10px] text-text-ghost uppercase tracking-wider cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showDrafts}
+                  onChange={(e) => setShowDrafts(e.target.checked)}
+                  className="rounded border-border-default bg-surface-base"
+                />
+                Show my drafts
+              </label>
+            </div>
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
@@ -144,11 +168,16 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                     type="button"
                     onClick={() => { setSelectedCohortId(cd.id); setCohortSearch(cd.name); }}
                     className={cn(
-                      "w-full text-left px-3 py-2 text-sm hover:bg-surface-overlay transition-colors",
+                      "w-full text-left px-3 py-2 text-sm hover:bg-surface-overlay transition-colors flex items-center justify-between",
                       selectedCohortId === cd.id ? "bg-success/10 text-success" : "text-text-primary",
                     )}
                   >
-                    {cd.name}
+                    <span>{cd.name}</span>
+                    {cd.status === "draft" && (
+                      <span className="text-[9px] font-mono uppercase tracking-wider rounded bg-amber-700/30 text-amber-200 px-1.5 py-0.5">
+                        Draft
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -305,6 +334,24 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
             );
           })}
         </div>
+      )}
+
+      {/* Auto-promote modal when attaching a Draft cohort triggers a 409 */}
+      {autoPromote.pendingPayload && (
+        <AutoPromoteModal
+          payload={autoPromote.pendingPayload}
+          onConfirm={async () => {
+            await autoPromote.confirm();
+            setShowAdd(false);
+            setSelectedCohortId("");
+            setSelectedRole("target");
+            setNewLabel("");
+            setNewDescription("");
+            setCohortSearch("");
+          }}
+          onCancel={autoPromote.cancel}
+          isPending={autoPromote.isPromoting}
+        />
       )}
     </div>
   );
