@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Concerns\HasLibraryLifecycle;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class IncidenceRateAnalysis extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasLibraryLifecycle, SoftDeletes;
 
     protected $fillable = [
         'name',

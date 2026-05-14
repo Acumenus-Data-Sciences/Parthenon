@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Concerns\HasLibraryLifecycle;
 use App\Enums\CohortDomain;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CohortDefinition extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasLibraryLifecycle, SoftDeletes;
 
     protected $fillable = [
         'name',

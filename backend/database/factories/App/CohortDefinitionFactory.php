@@ -30,6 +30,10 @@ class CohortDefinitionFactory extends Factory
             'author_id' => User::factory(),
             'is_public' => false,
             'version' => 1,
+            'status' => 'active',
+            'archived_at' => null,
+            'archived_by' => null,
+            'promoted_at' => null,
         ];
     }
 

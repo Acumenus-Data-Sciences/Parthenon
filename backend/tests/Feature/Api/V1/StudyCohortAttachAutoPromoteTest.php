@@ -37,9 +37,10 @@ class StudyCohortAttachAutoPromoteTest extends TestCase
             'name' => 'My Draft',
         ]);
 
-        $resp = $this->postJson("/api/v1/studies/{$study->id}/cohorts", [
+        $resp = $this->postJson("/api/v1/studies/{$study->slug}/cohorts", [
             'cohort_definition_id' => $cohort->id,
             'role' => 'target',
+            'label' => 'Target cohort',
         ]);
 
         $resp->assertStatus(409)->assertJson([
@@ -62,9 +63,10 @@ class StudyCohortAttachAutoPromoteTest extends TestCase
             'status' => 'active',
         ]);
 
-        $this->postJson("/api/v1/studies/{$study->id}/cohorts", [
+        $this->postJson("/api/v1/studies/{$study->slug}/cohorts", [
             'cohort_definition_id' => $cohort->id,
             'role' => 'target',
+            'label' => 'Target cohort',
         ])->assertSuccessful();
     }
 
@@ -80,9 +82,10 @@ class StudyCohortAttachAutoPromoteTest extends TestCase
             'status' => 'archived',
         ]);
 
-        $this->postJson("/api/v1/studies/{$study->id}/cohorts", [
+        $this->postJson("/api/v1/studies/{$study->slug}/cohorts", [
             'cohort_definition_id' => $cohort->id,
             'role' => 'target',
+            'label' => 'Target cohort',
         ])->assertStatus(422);
     }
 
@@ -99,9 +102,10 @@ class StudyCohortAttachAutoPromoteTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->postJson("/api/v1/studies/{$study->id}/cohorts", [
+        $this->postJson("/api/v1/studies/{$study->slug}/cohorts", [
             'cohort_definition_id' => $cohort->id,
             'role' => 'target',
+            'label' => 'Target cohort',
         ])->assertForbidden();
     }
 }

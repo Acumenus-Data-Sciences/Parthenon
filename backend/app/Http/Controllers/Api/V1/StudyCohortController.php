@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\LibraryStatus;
+use App\Exceptions\RequiresPromotionException;
 use App\Http\Controllers\Controller;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Study;
 use App\Models\App\StudyCohort;
+use App\Scopes\LibraryDefaultScope;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @group Studies
@@ -53,9 +58,23 @@ class StudyCohortController extends Controller
 
         try {
             /** @var CohortDefinition $cohortDef */
-            $cohortDef = CohortDefinition::findOrFail($validated['cohort_definition_id']);
-            if ($cohortDef->isDeprecated()) {
-                $message = 'Cannot add a deprecated cohort to a study.';
+            $cohortDef = CohortDefinition::query()
+                ->withoutGlobalScope(LibraryDefaultScope::class)
+                ->findOrFail($validated['cohort_definition_id']);
+
+            if ($cohortDef->status === LibraryStatus::DRAFT) {
+                if ((int) $cohortDef->author_id === (int) $request->user()->id) {
+                    throw new RequiresPromotionException(
+                        itemType: 'cohort_definition',
+                        itemId: $cohortDef->id,
+                        itemName: (string) $cohortDef->name,
+                    );
+                }
+                abort(403, 'You cannot attach another user\'s draft cohort definition.');
+            }
+
+            if ($cohortDef->status === LibraryStatus::ARCHIVED) {
+                $message = 'Cannot add an archived cohort to a study.';
                 if ($cohortDef->supersededByCohort) {
                     $message .= " Use \"{$cohortDef->supersededByCohort->name}\" (ID: {$cohortDef->superseded_by}) instead.";
                 }
@@ -74,6 +93,10 @@ class StudyCohortController extends Controller
                 'data' => $cohort,
                 'message' => 'Study cohort added.',
             ], 201);
+        } catch (RequiresPromotionException $e) {
+            throw $e;
+        } catch (AuthorizationException|HttpException $e) {
+            throw $e;
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to add study cohort', $e);
         }
