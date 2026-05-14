@@ -12,6 +12,7 @@ import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 import { useTranslation } from "react-i18next";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
+import { CleanupBanner } from "@/features/library/components/CleanupBanner";
 
 export default function CohortDefinitionsPage() {
   const { t } = useTranslation("app");
@@ -237,6 +238,9 @@ export default function CohortDefinitionsPage() {
           ))}
         </div>
       )}
+
+      {/* Cleanup suggestions nudge — hidden when ≤5 stale items */}
+      <CleanupBanner itemTypePrefix="cohort_definition" />
 
       {/* Lifecycle status tabs */}
       <StatusTabs

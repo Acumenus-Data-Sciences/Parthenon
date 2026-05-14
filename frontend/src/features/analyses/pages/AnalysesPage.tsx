@@ -32,6 +32,7 @@ import { usePredictions, useCreatePrediction } from "@/features/prediction/hooks
 import { useSccsAnalyses, useCreateSccs } from "@/features/sccs/hooks/useSccs";
 import { useEvidenceSynthesisAnalyses, useCreateEvidenceSynthesis } from "@/features/evidence-synthesis/hooks/useEvidenceSynthesis";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
+import { CleanupBanner } from "@/features/library/components/CleanupBanner";
 import type { CharacterizationDesign, IncidenceRateDesign } from "../types/analysis";
 import type { PathwayDesign } from "@/features/pathways/types/pathway";
 import type { EstimationDesign } from "@/features/estimation/types/estimation";
@@ -426,6 +427,9 @@ export default function AnalysesPage() {
           </div>
         </div>
       </div>
+
+      {/* Cleanup suggestions nudge — analyses-prefixed items only */}
+      <CleanupBanner itemTypePrefix="" />
 
       {/* Lifecycle status filter — applies across all analysis types */}
       <div>

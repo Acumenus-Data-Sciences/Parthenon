@@ -13,6 +13,7 @@ import { getConceptSetTags } from "../api/conceptSetApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
+import { CleanupBanner } from "@/features/library/components/CleanupBanner";
 
 export default function ConceptSetsPage() {
   const { t } = useTranslation("app");
@@ -122,6 +123,9 @@ export default function ConceptSetsPage() {
 
       {/* Stats Bar */}
       <ConceptSetStatsBar onStatClick={handleStatClick} activeKey={statFilter ?? undefined} />
+
+      {/* Cleanup suggestions nudge — hidden when ≤5 stale items */}
+      <CleanupBanner itemTypePrefix="concept_set" />
 
       {/* Lifecycle status tabs */}
       <StatusTabs

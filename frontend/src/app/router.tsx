@@ -197,6 +197,13 @@ export const router = createBrowserRouter(
         ],
       },
       {
+        path: "library/cleanup",
+        lazy: () =>
+          import(
+            "@/features/library/pages/CleanupSuggestionsPage"
+          ).then((m) => ({ Component: m.default })),
+      },
+      {
         path: "jupyter",
         lazy: () =>
           import("@/features/jupyter/pages/JupyterPage").then((m) => ({
