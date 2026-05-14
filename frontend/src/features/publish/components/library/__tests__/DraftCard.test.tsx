@@ -23,6 +23,8 @@ const draft: PublicationDraft = {
     ],
   },
   status: "draft",
+  visibility: "private",
+  updated_by_user_id: null,
   last_opened_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),

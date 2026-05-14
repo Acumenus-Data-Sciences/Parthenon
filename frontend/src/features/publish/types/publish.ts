@@ -149,6 +149,8 @@ export interface DocumentJson {
 
 export type PublicationDraftStatus = "draft" | "ready" | "archived";
 
+export type PublicationDraftVisibility = "private" | "study";
+
 export interface PublicationDraft {
   id: number;
   user_id: number;
@@ -157,6 +159,8 @@ export interface PublicationDraft {
   template: string;
   document_json: DocumentJson;
   status: PublicationDraftStatus;
+  visibility: PublicationDraftVisibility;
+  updated_by_user_id: number | null;
   last_opened_at: string | null;
   created_at: string;
   updated_at: string;
@@ -168,4 +172,5 @@ export interface PublicationDraftInput {
   template: string;
   document_json: DocumentJson;
   status?: PublicationDraftStatus;
+  visibility?: PublicationDraftVisibility;
 }
