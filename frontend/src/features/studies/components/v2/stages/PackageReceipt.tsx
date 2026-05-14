@@ -46,9 +46,45 @@ export function PackageReceipt({
   // during that window we'd otherwise show the gated "Lock the design first"
   // message — confusing right after the user just clicked Lock. Detect the
   // transition and show a finalizing-loading state instead.
-  const isFinalizing =
+  //
+  // M9: bail out of the finalizing state after 10s in case the versions
+  // refetch silently fails or stalls. Without this fallback, a stuck refetch
+  // would freeze the user on "Finalizing…" until they reloaded the tab.
+  // After bailout we reset the mutation status so subsequent renders fall
+  // through to the gated branch and the user can re-attempt navigation.
+  const [finalizingExpired, setFinalizingExpired] = useState(false);
+  const inFinalizingWindow =
     !isLocked
     && (lockDesignVersion.isPending || lockDesignVersion.isSuccess || lockReadinessQuery.isFetching);
+  const isFinalizing = inFinalizingWindow && !finalizingExpired;
+
+  // Render-time prev-value comparison (consistent with the rest of v2)
+  // to reset the bail-out latch when we exit the finalizing window —
+  // matches the LockLaunchpad pattern, avoids setState-in-effect lint.
+  const [prevInWindow, setPrevInWindow] = useState(inFinalizingWindow);
+  if (prevInWindow !== inFinalizingWindow) {
+    setPrevInWindow(inFinalizingWindow);
+    if (!inFinalizingWindow && finalizingExpired) {
+      setFinalizingExpired(false);
+    }
+  }
+
+  useEffect(() => {
+    // Effect body only schedules the timer; the setState happens inside
+    // the timeout callback (an external event handler), which is allowed.
+    if (!inFinalizingWindow) return undefined;
+    const timer = window.setTimeout(() => {
+      setFinalizingExpired(true);
+      // Drop the mutation's residual isSuccess so isFinalizing settles to
+      // false even if the readiness query is still spinning.
+      try {
+        lockDesignVersion.reset();
+      } catch {
+        // mutation already reset; safe to ignore
+      }
+    }, 10_000);
+    return () => window.clearTimeout(timer);
+  }, [inFinalizingWindow, lockDesignVersion]);
 
   const provenance = useMemo(
     () => buildProvenanceFields(selectedVersion, assets, readiness),
@@ -80,11 +116,15 @@ export function PackageReceipt({
     return (
       <div className="package-receipt finalizing" role="status" aria-live="polite">
         <div className="package-gated-eyebrow wb-mono">
+          <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+          {" "}
           {tAuto("studies.v2.package.eyebrow")}
         </div>
+        {/* L4: spinner moved to the eyebrow (sibling of the title) so the
+            <h2> heading carries text only — semantically cleaner for screen
+            readers that flatten heading content and for the polite live
+            region announcement. */}
         <h2 className="package-gated-title wb-serif">
-          <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-          {" "}
           {tAuto("studies.v2.package.finalizingTitle")}
         </h2>
         <p className="package-gated-body wb-mono">

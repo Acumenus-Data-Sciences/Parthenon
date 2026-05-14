@@ -137,6 +137,29 @@ export function LockedReadOnlyView({
         <div className="lock-preflight-head wb-mono">
           {tAuto("studies.v2.lock.preflightTitle")}
         </div>
+        {/* H5 — DESIGN DECISION (2026-05-14):
+            Post-lock, every preflight row is rendered with status="satisfied"
+            regardless of the current live readiness state.
+            RATIONALE:
+              - The lock action is irreversible. Once locked, the design is
+                immutable, so the "live" checklist (which can drift as new
+                feasibility runs / lint warnings appear AFTER lock) does not
+                represent what was actually frozen.
+              - The locked view is a historical receipt: "you locked v3 with
+                the design as it stood at that moment." Showing post-lock
+                drift would imply the user can still act on it, which they
+                cannot.
+              - The authoritative audit trail of WHAT was locked lives in
+                the manifest preview + provenance card below; the preflight
+                strip here is a confirmation pattern, not a status display.
+            AUDIT-TRAIL LIMITATION:
+              - If a backend gate ever returns checklist=[{status:"warning"}]
+                on a locked version (e.g., post-lock feasibility re-run finds
+                a new issue), the warning is hidden HERE but is still
+                visible on the live Pipeline Rail stage state. A future
+                "lock history" panel could surface point-in-time preflight
+                snapshots if researchers ask for them.
+        */}
         <ul className="lock-preflight-list">
           {preflightItems.map((item) => (
             <PreflightRow

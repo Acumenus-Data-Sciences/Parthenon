@@ -89,10 +89,14 @@ function deriveProtocolFields(
 }
 
 function signingKeyHint(version: StudyDesignVersion | null): string {
-  if (!version) return "0x————…";
+  if (!version) return "0x———— (placeholder)";
   // Stable presentational stand-in until a real signing service lands.
+  // Derived from version.id so the same version always renders the same
+  // pseudo-fingerprint, but this is NOT a real cryptographic key. The
+  // "(placeholder)" suffix makes that explicit so a researcher reading the
+  // provenance card doesn't mistake it for a verified signature.
   const hex = version.id.toString(16).padStart(4, "0").toUpperCase().slice(0, 4);
-  return `0x${hex}…`;
+  return `0x${hex}… (placeholder)`;
 }
 
 export function buildProvenanceFields(
@@ -121,7 +125,16 @@ export function buildProvenanceFields(
 // Manifest tree
 // ----------------------------------------------------------------------
 
-export function selectManifestForVersion(
+/**
+ * Extract the manifest preview from a lock-readiness payload.
+ *
+ * Name was previously `selectManifestForVersion`, but the function is
+ * version-agnostic — the backend returns at most one manifest preview per
+ * readiness response, and this helper just unwraps it. If a future backend
+ * shape ever returns manifests for multiple versions in one payload, this
+ * helper will need a version arg and a filter; flagged for then.
+ */
+export function manifestPreviewFromReadiness(
   readiness: StudyDesignLockReadiness | null,
 ): StudyDesignManifestPreview | null {
   return readiness?.manifest_preview ?? null;

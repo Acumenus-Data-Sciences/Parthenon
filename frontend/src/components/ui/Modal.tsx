@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
@@ -26,6 +26,10 @@ export function Modal({
   const { t } = useTranslation("common");
   const modalRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  // M17: stable id so the dialog can point aria-labelledby at the h2 title
+  // instead of duplicating the text via aria-label. Screen readers should
+  // announce the title once from the heading, not twice from both attrs.
+  const titleId = useId();
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -63,12 +67,12 @@ export function Modal({
           )}
           role="dialog"
           aria-modal="true"
-          aria-label={title}
+          {...(title ? { "aria-labelledby": titleId } : { "aria-label": t("ui.aria.dialog") })}
           tabIndex={-1}
         >
           {title && (
             <div className="modal-header">
-              <h2 className="modal-title">{title}</h2>
+              <h2 id={titleId} className="modal-title">{title}</h2>
               <button
                 className="modal-close"
                 onClick={onClose}

@@ -13,7 +13,6 @@ import {
 } from "../workbench/studyDesignWorkbenchHelpers";
 import { buildIntentReviewAssistance } from "../studyDesignIntentAssistance";
 import { useStudyDesignWorkbench } from "../../hooks/useStudyDesignWorkbench";
-import { StudyDesignWorkbench } from "../StudyDesignWorkbench";
 import { IdentityStrip } from "./IdentityStrip";
 import { PipelineRail, type PipelineStage, type PipelineStageState } from "./PipelineRail";
 import { ProtocolImportProgress } from "../ProtocolImportProgress";
@@ -222,13 +221,13 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
           className="pane studies-v2-center"
           aria-label={tAuto("studies.v2.activeEditor")}
         >
-          {wb.versions.length > 0 ? (
-            <VersionTimeline
-              versions={wb.versions}
-              activeVersionId={wb.selectedVersion?.id ?? null}
-              onSelectVersion={(id) => wb.guardedSetSelectedVersion(id)}
-            />
-          ) : null}
+          {/* M2: VersionTimeline owns its own "no versions" no-op (returns
+              null when versions.length === 0) so we don't double-guard here. */}
+          <VersionTimeline
+            versions={wb.versions}
+            activeVersionId={wb.selectedVersion?.id ?? null}
+            onSelectVersion={(id) => wb.guardedSetSelectedVersion(id)}
+          />
 
           {activeStageId === "01" ? (
             <>
@@ -252,18 +251,28 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
                 isGenerating={wb.generateIntent.isPending}
                 generationGate={wb.intentGenerationGate}
               />
-              {/* v1 parity: import an existing study as a starting point or
-                  run an AI critique against the current design. Rendered only
-                  when a version exists (panel is meaningless before that). */}
+              {/* H1: v1 BottomUpCompatibilityPanel embedded in v2 as a
+                  compat bridge until a v2-native rewrite lands. The panel
+                  uses theme-variable Tailwind tokens (bg-surface-raised,
+                  text-text-secondary, etc.) so it renders in the dark theme
+                  correctly. The .wb-compat-bridge wrapper supplies a v2
+                  eyebrow + outer slate frame so it doesn't look like a
+                  bolted-on light-theme card. Rendered only when a version
+                  exists (panel is meaningless before that). */}
               {wb.selectedVersion ? (
-                <BottomUpCompatibilityPanel
-                  assets={wb.assets}
-                  isImporting={wb.importExistingStudy.isPending}
-                  isCritiquing={wb.critiqueStudyDesign.isPending}
-                  canCritique={wb.selectedVersion.status !== "locked"}
-                  onImport={wb.handleImportExistingStudy}
-                  onCritique={wb.handleCritiqueStudyDesign}
-                />
+                <section className="wb-compat-bridge" aria-label={tAuto("studies.v2.intent.compatibilityBridge")}>
+                  <div className="wb-compat-bridge-eyebrow wb-mono">
+                    {tAuto("studies.v2.intent.compatibilityEyebrow")}
+                  </div>
+                  <BottomUpCompatibilityPanel
+                    assets={wb.assets}
+                    isImporting={wb.importExistingStudy.isPending}
+                    isCritiquing={wb.critiqueStudyDesign.isPending}
+                    canCritique={wb.selectedVersion.status !== "locked"}
+                    onImport={wb.handleImportExistingStudy}
+                    onCritique={wb.handleCritiqueStudyDesign}
+                  />
+                </section>
               ) : null}
             </>
           ) : activeStageId === "02" ? (
@@ -287,14 +296,13 @@ export function CompilerWorkbench({ study }: CompilerWorkbenchProps) {
               workbench={wb}
               onNavigateStation={(id) => setActiveStageId(id)}
             />
-          ) : (
-            <div className="phase2-fallback">
-              <div className="phase2-fallback-eyebrow wb-mono">
-                {tAuto("studies.v2.fallbackEyebrow")}
-              </div>
-              <StudyDesignWorkbench study={study} />
-            </div>
-          )}
+          ) : null}
+          {/* H2: no fallback branch — PipelineStation is a closed union
+              ("01"|...|"08") so TS exhaustiveness covers every value. If
+              someone adds a 9th station, the missing branch becomes a
+              compile error rather than silently mounting the entire v1
+              workbench at the wrong position (which was the previous
+              fallback's hazard). */}
         </section>
 
         <aside className="pane studies-v2-periph" aria-label={tAuto("studies.v2.peripheralRail")}>

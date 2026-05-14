@@ -237,7 +237,20 @@ Total ≈ 13 dev-days. Behind `studies.workbench.v2` flag throughout, with v1 vi
 | 5 — Lock Launchpad + Package Receipt + Version Timeline + motion polish | ✓ landed | `b184b06b3` |
 | 6 — A11y polish (focus rings, reduced-motion, aria-current) | ✓ landed | (this commit) |
 | 6 — Typography commercial-font swap (GT Sectra / NB International / Berkeley Mono) | **DEFERRED** — requires font-license confirmation. Current fallbacks (Source Serif 4, system-ui, JetBrains Mono) ship the aesthetic at zero license cost. |  |
-| 6 — Remove v1 `workbench/*` panels | **DEFERRED** — requires explicit parity sign-off. v1 remains the codepath when `?wb=v2` is not present, so deletion would force v2 as default. Pending visual review of all 8 stations + decision to flip default flag. |  |
+| 6 — Remove v1 `workbench/*` panels | **DEFERRED** — v2 is now default but v1 stays as `?wb=v1` opt-out for one more release in case a researcher needs to fall back mid-study. Deletion scheduled for a follow-up release once we've gathered v2 usage signal. |  |
+
+### Promotion to v2-default (2026-05-13)
+
+After the audit pass at `.planning/audit/studies-v2-redesign-review.md` resolved all 4 CRITICAL issues plus the v1-fidelity gaps (lock-confirm Modal, protocol-upload, BottomUpCompatibility) surfaced during the pre-flip check, the flag default was flipped in `337468bc2`. `studies.workbench.v1` localStorage key now acts as the opt-out. Three follow-up commits land production-quality polish:
+
+- `ac4ff8b4e` — humanized `tAuto` fallback so unmapped `studies.v2.*` keys never render as raw key paths
+- post-flip audit commit (this work, 2026-05-14) — H1/H2/H5/M1/M3/M6/M7/M9/M14/M17/L4 + 204 reviewed English copy strings in `autoUserFacingResources.ts` under `autoUserFacing.studies.v2.*`
+
+### Deferred items (acknowledged, not blocking)
+
+- **H4 — `useStudyDesignWorkbench` instantiates ~24 mutation hooks and ~5 queries on every Design-tab mount.** Many of those mutations only fire on stations the user may never visit (e.g., critique on Intent, lock on Lock). Acceptable trade-off today because: (a) TanStack Query's hook cost is small at idle, (b) splitting the hook would touch v1 too and risk regression, (c) profiling has not surfaced this as a hot path. Schedule a perf pass once we have v2 telemetry from real researchers — if the Design tab cold-start latency exceeds 200ms, split the hook into per-stage facets.
+- **es / ko / other locales for `studies.v2.*`** — the new English copy currently aliases for every locale (matches the existing autoUserFacingResources pattern). Schedule a translation cycle once researcher copy is signed off.
+- **`LockedReadOnlyView` hard-codes preflight as "satisfied" post-lock** — documented in `LockLaunchpadParts.tsx` as a design decision (point-in-time snapshot rather than live drift); future enhancement: surface a "lock history" panel that preserves point-in-time preflight checklists for audit.
 
 ## Verification
 

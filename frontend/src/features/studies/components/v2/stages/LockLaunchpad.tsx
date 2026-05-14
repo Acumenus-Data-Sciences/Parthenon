@@ -14,7 +14,7 @@ import {
 import {
   buildManifestNodes,
   buildProvenanceFields,
-  selectManifestForVersion,
+  manifestPreviewFromReadiness,
 } from "./lockProvenance";
 import {
   LockedReadOnlyView,
@@ -86,7 +86,7 @@ export function LockLaunchpad({
     [selectedVersion, assets, readiness],
   );
   const manifestNodes = useMemo(
-    () => buildManifestNodes(selectedVersion, selectManifestForVersion(readiness), assets),
+    () => buildManifestNodes(selectedVersion, manifestPreviewFromReadiness(readiness), assets),
     [selectedVersion, readiness, assets],
   );
 
@@ -356,12 +356,23 @@ export function LockLaunchpad({
           </div>
         }
       >
-        <p className="text-sm text-text-primary">
-          {t("studies.workbench.lockConfirm.body", {
-            version: selectedVersion?.version_number ?? "",
-            updatedAt: selectedVersion?.updated_at ?? "",
-          })}
-        </p>
+        {/* M1 — defensive null guard. canSubmitLock requires selectedVersion
+            != null, but lockConfirmOpen could in principle race against a
+            versions refetch that drops selectedVersion to null. In that
+            case render a "no version" placeholder rather than interpolating
+            empty strings into the confirm body. */}
+        {selectedVersion ? (
+          <p className="text-sm text-text-primary">
+            {t("studies.workbench.lockConfirm.body", {
+              version: selectedVersion.version_number,
+              updatedAt: selectedVersion.updated_at ?? "",
+            })}
+          </p>
+        ) : (
+          <p className="text-sm text-text-muted">
+            {tAuto("studies.v2.lock.noVersionSelected")}
+          </p>
+        )}
         <p className="mt-2 text-xs text-warning">
           {t("studies.workbench.lockConfirm.irreversibleWarning")}
         </p>

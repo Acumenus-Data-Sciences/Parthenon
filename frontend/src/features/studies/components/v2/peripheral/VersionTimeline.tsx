@@ -280,6 +280,12 @@ function extendSelection(
   if (current.length < 2) {
     return { pair: [...current, versionId] };
   }
-  // Replace the oldest pick with the new one.
-  return { pair: [current[1]!, versionId] };
+  // Replace the oldest pick with the new one. We narrow `second` explicitly
+  // instead of using a non-null assertion so a future refactor that breaks
+  // the length invariant fails at compile time, not at runtime.
+  const second = current[1];
+  if (second === undefined) {
+    return { pair: [versionId] };
+  }
+  return { pair: [second, versionId] };
 }
