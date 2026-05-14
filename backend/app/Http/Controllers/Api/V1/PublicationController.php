@@ -11,6 +11,8 @@ use App\Models\App\PublicationReportBundle;
 use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationReportBundleService;
 use App\Services\Publication\PublicationService;
+use App\Services\Publication\PublicationSnapshotService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +27,7 @@ class PublicationController extends Controller
         private readonly AnalyticsLlmService $llm,
         private readonly PublicationService $publicationService,
         private readonly PublicationReportBundleService $reportBundleService,
+        private readonly PublicationSnapshotService $snapshotService,
     ) {}
 
     /**
@@ -150,6 +153,20 @@ class PublicationController extends Controller
     {
         $this->authorizeDraft($request, $draft);
 
+        // Optimistic locking via If-Unmodified-Since header
+        $ifUnmodified = $request->header('If-Unmodified-Since');
+        if ($ifUnmodified !== null) {
+            $threshold = null;
+            try {
+                $threshold = Carbon::parse($ifUnmodified);
+            } catch (\Exception) {
+                // Malformed header — ignore, proceed without locking.
+            }
+            if ($threshold !== null && $draft->updated_at?->gt($threshold)) {
+                abort(412, 'Draft was modified after If-Unmodified-Since timestamp.');
+            }
+        }
+
         $validated = $this->validateDraftPayload($request, requireDocument: false);
         $updates = array_intersect_key($validated, array_flip([
             'study_id',
@@ -177,6 +194,81 @@ class PublicationController extends Controller
         $draft->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * GET /api/v1/publish/drafts/{draft}/snapshots
+     */
+    public function listSnapshots(Request $request, PublicationDraft $draft): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+
+        $snapshots = PublicationReportBundle::query()
+            ->where('publication_draft_id', $draft->id)
+            ->where('direction', 'snapshot')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn (PublicationReportBundle $b): array => [
+                'id' => $b->id,
+                'label' => $b->metadata_json['snapshot_label'] ?? '(unnamed)',
+                'comment' => $b->metadata_json['comment'] ?? null,
+                'created_by_user_id' => $b->metadata_json['created_by_user_id'] ?? $b->user_id,
+                'created_at' => $b->created_at?->toISOString(),
+            ])
+            ->values();
+
+        return response()->json(['data' => $snapshots]);
+    }
+
+    /**
+     * POST /api/v1/publish/drafts/{draft}/snapshots
+     */
+    public function createSnapshot(Request $request, PublicationDraft $draft): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+
+        $validated = $request->validate([
+            'label' => 'required|string|max:200',
+            'comment' => 'nullable|string|max:2000',
+            'idempotency_key' => 'nullable|uuid',
+        ]);
+
+        $user = $request->user();
+        abort_unless($user !== null, 401);
+
+        $bundle = $this->snapshotService->create(
+            draft: $draft,
+            user: $user,
+            label: $validated['label'],
+            comment: $validated['comment'] ?? null,
+            idempotencyKey: $validated['idempotency_key'] ?? null,
+        );
+
+        return response()->json([
+            'data' => [
+                'id' => $bundle->id,
+                'label' => $bundle->metadata_json['snapshot_label'] ?? null,
+                'comment' => $bundle->metadata_json['comment'] ?? null,
+                'created_at' => $bundle->created_at?->toISOString(),
+            ],
+        ], 201);
+    }
+
+    /**
+     * POST /api/v1/publish/drafts/{draft}/snapshots/{snapshot}/revert
+     */
+    public function revertSnapshot(Request $request, PublicationDraft $draft, PublicationReportBundle $snapshot): JsonResponse
+    {
+        $this->authorizeDraft($request, $draft);
+        abort_unless((int) $snapshot->publication_draft_id === (int) $draft->id, 404);
+        abort_unless($snapshot->direction === 'snapshot', 404);
+
+        $user = $request->user();
+        abort_unless($user !== null, 401);
+
+        $reverted = $this->snapshotService->revert($draft, $snapshot, $user);
+
+        return response()->json(['data' => $this->draftPayload($reverted)]);
     }
 
     /**

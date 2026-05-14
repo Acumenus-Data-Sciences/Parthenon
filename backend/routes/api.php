@@ -1303,6 +1303,9 @@ Route::prefix('v1')->group(function () {
         Route::get('publish/drafts/{draft}', [PublicationController::class, 'showDraft']);
         Route::patch('publish/drafts/{draft}', [PublicationController::class, 'updateDraft']);
         Route::delete('publish/drafts/{draft}', [PublicationController::class, 'deleteDraft']);
+        Route::get('publish/drafts/{draft}/snapshots', [PublicationController::class, 'listSnapshots']);
+        Route::post('publish/drafts/{draft}/snapshots', [PublicationController::class, 'createSnapshot']);
+        Route::post('publish/drafts/{draft}/snapshots/{snapshot}/revert', [PublicationController::class, 'revertSnapshot']);
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
         Route::post('publish/export', [PublicationController::class, 'export']);
         Route::post('publish/report-bundles/export', [PublicationController::class, 'exportReportBundle']);
