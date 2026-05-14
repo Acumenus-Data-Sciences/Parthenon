@@ -10,6 +10,7 @@ use App\Models\App\CohortDefinition;
 use App\Models\App\CohortGeneration;
 use App\Models\App\ConditionBundle;
 use App\Models\App\Source;
+use App\Scopes\LibraryDefaultScope;
 use App\Services\Analysis\CohortDiagnosticsService;
 use App\Services\Analysis\CohortOverlapService;
 use App\Services\Cohort\CohortGenerationService;
@@ -127,9 +128,18 @@ class CohortDefinitionController extends Controller
             }
 
             // PostgreSQL fallback
+            $statusFilter = (string) $request->input('status', 'active');
+
             $query = CohortDefinition::withCount('generations')
                 ->with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+
+            $query = match ($statusFilter) {
+                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+                default => $query,
+            };
 
             if ($search) {
                 $query->where(function ($q) use ($search) {
@@ -269,6 +279,17 @@ class CohortDefinitionController extends Controller
 
             $result = $cohortDefinitions->toArray();
             $result['engine'] = 'postgresql';
+
+            $userId = $request->user()?->id;
+            $result['counts'] = [
+                'active' => CohortDefinition::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => CohortDefinition::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => CohortDefinition::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => CohortDefinition::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
 
             return response()->json($result);
         } catch (\Throwable $e) {

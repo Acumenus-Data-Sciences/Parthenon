@@ -11,6 +11,7 @@ import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 import { useTranslation } from "react-i18next";
+import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 
 export default function CohortDefinitionsPage() {
   const { t } = useTranslation("app");
@@ -23,6 +24,7 @@ export default function CohortDefinitionsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [viewMode, setViewMode] = useState<"domain" | "flat">("domain");
   const [tierFilter, setTierFilter] = useState<string | null>(null);
+  const [statusTab, setStatusTab] = useState<StatusTab>("active");
 
   // Debounce search input
   useEffect(() => {
@@ -236,12 +238,20 @@ export default function CohortDefinitionsPage() {
         </div>
       )}
 
+      {/* Lifecycle status tabs */}
+      <StatusTabs
+        value={statusTab}
+        counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
+        onChange={setStatusTab}
+      />
+
       {/* List */}
       <CohortDefinitionList
         tags={activeTags.length > 0 ? activeTags : undefined}
         search={debouncedSearch || undefined}
         isPublic={statFilter === "public" || undefined}
         withGenerations={statFilter === "generated" || undefined}
+        lifecycleStatus={statusTab}
         onCreateFromBundle={() => setShowFromBundle(true)}
         groupBy={viewMode === "domain" ? "domain" : null}
         tierFilter={tierFilter}

@@ -143,12 +143,13 @@ interface Props {
   search?: string;
   isPublic?: boolean;
   withGenerations?: boolean;
+  lifecycleStatus?: "active" | "draft" | "archived" | "all";
   onCreateFromBundle?: () => void;
   groupBy?: "domain" | null;
   tierFilter?: string | null;
 }
 
-export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle, groupBy, tierFilter }: Props) {
+export function CohortDefinitionList({ tags, search, isPublic, withGenerations, lifecycleStatus, onCreateFromBundle, groupBy, tierFilter }: Props) {
   const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -200,6 +201,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     is_public: isPublic || undefined,
     with_generations: withGenerations || undefined,
     author_id: myOnly && currentUser ? currentUser.id : undefined,
+    status: lifecycleStatus,
     enabled: !isGrouped,
   });
 

@@ -279,6 +279,7 @@ export interface CohortDefinitionListParams {
   is_public?: boolean;
   with_generations?: boolean;
   author_id?: number;
+  status?: "active" | "draft" | "archived" | "all";
 }
 
 export type CohortDomain =
