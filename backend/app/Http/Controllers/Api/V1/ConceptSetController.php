@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Concerns\AppliesLibraryListFilters;
 use App\Http\Controllers\Controller;
 use App\Models\App\ConceptSet;
 use App\Models\App\ConceptSetItem;
@@ -9,7 +10,6 @@ use App\Models\App\ConditionBundle;
 use App\Models\Vocabulary\Concept;
 use App\Scopes\LibraryDefaultScope;
 use App\Services\ConceptSet\ConceptSetResolverService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ConceptSetController extends Controller
 {
+    use AppliesLibraryListFilters;
+
     public function __construct(
         private readonly ConceptSetResolverService $resolver,
     ) {}
@@ -36,9 +38,8 @@ class ConceptSetController extends Controller
                 ->with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
 
-            // Library lifecycle status filter. Values: active (default), draft, archived, all.
-            $statusFilter = (string) $request->input('status', 'active');
-            $query = $this->applyStatusFilter($query, $statusFilter);
+            // Library lifecycle status filter + super-admin scope=all (see AppliesLibraryListFilters).
+            $query = $this->applyLibraryListFilters($query, $request);
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -98,19 +99,6 @@ class ConceptSetController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);
         }
-    }
-
-    /**
-     * Apply lifecycle status filter to a ConceptSet query.
-     */
-    private function applyStatusFilter(Builder $query, string $status): Builder
-    {
-        return match ($status) {
-            'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
-            'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
-            'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
-            default => $query, // 'active' uses default global scope
-        };
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\DaimonType;
 use App\Enums\ExecutionStatus;
+use App\Http\Controllers\Concerns\AppliesLibraryListFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IncidenceRateStoreRequest;
 use App\Http\Requests\IncidenceRateUpdateRequest;
@@ -24,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  */
 class IncidenceRateController extends Controller
 {
+    use AppliesLibraryListFilters;
+
     /**
      * GET /v1/incidence-rates
      *
@@ -32,15 +35,9 @@ class IncidenceRateController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $statusFilter = (string) $request->input('status', 'active');
             $query = IncidenceRateAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
-            $query = match ($statusFilter) {
-                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
-                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
-                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
-                default => $query,
-            };
+            $query = $this->applyLibraryListFilters($query, $request);
 
             if ($request->filled('search')) {
                 $search = $request->input('search');

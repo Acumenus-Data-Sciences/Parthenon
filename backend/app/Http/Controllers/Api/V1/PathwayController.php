@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ExecutionStatus;
+use App\Http\Controllers\Concerns\AppliesLibraryListFilters;
 use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunPathwayJob;
 use App\Models\App\AnalysisExecution;
@@ -17,6 +18,8 @@ use Illuminate\Http\Request;
  */
 class PathwayController extends Controller
 {
+    use AppliesLibraryListFilters;
+
     /**
      * GET /v1/pathways
      *
@@ -27,13 +30,7 @@ class PathwayController extends Controller
         try {
             $query = PathwayAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
-            $statusFilter = (string) $request->input('status', 'active');
-            $query = match ($statusFilter) {
-                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
-                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
-                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
-                default => $query,
-            };
+            $query = $this->applyLibraryListFilters($query, $request);
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
