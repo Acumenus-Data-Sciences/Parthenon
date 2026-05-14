@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\ChromaStudioController;
 use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
+use App\Http\Controllers\Api\V1\Admin\LibraryController;
 use App\Http\Controllers\Api\V1\Admin\LiveKitConfigController;
 use App\Http\Controllers\Api\V1\Admin\PacsConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
@@ -1575,6 +1576,11 @@ Route::prefix('v1')->group(function () {
                 Route::post('/reindex/{core}', [SolrAdminController::class, 'reindex']);
                 Route::post('/reindex-all', [SolrAdminController::class, 'reindexAll']);
                 Route::post('/clear/{core}', [SolrAdminController::class, 'clear']);
+            });
+
+            // ── Library admin surface (Phase D §6.6 — super-admin only) ─
+            Route::middleware('role:super-admin')->prefix('library')->group(function () {
+                Route::get('/', [LibraryController::class, 'index']);
             });
         });
     });
