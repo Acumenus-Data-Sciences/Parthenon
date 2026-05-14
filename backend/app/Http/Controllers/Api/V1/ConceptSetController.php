@@ -7,7 +7,9 @@ use App\Models\App\ConceptSet;
 use App\Models\App\ConceptSetItem;
 use App\Models\App\ConditionBundle;
 use App\Models\Vocabulary\Concept;
+use App\Scopes\LibraryDefaultScope;
 use App\Services\ConceptSet\ConceptSetResolverService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +35,10 @@ class ConceptSetController extends Controller
             $query = ConceptSet::withCount('items')
                 ->with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+
+            // Library lifecycle status filter. Values: active (default), draft, archived, all.
+            $statusFilter = (string) $request->input('status', 'active');
+            $query = $this->applyStatusFilter($query, $statusFilter);
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -63,7 +69,7 @@ class ConceptSetController extends Controller
 
             $conceptSets = $query->paginate($request->integer('per_page', 20));
 
-            $conceptSets->getCollection()->each(function ($set) {
+            $conceptSets->getCollection()->each(function (ConceptSet $set) {
                 $recentIds = $set->items()->latest()->limit(3)->pluck('concept_id');
                 if ($recentIds->isNotEmpty()) {
                     $set->recent_items = Concept::whereIn('concept_id', $recentIds)
@@ -74,10 +80,37 @@ class ConceptSetController extends Controller
                 }
             });
 
-            return response()->json($conceptSets);
+            $userId = $request->user()?->id;
+            $counts = [
+                'active' => ConceptSet::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => ConceptSet::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => ConceptSet::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => ConceptSet::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
+
+            $payload = $conceptSets->toArray();
+            $payload['counts'] = $counts;
+
+            return response()->json($payload);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);
         }
+    }
+
+    /**
+     * Apply lifecycle status filter to a ConceptSet query.
+     */
+    private function applyStatusFilter(Builder $query, string $status): Builder
+    {
+        return match ($status) {
+            'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+            'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+            'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+            default => $query, // 'active' uses default global scope
+        };
     }
 
     /**

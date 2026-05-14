@@ -22,6 +22,7 @@ interface ConceptSetListProps {
   tags?: string[];
   isPublic?: boolean;
   withItems?: boolean;
+  status?: "active" | "draft" | "archived" | "all";
   onCreateFromBundle?: () => void;
 }
 
@@ -30,6 +31,7 @@ export function ConceptSetList({
   tags,
   isPublic,
   withItems,
+  status,
   onCreateFromBundle,
 }: ConceptSetListProps) {
   const { t, i18n } = useTranslation("app");
@@ -47,6 +49,7 @@ export function ConceptSetList({
     is_public: isPublic || undefined,
     with_items: withItems || undefined,
     author_id: myOnly && currentUser ? currentUser.id : undefined,
+    status,
   });
 
   if (isLoading) {

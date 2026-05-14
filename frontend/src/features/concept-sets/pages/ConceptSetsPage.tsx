@@ -12,6 +12,7 @@ import { useCreateConceptSet } from "../hooks/useConceptSets";
 import { getConceptSetTags } from "../api/conceptSetApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
+import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 
 export default function ConceptSetsPage() {
   const { t } = useTranslation("app");
@@ -28,6 +29,8 @@ export default function ConceptSetsPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   // Stats bar quick-filter
   const [statFilter, setStatFilter] = useState<"with_items" | "public" | null>(null);
+  // Library lifecycle tab
+  const [statusTab, setStatusTab] = useState<StatusTab>("active");
 
   const handleStatClick = (key: string) => {
     if (key === "total") {
@@ -120,6 +123,13 @@ export default function ConceptSetsPage() {
       {/* Stats Bar */}
       <ConceptSetStatsBar onStatClick={handleStatClick} activeKey={statFilter ?? undefined} />
 
+      {/* Lifecycle status tabs */}
+      <StatusTabs
+        value={statusTab}
+        counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
+        onChange={setStatusTab}
+      />
+
       {/* Search + Tag Filters */}
       <div className="space-y-3">
         {/* Search */}
@@ -166,11 +176,12 @@ export default function ConceptSetsPage() {
 
       {/* List */}
       <ConceptSetList
-        key={`${search}|${selectedTags.join(",")}|${statFilter ?? "all"}`}
+        key={`${search}|${selectedTags.join(",")}|${statFilter ?? "all"}|${statusTab}`}
         search={search}
         tags={selectedTags}
         isPublic={statFilter === "public" || undefined}
         withItems={statFilter === "with_items" || undefined}
+        status={statusTab}
         onCreateFromBundle={() => setShowBundle(true)}
       />
 

@@ -53,6 +53,7 @@ export interface ConceptSetListParams {
   is_public?: boolean;
   with_items?: boolean;
   author_id?: number;
+  status?: "active" | "draft" | "archived" | "all";
 }
 
 export interface PaginatedResponse<T> {
