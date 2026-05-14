@@ -8,6 +8,7 @@ use App\Http\Middleware\ResolveLocale;
 use App\Http\Middleware\ResolveSourceContext;
 use App\Http\Middleware\TrackEndpointProfileAccess;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
+use App\Jobs\SuggestLibraryCleanupJob;
 use App\Support\ApiMessage;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -66,6 +67,15 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping(60)
             ->onOneServer()
             ->appendOutputTo(storage_path('logs/care-gap-refresh.log'));
+
+        // Library lifecycle cleanup suggestions cache (Phase C / spec §6.2).
+        // Rebuilds library_cleanup_suggestions nightly so the Cleanup
+        // Suggestions page can load without a 7-table join on hot path.
+        $schedule->job(new SuggestLibraryCleanupJob)
+            ->dailyAt('02:30')
+            ->withoutOverlapping(60)
+            ->onOneServer()
+            ->appendOutputTo(storage_path('logs/library-cleanup-suggestions.log'));
 
         $schedule->command('finngen:prune-runs')
             ->dailyAt('03:45')
