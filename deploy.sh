@@ -19,6 +19,22 @@
 set -uo pipefail
 # NOTE: not using set -e — we handle errors explicitly per section
 
+# ── Concurrency guard ─────────────────────────────────────────────────────────
+# Concurrent deploys collide on frontend/dist/: one's `find -delete` can wipe
+# the dist while another's smoke check expects index.html, producing transient
+# 500s in production. flock serializes deploys to one at a time per host.
+# Bypass via DEPLOY_NO_LOCK=1 only for explicit recovery scenarios.
+if [ "${DEPLOY_NO_LOCK:-0}" != "1" ] && [ -z "${__DEPLOY_LOCKED:-}" ]; then
+  export __DEPLOY_LOCKED=1
+  exec env __DEPLOY_LOCKED=1 flock -w 1800 -E 200 /tmp/parthenon-deploy.lock "$0" "$@"
+  # flock exit 200 → wait timed out (another deploy is still running)
+  ec=$?
+  if [ "$ec" = "200" ]; then
+    echo "==> Another deploy is still running (timed out after 30 min). Bypass: DEPLOY_NO_LOCK=1 ./deploy.sh ..."
+  fi
+  exit "$ec"
+fi
+
 export HOST_UID="${HOST_UID:-$(id -u)}"
 export HOST_GID="${HOST_GID:-$(id -g)}"
 
