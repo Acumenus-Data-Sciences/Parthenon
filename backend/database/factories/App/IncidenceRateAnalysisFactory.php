@@ -23,6 +23,10 @@ class IncidenceRateAnalysisFactory extends Factory
                 'timeAtRisk' => ['start' => 0, 'end' => 365],
             ],
             'author_id' => User::factory(),
+            'status' => 'active',
+            'archived_at' => null,
+            'archived_by' => null,
+            'promoted_at' => null,
         ];
     }
 }

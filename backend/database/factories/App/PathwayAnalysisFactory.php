@@ -28,6 +28,10 @@ class PathwayAnalysisFactory extends Factory
                 'maxPathLength' => 5,
             ],
             'author_id' => User::factory(),
+            'status' => 'active',
+            'archived_at' => null,
+            'archived_by' => null,
+            'promoted_at' => null,
         ];
     }
 }
