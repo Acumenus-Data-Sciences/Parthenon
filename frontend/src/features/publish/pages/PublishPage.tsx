@@ -14,6 +14,9 @@ import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
 import { HybridPromptModal } from "../components/PublishPage/HybridPromptModal";
 import { SaveDraftButton } from "../components/library/SaveDraftButton";
+import { SaveStatusIndicator } from "../components/PublishPage/SaveStatusIndicator";
+import { SnapshotsPanel } from "../components/library/SnapshotsPanel";
+import { useAutosave } from "../hooks/useAutosave";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { useDraft, useCreateDraft, useUpdateDraftById } from "../hooks/useDrafts";
 import { buildTableFromResults } from "../lib/tableBuilders";
@@ -330,6 +333,11 @@ export default function PublishPage() {
   // Hybrid prompt state
   const [promptOpen, setPromptOpen] = useState(false);
 
+  // ── Autosave wiring (Task 30) ──────────────────────────────────────────
+  // buildDocumentJson is defined below; we declare a forward ref to it via
+  // useMemo over `state` so the autosave hook only re-evaluates on state
+  // changes. The hook internally hashes the payload to avoid redundant PATCHes.
+
   const steps = [
     { num: 1 as const, label: t("publish.steps.selectAnalyses") },
     { num: 2 as const, label: t("publish.steps.configure") },
@@ -541,6 +549,27 @@ export default function PublishPage() {
     });
   }, [state]);
 
+  // ── Autosave (Task 30) ──────────────────────────────────────────────────
+  // Re-derive the document payload on every state change. The autosave hook
+  // is responsible for hashing + debouncing, so we don't need to memoize here.
+  const ifUnmodifiedSince = draftQuery.data?.updated_at ?? null;
+  const documentJsonForSave = buildDocumentJson();
+  const autosave = useAutosave({
+    draftId,
+    title: state.title,
+    document: documentJsonForSave,
+    ifUnmodifiedSince,
+    onStaleConflict: () => {
+      if (
+        window.confirm(
+          "This draft was changed in another tab. Reload to see latest changes?",
+        )
+      ) {
+        window.location.reload();
+      }
+    },
+  });
+
   const handlePromptSave = useCallback(
     async (title: string) => {
       dispatch({ type: "SET_TITLE", title });
@@ -613,11 +642,21 @@ export default function PublishPage() {
         </div>
         <div className="flex items-center gap-2">
           <HelpButton helpKey="publish" />
-          <SaveDraftButton
-            hasDraftId={draftId !== null}
-            saving={createDraft.isPending || updateDraft.isPending}
-            onSave={handleSaveButton}
-          />
+          {draftId === null ? (
+            <SaveDraftButton
+              hasDraftId={false}
+              saving={createDraft.isPending || updateDraft.isPending}
+              onSave={handleSaveButton}
+            />
+          ) : (
+            <SaveStatusIndicator
+              status={autosave.status}
+              lastSavedAt={autosave.lastSavedAt}
+              onRetry={() => {
+                void autosave.retry();
+              }}
+            />
+          )}
           <button
             type="button"
             onClick={() => navigate("/publish/library")}
@@ -743,6 +782,18 @@ export default function PublishPage() {
           />
         )}
       </div>
+
+      {/* Snapshots panel — visible on Steps 2 and 3 when editing an existing draft */}
+      {draftId !== null && (state.step === 2 || state.step === 3) && (
+        <SnapshotsPanel
+          draftId={draftId}
+          defaultLabel={`Snapshot ${new Date().toISOString().slice(0, 10)}`}
+          onReverted={() => {
+            hydratedRef.current = false;
+            void draftQuery.refetch();
+          }}
+        />
+      )}
 
       <HybridPromptModal
         open={promptOpen}
