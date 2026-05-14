@@ -269,3 +269,61 @@ export function exportAsImageBundle(containerId: string, format: "png" | "svg"):
     }
   });
 }
+
+// ── Snapshots (Phase 2) ─────────────────────────────────────────────────────
+
+export interface PublicationSnapshot {
+  id: number;
+  label: string;
+  comment: string | null;
+  created_by_user_id: number;
+  created_at: string;
+}
+
+export interface CreateSnapshotInput {
+  label: string;
+  comment?: string;
+  idempotency_key?: string;
+}
+
+export const fetchSnapshots = async (draftId: number): Promise<PublicationSnapshot[]> => {
+  const { data } = await apiClient.get<{ data: PublicationSnapshot[] }>(
+    `/publish/drafts/${draftId}/snapshots`,
+  );
+  return unwrapData(data);
+};
+
+export const createSnapshot = async (
+  draftId: number,
+  payload: CreateSnapshotInput,
+): Promise<PublicationSnapshot> => {
+  const { data } = await apiClient.post<{ data: PublicationSnapshot }>(
+    `/publish/drafts/${draftId}/snapshots`,
+    payload,
+  );
+  return unwrapData(data);
+};
+
+export const revertSnapshot = async (
+  draftId: number,
+  snapshotId: number,
+): Promise<PublicationDraft> => {
+  const { data } = await apiClient.post<{ data: PublicationDraft }>(
+    `/publish/drafts/${draftId}/snapshots/${snapshotId}/revert`,
+  );
+  return unwrapData(data);
+};
+
+// Optimistic-locking-aware update
+export const updatePublicationDraftWithEtag = async (
+  draftId: number,
+  payload: Partial<PublicationDraftInput>,
+  ifUnmodifiedSince: string,
+): Promise<PublicationDraft> => {
+  const { data } = await apiClient.patch<{ data: PublicationDraft }>(
+    `/publish/drafts/${draftId}`,
+    payload,
+    { headers: { "If-Unmodified-Since": ifUnmodifiedSince } },
+  );
+  return unwrapData(data);
+};
