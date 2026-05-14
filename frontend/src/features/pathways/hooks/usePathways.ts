@@ -15,10 +15,10 @@ import type { PathwayDesign } from "../types/pathway";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function usePathways(page?: number, search?: string) {
+export function usePathways(page?: number, search?: string, status?: "active" | "draft" | "archived" | "all") {
   return useQuery({
-    queryKey: ["pathways", { page, search }],
-    queryFn: () => listPathways({ page, search }),
+    queryKey: ["pathways", { page, search, status }],
+    queryFn: () => listPathways({ page, search, status }),
   });
 }
 

@@ -15,10 +15,10 @@ import type { EvidenceSynthesisDesign } from "../types/evidenceSynthesis";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useEvidenceSynthesisAnalyses(page?: number, search?: string) {
+export function useEvidenceSynthesisAnalyses(page?: number, search?: string, status?: "active" | "draft" | "archived" | "all") {
   return useQuery({
-    queryKey: ["evidence-synthesis", { page, search }],
-    queryFn: () => listEvidenceSynthesis({ page, search }),
+    queryKey: ["evidence-synthesis", { page, search, status }],
+    queryFn: () => listEvidenceSynthesis({ page, search, status }),
   });
 }
 

@@ -17,6 +17,7 @@ const BASE = "/pathways";
 export async function listPathways(params?: {
   page?: number;
   search?: string;
+  status?: "active" | "draft" | "archived" | "all";
 }): Promise<PaginatedResponse<PathwayAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<PathwayAnalysis>(data);

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunEvidenceSynthesisJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Scopes\LibraryDefaultScope;
 use App\Support\EvidenceSynthesisResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,13 @@ class EvidenceSynthesisController extends Controller
         try {
             $query = EvidenceSynthesisAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+            $statusFilter = (string) $request->input('status', 'active');
+            $query = match ($statusFilter) {
+                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+                default => $query,
+            };
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -52,7 +60,19 @@ class EvidenceSynthesisController extends Controller
                 return $analysis;
             });
 
-            return response()->json($analyses);
+            $userId = $request->user()?->id;
+            $payload = $analyses->toArray();
+            $payload['counts'] = [
+                'active' => EvidenceSynthesisAnalysis::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => EvidenceSynthesisAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => EvidenceSynthesisAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => EvidenceSynthesisAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
+
+            return response()->json($payload);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve evidence synthesis analyses', $e);
         }

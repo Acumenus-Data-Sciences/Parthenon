@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunPathwayJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\Source;
+use App\Scopes\LibraryDefaultScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,13 @@ class PathwayController extends Controller
         try {
             $query = PathwayAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+            $statusFilter = (string) $request->input('status', 'active');
+            $query = match ($statusFilter) {
+                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+                default => $query,
+            };
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -48,7 +56,19 @@ class PathwayController extends Controller
                 return $analysis;
             });
 
-            return response()->json($analyses);
+            $userId = $request->user()?->id;
+            $payload = $analyses->toArray();
+            $payload['counts'] = [
+                'active' => PathwayAnalysis::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => PathwayAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => PathwayAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => PathwayAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
+
+            return response()->json($payload);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve pathway analyses', $e);
         }

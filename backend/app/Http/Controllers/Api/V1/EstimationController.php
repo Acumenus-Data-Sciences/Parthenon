@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunEstimationJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\Source;
+use App\Scopes\LibraryDefaultScope;
 use App\Support\EstimationResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,13 @@ class EstimationController extends Controller
         try {
             $query = EstimationAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+            $statusFilter = (string) $request->input('status', 'active');
+            $query = match ($statusFilter) {
+                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+                default => $query,
+            };
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -53,7 +61,19 @@ class EstimationController extends Controller
                 return $analysis;
             });
 
-            return response()->json($analyses);
+            $userId = $request->user()?->id;
+            $payload = $analyses->toArray();
+            $payload['counts'] = [
+                'active' => EstimationAnalysis::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => EstimationAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => EstimationAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => EstimationAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
+
+            return response()->json($payload);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve estimation analyses', $e);
         }

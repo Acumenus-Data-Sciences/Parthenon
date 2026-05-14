@@ -15,10 +15,10 @@ import type { EstimationDesign } from "../types/estimation";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useEstimations(page?: number, search?: string) {
+export function useEstimations(page?: number, search?: string, status?: "active" | "draft" | "archived" | "all") {
   return useQuery({
-    queryKey: ["estimations", { page, search }],
-    queryFn: () => listEstimations({ page, search }),
+    queryKey: ["estimations", { page, search, status }],
+    queryFn: () => listEstimations({ page, search, status }),
   });
 }
 

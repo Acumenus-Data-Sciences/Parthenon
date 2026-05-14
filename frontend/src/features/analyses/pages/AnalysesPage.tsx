@@ -31,6 +31,7 @@ import { useEstimations, useCreateEstimation } from "@/features/estimation/hooks
 import { usePredictions, useCreatePrediction } from "@/features/prediction/hooks/usePredictions";
 import { useSccsAnalyses, useCreateSccs } from "@/features/sccs/hooks/useSccs";
 import { useEvidenceSynthesisAnalyses, useCreateEvidenceSynthesis } from "@/features/evidence-synthesis/hooks/useEvidenceSynthesis";
+import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 import type { CharacterizationDesign, IncidenceRateDesign } from "../types/analysis";
 import type { PathwayDesign } from "@/features/pathways/types/pathway";
 import type { EstimationDesign } from "@/features/estimation/types/estimation";
@@ -207,6 +208,8 @@ export default function AnalysesPage() {
   const [predPage, setPredPage] = useState(1);
   const [sccsPage, setSccsPage] = useState(1);
   const [esPage, setEsPage] = useState(1);
+  const [statusTab, setStatusTab] = useState<StatusTab>("active");
+  const lifecycleStatus = statusTab;
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showCreateMenu, setShowCreateMenu] = useState(false);
@@ -256,37 +259,37 @@ export default function AnalysesPage() {
     data: irData,
     isLoading: irLoading,
     error: irError,
-  } = useIncidenceRates(irPage, search);
+  } = useIncidenceRates(irPage, search, lifecycleStatus);
 
   const {
     data: pathwayData,
     isLoading: pathwayLoading,
     error: pathwayError,
-  } = usePathways(pathwayPage, search);
+  } = usePathways(pathwayPage, search, lifecycleStatus);
 
   const {
     data: estData,
     isLoading: estLoading,
     error: estError,
-  } = useEstimations(estPage, search);
+  } = useEstimations(estPage, search, lifecycleStatus);
 
   const {
     data: predData,
     isLoading: predLoading,
     error: predError,
-  } = usePredictions(predPage, search);
+  } = usePredictions(predPage, search, lifecycleStatus);
 
   const {
     data: sccsData,
     isLoading: sccsLoading,
     error: sccsError,
-  } = useSccsAnalyses(sccsPage, search);
+  } = useSccsAnalyses(sccsPage, search, lifecycleStatus);
 
   const {
     data: esData,
     isLoading: esLoading,
     error: esError,
-  } = useEvidenceSynthesisAnalyses(esPage, search);
+  } = useEvidenceSynthesisAnalyses(esPage, search, lifecycleStatus);
 
   const createCharMutation = useCreateCharacterization();
   const createIRMutation = useCreateIncidenceRate();
@@ -422,6 +425,15 @@ export default function AnalysesPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Lifecycle status filter — applies across all analysis types */}
+      <div>
+        <StatusTabs
+          value={statusTab}
+          counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
+          onChange={setStatusTab}
+        />
       </div>
 
       {/* Tabs with inline counts — replaces both stats bar and old tab bar */}

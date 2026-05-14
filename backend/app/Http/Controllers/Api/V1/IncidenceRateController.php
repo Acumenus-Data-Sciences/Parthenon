@@ -11,6 +11,7 @@ use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
+use App\Scopes\LibraryDefaultScope;
 use App\Services\Analysis\HadesBridgeService;
 use App\Support\IncidenceRateResultNormalizer;
 use Illuminate\Http\JsonResponse;
@@ -31,8 +32,15 @@ class IncidenceRateController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+            $statusFilter = (string) $request->input('status', 'active');
             $query = IncidenceRateAnalysis::with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
+            $query = match ($statusFilter) {
+                'draft' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'draft'),
+                'archived' => $query->withoutGlobalScope(LibraryDefaultScope::class)->where('status', 'archived'),
+                'all' => $query->withoutGlobalScope(LibraryDefaultScope::class),
+                default => $query,
+            };
 
             if ($request->filled('search')) {
                 $search = $request->input('search');
@@ -59,7 +67,19 @@ class IncidenceRateController extends Controller
                 return $analysis;
             });
 
-            return response()->json($analyses);
+            $userId = $request->user()?->id;
+            $payload = $analyses->toArray();
+            $payload['counts'] = [
+                'active' => IncidenceRateAnalysis::query()->where('author_id', $userId)->where('status', 'active')->count(),
+                'draft' => IncidenceRateAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'draft')->count(),
+                'archived' => IncidenceRateAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->where('status', 'archived')->count(),
+                'all' => IncidenceRateAnalysis::query()->withoutGlobalScope(LibraryDefaultScope::class)
+                    ->where('author_id', $userId)->count(),
+            ];
+
+            return response()->json($payload);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve incidence rate analyses', $e);
         }
