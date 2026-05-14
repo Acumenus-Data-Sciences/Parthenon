@@ -14,6 +14,8 @@ import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 import { CleanupBanner } from "@/features/library/components/CleanupBanner";
+import { AllUsersToggle } from "@/features/library/components/AllUsersToggle";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 export default function ConceptSetsPage() {
   const { t } = useTranslation("app");
@@ -32,6 +34,11 @@ export default function ConceptSetsPage() {
   const [statFilter, setStatFilter] = useState<"with_items" | "public" | null>(null);
   // Library lifecycle tab
   const [statusTab, setStatusTab] = useState<StatusTab>("active");
+  // Super-admin "All users" scope toggle (persisted per page)
+  const [allUsers, setAllUsers] = useLocalStorage(
+    "library:scope:concept-sets",
+    false,
+  );
 
   const handleStatClick = (key: string) => {
     if (key === "total") {
@@ -127,12 +134,15 @@ export default function ConceptSetsPage() {
       {/* Cleanup suggestions nudge — hidden when ≤5 stale items */}
       <CleanupBanner itemTypePrefix="concept_set" />
 
-      {/* Lifecycle status tabs */}
-      <StatusTabs
-        value={statusTab}
-        counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
-        onChange={setStatusTab}
-      />
+      {/* Lifecycle status tabs + super-admin "All users" toggle */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <StatusTabs
+          value={statusTab}
+          counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
+          onChange={setStatusTab}
+        />
+        <AllUsersToggle value={allUsers} onChange={setAllUsers} />
+      </div>
 
       {/* Search + Tag Filters */}
       <div className="space-y-3">
@@ -180,12 +190,13 @@ export default function ConceptSetsPage() {
 
       {/* List */}
       <ConceptSetList
-        key={`${search}|${selectedTags.join(",")}|${statFilter ?? "all"}|${statusTab}`}
+        key={`${search}|${selectedTags.join(",")}|${statFilter ?? "all"}|${statusTab}|${allUsers ? "all" : "mine"}`}
         search={search}
         tags={selectedTags}
         isPublic={statFilter === "public" || undefined}
         withItems={statFilter === "with_items" || undefined}
         status={statusTab}
+        allUsers={allUsers}
         onCreateFromBundle={() => setShowBundle(true)}
       />
 

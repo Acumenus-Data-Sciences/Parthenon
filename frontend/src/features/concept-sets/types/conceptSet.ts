@@ -54,6 +54,8 @@ export interface ConceptSetListParams {
   with_items?: boolean;
   author_id?: number;
   status?: "active" | "draft" | "archived" | "all";
+  /** Super-admin override: when "all", backend bypasses owner restriction for drafts/archived. */
+  scope?: "mine" | "all";
 }
 
 export interface PaginatedResponse<T> {

@@ -23,6 +23,8 @@ interface ConceptSetListProps {
   isPublic?: boolean;
   withItems?: boolean;
   status?: "active" | "draft" | "archived" | "all";
+  /** Super-admin "All users" scope (Phase D §6.5). Bypasses owner restriction. */
+  allUsers?: boolean;
   onCreateFromBundle?: () => void;
 }
 
@@ -32,12 +34,15 @@ export function ConceptSetList({
   isPublic,
   withItems,
   status,
+  allUsers,
   onCreateFromBundle,
 }: ConceptSetListProps) {
   const { t, i18n } = useTranslation("app");
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  // When in super-admin "All users" mode, force off the personal my/all toggle.
   const [myOnly, setMyOnly] = useState(true);
+  const effectiveMyOnly = allUsers ? false : myOnly;
   const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
 
@@ -48,8 +53,10 @@ export function ConceptSetList({
     tags: tags?.length ? tags : undefined,
     is_public: isPublic || undefined,
     with_items: withItems || undefined,
-    author_id: myOnly && currentUser ? currentUser.id : undefined,
+    author_id:
+      effectiveMyOnly && currentUser ? currentUser.id : undefined,
     status,
+    scope: allUsers ? "all" : undefined,
   });
 
   if (isLoading) {
@@ -117,41 +124,43 @@ export function ConceptSetList({
 
   return (
     <div className="space-y-4">
-      {/* My / All toggle */}
-      <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
-        <button
-          type="button"
-          onClick={() => {
-            setMyOnly(true);
-            setPage(1);
-          }}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            myOnly
-              ? "bg-surface-elevated text-text-primary shadow-sm"
-              : "text-text-muted hover:text-text-secondary",
-          )}
-        >
-          <User size={12} />
-          {t("conceptSets.list.myConceptSets")}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setMyOnly(false);
-            setPage(1);
-          }}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            !myOnly
-              ? "bg-surface-elevated text-text-primary shadow-sm"
-              : "text-text-muted hover:text-text-secondary",
-          )}
-        >
-          <Globe size={12} />
-          {t("conceptSets.list.allConceptSets")}
-        </button>
-      </div>
+      {/* My / All toggle — hidden in super-admin "All users" mode */}
+      {!allUsers && (
+        <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
+          <button
+            type="button"
+            onClick={() => {
+              setMyOnly(true);
+              setPage(1);
+            }}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              myOnly
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
+            )}
+          >
+            <User size={12} />
+            {t("conceptSets.list.myConceptSets")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMyOnly(false);
+              setPage(1);
+            }}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              !myOnly
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
+            )}
+          >
+            <Globe size={12} />
+            {t("conceptSets.list.allConceptSets")}
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
@@ -161,7 +170,7 @@ export function ConceptSetList({
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 {t("conceptSets.list.columns.name")}
               </th>
-              {!myOnly && (
+              {!effectiveMyOnly && (
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   {t("conceptSets.list.columns.author")}
                 </th>
@@ -202,7 +211,7 @@ export function ConceptSetList({
                     )}
                   </div>
                 </td>
-                {!myOnly && (
+                {!effectiveMyOnly && (
                   <td className="px-4 py-3 text-sm text-text-muted">
                     {cs.author?.name ?? "--"}
                   </td>

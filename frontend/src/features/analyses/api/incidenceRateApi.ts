@@ -18,6 +18,7 @@ export async function listIncidenceRates(params?: {
   page?: number;
   search?: string;
   status?: "active" | "draft" | "archived" | "all";
+  scope?: "mine" | "all";
 }): Promise<PaginatedResponse<IncidenceRateAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<IncidenceRateAnalysis>(data);

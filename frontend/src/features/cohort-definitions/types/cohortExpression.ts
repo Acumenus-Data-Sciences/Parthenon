@@ -280,6 +280,8 @@ export interface CohortDefinitionListParams {
   with_generations?: boolean;
   author_id?: number;
   status?: "active" | "draft" | "archived" | "all";
+  /** Super-admin override: when "all", backend bypasses owner restriction. */
+  scope?: "mine" | "all";
 }
 
 export type CohortDomain =

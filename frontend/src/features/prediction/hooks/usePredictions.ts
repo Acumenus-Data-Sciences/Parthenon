@@ -15,10 +15,15 @@ import type { PredictionDesign } from "../types/prediction";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function usePredictions(page?: number, search?: string, status?: "active" | "draft" | "archived" | "all") {
+export function usePredictions(
+  page?: number,
+  search?: string,
+  status?: "active" | "draft" | "archived" | "all",
+  scope?: "mine" | "all",
+) {
   return useQuery({
-    queryKey: ["predictions", { page, search, status }],
-    queryFn: () => listPredictions({ page, search, status }),
+    queryKey: ["predictions", { page, search, status, scope }],
+    queryFn: () => listPredictions({ page, search, status, scope }),
   });
 }
 

@@ -33,6 +33,8 @@ import { useSccsAnalyses, useCreateSccs } from "@/features/sccs/hooks/useSccs";
 import { useEvidenceSynthesisAnalyses, useCreateEvidenceSynthesis } from "@/features/evidence-synthesis/hooks/useEvidenceSynthesis";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 import { CleanupBanner } from "@/features/library/components/CleanupBanner";
+import { AllUsersToggle } from "@/features/library/components/AllUsersToggle";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 import type { CharacterizationDesign, IncidenceRateDesign } from "../types/analysis";
 import type { PathwayDesign } from "@/features/pathways/types/pathway";
 import type { EstimationDesign } from "@/features/estimation/types/estimation";
@@ -211,6 +213,11 @@ export default function AnalysesPage() {
   const [esPage, setEsPage] = useState(1);
   const [statusTab, setStatusTab] = useState<StatusTab>("active");
   const lifecycleStatus = statusTab;
+  const [allUsers, setAllUsers] = useLocalStorage(
+    "library:scope:analyses",
+    false,
+  );
+  const scopeParam = allUsers ? ("all" as const) : undefined;
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showCreateMenu, setShowCreateMenu] = useState(false);
@@ -260,37 +267,37 @@ export default function AnalysesPage() {
     data: irData,
     isLoading: irLoading,
     error: irError,
-  } = useIncidenceRates(irPage, search, lifecycleStatus);
+  } = useIncidenceRates(irPage, search, lifecycleStatus, scopeParam);
 
   const {
     data: pathwayData,
     isLoading: pathwayLoading,
     error: pathwayError,
-  } = usePathways(pathwayPage, search, lifecycleStatus);
+  } = usePathways(pathwayPage, search, lifecycleStatus, scopeParam);
 
   const {
     data: estData,
     isLoading: estLoading,
     error: estError,
-  } = useEstimations(estPage, search, lifecycleStatus);
+  } = useEstimations(estPage, search, lifecycleStatus, scopeParam);
 
   const {
     data: predData,
     isLoading: predLoading,
     error: predError,
-  } = usePredictions(predPage, search, lifecycleStatus);
+  } = usePredictions(predPage, search, lifecycleStatus, scopeParam);
 
   const {
     data: sccsData,
     isLoading: sccsLoading,
     error: sccsError,
-  } = useSccsAnalyses(sccsPage, search, lifecycleStatus);
+  } = useSccsAnalyses(sccsPage, search, lifecycleStatus, scopeParam);
 
   const {
     data: esData,
     isLoading: esLoading,
     error: esError,
-  } = useEvidenceSynthesisAnalyses(esPage, search, lifecycleStatus);
+  } = useEvidenceSynthesisAnalyses(esPage, search, lifecycleStatus, scopeParam);
 
   const createCharMutation = useCreateCharacterization();
   const createIRMutation = useCreateIncidenceRate();
@@ -431,13 +438,14 @@ export default function AnalysesPage() {
       {/* Cleanup suggestions nudge — analyses-prefixed items only */}
       <CleanupBanner itemTypePrefix="" />
 
-      {/* Lifecycle status filter — applies across all analysis types */}
-      <div>
+      {/* Lifecycle status filter + super-admin "All users" toggle */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <StatusTabs
           value={statusTab}
           counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
           onChange={setStatusTab}
         />
+        <AllUsersToggle value={allUsers} onChange={setAllUsers} />
       </div>
 
       {/* Tabs with inline counts — replaces both stats bar and old tab bar */}

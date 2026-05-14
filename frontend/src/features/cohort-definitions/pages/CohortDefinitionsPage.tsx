@@ -13,6 +13,8 @@ import TagFilterBar from "@/components/ui/TagFilterBar";
 import { useTranslation } from "react-i18next";
 import { StatusTabs, type StatusTab } from "@/features/library/components/StatusTabs";
 import { CleanupBanner } from "@/features/library/components/CleanupBanner";
+import { AllUsersToggle } from "@/features/library/components/AllUsersToggle";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 export default function CohortDefinitionsPage() {
   const { t } = useTranslation("app");
@@ -26,6 +28,10 @@ export default function CohortDefinitionsPage() {
   const [viewMode, setViewMode] = useState<"domain" | "flat">("domain");
   const [tierFilter, setTierFilter] = useState<string | null>(null);
   const [statusTab, setStatusTab] = useState<StatusTab>("active");
+  const [allUsers, setAllUsers] = useLocalStorage(
+    "library:scope:cohort-definitions",
+    false,
+  );
 
   // Debounce search input
   useEffect(() => {
@@ -242,12 +248,15 @@ export default function CohortDefinitionsPage() {
       {/* Cleanup suggestions nudge — hidden when ≤5 stale items */}
       <CleanupBanner itemTypePrefix="cohort_definition" />
 
-      {/* Lifecycle status tabs */}
-      <StatusTabs
-        value={statusTab}
-        counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
-        onChange={setStatusTab}
-      />
+      {/* Lifecycle status tabs + super-admin "All users" toggle */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <StatusTabs
+          value={statusTab}
+          counts={{ active: 0, draft: 0, archived: 0, all: 0 }}
+          onChange={setStatusTab}
+        />
+        <AllUsersToggle value={allUsers} onChange={setAllUsers} />
+      </div>
 
       {/* List */}
       <CohortDefinitionList
@@ -256,6 +265,7 @@ export default function CohortDefinitionsPage() {
         isPublic={statFilter === "public" || undefined}
         withGenerations={statFilter === "generated" || undefined}
         lifecycleStatus={statusTab}
+        allUsers={allUsers}
         onCreateFromBundle={() => setShowFromBundle(true)}
         groupBy={viewMode === "domain" ? "domain" : null}
         tierFilter={tierFilter}

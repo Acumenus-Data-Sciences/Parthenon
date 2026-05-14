@@ -18,6 +18,7 @@ export async function listEstimations(params?: {
   page?: number;
   search?: string;
   status?: "active" | "draft" | "archived" | "all";
+  scope?: "mine" | "all";
 }): Promise<PaginatedResponse<EstimationAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<EstimationAnalysis>(data);

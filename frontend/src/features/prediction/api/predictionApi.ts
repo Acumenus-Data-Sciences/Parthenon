@@ -18,6 +18,7 @@ export async function listPredictions(params?: {
   page?: number;
   search?: string;
   status?: "active" | "draft" | "archived" | "all";
+  scope?: "mine" | "all";
 }): Promise<PaginatedResponse<PredictionAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<PredictionAnalysis>(data);

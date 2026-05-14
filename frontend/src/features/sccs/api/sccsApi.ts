@@ -15,6 +15,7 @@ export async function listSccs(params?: {
   page?: number;
   search?: string;
   status?: "active" | "draft" | "archived" | "all";
+  scope?: "mine" | "all";
 }): Promise<PaginatedResponse<SccsAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<SccsAnalysis>(data);

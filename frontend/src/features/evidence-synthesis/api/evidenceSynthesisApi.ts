@@ -18,6 +18,7 @@ export async function listEvidenceSynthesis(params?: {
   page?: number;
   search?: string;
   status?: "active" | "draft" | "archived" | "all";
+  scope?: "mine" | "all";
 }): Promise<PaginatedResponse<EvidenceSynthesisAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<EvidenceSynthesisAnalysis>(data);
