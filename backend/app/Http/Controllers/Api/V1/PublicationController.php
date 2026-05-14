@@ -8,6 +8,8 @@ use App\Http\Requests\PublicationExportRequest;
 use App\Http\Requests\PublicationNarrativeRequest;
 use App\Models\App\PublicationDraft;
 use App\Models\App\PublicationReportBundle;
+use App\Models\App\Study;
+use App\Policies\PublicationDraftPolicy;
 use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationReportBundleService;
 use App\Services\Publication\PublicationService;
@@ -99,8 +101,21 @@ class PublicationController extends Controller
      */
     public function listDrafts(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $userId = (int) $user?->id;
+
+        $accessibleStudyIds = Study::query()
+            ->accessibleBy($userId)
+            ->pluck('id');
+
         $drafts = PublicationDraft::query()
-            ->where('user_id', $request->user()?->id)
+            ->where(function ($q) use ($userId, $accessibleStudyIds) {
+                $q->where('user_id', $userId)
+                    ->orWhere(function ($qq) use ($accessibleStudyIds) {
+                        $qq->where('visibility', 'study')
+                            ->whereIn('study_id', $accessibleStudyIds);
+                    });
+            })
             ->orderByDesc('last_opened_at')
             ->orderByDesc('updated_at')
             ->limit(100)
@@ -125,6 +140,7 @@ class PublicationController extends Controller
             'template' => $validated['template'] ?? 'generic-ohdsi',
             'document_json' => $validated['document_json'],
             'status' => $validated['status'] ?? 'draft',
+            'visibility' => $validated['visibility'] ?? 'private',
             'last_opened_at' => now(),
         ]);
 
@@ -151,7 +167,7 @@ class PublicationController extends Controller
      */
     public function updateDraft(Request $request, PublicationDraft $draft): JsonResponse
     {
-        $this->authorizeDraft($request, $draft);
+        $this->authorizeDraftUpdate($request, $draft);
 
         // Optimistic locking via If-Unmodified-Since header
         $ifUnmodified = $request->header('If-Unmodified-Since');
@@ -174,8 +190,10 @@ class PublicationController extends Controller
             'template',
             'document_json',
             'status',
+            'visibility',
         ]));
         $updates['last_opened_at'] = now();
+        $updates['updated_by_user_id'] = $request->user()?->id;
 
         $draft->update($updates);
 
@@ -386,18 +404,38 @@ class PublicationController extends Controller
         $documentRule = $requireDocument ? 'required|array' : 'sometimes|array';
         $titleRule = $requireDocument ? 'required|string|max:500' : 'sometimes|string|max:500';
 
-        return $request->validate([
+        $validated = $request->validate([
             'study_id' => 'nullable|integer',
             'title' => $titleRule,
             'template' => 'sometimes|string|max:80',
             'document_json' => $documentRule,
             'status' => 'sometimes|string|in:draft,ready,archived',
+            'visibility' => 'sometimes|string|in:private,study',
         ]);
+
+        if (($validated['visibility'] ?? null) === 'study' && ($validated['study_id'] ?? null) === null) {
+            throw ValidationException::withMessages([
+                'visibility' => 'visibility=study requires study_id',
+            ]);
+        }
+
+        return $validated;
     }
 
     private function authorizeDraft(Request $request, PublicationDraft $draft): void
     {
-        abort_unless((int) $draft->user_id === (int) $request->user()?->id, 404);
+        $user = $request->user();
+        abort_unless($user !== null, 401);
+        abort_unless((new PublicationDraftPolicy)->view($user, $draft), 404);
+    }
+
+    private function authorizeDraftUpdate(Request $request, PublicationDraft $draft): void
+    {
+        $user = $request->user();
+        abort_unless($user !== null, 401);
+        if (! (new PublicationDraftPolicy)->update($user, $draft)) {
+            abort(403, 'You can view but not edit this draft.');
+        }
     }
 
     /**
@@ -417,6 +455,8 @@ class PublicationController extends Controller
             'template' => $draft->template,
             'document_json' => $draft->document_json,
             'status' => $draft->status,
+            'visibility' => $draft->visibility,
+            'updated_by_user_id' => $draft->updated_by_user_id,
             'last_opened_at' => $draft->last_opened_at?->toISOString(),
             'created_at' => $draft->created_at?->toISOString(),
             'updated_at' => $draft->updated_at?->toISOString(),

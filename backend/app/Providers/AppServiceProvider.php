@@ -25,6 +25,7 @@ use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\IngestionProject;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
+use App\Models\App\PublicationDraft;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\SelfControlledCohortAnalysis;
 use App\Models\App\Study;
@@ -62,6 +63,7 @@ use App\Policies\ConceptSetPolicy;
 use App\Policies\EtlProjectPolicy;
 use App\Policies\FinnGen\RunPolicy as FinnGenRunPolicy;
 use App\Policies\IngestionProjectPolicy;
+use App\Policies\PublicationDraftPolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
 use App\Services\Analysis\CharacterizationService;
@@ -327,6 +329,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(SccsAnalysis::class, AnalysisPolicy::class);
         Gate::policy(EvidenceSynthesisAnalysis::class, AnalysisPolicy::class);
         Gate::policy(SelfControlledCohortAnalysis::class, AnalysisPolicy::class);
+
+        // Publication draft policy (Pre-Publication Library — study-scoped sharing)
+        Gate::policy(PublicationDraft::class, PublicationDraftPolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
