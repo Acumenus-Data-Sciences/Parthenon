@@ -28,19 +28,34 @@ export function useAutosave({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightAttempts = useRef(0);
   const performSaveRef = useRef<() => Promise<void>>(async () => {});
+  // Track the latest `updated_at` we've observed from the server so each
+  // autosave PATCH carries an If-Unmodified-Since that matches the row's
+  // current state. Without this the second autosave would always 412
+  // because the prop-level `ifUnmodifiedSince` never refreshes.
+  const currentIfUnmodifiedSince = useRef<string | null>(ifUnmodifiedSince);
+  useEffect(() => {
+    // Only honor the prop value when we haven't observed a newer one ourselves.
+    if (currentIfUnmodifiedSince.current === null) {
+      currentIfUnmodifiedSince.current = ifUnmodifiedSince;
+    }
+  }, [ifUnmodifiedSince]);
 
   const currentHash = documentHash({ title, document });
 
   const performSave = useCallback(async () => {
     if (draftId === null) return;
     if (lastSavedHash.current === currentHash) return;
-    if (ifUnmodifiedSince === null) return;
+    const baseline = currentIfUnmodifiedSince.current ?? ifUnmodifiedSince;
+    if (baseline === null) return;
 
     setStatus("saving");
     const payload: Partial<PublicationDraftInput> = { title, document_json: document };
     try {
-      await updatePublicationDraftWithEtag(draftId, payload, ifUnmodifiedSince);
+      const updated = await updatePublicationDraftWithEtag(draftId, payload, baseline);
       lastSavedHash.current = currentHash;
+      // Advance the optimistic-lock baseline to the row's new updated_at so
+      // the next autosave doesn't 412 against our own previous write.
+      currentIfUnmodifiedSince.current = updated.updated_at ?? baseline;
       setLastSavedAt(new Date().toISOString());
       setStatus("saved");
       inFlightAttempts.current = 0;

@@ -208,7 +208,7 @@ class PublicationController extends Controller
      */
     public function deleteDraft(Request $request, PublicationDraft $draft): JsonResponse
     {
-        $this->authorizeDraft($request, $draft);
+        $this->authorizeDraftDelete($request, $draft);
         $draft->delete();
 
         return response()->json(null, 204);
@@ -243,7 +243,8 @@ class PublicationController extends Controller
      */
     public function createSnapshot(Request $request, PublicationDraft $draft): JsonResponse
     {
-        $this->authorizeDraft($request, $draft);
+        // Snapshot writes are mutations — require edit permission, not just view.
+        $this->authorizeDraftUpdate($request, $draft);
 
         $validated = $request->validate([
             'label' => 'required|string|max:200',
@@ -277,7 +278,8 @@ class PublicationController extends Controller
      */
     public function revertSnapshot(Request $request, PublicationDraft $draft, PublicationReportBundle $snapshot): JsonResponse
     {
-        $this->authorizeDraft($request, $draft);
+        // Revert mutates document_json and title — require edit permission.
+        $this->authorizeDraftUpdate($request, $draft);
         abort_unless((int) $snapshot->publication_draft_id === (int) $draft->id, 404);
         abort_unless($snapshot->direction === 'snapshot', 404);
 
@@ -308,11 +310,11 @@ class PublicationController extends Controller
         try {
             $draftId = null;
             if (isset($validated['draft_id'])) {
-                $draftId = PublicationDraft::query()
-                    ->where('user_id', $request->user()?->id)
-                    ->whereKey($validated['draft_id'])
-                    ->value('id');
-                abort_unless($draftId !== null, 404);
+                $draft = PublicationDraft::query()->whereKey($validated['draft_id'])->first();
+                abort_unless($draft !== null, 404);
+                // Honor study-scoped sharing: view permission is sufficient for export.
+                $this->authorizeDraft($request, $draft);
+                $draftId = $draft->id;
             }
 
             $artifact = $this->reportBundleService->export($validated, (string) $validated['format']);
@@ -435,6 +437,15 @@ class PublicationController extends Controller
         abort_unless($user !== null, 401);
         if (! (new PublicationDraftPolicy)->update($user, $draft)) {
             abort(403, 'You can view but not edit this draft.');
+        }
+    }
+
+    private function authorizeDraftDelete(Request $request, PublicationDraft $draft): void
+    {
+        $user = $request->user();
+        abort_unless($user !== null, 401);
+        if (! (new PublicationDraftPolicy)->delete($user, $draft)) {
+            abort(403, 'Only the owner can delete this draft.');
         }
     }
 

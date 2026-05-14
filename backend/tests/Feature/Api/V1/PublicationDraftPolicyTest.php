@@ -129,3 +129,89 @@ it('listDrafts returns drafts shared with the user via study membership', functi
     expect($ids)->toContain($sharedDraft->id);
     expect($ids)->not->toContain($privateDraft->id);
 });
+
+// ── Regression tests for write-permission gaps (audit 2026-05-14) ──────────
+
+it('view-only collaborator cannot delete an owner draft', function () {
+    $owner = User::factory()->create();
+    $owner->assignRole('researcher');
+    $viewer = User::factory()->create();
+    $viewer->assignRole('researcher'); // researcher has studies.view but the
+    // policy gate for delete is owner-only, not permission-driven.
+
+    $study = Study::factory()->create(['created_by' => $owner->id]);
+    DB::table('study_team_members')->insert([
+        'study_id' => $study->id, 'user_id' => $viewer->id,
+        'role' => 'collaborator', 'is_active' => true,
+        'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $draft = makePolicyDraft($owner, [
+        'study_id' => $study->id, 'visibility' => 'study',
+    ]);
+
+    $this->actingAs($viewer)
+        ->deleteJson("/api/v1/publish/drafts/{$draft->id}")
+        ->assertForbidden();
+
+    // Draft still exists
+    expect(PublicationDraft::find($draft->id))->not->toBeNull();
+});
+
+it('view-only collaborator cannot create a snapshot on a shared draft', function () {
+    $owner = User::factory()->create();
+    $owner->assignRole('researcher');
+    $viewer = User::factory()->create();
+    // Researcher role grants studies.edit so we use 'viewer' role
+    // which has studies.view but not studies.edit.
+    $viewer->assignRole('viewer');
+
+    $study = Study::factory()->create(['created_by' => $owner->id]);
+    DB::table('study_team_members')->insert([
+        'study_id' => $study->id, 'user_id' => $viewer->id,
+        'role' => 'collaborator', 'is_active' => true,
+        'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $draft = makePolicyDraft($owner, [
+        'study_id' => $study->id, 'visibility' => 'study',
+    ]);
+
+    // Viewer can read but not snapshot
+    $this->actingAs($viewer)
+        ->getJson("/api/v1/publish/drafts/{$draft->id}")
+        ->assertOk();
+
+    $this->actingAs($viewer)
+        ->postJson("/api/v1/publish/drafts/{$draft->id}/snapshots", ['label' => 'Sneaky'])
+        ->assertForbidden();
+});
+
+it('view-only collaborator cannot revert a snapshot on a shared draft', function () {
+    $owner = User::factory()->create();
+    $owner->assignRole('researcher');
+    $viewer = User::factory()->create();
+    $viewer->assignRole('viewer');
+
+    $study = Study::factory()->create(['created_by' => $owner->id]);
+    DB::table('study_team_members')->insert([
+        'study_id' => $study->id, 'user_id' => $viewer->id,
+        'role' => 'collaborator', 'is_active' => true,
+        'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $draft = makePolicyDraft($owner, [
+        'study_id' => $study->id, 'visibility' => 'study',
+    ]);
+
+    // Owner creates a snapshot
+    $snapshot = $this->actingAs($owner)
+        ->postJson("/api/v1/publish/drafts/{$draft->id}/snapshots", ['label' => 'V1'])
+        ->assertCreated()
+        ->json('data');
+
+    // Viewer cannot revert
+    $this->actingAs($viewer)
+        ->postJson("/api/v1/publish/drafts/{$draft->id}/snapshots/{$snapshot['id']}/revert")
+        ->assertForbidden();
+});
