@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\RequiresPromotionException;
 use App\Http\Controllers\Controller;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\Source;
@@ -386,6 +387,8 @@ class StudyController extends Controller
                 ...ApiMessage::payload('study.analysis_added'),
                 'data' => $studyAnalysis,
             ], 201);
+        } catch (RequiresPromotionException $e) {
+            throw $e;
         } catch (\InvalidArgumentException $e) {
             $payload = ApiMessage::payload('study.errors.invalid_analysis_type');
 

@@ -2,7 +2,10 @@
 
 namespace App\Services\Analysis;
 
+use App\Concerns\HasLibraryLifecycle;
 use App\Enums\ExecutionStatus;
+use App\Enums\LibraryStatus;
+use App\Exceptions\RequiresPromotionException;
 use App\Jobs\Analysis\RunCharacterizationJob;
 use App\Jobs\Analysis\RunEstimationJob;
 use App\Jobs\Analysis\RunIncidenceRateJob;
@@ -19,6 +22,7 @@ use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
+use App\Scopes\LibraryDefaultScope;
 use Illuminate\Support\Facades\Log;
 
 class StudyService
@@ -206,11 +210,39 @@ class StudyService
             throw new \InvalidArgumentException("Unknown analysis type: {$analysisType}");
         }
 
-        // Validate the analysis exists
-        $analysis = $modelClass::find($analysisId);
+        // Validate the analysis exists (bypass lifecycle global scope so we can give
+        // accurate Draft/Archived error responses).
+        $query = $modelClass::query();
+        if (in_array(HasLibraryLifecycle::class, class_uses_recursive($modelClass), true)) {
+            $query->withoutGlobalScope(LibraryDefaultScope::class);
+        }
+        $analysis = $query->find($analysisId);
 
         if ($analysis === null) {
             throw new \RuntimeException("Analysis not found: {$analysisType} #{$analysisId}");
+        }
+
+        // Library lifecycle: Draft items require explicit promotion; Archived
+        // items cannot be attached.
+        if (property_exists($analysis, 'status') || method_exists($analysis, 'getAttribute')) {
+            $status = $analysis->getAttribute('status');
+            $statusValue = $status instanceof LibraryStatus ? $status->value : $status;
+
+            if ($statusValue === 'draft') {
+                $actorId = auth()->id();
+                if ($actorId !== null && (int) $analysis->getAttribute('author_id') === (int) $actorId) {
+                    throw new RequiresPromotionException(
+                        itemType: $analysisType.'_analysis',
+                        itemId: (int) $analysis->getAttribute('id'),
+                        itemName: (string) ($analysis->getAttribute('name') ?? 'Draft analysis'),
+                    );
+                }
+                throw new \RuntimeException('Cannot attach another user\'s draft analysis.');
+            }
+
+            if ($statusValue === 'archived') {
+                throw new \RuntimeException("Cannot attach an archived {$analysisType} analysis.");
+            }
         }
 
         // Check for duplicate
