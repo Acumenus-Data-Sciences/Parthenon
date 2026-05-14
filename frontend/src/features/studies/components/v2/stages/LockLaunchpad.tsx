@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, Lock } from "lucide-react";
 import { tAuto } from "@/i18n/autoUserFacing";
+import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import type { useStudyDesignWorkbench } from "../../../hooks/useStudyDesignWorkbench";
 import {
