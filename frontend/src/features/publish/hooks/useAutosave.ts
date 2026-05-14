@@ -27,6 +27,12 @@ export function useAutosave({
   const lastSavedHash = useRef<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightAttempts = useRef(0);
+  // In-flight guard: prevents a debounced timer from starting a second
+  // concurrent PATCH while the first is still pending. When a save fires
+  // mid-flight, we record it as `pendingAfterInFlight` and run it once
+  // the in-flight save settles, using the freshest state available.
+  const inFlight = useRef(false);
+  const pendingAfterInFlight = useRef(false);
   const performSaveRef = useRef<() => Promise<void>>(async () => {});
   // Track the latest `updated_at` we've observed from the server so each
   // autosave PATCH carries an If-Unmodified-Since that matches the row's
@@ -45,9 +51,16 @@ export function useAutosave({
   const performSave = useCallback(async () => {
     if (draftId === null) return;
     if (lastSavedHash.current === currentHash) return;
+    if (inFlight.current) {
+      // Another save is in flight — mark that we want one more after it
+      // settles, but don't fire concurrently (would race to 412).
+      pendingAfterInFlight.current = true;
+      return;
+    }
     const baseline = currentIfUnmodifiedSince.current ?? ifUnmodifiedSince;
     if (baseline === null) return;
 
+    inFlight.current = true;
     setStatus("saving");
     const payload: Partial<PublicationDraftInput> = { title, document_json: document };
     try {
@@ -74,6 +87,15 @@ export function useAutosave({
         return;
       }
       setStatus("error");
+    } finally {
+      inFlight.current = false;
+      // If a save was requested while one was in flight, fire one more
+      // pass now so the user's latest changes are captured.
+      if (pendingAfterInFlight.current) {
+        pendingAfterInFlight.current = false;
+        // Defer to next tick so React state from this save settles first.
+        setTimeout(() => { void performSaveRef.current(); }, 0);
+      }
     }
   }, [draftId, currentHash, ifUnmodifiedSince, title, document, onStaleConflict]);
 

@@ -187,6 +187,25 @@ it('view-only collaborator cannot create a snapshot on a shared draft', function
         ->assertForbidden();
 });
 
+it('owner can toggle visibility=study without re-sending study_id', function () {
+    $owner = User::factory()->create();
+    $owner->assignRole('researcher');
+    $study = Study::factory()->create(['created_by' => $owner->id]);
+
+    // Existing draft already linked to a study, currently private
+    $draft = makePolicyDraft($owner, [
+        'study_id' => $study->id, 'visibility' => 'private',
+    ]);
+
+    // PATCH with only visibility=study (no study_id in the body)
+    $this->actingAs($owner)
+        ->patchJson("/api/v1/publish/drafts/{$draft->id}", ['visibility' => 'study'])
+        ->assertOk();
+
+    $draft->refresh();
+    expect($draft->visibility)->toBe('study');
+});
+
 it('view-only collaborator cannot revert a snapshot on a shared draft', function () {
     $owner = User::factory()->create();
     $owner->assignRole('researcher');

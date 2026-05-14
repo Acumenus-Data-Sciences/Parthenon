@@ -2,7 +2,7 @@
 // PublishPage — 4-step publish & export wizard
 // ---------------------------------------------------------------------------
 
-import { useReducer, useCallback, useEffect, useRef, useState } from "react";
+import { useReducer, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
 import { HelpButton } from "@/features/help";
@@ -571,10 +571,14 @@ export default function PublishPage() {
   }, [state]);
 
   // ── Autosave (Task 30) ──────────────────────────────────────────────────
-  // Re-derive the document payload on every state change. The autosave hook
-  // is responsible for hashing + debouncing, so we don't need to memoize here.
+  // Memoize the document payload so captureSnapshots (DOM query) only runs
+  // when reducer state changes — not on every PublishPage render. The
+  // autosave hook still hashes + debounces internally to avoid extra PATCHes.
   const ifUnmodifiedSince = draftQuery.data?.updated_at ?? null;
-  const documentJsonForSave = buildDocumentJson();
+  const documentJsonForSave = useMemo(
+    () => buildDocumentJson(),
+    [buildDocumentJson],
+  );
   const autosave = useAutosave({
     // Pass null when read-only so the hook short-circuits and never PATCHes.
     // (Backend would 403 anyway via PublicationDraftPolicy::update.)

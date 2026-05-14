@@ -132,7 +132,7 @@ class PublicationController extends Controller
      */
     public function createDraft(Request $request): JsonResponse
     {
-        $validated = $this->validateDraftPayload($request, requireDocument: true);
+        $validated = $this->validateDraftPayload($request, requireDocument: true, existing: null);
 
         $draft = PublicationDraft::create([
             'user_id' => $request->user()?->id,
@@ -184,7 +184,7 @@ class PublicationController extends Controller
             }
         }
 
-        $validated = $this->validateDraftPayload($request, requireDocument: false);
+        $validated = $this->validateDraftPayload($request, requireDocument: false, existing: $draft);
         $updates = array_intersect_key($validated, array_flip([
             'study_id',
             'title',
@@ -399,7 +399,11 @@ class PublicationController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function validateDraftPayload(Request $request, bool $requireDocument): array
+    /**
+     * @param  PublicationDraft|null  $existing  the row being updated (null on create)
+     * @return array<string, mixed>
+     */
+    private function validateDraftPayload(Request $request, bool $requireDocument, ?PublicationDraft $existing = null): array
     {
         $documentRule = $requireDocument ? 'required|array' : 'sometimes|array';
         $titleRule = $requireDocument ? 'required|string|max:500' : 'sometimes|string|max:500';
@@ -413,10 +417,18 @@ class PublicationController extends Controller
             'visibility' => 'sometimes|string|in:private,study',
         ]);
 
-        if (($validated['visibility'] ?? null) === 'study' && ($validated['study_id'] ?? null) === null) {
-            throw ValidationException::withMessages([
-                'visibility' => 'visibility=study requires study_id',
-            ]);
+        // visibility=study requires SOME study link — either in this payload OR
+        // already on the existing row. This lets clients toggle visibility
+        // without re-sending study_id on every PATCH.
+        if (($validated['visibility'] ?? null) === 'study') {
+            $effectiveStudyId = array_key_exists('study_id', $validated)
+                ? $validated['study_id']
+                : $existing?->study_id;
+            if ($effectiveStudyId === null) {
+                throw ValidationException::withMessages([
+                    'visibility' => 'visibility=study requires study_id',
+                ]);
+            }
         }
 
         return $validated;
