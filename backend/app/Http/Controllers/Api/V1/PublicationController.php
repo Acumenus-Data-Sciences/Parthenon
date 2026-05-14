@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\AiProviderNotConfiguredException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Publication\CreatePublicationSnapshotRequest;
 use App\Http\Requests\PublicationExportRequest;
 use App\Http\Requests\PublicationNarrativeRequest;
 use App\Models\App\PublicationDraft;
@@ -241,16 +242,13 @@ class PublicationController extends Controller
     /**
      * POST /api/v1/publish/drafts/{draft}/snapshots
      */
-    public function createSnapshot(Request $request, PublicationDraft $draft): JsonResponse
+    public function createSnapshot(CreatePublicationSnapshotRequest $request, PublicationDraft $draft): JsonResponse
     {
         // Snapshot writes are mutations — require edit permission, not just view.
         $this->authorizeDraftUpdate($request, $draft);
 
-        $validated = $request->validate([
-            'label' => 'required|string|max:200',
-            'comment' => 'nullable|string|max:2000',
-            'idempotency_key' => 'nullable|uuid',
-        ]);
+        /** @var array{label: string, comment?: string|null, idempotency_key?: string|null} $validated */
+        $validated = $request->validated();
 
         $user = $request->user();
         abort_unless($user !== null, 401);
