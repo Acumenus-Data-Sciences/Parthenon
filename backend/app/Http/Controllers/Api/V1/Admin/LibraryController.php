@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Library\BulkDeleteRequest;
+use App\Http\Requests\Admin\Library\ReassignOwnerRequest;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
@@ -14,6 +15,7 @@ use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\SelfControlledCohortAnalysis;
+use App\Models\User;
 use App\Scopes\LibraryDefaultScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -229,6 +231,108 @@ class LibraryController extends Controller
         }
 
         return response()->json(['deleted' => $deleted]);
+    }
+
+    /**
+     * Phase D · §6.8 — reassign ownership of one or more library items to a
+     * target user identified by email.
+     *
+     * For each item: confirms the target has the relevant `.view` permission
+     * for the item's domain. If not, the item is added to the blocked list
+     * and not reassigned. Each successful reassignment writes an audit_log
+     * row with action='library.reassign'.
+     */
+    public function reassign(ReassignOwnerRequest $request): JsonResponse
+    {
+        $target = User::query()->where('email', $request->string('target_email'))->firstOrFail();
+
+        $blocked = [];
+        $reassigned = [];
+        $errors = [];
+
+        foreach ($request->input('items', []) as $entry) {
+            $type = $entry['type'];
+            $id = (int) $entry['id'];
+
+            $modelClass = $this->resolveModelClass($type);
+            if ($modelClass === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'unknown_type'];
+
+                continue;
+            }
+
+            $permission = $this->permissionFor($type);
+            if (! $target->hasPermissionTo($permission)) {
+                $blocked[] = [
+                    'id' => $id,
+                    'type' => $type,
+                    'error' => 'target_missing_permission',
+                    'required_permission' => $permission,
+                ];
+
+                continue;
+            }
+
+            /** @var Model|null $item */
+            $item = $modelClass::query()
+                ->withoutGlobalScope(LibraryDefaultScope::class)
+                ->find($id);
+            if ($item === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'not_found'];
+
+                continue;
+            }
+
+            $previousOwnerId = (int) $item->getAttribute('author_id');
+            if ($previousOwnerId === $target->id) {
+                $reassigned[] = ['id' => $id, 'type' => $type, 'unchanged' => true];
+
+                continue;
+            }
+
+            DB::transaction(function () use ($item, $type, $id, $request, $target, $previousOwnerId): void {
+                $item->forceFill(['author_id' => $target->id])->save();
+                DB::table('audit_log')->insert([
+                    'actor_id' => $request->user()?->id,
+                    'action' => 'library.reassign',
+                    'subject_type' => $type,
+                    'subject_id' => $id,
+                    'snapshot' => json_encode([
+                        'previous_author_id' => $previousOwnerId,
+                        'new_author_id' => $target->id,
+                        'target_email' => $target->email,
+                    ]),
+                    'created_at' => now(),
+                ]);
+            });
+            $reassigned[] = ['id' => $id, 'type' => $type, 'previous_author_id' => $previousOwnerId];
+        }
+
+        if ($blocked !== [] || $errors !== []) {
+            return response()->json([
+                'blocked' => $blocked,
+                'errors' => $errors,
+                'reassigned' => $reassigned,
+                'target' => ['id' => $target->id, 'email' => $target->email],
+            ], 422);
+        }
+
+        return response()->json([
+            'reassigned' => $reassigned,
+            'target' => ['id' => $target->id, 'email' => $target->email],
+        ]);
+    }
+
+    /**
+     * Map an item_type to the RBAC permission a user must hold to own it.
+     */
+    private function permissionFor(string $type): string
+    {
+        return match ($type) {
+            'concept_set' => 'concept-sets.view',
+            'cohort_definition' => 'cohorts.view',
+            default => 'analyses.view',
+        };
     }
 
     /**

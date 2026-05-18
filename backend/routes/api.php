@@ -1582,6 +1582,7 @@ Route::prefix('v1')->group(function () {
             Route::middleware('role:super-admin')->prefix('library')->group(function () {
                 Route::get('/', [LibraryController::class, 'index']);
                 Route::post('/bulk-delete', [LibraryController::class, 'bulkDelete']);
+                Route::post('/reassign', [LibraryController::class, 'reassign']);
             });
         });
     });
