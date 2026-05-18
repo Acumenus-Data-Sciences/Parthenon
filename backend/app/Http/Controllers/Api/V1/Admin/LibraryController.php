@@ -3,6 +3,19 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Library\BulkDeleteRequest;
+use App\Models\App\CohortDefinition;
+use App\Models\App\ConceptSet;
+use App\Models\App\EstimationAnalysis;
+use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\FeatureAnalysis;
+use App\Models\App\IncidenceRateAnalysis;
+use App\Models\App\PathwayAnalysis;
+use App\Models\App\PredictionAnalysis;
+use App\Models\App\SccsAnalysis;
+use App\Models\App\SelfControlledCohortAnalysis;
+use App\Scopes\LibraryDefaultScope;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -138,5 +151,140 @@ class LibraryController extends Controller
             'limit' => $limit,
             'types' => array_column(self::TABLES, 'type'),
         ]);
+    }
+
+    /**
+     * Phase D · §6.7 — hard-delete (soft-delete via SoftDeletes) with preflight.
+     *
+     * Rules:
+     * - Item must already be `archived`.
+     * - Item must not be attached to any Study.
+     * - Each deletion is captured in audit_log inside a transaction.
+     * - Any blocked item short-circuits with HTTP 422 + the blocked list.
+     */
+    public function bulkDelete(BulkDeleteRequest $request): JsonResponse
+    {
+        $blocked = [];
+        $deleted = [];
+        $errors = [];
+
+        foreach ($request->input('items', []) as $entry) {
+            $type = $entry['type'];
+            $id = (int) $entry['id'];
+
+            $modelClass = $this->resolveModelClass($type);
+            if ($modelClass === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'unknown_type'];
+
+                continue;
+            }
+
+            /** @var Model|null $item */
+            $item = $modelClass::query()
+                ->withoutGlobalScope(LibraryDefaultScope::class)
+                ->find($id);
+            if ($item === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'not_found'];
+
+                continue;
+            }
+
+            $status = $item->getAttribute('status');
+            $statusValue = is_object($status) && property_exists($status, 'value')
+                ? $status->value
+                : (string) $status;
+            if ($statusValue !== 'archived') {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'must_be_archived', 'status' => $statusValue];
+
+                continue;
+            }
+
+            $attachments = $this->countAttachments($type, $id);
+            if ($attachments !== []) {
+                $blocked[] = ['id' => $id, 'type' => $type, 'attached_to' => $attachments];
+
+                continue;
+            }
+
+            DB::transaction(function () use ($item, $type, $id, $request): void {
+                DB::table('audit_log')->insert([
+                    'actor_id' => $request->user()?->id,
+                    'action' => 'library.hard_delete',
+                    'subject_type' => $type,
+                    'subject_id' => $id,
+                    'snapshot' => json_encode($item->toArray()),
+                    'created_at' => now(),
+                ]);
+                $item->delete();
+            });
+            $deleted[] = $id;
+        }
+
+        if ($blocked !== [] || $errors !== []) {
+            return response()->json([
+                'blocked' => $blocked,
+                'errors' => $errors,
+                'deleted' => $deleted,
+            ], 422);
+        }
+
+        return response()->json(['deleted' => $deleted]);
+    }
+
+    /**
+     * Map an item_type string to its Eloquent model class.
+     *
+     * @return class-string<Model>|null
+     */
+    private function resolveModelClass(string $type): ?string
+    {
+        return match ($type) {
+            'concept_set' => ConceptSet::class,
+            'cohort_definition' => CohortDefinition::class,
+            'incidence_rate_analysis' => IncidenceRateAnalysis::class,
+            'pathway_analysis' => PathwayAnalysis::class,
+            'estimation_analysis' => EstimationAnalysis::class,
+            'prediction_analysis' => PredictionAnalysis::class,
+            'feature_analysis' => FeatureAnalysis::class,
+            'sccs_analysis' => SccsAnalysis::class,
+            'evidence_synthesis_analysis' => EvidenceSynthesisAnalysis::class,
+            'self_controlled_cohort_analysis' => SelfControlledCohortAnalysis::class,
+            default => null,
+        };
+    }
+
+    /**
+     * Return Studies that reference this library item. Concept-set membership
+     * is derived from `study_cohorts.concept_set_ids` (JSON array). Cohorts
+     * pivot directly on `study_cohorts.cohort_definition_id`. Analyses use the
+     * polymorphic (`analysis_type`, `analysis_id`) pair on `study_analyses`.
+     *
+     * @return array<int, array{study_id: int, study_title: string}>
+     */
+    private function countAttachments(string $type, int $id): array
+    {
+        $rows = match ($type) {
+            'concept_set' => DB::table('study_cohorts')
+                ->join('studies', 'studies.id', '=', 'study_cohorts.study_id')
+                ->whereRaw('study_cohorts.concept_set_ids @> ?::jsonb', [json_encode([$id])])
+                ->distinct()
+                ->get(['studies.id as study_id', 'studies.title as study_title']),
+            'cohort_definition' => DB::table('study_cohorts')
+                ->join('studies', 'studies.id', '=', 'study_cohorts.study_id')
+                ->where('study_cohorts.cohort_definition_id', $id)
+                ->distinct()
+                ->get(['studies.id as study_id', 'studies.title as study_title']),
+            default => DB::table('study_analyses')
+                ->join('studies', 'studies.id', '=', 'study_analyses.study_id')
+                ->where('study_analyses.analysis_type', $type)
+                ->where('study_analyses.analysis_id', $id)
+                ->distinct()
+                ->get(['studies.id as study_id', 'studies.title as study_title']),
+        };
+
+        return $rows->map(fn ($r) => [
+            'study_id' => (int) $r->study_id,
+            'study_title' => (string) $r->study_title,
+        ])->all();
     }
 }

@@ -1581,6 +1581,7 @@ Route::prefix('v1')->group(function () {
             // ── Library admin surface (Phase D §6.6 — super-admin only) ─
             Route::middleware('role:super-admin')->prefix('library')->group(function () {
                 Route::get('/', [LibraryController::class, 'index']);
+                Route::post('/bulk-delete', [LibraryController::class, 'bulkDelete']);
             });
         });
     });
