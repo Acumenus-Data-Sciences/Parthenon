@@ -8,6 +8,7 @@ use App\Http\Middleware\ResolveLocale;
 use App\Http\Middleware\ResolveSourceContext;
 use App\Http\Middleware\TrackEndpointProfileAccess;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
+use App\Jobs\PurgeSoftDeletedLibraryItemsJob;
 use App\Jobs\SuggestLibraryCleanupJob;
 use App\Support\ApiMessage;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -76,6 +77,15 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping(60)
             ->onOneServer()
             ->appendOutputTo(storage_path('logs/library-cleanup-suggestions.log'));
+
+        // Library lifecycle purge (Phase D / spec §6.7). Force-deletes
+        // soft-deleted items past the 30-day grace window. Runs after
+        // suggestions refresh so the latest state is available.
+        $schedule->job(new PurgeSoftDeletedLibraryItemsJob)
+            ->dailyAt('03:00')
+            ->withoutOverlapping(60)
+            ->onOneServer()
+            ->appendOutputTo(storage_path('logs/library-purge.log'));
 
         $schedule->command('finngen:prune-runs')
             ->dailyAt('03:45')
