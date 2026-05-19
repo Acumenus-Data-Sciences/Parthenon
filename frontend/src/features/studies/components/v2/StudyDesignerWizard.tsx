@@ -28,6 +28,7 @@ import {
 import { WizardFooter } from "./WizardFooter";
 import {
   canProceed,
+  computeInitialStep,
   isReachable,
   stepState,
   STEP_LABEL_KEYS,
@@ -87,7 +88,20 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
   const { currentStep, slideDir, visited, setStep, goNext, goBack } =
     useStudyDesignerWizardStore();
   const [animKey, setAnimKey] = useState(0);
-  const [intentDirty, setIntentDirty] = useState(false);
+
+  // One-shot auto-jump to the user's last-active stage on first guidance
+  // arrival — mirrors v1's `useState(defaultActive)` resume behavior. Uses
+  // the "adjust state during render" pattern (React docs) so it doesn't
+  // trigger cascading-renders lint warnings. Guarded by `initialized` so we
+  // only do this once; after that the user's clicks are authoritative.
+  const [initialized, setInitialized] = useState(false);
+  if (!initialized && wb.compilerGuidance) {
+    const targetStep = computeInitialStep(wb.compilerGuidance);
+    setInitialized(true);
+    if (targetStep !== 0 && currentStep === 0) {
+      setStep(targetStep);
+    }
+  }
 
   const partialSteps = useMemo(
     () => computePartialSteps(wb.assets ?? []),
@@ -104,11 +118,7 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
     }));
   }, [wb.compilerGuidance, partialSteps, visited]);
 
-  const proceedable = canProceed(
-    wb.compilerGuidance ?? null,
-    currentStep,
-    intentDirty,
-  );
+  const proceedable = canProceed(wb.compilerGuidance ?? null, currentStep);
 
   const initialFormState = useMemo(
     () => (wb.selectedVersion ? specToForm(versionSpec(wb.selectedVersion)) : null),
@@ -188,10 +198,7 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
                 onGenerateIntent={(question) => {
                   void wb.handleGenerate(question);
                 }}
-                onDirtyChange={(dirty) => {
-                  setIntentDirty(dirty);
-                  wb.setIntentReviewDirty(dirty);
-                }}
+                onDirtyChange={wb.setIntentReviewDirty}
                 isSaving={wb.updateVersion.isPending}
                 isAccepting={wb.acceptVersion.isPending}
                 isGenerating={wb.generateIntent.isPending}

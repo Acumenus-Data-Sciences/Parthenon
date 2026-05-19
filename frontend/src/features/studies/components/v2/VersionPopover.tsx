@@ -83,10 +83,21 @@ export function VersionPopover({
   const [pair, setPair] = useState<ReadonlyArray<number>>([]);
   const [diffOpen, setDiffOpen] = useState(false);
 
-  // Note: transient state (pair, diffOpen) intentionally persists across
-  // close/reopen so the user can resume a diff session — closing the
-  // popover is not the same as "discard". Resetting would also fight the
-  // react-hooks/set-state-in-effect rule.
+  // Note: state (pair, diffOpen) does NOT persist across close/reopen —
+  // the component unmounts on `if (!open) return null` below, which tears
+  // down the useState backing. That's fine: each opening is a fresh session.
+
+  // Move focus into the popover on open so keyboard users can interact
+  // without an extra Tab. Restores focus to the previously-focused element
+  // (the chip) on close via the browser's natural focus behavior when the
+  // popover unmounts.
+  useEffect(() => {
+    if (!open) return;
+    const t = window.setTimeout(() => {
+      panelRef.current?.focus();
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [open]);
 
   // Escape closes; outside-click closes.
   useEffect(() => {
@@ -168,10 +179,11 @@ export function VersionPopover({
       role="dialog"
       aria-modal="false"
       aria-label={tAuto("studies.v2.wizard.versionPopoverAria")}
+      tabIndex={-1}
       className={cn(
         "absolute bottom-full left-0 mb-2 z-50 w-[min(92vw,640px)]",
         "rounded-lg border border-border-default bg-surface-raised shadow-2xl",
-        "p-3",
+        "p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
       )}
     >
       <div className="flex items-center justify-between mb-2 pl-1">

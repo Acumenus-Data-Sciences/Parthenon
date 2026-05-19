@@ -34,6 +34,20 @@ export const STEP_TO_SOURCE: ReadonlyArray<StudyCompilerStageId | null> = [
   null,
 ];
 
+// Inverse: guidance stage id → wizard step index. `current_assets` is folded
+// into Intent (step 0), matching the v1 rail behavior which also skipped it.
+// Used to jump the wizard to the user's last-active stage on first mount.
+export const SOURCE_TO_STEP: Readonly<Record<StudyCompilerStageId, number>> = {
+  intent: 0,
+  current_assets: 0,
+  phenotypes: 1,
+  concept_sets: 2,
+  cohorts: 3,
+  feasibility: 4,
+  analysis: 5,
+  lock: 6,
+};
+
 // i18n key roots for each step's label. Resolved at render time via tAuto.
 export const STEP_LABEL_KEYS: ReadonlyArray<string> = [
   "studies.v2.wizard.steps.intent",
@@ -115,19 +129,31 @@ export function isReachable(
   return step <= furthestAdvanced(guidance) + 1;
 }
 
-// Next-button gate. Returns true only when the current step's source stage is
-// `complete` OR (`active` AND the user has no unsaved changes).
+// Resolve the wizard step the user was last working on, for first-mount
+// auto-jump. Returns 0 (Intent) when guidance is unavailable or the current
+// stage is unknown. `current_assets` folds back to Intent (it has no
+// dedicated step).
+export function computeInitialStep(
+  guidance: StudyCompilerGuidance | null,
+): number {
+  if (!guidance) return 0;
+  const id = guidance.currentStage.id;
+  return SOURCE_TO_STEP[id] ?? 0;
+}
+
+// Next-button gate. The compiler-guidance state machine transitions
+// pending → active → complete as the user takes the canonical action for a
+// step. "active" means the user still has work to do on this step, so Next
+// is only enabled when the current step's source stage is "complete".
+// Users can still free-navigate forward by clicking the next step's circle
+// if it's reachable (within one-ahead of furthestAdvanced).
 export function canProceed(
   guidance: StudyCompilerGuidance | null,
   step: number,
-  isDirty: boolean,
 ): boolean {
   if (step < 0 || step >= TOTAL_STEPS - 1) return false;
   const sourceId = STEP_TO_SOURCE[step] ?? null;
   if (sourceId === null) return false;
   const stage = stageFor(guidance, sourceId);
-  if (!stage) return false;
-  if (stage.status === "complete") return true;
-  if (stage.status === "active") return !isDirty;
-  return false;
+  return stage?.status === "complete";
 }

@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import { AlertTriangle, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tAuto } from "@/i18n/autoUserFacing";
@@ -39,12 +39,23 @@ export function StudyDesignerStepper({
   currentStep,
   onStepClick,
 }: StudyDesignerStepperProps) {
+  // Refs to each step button so we can move DOM focus after arrow-key nav.
+  // Without this, the previously-focused button gets tabIndex=-1 and the
+  // user loses the focus ring entirely.
+  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  function focusStep(index: number) {
+    const btn = buttonRefs.current[index];
+    btn?.focus();
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
       for (let i = index + 1; i < steps.length; i++) {
         if (steps[i].reachable) {
           onStepClick(i);
+          focusStep(i);
           return;
         }
       }
@@ -53,6 +64,7 @@ export function StudyDesignerStepper({
       for (let i = index - 1; i >= 0; i--) {
         if (steps[i].reachable) {
           onStepClick(i);
+          focusStep(i);
           return;
         }
       }
@@ -85,6 +97,9 @@ export function StudyDesignerStepper({
               <button
                 type="button"
                 role="tab"
+                ref={(el) => {
+                  buttonRefs.current[index] = el;
+                }}
                 aria-selected={isActive}
                 aria-current={isActive ? "step" : undefined}
                 aria-disabled={!step.reachable}

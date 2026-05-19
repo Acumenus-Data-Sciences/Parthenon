@@ -161,37 +161,51 @@ describe("isReachable", () => {
 
 describe("canProceed", () => {
   it("returns false on the last step (no Next)", () => {
-    expect(canProceed(guidance({}), TOTAL_STEPS - 1, false)).toBe(false);
-    expect(canProceed(null, TOTAL_STEPS - 1, false)).toBe(false);
+    expect(canProceed(guidance({}), TOTAL_STEPS - 1)).toBe(false);
+    expect(canProceed(null, TOTAL_STEPS - 1)).toBe(false);
   });
 
   it("returns false when guidance is null", () => {
-    expect(canProceed(null, 0, false)).toBe(false);
-    expect(canProceed(null, 3, false)).toBe(false);
+    expect(canProceed(null, 0)).toBe(false);
+    expect(canProceed(null, 3)).toBe(false);
   });
 
-  it("returns true when the current step's stage is 'complete'", () => {
-    expect(canProceed(guidance({ intent: "complete" }), 0, false)).toBe(true);
-    expect(canProceed(guidance({ intent: "complete" }), 0, true)).toBe(true);
-    expect(
-      canProceed(guidance({ phenotypes: "complete" }), 1, false),
-    ).toBe(true);
+  it("returns true only when the current step's stage is 'complete'", () => {
+    expect(canProceed(guidance({ intent: "complete" }), 0)).toBe(true);
+    expect(canProceed(guidance({ phenotypes: "complete" }), 1)).toBe(true);
+    expect(canProceed(guidance({ cohorts: "complete" }), 3)).toBe(true);
   });
 
-  it("returns true when 'active' AND not dirty; false when dirty", () => {
-    expect(canProceed(guidance({ intent: "active" }), 0, false)).toBe(true);
-    expect(canProceed(guidance({ intent: "active" }), 0, true)).toBe(false);
+  it("returns false when stage is 'active' — user still has work on this step", () => {
+    expect(canProceed(guidance({ intent: "active" }), 0)).toBe(false);
+    expect(canProceed(guidance({ phenotypes: "active" }), 1)).toBe(false);
   });
 
-  it("returns false on 'blocked' or 'pending' regardless of dirty", () => {
-    expect(canProceed(guidance({ intent: "blocked" }), 0, false)).toBe(false);
-    expect(canProceed(guidance({ intent: "blocked" }), 0, true)).toBe(false);
-    expect(canProceed(guidance({ intent: "pending" }), 0, false)).toBe(false);
+  it("returns false when stage is 'blocked' or 'pending'", () => {
+    expect(canProceed(guidance({ intent: "blocked" }), 0)).toBe(false);
+    expect(canProceed(guidance({ intent: "pending" }), 0)).toBe(false);
   });
 
   it("returns false on out-of-range step", () => {
-    expect(canProceed(guidance({ intent: "complete" }), -1, false)).toBe(false);
-    expect(canProceed(guidance({ intent: "complete" }), TOTAL_STEPS, false))
-      .toBe(false);
+    expect(canProceed(guidance({ intent: "complete" }), -1)).toBe(false);
+    expect(canProceed(guidance({ intent: "complete" }), TOTAL_STEPS)).toBe(false);
+  });
+});
+
+describe("SOURCE_TO_STEP", () => {
+  it("maps each canonical stage id to the right wizard step", async () => {
+    const { SOURCE_TO_STEP } = await import("./wizardValidation");
+    expect(SOURCE_TO_STEP.intent).toBe(0);
+    expect(SOURCE_TO_STEP.phenotypes).toBe(1);
+    expect(SOURCE_TO_STEP.concept_sets).toBe(2);
+    expect(SOURCE_TO_STEP.cohorts).toBe(3);
+    expect(SOURCE_TO_STEP.feasibility).toBe(4);
+    expect(SOURCE_TO_STEP.analysis).toBe(5);
+    expect(SOURCE_TO_STEP.lock).toBe(6);
+  });
+
+  it("folds 'current_assets' into Intent (step 0) — matches v1 rail's skip-behavior", async () => {
+    const { SOURCE_TO_STEP } = await import("./wizardValidation");
+    expect(SOURCE_TO_STEP.current_assets).toBe(0);
   });
 });

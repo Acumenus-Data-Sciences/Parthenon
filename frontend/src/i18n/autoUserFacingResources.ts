@@ -693,6 +693,29 @@ const autoUserFacingEnglish: MessageTree = {
           closeDiff: "Close diff",
         },
 
+        wizard: {
+          stepperAria: "Study Designer wizard steps",
+          stepNumberAria: "Step {{n}}",
+          back: "Back",
+          next: "Next",
+          uploadProtocolShort: "Upload protocol",
+          versionChipTitle: "Switch active version or compare",
+          versionChipAria: "Active version: {{label}}",
+          versionPopoverAria: "Version switcher and diff",
+          versionPopoverHint: "Shift-click to select two versions to compare",
+          closeVersions: "Close version switcher",
+          steps: {
+            intent: "Intent",
+            phenotypes: "Phenotypes",
+            conceptSets: "Concept Sets",
+            cohorts: "Cohorts",
+            feasibility: "Feasibility",
+            analyses: "Analyses",
+            lock: "Lock",
+            package: "Package",
+          },
+        },
+
         phenotypes: {
           stageLabel: "stage 02 · phenotypes",
           titleTemplate: "Phenotypes — {{n}} drafts, {{m}} verified",
