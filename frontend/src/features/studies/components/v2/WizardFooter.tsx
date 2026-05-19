@@ -1,12 +1,16 @@
-import type { ChangeEvent, RefObject } from "react";
+import { useState, type ChangeEvent, type RefObject } from "react";
 import { ArrowLeft, ArrowRight, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tAuto } from "@/i18n/autoUserFacing";
+import type { StudyDesignVersion } from "../../types/study";
+import { VersionPopover } from "./VersionPopover";
 
 // Wizard footer — Back/Next + protocol-upload + version chip.
 // Mirrors the CohortWizardModal footer (border-t, px-8 py-4, ArrowLeft/Right
 // icons) plus the v2 affordances that previously lived on the IdentityStrip
-// (upload protocol) and in the VersionTimeline strip (version label).
+// (upload protocol) and in the VersionTimeline strip (version label + diff).
+// The version chip toggles an inline popover (VersionPopover) for switching
+// versions and viewing the side-by-side PICO diff.
 
 interface WizardFooterProps {
   currentStep: number;
@@ -21,7 +25,9 @@ interface WizardFooterProps {
   protocolBusy: boolean;
 
   versionLabel: string | null;
-  onOpenVersions?: () => void;
+  versions: ReadonlyArray<StudyDesignVersion>;
+  activeVersionId: number | null;
+  onSelectVersion: (id: number) => void;
 }
 
 export function WizardFooter({
@@ -34,10 +40,14 @@ export function WizardFooter({
   onProtocolUpload,
   protocolBusy,
   versionLabel,
-  onOpenVersions,
+  versions,
+  activeVersionId,
+  onSelectVersion,
 }: WizardFooterProps) {
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const versionChipEnabled = versionLabel !== null && versions.length > 0;
 
   return (
     <footer className="flex items-center justify-between gap-4 border-t border-border-default px-8 py-4">
@@ -71,23 +81,41 @@ export function WizardFooter({
         </button>
 
         {versionLabel ? (
-          <button
-            type="button"
-            onClick={onOpenVersions}
-            disabled={!onOpenVersions}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-md border border-border-default px-2 py-1 font-mono text-xs",
-              "text-text-muted hover:text-text-secondary",
-              "disabled:cursor-default disabled:opacity-70",
-            )}
-            title={tAuto("studies.v2.wizard.versionChipTitle")}
-            aria-label={tAuto("studies.v2.wizard.versionChipAria", {
-              label: versionLabel,
-            })}
-          >
-            {versionLabel}
-            {onOpenVersions ? <span aria-hidden="true">▾</span> : null}
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                if (!versionChipEnabled) return;
+                setPopoverOpen((prev) => !prev);
+              }}
+              disabled={!versionChipEnabled}
+              aria-expanded={popoverOpen}
+              aria-haspopup="dialog"
+              className={cn(
+                "inline-flex items-center gap-1 rounded-md border border-border-default px-2 py-1 font-mono text-xs",
+                "text-text-muted hover:text-text-secondary transition-colors",
+                "disabled:cursor-default disabled:opacity-70",
+                popoverOpen && "bg-surface-elevated text-text-secondary",
+              )}
+              title={tAuto("studies.v2.wizard.versionChipTitle")}
+              aria-label={tAuto("studies.v2.wizard.versionChipAria", {
+                label: versionLabel,
+              })}
+            >
+              {versionLabel}
+              {versionChipEnabled ? <span aria-hidden="true">▾</span> : null}
+            </button>
+            <VersionPopover
+              open={popoverOpen}
+              onClose={() => setPopoverOpen(false)}
+              versions={versions}
+              activeVersionId={activeVersionId}
+              onSelectVersion={(id) => {
+                onSelectVersion(id);
+                setPopoverOpen(false);
+              }}
+            />
+          </div>
         ) : null}
       </div>
 

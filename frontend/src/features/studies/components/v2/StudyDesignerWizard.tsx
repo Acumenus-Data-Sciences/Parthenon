@@ -48,19 +48,8 @@ interface StudyDesignerWizardProps {
   study: Study;
 }
 
-// Step → station id used by LockLaunchpad / PackageReceipt callbacks.
-// (The legacy stage components still emit "01"..."08" strings.)
-const STEP_TO_STATION: ReadonlyArray<string> = [
-  "01",
-  "02",
-  "03",
-  "04",
-  "05",
-  "06",
-  "07",
-  "08",
-];
-
+// LockLaunchpad / PackageReceipt callbacks still emit "01".."08" station
+// strings from the legacy v2 pipeline. Map them back to wizard step indices.
 function stationIdToStep(stationId: string): number | null {
   const idx = Number.parseInt(stationId, 10);
   if (!Number.isInteger(idx) || idx < 1 || idx > TOTAL_STEPS) return null;
@@ -260,13 +249,11 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
         onProtocolUpload={wb.handleProtocolUpload}
         protocolBusy={wb.protocolBusy}
         versionLabel={versionLabel}
-        onOpenVersions={undefined}
+        versions={wb.versions}
+        activeVersionId={wb.selectedVersion?.id ?? null}
+        onSelectVersion={(id) => wb.guardedSetSelectedVersion(id)}
       />
     </div>
   );
 }
 
-// Silence unused-import warning until Commit 3 wires the version popover.
-// STEP_TO_STATION will be consumed by the version-popover's navigateToStation
-// callback in Commit 3.
-void STEP_TO_STATION;
