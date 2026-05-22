@@ -888,7 +888,7 @@ const autoUserFacingEnglish: MessageTree = {
           acknowledged: "Open questions acknowledged",
           acknowledgedTitle: "You've acknowledged the open questions and can proceed to lock.",
           acknowledgeDisabled: "No open questions to acknowledge",
-          lockAndPackage: "🔒 Lock & Package",
+          lockAndPackage: "Lock & Package",
           lockAndPackageAria: "Lock the design and produce the signed package",
           alreadyLocked: "View package",
           noVersionSelected: "No version selected to lock.",

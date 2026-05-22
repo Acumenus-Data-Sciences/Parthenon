@@ -288,12 +288,13 @@ export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Elemen
                       {row.message}
                     </span>
                     {row.action ? (
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
-                      >
-                        {tAuto("studies.v2.feasibility.resolve")}
-                      </button>
+                      // The backend issue carries a suggested-action label but
+                      // no resolution target/route, so there is nothing to wire
+                      // an onClick to. Render the suggestion as an informational
+                      // hint rather than a button that does nothing when clicked.
+                      <span className="shrink-0 rounded-md border border-border-default bg-surface-elevated px-2 py-0.5 text-[11px] font-medium text-text-muted">
+                        {row.action}
+                      </span>
                     ) : null}
                   </li>
                 ))}
