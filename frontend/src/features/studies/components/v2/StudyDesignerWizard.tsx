@@ -151,7 +151,13 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
   }
 
   return (
-    <div className="studies-v2-wizard flex flex-col h-full">
+    // `studies-v2-root` restores the stage-body styling context: ~300 CSS
+    // selectors in studies-v2.css are scoped under it (.studies-v2-root
+    // .asset-matrix, .pico-canvas-card, .btn-accept, --wb-* tokens, wb-serif/
+    // wb-mono fonts). The rail→wizard swap dropped this wrapper, leaving every
+    // stage unstyled. This is a stopgap — the P1 reskin migrates stages onto
+    // gold-standard Tailwind tokens, after which this class can be removed.
+    <div className="studies-v2-root studies-v2-wizard flex flex-col h-full">
       <style>{`
         @keyframes wizardSlideFromRight {
           from { opacity: 0; transform: translateX(18px); }
