@@ -114,20 +114,23 @@ export function PackageReceipt({
 
   if (isFinalizing) {
     return (
-      <div className="package-receipt finalizing" role="status" aria-live="polite">
-        <div className="package-gated-eyebrow wb-mono">
+      <div
+        className="flex flex-col items-start gap-3 pb-6"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="inline-flex items-center gap-1.5 text-xs text-text-muted">
           <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-          {" "}
           {tAuto("studies.v2.package.eyebrow")}
         </div>
         {/* L4: spinner moved to the eyebrow (sibling of the title) so the
             <h2> heading carries text only — semantically cleaner for screen
             readers that flatten heading content and for the polite live
             region announcement. */}
-        <h2 className="package-gated-title wb-serif">
+        <h2 className="text-sm font-semibold text-text-primary">
           {tAuto("studies.v2.package.finalizingTitle")}
         </h2>
-        <p className="package-gated-body wb-mono">
+        <p className="text-xs text-text-muted">
           {tAuto("studies.v2.package.finalizingBody")}
         </p>
       </div>
@@ -136,19 +139,17 @@ export function PackageReceipt({
 
   if (!isLocked) {
     return (
-      <div className="package-receipt gated">
-        <div className="package-gated-eyebrow wb-mono">
-          {tAuto("studies.v2.package.eyebrow")}
-        </div>
-        <h2 className="package-gated-title wb-serif">
-          {tAuto("studies.v2.package.gatedTitle")}
-        </h2>
-        <p className="package-gated-body wb-mono">
+      <div className="flex flex-col items-start gap-3 pb-6">
+        <p className="text-xs text-text-muted">
           {tAuto("studies.v2.package.gatedBody")}
         </p>
         <button
           type="button"
-          className="btn-ghost teal package-gated-action"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2",
+            "text-sm font-medium text-text-muted hover:text-text-secondary transition-colors",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+          )}
           onClick={() => onNavigateStation("07")}
         >
           {tAuto("studies.v2.package.gotoLock")}
@@ -183,59 +184,83 @@ export function PackageReceipt({
   };
 
   return (
-    <div className="package-receipt">
-      <header className="package-header">
-        <div className="package-header-eyebrow wb-mono">
-          {tAuto("studies.v2.package.eyebrow")}
-        </div>
-        <h2 className="package-header-title wb-serif">
-          {tAuto("studies.v2.package.title")}
-        </h2>
-        <p className="package-header-meta wb-mono">
+    <div className="flex flex-col gap-5 pb-6">
+      {/* Header — signed-at / size meta; eyebrow + serif title removed per spec */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs text-text-muted tabular-nums">
           {tAuto("studies.v2.package.signedAt", {
             timestamp: summary.signedAtLabel,
             size: summary.sizeLabel,
           })}
         </p>
-      </header>
+      </div>
 
-      <section className="package-hero" aria-label={tAuto("studies.v2.package.heroAria")}>
-        <div className="package-hash-block">
-          <div className="package-hash-label wb-mono">
+      {/* Hero card — hash + manifest + actions */}
+      <section
+        className="rounded-lg border border-border-default bg-surface-raised p-4 flex flex-col gap-4"
+        aria-label={tAuto("studies.v2.package.heroAria")}
+      >
+        {/* Signature hash block */}
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-text-muted uppercase tracking-wide">
             {tAuto("studies.v2.package.signatureLabel")}
-          </div>
+          </span>
           <button
             type="button"
-            className="package-hash wb-mono"
+            className={cn(
+              "inline-flex items-center gap-2.5 w-full rounded-lg border border-border-default",
+              "bg-surface-base px-3 py-2.5 text-left text-sm transition-colors",
+              "hover:border-accent/60 cursor-pointer",
+            )}
             onClick={copyHash}
             title={tAuto("studies.v2.package.copyHashTitle")}
             aria-label={tAuto("studies.v2.package.copyHashAria")}
           >
-            <span className="package-hash-value">{summary.fullHashHex}</span>
+            <span className="flex-1 min-w-0 break-all font-mono text-xs text-text-secondary tabular-nums">
+              {summary.fullHashHex}
+            </span>
             {toast === "copied-hash" ? (
-              <span className="package-toast" role="status">
+              <span
+                className="inline-flex items-center gap-1 shrink-0 text-[11px] font-medium text-success"
+                role="status"
+              >
                 <Check size={11} aria-hidden="true" />
                 {tAuto("studies.v2.package.copied")}
               </span>
             ) : (
-              <Copy size={11} aria-hidden="true" className="package-hash-icon" />
+              <Copy size={11} aria-hidden="true" className="text-text-ghost shrink-0" />
             )}
           </button>
         </div>
 
-        <pre className="package-manifest wb-mono" aria-label={tAuto("studies.v2.package.manifestAria")}>
+        {/* Manifest preview */}
+        <pre
+          className={cn(
+            "m-0 rounded-lg border border-border-default bg-surface-base px-3 py-2.5",
+            "text-xs text-text-secondary leading-relaxed overflow-x-auto",
+          )}
+          aria-label={tAuto("studies.v2.package.manifestAria")}
+        >
           {manifestNodes.map((node) => (
-            <span key={node.label} className="package-manifest-line">
-              <span className="package-manifest-label">{node.label}</span>
-              {node.meta ? <span className="package-manifest-meta">{node.meta}</span> : null}
+            <span key={node.label} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-baseline">
+              <span className="text-text-secondary">{node.label}</span>
+              {node.meta ? (
+                <span className="text-[10px] text-text-muted uppercase tracking-wide">{node.meta}</span>
+              ) : null}
             </span>
           ))}
         </pre>
 
-        <div className="package-actions">
+        {/* Download + copy-manifest actions */}
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
-            className={cn("btn-accept package-download", !summary.downloadUrl && "disabled")}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
+              summary.downloadUrl
+                ? "bg-accent text-surface-base hover:bg-accent-light"
+                : "cursor-not-allowed bg-surface-elevated text-text-ghost",
+            )}
             disabled={summary.downloadUrl == null}
             title={
               summary.downloadUrl
@@ -253,7 +278,10 @@ export function PackageReceipt({
           </button>
           <button
             type="button"
-            className="btn-ghost package-copy-manifest"
+            className={cn(
+              "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2",
+              "text-sm font-medium text-text-muted hover:text-text-secondary transition-colors",
+            )}
             onClick={copyManifest}
             title={tAuto("studies.v2.package.copyManifestTitle")}
           >
@@ -272,15 +300,23 @@ export function PackageReceipt({
         </div>
       </section>
 
-      <section className="package-next-steps" aria-label={tAuto("studies.v2.package.nextStepsAria")}>
-        <div className="package-next-steps-head wb-mono">
+      {/* Next steps */}
+      <section
+        className="rounded-lg border border-border-default bg-surface-raised p-4 flex flex-col gap-3"
+        aria-label={tAuto("studies.v2.package.nextStepsAria")}
+      >
+        <span className="text-xs text-text-muted uppercase tracking-wide">
           {tAuto("studies.v2.package.nextStepsTitle")}
-        </div>
-        <ul className="package-next-steps-list">
+        </span>
+        <ul className="flex flex-wrap gap-2 list-none m-0 p-0">
           <li>
             <button
               type="button"
-              className="btn-ghost teal package-next-step"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2",
+                "text-sm font-medium text-text-muted transition-colors",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+              )}
               disabled
               title={tAuto("studies.v2.package.federationStub")}
             >
@@ -291,7 +327,11 @@ export function PackageReceipt({
           <li>
             <button
               type="button"
-              className="btn-ghost package-next-step"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2",
+                "text-sm font-medium text-text-muted transition-colors",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+              )}
               disabled
               title={tAuto("studies.v2.package.atlasStub")}
             >
@@ -302,7 +342,11 @@ export function PackageReceipt({
           <li>
             <button
               type="button"
-              className="btn-ghost package-next-step"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2",
+                "text-sm font-medium text-text-muted transition-colors",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+              )}
               disabled
               title={tAuto("studies.v2.package.archiveStub")}
             >

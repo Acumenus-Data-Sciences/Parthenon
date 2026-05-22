@@ -13,7 +13,6 @@
 @import "./styles/components/charts.css";
 @import "./styles/components/ai.css";
 @import "./styles/components/auth.css";
-@import "./styles/components/studies-v2.css";
 
 /* ============================================================
    Tailwind v4 @theme inline — expose design tokens to utilities
@@ -42,6 +41,11 @@
 
   /* Semantic */
   --color-critical: var(--critical);
+  /* `error` is an alias of `critical` — several components (StudyDesignerStepper,
+     the study-designer stage chips) use `text-error`/`bg-error`/`border-error`
+     for blocked/error states. Without this alias those utilities resolve to
+     nothing and the state renders colorless. */
+  --color-error: var(--critical);
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-info: var(--info);

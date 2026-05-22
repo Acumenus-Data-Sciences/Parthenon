@@ -160,19 +160,19 @@ export function PhenotypeMatrix({ workbench }: PhenotypeMatrixProps): JSX.Elemen
       key: "name",
       label: tAuto("studies.v2.phenotypes.col.name"),
       width: "minmax(180px, 2fr)",
-      render: (row) => <span className="asset-matrix-name">{row.name}</span>,
+      render: (row) => <span className="font-medium text-text-primary">{row.name}</span>,
     },
     {
       key: "conceptSummary",
       label: tAuto("studies.v2.phenotypes.col.concepts"),
       width: "minmax(120px, 1.5fr)",
-      render: (row) => <span className="asset-matrix-muted">{row.conceptSummary}</span>,
+      render: (row) => <span className="text-text-muted">{row.conceptSummary}</span>,
     },
     {
       key: "endpointSummary",
       label: tAuto("studies.v2.phenotypes.col.endpoints"),
       width: "minmax(120px, 1.5fr)",
-      render: (row) => <span className="asset-matrix-muted">{row.endpointSummary}</span>,
+      render: (row) => <span className="text-text-muted">{row.endpointSummary}</span>,
     },
     {
       key: "glyph",
@@ -195,7 +195,7 @@ export function PhenotypeMatrix({ workbench }: PhenotypeMatrixProps): JSX.Elemen
             hint={row.provenance.hint}
           />
         ) : (
-          <span className="asset-matrix-muted">—</span>
+          <span className="text-text-muted">—</span>
         ),
     },
   ];
@@ -220,7 +220,7 @@ export function PhenotypeMatrix({ workbench }: PhenotypeMatrixProps): JSX.Elemen
   ];
 
   return (
-    <div className="asset-matrix-stage">
+    <div className="flex flex-col gap-4">
       <ActionGateHint message={generateGate} />
       <AssetMatrix<PhenotypeRow>
         stageLabel={tAuto("studies.v2.phenotypes.stageLabel")}

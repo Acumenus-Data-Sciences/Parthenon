@@ -117,27 +117,26 @@ function PicoEmptyState({
   };
 
   return (
-    <div className="pico-canvas-card pico-empty">
-      <div className="pico-canvas-head">
-        <div>
-          <div className="pico-canvas-title wb-serif">
-            {tAuto("studies.v2.pico.startTitle")}
-            <em>{tAuto("studies.v2.pico.startSubtitle")}</em>
-          </div>
+    <div className="flex flex-col gap-5 rounded-lg border border-border-default bg-surface-raised p-5">
+      <div>
+        <div className="text-sm font-semibold text-text-primary">
+          {tAuto("studies.v2.pico.startTitle")}{" "}
+          <span className="font-normal text-text-secondary">
+            {tAuto("studies.v2.pico.startSubtitle")}
+          </span>
         </div>
-        <div className="pico-canvas-meta wb-mono">stage 01 · intent</div>
       </div>
 
-      <div className="pico-empty-hint wb-mono">
+      <div className="text-xs text-text-muted">
         {tAuto("studies.v2.pico.uploadHint")}
       </div>
 
-      <div className="pico-empty-eyebrow wb-mono">
+      <div className="text-xs text-text-muted">
         {t("studies.workbench.researchQuestion")}
       </div>
 
       <textarea
-        className="pico-empty-textarea"
+        className="w-full resize-none rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[13px] text-text-secondary placeholder:text-text-ghost outline-none transition-colors focus:border-accent"
         rows={5}
         value={researchQuestion}
         onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
@@ -147,10 +146,10 @@ function PicoEmptyState({
         aria-label={t("studies.workbench.researchQuestion")}
       />
 
-      <div className="pico-empty-actions">
+      <div className="flex flex-col items-start gap-2.5">
         <button
           type="button"
-          className="btn-accept"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-accent-light disabled:cursor-not-allowed disabled:bg-surface-elevated disabled:text-text-ghost"
           onClick={handleGenerate}
           disabled={disabled}
           aria-disabled={disabled}

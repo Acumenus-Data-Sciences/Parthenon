@@ -66,9 +66,9 @@ export interface AssetMatrixEmptyState {
 }
 
 export interface AssetMatrixProps<TRow extends { id: string | number }> {
-  /** Stage eyebrow shown at the top: "stage 03 · concept sets". */
+  /** Stage eyebrow (legacy). No longer rendered — the wizard stepper labels the step. */
   stageLabel: string;
-  /** Bold serif title at the top, e.g. "Concept Sets — 4 drafts, 3 materialized". */
+  /** Count summary, e.g. "Concept Sets — 4 drafts, 3 materialized". Rendered small + muted. */
   title: string;
   columns: ReadonlyArray<AssetMatrixColumn<TRow>>;
   rows: ReadonlyArray<TRow>;
@@ -81,11 +81,13 @@ export interface AssetMatrixProps<TRow extends { id: string | number }> {
   isLoading?: boolean;
 }
 
+const GHOST_BUTTON =
+  "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+
 export function AssetMatrix<TRow extends { id: string | number }>(
   props: AssetMatrixProps<TRow>,
 ): JSX.Element {
   const {
-    stageLabel,
     title,
     columns,
     rows,
@@ -99,6 +101,16 @@ export function AssetMatrix<TRow extends { id: string | number }>(
   const [selectedIds, setSelectedIds] = useState<ReadonlyArray<string | number>>([]);
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  // Build the grid track template: leading checkbox col (auto), one col per
+  // column width hint (falling back to minmax(0, 1fr)), trailing actions col.
+  const gridTemplateColumns = useMemo(() => {
+    const dataCols = columns
+      .map((column) => column.width ?? "minmax(0, 1fr)")
+      .join(" ");
+    const actionsCol = rowActions.length > 0 ? " auto" : "";
+    return `auto ${dataCols}${actionsCol}`;
+  }, [columns, rowActions.length]);
 
   // Map current row ids → selected status for fast lookup.
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
@@ -161,36 +173,36 @@ export function AssetMatrix<TRow extends { id: string | number }>(
   const showBatchBar = selectedRows.length > 0 && batchActions.length > 0;
 
   return (
-    <div className="asset-matrix">
-      <header className="asset-matrix-head">
-        <div className="asset-matrix-eyebrow wb-mono">{stageLabel}</div>
-        <div className="asset-matrix-headline">
-          <h2 className="asset-matrix-title wb-serif">{title}</h2>
-          {headerActions.length > 0 ? (
-            <div className="asset-matrix-header-actions">
-              {headerActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    className="btn-ghost"
-                    onClick={action.onClick}
-                    disabled={action.disabled}
-                    title={action.title}
-                  >
-                    {Icon ? <Icon size={12} /> : null}
-                    {action.label}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
+    <div className="flex flex-col gap-3 pb-16">
+      <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border-default pb-3">
+        <p className="text-xs text-text-muted">{title}</p>
+        {headerActions.length > 0 ? (
+          <div className="flex items-center gap-2">
+            {headerActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  type="button"
+                  className={cn(GHOST_BUTTON, "px-2.5 py-1.5 text-xs")}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  title={action.title}
+                >
+                  {Icon ? <Icon size={12} /> : null}
+                  {action.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </header>
 
       {isLoading ? (
-        <div className="asset-matrix-loading" role="status">
+        <div
+          className="flex items-center justify-center gap-2 py-9 text-xs text-text-muted"
+          role="status"
+        >
           <Loader2 size={16} className="animate-spin" aria-hidden="true" />
           <span>{tAuto("studies.v2.assetMatrix.loading")}</span>
         </div>
@@ -202,13 +214,18 @@ export function AssetMatrix<TRow extends { id: string | number }>(
           aria-label={title}
           aria-rowcount={rows.length + 1}
           aria-colcount={columns.length + 2}
-          className="asset-matrix-grid"
+          className="flex flex-col overflow-hidden rounded-lg border border-border-default bg-surface-base"
         >
-          <div role="row" className="asset-matrix-grid-head">
-            <span role="columnheader" className="asset-matrix-cell asset-matrix-cell-check">
+          <div
+            role="row"
+            className="grid items-center border-b border-border-default bg-surface-elevated px-2.5 py-2"
+            style={{ gridTemplateColumns }}
+          >
+            <span role="columnheader" className="flex items-center justify-center px-0">
               <input
                 type="checkbox"
                 aria-label={tAuto("studies.v2.assetMatrix.selectAll")}
+                className="accent-accent cursor-pointer"
                 checked={allSelected}
                 ref={(el) => {
                   if (el) el.indeterminate = someSelected;
@@ -221,10 +238,9 @@ export function AssetMatrix<TRow extends { id: string | number }>(
                 key={column.key}
                 role="columnheader"
                 className={cn(
-                  "asset-matrix-cell asset-matrix-cell-th wb-mono",
-                  column.align === "right" && "align-right",
+                  "min-w-0 overflow-hidden text-ellipsis whitespace-nowrap px-2 text-[11px] font-medium uppercase tracking-wide text-text-muted",
+                  column.align === "right" && "text-right",
                 )}
-                style={column.width ? { width: column.width } : undefined}
               >
                 {column.label}
               </span>
@@ -232,7 +248,7 @@ export function AssetMatrix<TRow extends { id: string | number }>(
             {rowActions.length > 0 ? (
               <span
                 role="columnheader"
-                className="asset-matrix-cell asset-matrix-cell-actions wb-mono"
+                className="px-2 text-right text-[11px] font-medium uppercase tracking-wide text-text-muted"
               >
                 {tAuto("studies.v2.assetMatrix.actions")}
               </span>
@@ -248,6 +264,7 @@ export function AssetMatrix<TRow extends { id: string | number }>(
               row={row}
               columns={columns}
               rowActions={rowActions}
+              gridTemplateColumns={gridTemplateColumns}
               selected={selectedSet.has(row.id)}
               focused={index === focusedIndex}
               onToggleSelected={() => toggleRow(row.id)}
@@ -272,13 +289,13 @@ export function AssetMatrix<TRow extends { id: string | number }>(
 
 function AssetMatrixEmpty({ state }: { state: AssetMatrixEmptyState }) {
   return (
-    <div className="asset-matrix-empty">
-      <p className="asset-matrix-empty-title wb-serif">{state.title}</p>
-      <p className="asset-matrix-empty-desc">{state.description}</p>
+    <div className="flex flex-col items-center gap-2.5 px-3 py-7 text-center">
+      <p className="text-sm font-semibold text-text-primary">{state.title}</p>
+      <p className="max-w-[480px] text-xs text-text-muted">{state.description}</p>
       {state.cta ? (
         <button
           type="button"
-          className="btn-accept"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-accent-light disabled:cursor-not-allowed disabled:bg-surface-elevated disabled:text-text-ghost"
           onClick={state.cta.onClick}
           disabled={state.cta.disabled}
           title={state.cta.title}

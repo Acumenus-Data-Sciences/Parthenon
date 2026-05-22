@@ -148,12 +148,6 @@ function formatConfidence(value: number): string {
   return fraction.toFixed(2);
 }
 
-export function provenanceColor(tone: ProvenanceTone): string {
-  if (tone === "teal") return "var(--wb-teal)";
-  if (tone === "gold") return "var(--wb-gold)";
-  return "var(--wb-slate-3)";
-}
-
 export function clamp(value: string, max: number): string {
   if (value.length <= max) return value;
   return `${value.slice(0, max - 1).trimEnd()}…`;

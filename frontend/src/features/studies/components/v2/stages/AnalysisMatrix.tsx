@@ -139,25 +139,25 @@ export function AnalysisMatrix({ workbench }: AnalysisMatrixProps): JSX.Element 
       key: "family",
       label: tAuto("studies.v2.analyses.col.family"),
       width: "minmax(140px, 1.4fr)",
-      render: (row) => <span className="asset-matrix-muted">{row.family}</span>,
+      render: (row) => <span className="text-text-muted">{row.family}</span>,
     },
     {
       key: "name",
       label: tAuto("studies.v2.analyses.col.name"),
       width: "minmax(180px, 2fr)",
-      render: (row) => <span className="asset-matrix-name">{row.name}</span>,
+      render: (row) => <span className="font-medium text-text-primary">{row.name}</span>,
     },
     {
       key: "hadesStatus",
       label: tAuto("studies.v2.analyses.col.hades"),
       width: "140px",
-      render: (row) => <span className="wb-mono asset-matrix-muted">{row.hadesStatus}</span>,
+      render: (row) => <span className="text-text-muted">{row.hadesStatus}</span>,
     },
     {
       key: "hadesPackage",
       label: tAuto("studies.v2.analyses.col.package"),
       width: "150px",
-      render: (row) => <span className="wb-mono asset-matrix-muted">{row.hadesPackage}</span>,
+      render: (row) => <span className="text-text-muted">{row.hadesPackage}</span>,
     },
     {
       key: "glyph",
@@ -216,7 +216,7 @@ export function AnalysisMatrix({ workbench }: AnalysisMatrixProps): JSX.Element 
   ];
 
   return (
-    <div className="asset-matrix-stage">
+    <div className="flex flex-col gap-4">
       <ActionGateHint message={draftGate} />
       <AssetMatrix<AnalysisRow>
         stageLabel={tAuto("studies.v2.analyses.stageLabel")}

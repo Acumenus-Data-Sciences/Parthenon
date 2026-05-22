@@ -26,9 +26,8 @@ import {
 //
 // Renders a preflight checklist driven by `lockHelpers.buildPreflightItems`,
 // a manifest preview + provenance card pair, and a two-button action footer.
-// On successful lock-mutation the crimson CTA morphs into a 64×64 wax seal
-// via the `lock-cta.stamping` modifier (CSS keyframe, 800 ms), after which
-// the workbench advances to station 08.
+// On successful lock-mutation the lock CTA enters a `stamping` phase
+// (800 ms minimum), after which the workbench advances to station 08.
 
 type Workbench = ReturnType<typeof useStudyDesignWorkbench>;
 
@@ -234,24 +233,26 @@ export function LockLaunchpad({
       : null;
 
   return (
-    <div className="lock-launchpad">
-      <header className="lock-header">
-        <div className="lock-header-eyebrow wb-mono">
-          {tAuto("studies.v2.lock.eyebrow")}
-        </div>
-        <h2 className="lock-header-title wb-serif">
+    <div className="flex flex-col gap-5 pb-6">
+      {/* Header — no eyebrow, no serif */}
+      <header className="flex flex-col gap-1.5">
+        <h2 className="text-sm font-semibold text-text-primary m-0">
           {tAuto("studies.v2.lock.title", { title: studyTitle })}
         </h2>
-        <p className="lock-header-body">
+        <p className="text-xs text-text-muted m-0">
           {tAuto("studies.v2.lock.headerProse")}
         </p>
       </header>
 
-      <section className="lock-preflight-panel" aria-label={tAuto("studies.v2.lock.preflightAria")}>
-        <div className="lock-preflight-head wb-mono">
+      {/* Preflight checklist */}
+      <section
+        className="rounded-lg border border-border-default bg-surface-raised p-4 flex flex-col gap-2"
+        aria-label={tAuto("studies.v2.lock.preflightAria")}
+      >
+        <div className="text-xs font-semibold text-text-muted uppercase tracking-[0.12em] pb-1.5 border-b border-border-default">
           {tAuto("studies.v2.lock.preflightTitle")}
         </div>
-        <ul className="lock-preflight-list">
+        <ul className="list-none m-0 p-0 flex flex-col">
           {preflightItems.map((item) => (
             <PreflightRow
               key={item.id}
@@ -261,38 +262,62 @@ export function LockLaunchpad({
           ))}
         </ul>
         {lockGateMessage ? (
-          <div className="lock-gate-message wb-mono" role="status">
+          <div
+            className="mt-1.5 rounded px-3 py-2 text-xs text-warning bg-warning/5 border border-warning/30 tracking-[0.02em]"
+            role="status"
+          >
             {lockGateMessage}
           </div>
         ) : null}
       </section>
 
-      <section className="lock-preview-row" aria-label={tAuto("studies.v2.lock.previewAria")}>
-        <div className="lock-package-preview">
-          <div className="lock-preview-head wb-mono">
+      {/* Manifest + Provenance */}
+      <section
+        className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-3"
+        aria-label={tAuto("studies.v2.lock.previewAria")}
+      >
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 flex flex-col gap-3 min-w-0">
+          <div className="text-xs font-semibold text-text-muted uppercase tracking-[0.12em]">
             {tAuto("studies.v2.lock.manifestTitle")}
           </div>
-          <pre className="lock-manifest-tree wb-mono" aria-label={tAuto("studies.v2.lock.manifestAria")}>
+          <pre
+            className="m-0 p-2.5 rounded bg-surface-base border border-border-default text-xs text-text-primary leading-relaxed tracking-[0.02em] flex flex-col overflow-x-auto whitespace-pre"
+            aria-label={tAuto("studies.v2.lock.manifestAria")}
+          >
             {manifestNodes.map((node) => (
-              <span key={node.label} className="lock-manifest-line">
-                <span className="lock-manifest-label">{node.label}</span>
-                {node.meta ? <span className="lock-manifest-meta">{node.meta}</span> : null}
+              <span
+                key={node.label}
+                className="grid grid-cols-[minmax(0,1fr)_auto] gap-3.5 items-baseline"
+              >
+                <span className="text-text-primary">{node.label}</span>
+                {node.meta ? (
+                  <span className="text-[10px] uppercase tracking-[0.06em] text-text-ghost whitespace-nowrap">
+                    {node.meta}
+                  </span>
+                ) : null}
               </span>
             ))}
           </pre>
         </div>
-        <div className="lock-provenance-card">
-          <div className="lock-preview-head wb-mono">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 flex flex-col gap-3 min-w-0">
+          <div className="text-xs font-semibold text-text-muted uppercase tracking-[0.12em]">
             {tAuto("studies.v2.lock.provenanceTitle")}
           </div>
           <ProvenanceList provenance={provenance} />
         </div>
       </section>
 
-      <footer className="lock-footer">
+      {/* Action footer */}
+      <footer className="flex items-center justify-end gap-3 pt-1">
         <button
           type="button"
-          className={cn("btn-ghost lock-acknowledge", acknowledged && "acknowledged")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium transition-colors",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            acknowledged
+              ? "border-success/40 text-success hover:text-success"
+              : "text-text-muted hover:text-text-secondary",
+          )}
           onClick={acknowledgeClicked}
           disabled={!openQuestions || acknowledged}
           title={
@@ -309,14 +334,20 @@ export function LockLaunchpad({
         </button>
         <button
           type="button"
-          className={cn("lock-cta", sealPhase !== "idle" && "stamping")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
+            canSubmitLock && sealPhase === "idle" && !lockDesignVersion.isPending
+              ? "bg-accent text-surface-base hover:bg-accent-light"
+              : "cursor-not-allowed bg-surface-elevated text-text-ghost",
+            sealPhase === "stamping" && "opacity-75",
+          )}
           onClick={lockClicked}
           disabled={!canSubmitLock || lockDesignVersion.isPending || sealPhase !== "idle"}
           title={lockGate ?? undefined}
           aria-label={tAuto("studies.v2.lock.lockAndPackageAria")}
         >
           <Lock size={14} aria-hidden="true" />
-          <span className="lock-cta-label">
+          <span>
             {tAuto("studies.v2.lock.lockAndPackage")}
           </span>
         </button>
@@ -380,4 +411,3 @@ export function LockLaunchpad({
     </div>
   );
 }
-

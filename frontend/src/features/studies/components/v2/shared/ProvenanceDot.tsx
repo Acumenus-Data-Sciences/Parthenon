@@ -40,6 +40,14 @@ const SOURCE_TOOLTIP: Record<ProvenanceSource, string> = {
   inferred: "Inferred from intent",
 };
 
+const SOURCE_DOT: Record<ProvenanceSource, string> = {
+  protocol: "bg-text-secondary",
+  ai: "bg-success",
+  manual: "bg-text-muted",
+  imported: "bg-warning",
+  inferred: "bg-text-ghost",
+};
+
 function formatMicroLabel(source: ProvenanceSource, page?: number, confidence?: number): string {
   const base = SOURCE_LABEL[source];
   const parts: string[] = [base];
@@ -64,12 +72,12 @@ export function ProvenanceDot({
 
   return (
     <span
-      className={cn("provenance-dot", source)}
+      className="inline-flex items-center gap-1 rounded border border-border-default bg-surface-elevated px-1.5 py-0.5 text-[10px] font-medium text-text-muted"
       title={title}
       aria-label={`${title} — ${label}`}
     >
-      <span className="dot" aria-hidden="true" />
-      <span className="label wb-mono" aria-hidden="true">{label}</span>
+      <span className={cn("h-1.5 w-1.5 rounded-full", SOURCE_DOT[source])} aria-hidden="true" />
+      <span aria-hidden="true">{label}</span>
     </span>
   );
 }

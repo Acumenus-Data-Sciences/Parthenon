@@ -1,15 +1,12 @@
-import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-// 4-stop micro-pipeline glyph used in Asset Matrix rows and Cohort Triptych
-// cards to render the asset state-machine progression:
+// Asset state-machine status chip used in Asset Matrix rows and Cohort
+// Triptych cards. Renders the reached state as a single status chip:
 //
-//   ● ─ ● ─ ● ─ ○      (filled = reached, hollow = not yet)
-//   d   v   m   l
+//   draft → verified → materialized → linked
 //
-// Steps: draft → verified → materialized → linked. The `blocked` flag colors
-// the current step crimson — this is the lone justified crimson use in v2
-// (asset blocked, equivalent to a build error). See
+// The `blocked` flag colors the chip with the error tone — this is the lone
+// justified error use in v2 (asset blocked, equivalent to a build error). See
 // docs/lineage/design/specs/2026-05-12-studies-design-workbench-redesign.md.
 
 export type PipelineGlyphState = "draft" | "verified" | "materialized" | "linked";
@@ -23,80 +20,37 @@ interface PipelineGlyphProps {
   size?: "sm" | "md";
 }
 
-interface StopMeta {
-  key: PipelineGlyphState;
-  label: string;
-  /** Short letter under the dot. */
-  glyph: string;
-}
-
-const STOPS: ReadonlyArray<StopMeta> = [
-  { key: "draft", label: "Draft", glyph: "d" },
-  { key: "verified", label: "Verified", glyph: "v" },
-  { key: "materialized", label: "Materialized", glyph: "m" },
-  { key: "linked", label: "Linked", glyph: "l" },
-];
-
-const STATE_INDEX: Record<PipelineGlyphState, number> = {
-  draft: 0,
-  verified: 1,
-  materialized: 2,
-  linked: 3,
+const STATE_LABEL: Record<PipelineGlyphState, string> = {
+  draft: "Draft",
+  verified: "Verified",
+  materialized: "Materialized",
+  linked: "Linked",
 };
 
 export function PipelineGlyph({ state, blocked = false, size = "sm" }: PipelineGlyphProps): JSX.Element {
-  const reachedIndex = STATE_INDEX[state];
+  const label = STATE_LABEL[state];
   const ariaLabel = blocked
-    ? `Pipeline blocked at ${STOPS[reachedIndex].label}`
-    : `Pipeline reached ${STOPS[reachedIndex].label}`;
+    ? `Pipeline blocked at ${label}`
+    : `Pipeline reached ${label}`;
 
-  // Phase 5 motion polish: when the glyph's state advances, animate the
-  // newly-reached dot with a 300 ms materialize sweep. Purely visual.
-  const previousState = useRef<PipelineGlyphState | null>(null);
-  const [sweeping, setSweeping] = useState(false);
-  useEffect(() => {
-    const prev = previousState.current;
-    if (prev != null && STATE_INDEX[state] > STATE_INDEX[prev]) {
-      setSweeping(true);
-      const timer = window.setTimeout(() => setSweeping(false), 320);
-      previousState.current = state;
-      return () => window.clearTimeout(timer);
-    }
-    previousState.current = state;
-    return undefined;
-  }, [state]);
+  // Tone: blocked → error; draft → neutral; verified/materialized/linked → success.
+  const tone = blocked
+    ? "border-error/40 bg-error/10 text-error"
+    : state === "draft"
+      ? "border-border-default bg-surface-elevated text-text-muted"
+      : "border-success/40 bg-success/10 text-success";
 
   return (
     <span
-      className={cn("pipeline-glyph", size === "md" ? "md" : "sm")}
       role="img"
       aria-label={ariaLabel}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border font-medium",
+        size === "md" ? "px-2.5 py-1 text-xs" : "px-2 py-0.5 text-[11px]",
+        tone,
+      )}
     >
-      {STOPS.map((stop, index) => {
-        const isReached = index < reachedIndex;
-        const isActive = index === reachedIndex;
-        const dotClass = blocked && isActive
-          ? "blocked"
-          : isActive
-            ? "active"
-            : isReached
-              ? "done"
-              : "todo";
-        const showSweep = sweeping && isActive && !blocked;
-
-        return (
-          <span key={stop.key} className="stop">
-            <span className={cn("dot", dotClass, showSweep && "sweeping")} aria-hidden="true" />
-            <span className="label wb-mono" aria-hidden="true">{stop.glyph}</span>
-            {index < STOPS.length - 1 ? (
-              <span
-                className={cn("connector", isReached ? "done" : "todo")}
-                aria-hidden="true"
-              />
-            ) : null}
-          </span>
-        );
-      })}
+      {label}
     </span>
   );
 }

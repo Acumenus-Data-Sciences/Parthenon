@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, Loader2, Save } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { tAuto } from "@/i18n/autoUserFacing";
 import { ActionGateHint } from "../../workbench/shared/ActionGateHint";
 import type { IntentFormState } from "../../workbench/studyDesignWorkbenchHelpers";
@@ -154,15 +153,14 @@ export function PicoPopulatedState({
   const populationSummary = formState.population.trim();
 
   return (
-    <div className="pico-canvas-card">
-      <div className="pico-canvas-head">
-        <div>
-          <div className="pico-canvas-title wb-serif">
-            {tAuto("studies.v2.pico.title")}
-            <em>{tAuto("studies.v2.pico.titleSubtitle")}</em>
-          </div>
+    <div className="flex flex-col gap-5 rounded-lg border border-border-default bg-surface-raised p-5">
+      <div>
+        <div className="text-sm font-semibold text-text-primary">
+          {tAuto("studies.v2.pico.title")}{" "}
+          <span className="font-normal text-text-secondary">
+            {tAuto("studies.v2.pico.titleSubtitle")}
+          </span>
         </div>
-        <div className="pico-canvas-meta wb-mono">stage 01 · intent</div>
       </div>
 
       <PicoSvg
@@ -179,12 +177,12 @@ export function PicoPopulatedState({
         onEditKey={handleEditKey}
       />
 
-      <div className="pico-substrip">
+      <div className="flex items-center justify-between gap-3 rounded-lg bg-surface-base px-3 py-2.5">
         <span
-          className="pico-substrip-pop wb-serif"
+          className="flex min-w-0 items-center gap-2.5 truncate text-[13px] text-text-primary"
           title={populationSummary || undefined}
         >
-          <span className="pico-substrip-label wb-mono">
+          <span className="flex-shrink-0 text-[11px] font-medium uppercase tracking-wider text-text-muted">
             {NODE_META.population.eyebrow}
           </span>
           {populationSummary
@@ -192,18 +190,23 @@ export function PicoPopulatedState({
             : tAuto("studies.v2.pico.populationUnset")}
         </span>
         {blockerCount > 0 ? (
-          <span className="pico-substrip-blockers wb-mono">
+          <span className="flex-shrink-0 text-[11px] text-text-secondary">
             {blockingLint.length}&nbsp;lint · {openQuestionsCount}&nbsp;open questions
           </span>
         ) : (
-          <span className="pico-substrip-blockers wb-mono">no blockers</span>
+          <span className="flex-shrink-0 text-[11px] text-text-secondary">no blockers</span>
         )}
       </div>
 
-      <div className="pico-action-bar" aria-label={tAuto("studies.v2.pico.actionBar")}>
-        <div className="pab-left">
-          <span className="pab-status wb-mono">{versionLabel}</span>
-          <span className="pab-meta">
+      <div
+        className="flex items-center justify-between gap-3"
+        aria-label={tAuto("studies.v2.pico.actionBar")}
+      >
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-text-secondary">
+            {versionLabel}
+          </span>
+          <span className="text-[11px] text-text-muted">
             {isDirty
               ? tAuto("studies.v2.pico.unsaved")
               : tAuto("studies.v2.pico.allSynced")}
@@ -212,10 +215,10 @@ export function PicoPopulatedState({
               : null}
           </span>
         </div>
-        <div className="pab-right">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="btn-ghost"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text-secondary disabled:cursor-not-allowed disabled:opacity-50"
             onClick={handleDiscard}
             disabled={!isDirty || isImmutable}
           >
@@ -223,7 +226,7 @@ export function PicoPopulatedState({
           </button>
           <button
             type="button"
-            className="btn-ghost"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text-secondary disabled:cursor-not-allowed disabled:opacity-50"
             onClick={handleSave}
             disabled={isSaving || isImmutable || !isDirty}
           >
@@ -236,7 +239,7 @@ export function PicoPopulatedState({
           </button>
           <button
             type="button"
-            className={cn("btn-accept", acceptGate && "gated")}
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-accent-light disabled:cursor-not-allowed disabled:bg-surface-elevated disabled:text-text-ghost"
             onClick={handleAccept}
             disabled={isAccepting || acceptGate !== null}
             aria-disabled={acceptGate !== null}

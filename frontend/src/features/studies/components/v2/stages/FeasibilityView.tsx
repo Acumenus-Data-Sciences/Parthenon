@@ -49,6 +49,22 @@ function statusGlyph(status: ReadinessStatus): string {
   return "✗";
 }
 
+/** Maps ReadinessStatus → status-chip tone classes (toned variant). */
+function cardStatusChipCn(status: ReadinessStatus): string {
+  if (status === "ready")
+    return "border-success/40 bg-success/10 text-success";
+  if (status === "partial")
+    return "border-warning/40 bg-warning/10 text-warning";
+  // blocked
+  return "border-error/40 bg-error/10 text-error";
+}
+
+/** Border override for blocked cards so the whole card edge is error-tinted. */
+function cardBorderCn(status: ReadinessStatus): string {
+  if (status === "blocked") return "border-error/50";
+  return "border-border-default";
+}
+
 export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Element {
   const {
     assets,
@@ -119,25 +135,24 @@ export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Elemen
   };
 
   return (
-    <div className="feasibility-view">
-      <header className="feasibility-header">
-        <div className="feasibility-header-text">
-          <div className="feasibility-header-eyebrow wb-mono">
-            {tAuto("studies.v2.feasibility.stageLabel")}
-          </div>
-          <h2 className="feasibility-header-title wb-serif">
-            {tAuto("studies.v2.feasibility.title")}
-          </h2>
-          <p className="feasibility-header-meta wb-mono">
+    <div className="flex flex-col gap-5">
+      {/* Header: meta line + run button — eyebrow/serif title deleted per spec */}
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-col gap-1 min-w-0">
+          <p className="text-xs text-text-muted tabular-nums">
             {tAuto("studies.v2.feasibility.lastRun", { time: lastRunRelative })}
             <span aria-hidden="true"> · </span>
             {tAuto("studies.v2.feasibility.dbFreshness", { time: freshnessRelative })}
           </p>
         </div>
-        <div className="feasibility-header-action">
+        <div className="flex flex-col items-end gap-2 max-w-xs">
           <button
             type="button"
-            className="btn-accept"
+            className={cn(
+              "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
+              "bg-accent text-surface-base hover:bg-accent-light",
+              "disabled:cursor-not-allowed disabled:bg-surface-elevated disabled:text-text-ghost",
+            )}
             onClick={runFeasibilityNow}
             disabled={!canRun}
             title={runGate ?? undefined}
@@ -154,29 +169,50 @@ export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Elemen
       </header>
 
       {isRunning ? (
-        <div className="feasibility-running wb-mono" role="status" aria-live="polite">
+        <div
+          className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3.5 py-3 text-xs text-text-muted"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2 size={14} className="animate-spin" aria-hidden="true" />
           <span>{tAuto("studies.v2.feasibility.running")}</span>
         </div>
       ) : !feasibility ? (
-        <div className="feasibility-empty wb-mono">
+        <div className="rounded-lg border border-dashed border-border-default bg-surface-raised px-7 py-7 text-xs text-text-muted">
           {tAuto("studies.v2.feasibility.emptyState")}
         </div>
       ) : (
         <>
-          <div className="feasibility-grid">
+          {/* 5-card readiness grid — mobile-first: 1 → 3 → 5 cols */}
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:grid-cols-5">
             {cards.map((card) => (
               <article
                 key={card.eyebrow}
-                className={cn("feasibility-card", card.status)}
+                className={cn(
+                  "relative flex flex-col gap-1.5 rounded-lg border bg-surface-raised p-3.5 pb-9 min-h-[120px] transition-colors hover:border-border-default/80",
+                  cardBorderCn(card.status),
+                )}
                 title={card.detail}
                 aria-label={card.label}
               >
-                <div className="feasibility-card-eyebrow wb-mono">{card.eyebrow}</div>
-                <div className="feasibility-card-value wb-serif">{card.value}</div>
-                <div className="feasibility-card-sublabel wb-mono">{card.subLabel}</div>
+                {/* Eyebrow */}
+                <div className="text-[9.5px] font-medium uppercase tracking-widest text-text-ghost">
+                  {card.eyebrow}
+                </div>
+                {/* Big numeric / string value */}
+                <div className="text-2xl font-semibold leading-tight tabular-nums text-text-primary mt-0.5">
+                  {card.value}
+                </div>
+                {/* Sub-label */}
+                <div className="text-[10px] text-text-muted tracking-wide">
+                  {card.subLabel}
+                </div>
+                {/* Status chip — absolutely positioned bottom-right */}
                 <div
-                  className={cn("feasibility-card-status wb-mono", card.status)}
+                  className={cn(
+                    "absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+                    cardStatusChipCn(card.status),
+                  )}
                   aria-label={tAuto(`studies.v2.feasibility.status.${card.status}`)}
                 >
                   {statusGlyph(card.status)}{" "}
@@ -186,31 +222,33 @@ export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Elemen
             ))}
           </div>
 
+          {/* Attrition waterfall */}
           {attritionSteps.length > 0 ? (
             <section
-              className="feasibility-attrition"
+              className="flex flex-col gap-2.5 rounded-lg border border-border-default bg-surface-raised p-4"
               aria-label={tAuto("studies.v2.feasibility.attritionAria")}
             >
-              <div className="feasibility-attrition-head wb-mono">
+              <div className="text-[9.5px] font-medium uppercase tracking-widest text-text-ghost">
                 {tAuto("studies.v2.feasibility.attritionTitle")}
               </div>
-              <ul className="feasibility-attrition-list">
+              <ul className="flex flex-col gap-1.5 list-none m-0 p-0">
                 {attritionSteps.map((step, index) => (
                   <li
                     key={`${step.name}-${index}`}
-                    className="feasibility-attrition-row"
+                    className="grid items-center gap-3 text-xs"
+                    style={{ gridTemplateColumns: "minmax(0,1.5fr) minmax(0,4fr) minmax(70px,auto)" }}
                   >
-                    <span className="feasibility-attrition-name wb-mono">
+                    <span className="truncate text-text-muted">
                       {step.name}
                     </span>
-                    <span className="feasibility-attrition-track">
+                    <span className="block h-2 rounded-full bg-surface-elevated overflow-hidden">
                       <span
-                        className="feasibility-attrition-bar"
+                        className="block h-2 rounded-full bg-accent"
                         style={{ width: `${step.widthPercent}%` }}
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="feasibility-attrition-count wb-mono">
+                    <span className="tabular-nums text-text-secondary text-right">
                       {formatCount(step.count)}
                     </span>
                   </li>
@@ -219,33 +257,40 @@ export function FeasibilityView({ workbench }: FeasibilityViewProps): JSX.Elemen
             </section>
           ) : null}
 
+          {/* Issues list */}
           <section
-            className="feasibility-issues"
+            className="flex flex-col gap-2"
             aria-label={tAuto("studies.v2.feasibility.issuesAria")}
           >
-            <div className="feasibility-issues-head wb-mono">
+            <div className="text-[9.5px] font-medium uppercase tracking-widest text-text-ghost">
               {tAuto("studies.v2.feasibility.issuesTitle")}
             </div>
             {issueRows.length === 0 ? (
-              <div className="feasibility-issues-empty wb-mono">
+              <div className="rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-xs text-text-muted">
                 {tAuto("studies.v2.feasibility.noIssues")}
               </div>
             ) : (
-              <ul className="feasibility-issues-list">
+              <ul className="flex flex-col gap-1 list-none m-0 p-0">
                 {issueRows.map((row, index) => (
                   <li
                     key={`${row.tone}-${index}-${row.message}`}
-                    className={cn("feasibility-issue-row", row.tone)}
+                    className="flex items-center gap-2.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-xs text-text-primary"
                   >
+                    {/* Tone dot */}
                     <span
-                      className={cn("feasibility-issue-dot", row.tone)}
+                      className={cn(
+                        "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+                        row.tone === "critical" ? "bg-error" : "bg-warning",
+                      )}
                       aria-hidden="true"
                     />
-                    <span className="feasibility-issue-message">{row.message}</span>
+                    <span className="flex-1 min-w-0">
+                      {row.message}
+                    </span>
                     {row.action ? (
                       <button
                         type="button"
-                        className="btn-ghost feasibility-issue-resolve"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
                       >
                         {tAuto("studies.v2.feasibility.resolve")}
                       </button>

@@ -155,20 +155,20 @@ export function ConceptSetMatrix({ workbench }: ConceptSetMatrixProps): JSX.Elem
       key: "name",
       label: tAuto("studies.v2.conceptSets.col.name"),
       width: "minmax(180px, 2fr)",
-      render: (row) => <span className="asset-matrix-name">{row.name}</span>,
+      render: (row) => <span className="font-medium text-text-primary">{row.name}</span>,
     },
     {
       key: "role",
       label: tAuto("studies.v2.conceptSets.col.role"),
       width: "100px",
-      render: (row) => <span className="asset-matrix-muted">{row.role}</span>,
+      render: (row) => <span className="text-text-muted">{row.role}</span>,
     },
     {
       key: "conceptCount",
       label: tAuto("studies.v2.conceptSets.col.count"),
       width: "100px",
       align: "right",
-      render: (row) => <span className="wb-mono asset-matrix-num">{row.conceptCount}</span>,
+      render: (row) => <span className="tabular-nums text-text-secondary">{row.conceptCount}</span>,
     },
     {
       key: "glyph",
@@ -186,7 +186,7 @@ export function ConceptSetMatrix({ workbench }: ConceptSetMatrixProps): JSX.Elem
         row.provenance ? (
           <ProvenanceDot source={row.provenance.source} hint={row.provenance.hint} />
         ) : (
-          <span className="asset-matrix-muted">—</span>
+          <span className="text-text-muted">—</span>
         ),
     },
   ];
@@ -241,7 +241,7 @@ export function ConceptSetMatrix({ workbench }: ConceptSetMatrixProps): JSX.Elem
   ];
 
   return (
-    <div className="asset-matrix-stage">
+    <div className="flex flex-col gap-4">
       <ActionGateHint message={draftGate} />
       <AssetMatrix<ConceptSetRow>
         stageLabel={tAuto("studies.v2.conceptSets.stageLabel")}

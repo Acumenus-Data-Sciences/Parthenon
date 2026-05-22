@@ -198,64 +198,61 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
   const readiness = cohortReadinessQuery.data ?? null;
   const ready = readiness?.ready_for_feasibility === true || readiness?.ready === true;
 
+  const ghostButton =
+    "inline-flex items-center gap-2 rounded-lg border border-border-default px-2.5 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+
   return (
-    <div className="cohort-triptych-stage">
-      <header className="cohort-triptych-head">
-        <div className="cohort-triptych-eyebrow wb-mono">
-          {tAuto("studies.v2.cohorts.stageLabel")}
-        </div>
-        <div className="cohort-triptych-headline">
-          <h2 className="cohort-triptych-title wb-serif">
-            {tAuto("studies.v2.cohorts.title")}
-          </h2>
-          <div className="cohort-triptych-actions-top">
-            <span
-              className={cn(
-                "cohort-triptych-readiness wb-mono",
-                ready ? "ready" : "blocked",
-              )}
-            >
-              {ready
-                ? tAuto("studies.v2.cohorts.ready")
-                : tAuto("studies.v2.cohorts.blocked")}
-            </span>
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={handleDraftCohorts}
-              disabled={!canDraftCohorts || draftCohorts.isPending}
-              title={draftGate ?? undefined}
-            >
-              <Sparkles size={12} />
-              {tAuto("studies.v2.cohorts.draftCohorts")}
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between gap-3">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+            ready
+              ? "border-success/40 bg-success/10 text-success"
+              : "border-error/40 bg-error/10 text-error",
+          )}
+        >
+          {ready
+            ? tAuto("studies.v2.cohorts.ready")
+            : tAuto("studies.v2.cohorts.blocked")}
+        </span>
+        <button
+          type="button"
+          className={ghostButton}
+          onClick={handleDraftCohorts}
+          disabled={!canDraftCohorts || draftCohorts.isPending}
+          title={draftGate ?? undefined}
+        >
+          <Sparkles size={12} />
+          {tAuto("studies.v2.cohorts.draftCohorts")}
+        </button>
+      </div>
 
       <ActionGateHint message={draftGate} />
 
-      <div className="cohort-triptych">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {cards.map((card) => (
-          <article key={card.role} className="cohort-triptych-card" aria-label={card.role}>
-            <div className="cohort-triptych-role wb-mono">{card.role.toUpperCase()}</div>
-            <h3 className="cohort-triptych-card-title wb-serif">{card.title}</h3>
-            <div className="cohort-triptych-pipeline">
+          <article
+            key={card.role}
+            className="flex flex-col gap-3 rounded-lg border border-border-default bg-surface-raised p-4"
+            aria-label={card.role}
+          >
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+              {card.role.toUpperCase()}
+            </div>
+            <h3 className="text-sm font-semibold text-text-primary">{card.title}</h3>
+            <div>
               <PipelineGlyph state={card.glyphState} blocked={card.glyphBlocked} size="md" />
             </div>
-            <div className="cohort-triptych-counts">
+            <div className="rounded-lg border border-border-default bg-surface-base p-2.5">
               {card.perSourceCounts.length === 0 ? (
-                <span className="asset-matrix-muted wb-mono">—</span>
+                <span className="text-xs text-text-muted">—</span>
               ) : (
-                <ul className="cohort-triptych-counts-list">
+                <ul className="flex flex-col gap-1">
                   {card.perSourceCounts.map((entry) => (
-                    <li key={entry.source}>
-                      <span className="cohort-triptych-counts-source wb-mono">
-                        {entry.source}
-                      </span>
-                      <span className="cohort-triptych-counts-value wb-mono">
-                        {entry.count}
-                      </span>
+                    <li key={entry.source} className="flex items-center justify-between text-xs">
+                      <span className="text-text-muted">{entry.source}</span>
+                      <span className="tabular-nums text-text-secondary">{entry.count}</span>
                     </li>
                   ))}
                 </ul>
@@ -264,10 +261,10 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
             {card.blockerMessage ? (
               <ActionGateHint message={card.blockerMessage} />
             ) : null}
-            <div className="cohort-triptych-card-actions">
+            <div className="mt-auto flex flex-wrap gap-2 pt-1">
               <button
                 type="button"
-                className="btn-ghost"
+                className={ghostButton}
                 onClick={() => {
                   if (card.materializedId != null) {
                     window.open(
@@ -285,7 +282,7 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
               </button>
               <button
                 type="button"
-                className="btn-ghost"
+                className={ghostButton}
                 onClick={() => {
                   if (card.asset) handleVerifyCohortDraft(card.asset);
                 }}
@@ -301,7 +298,7 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
               </button>
               <button
                 type="button"
-                className="btn-ghost"
+                className={ghostButton}
                 onClick={() => {
                   if (card.asset) handleReviewAsset(card.asset, "accept", null);
                 }}
@@ -318,7 +315,7 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
               </button>
               <button
                 type="button"
-                className="btn-ghost"
+                className={ghostButton}
                 onClick={() => {
                   if (card.asset) handleMaterializeCohortDraft(card.asset);
                 }}
@@ -334,7 +331,7 @@ export function CohortTriptych({ workbench }: CohortTriptychProps): JSX.Element 
               </button>
               <button
                 type="button"
-                className="btn-ghost"
+                className={ghostButton}
                 onClick={() => {
                   if (card.asset) handleLinkCohortDraft(card.asset, card.role);
                 }}

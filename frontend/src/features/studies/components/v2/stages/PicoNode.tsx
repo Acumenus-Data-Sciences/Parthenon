@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Undo2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { tAuto } from "@/i18n/autoUserFacing";
 import {
   NODE_META,
   clamp,
-  provenanceColor,
   type NodeId,
   type ProvenanceEntry,
+  type ProvenanceTone,
 } from "./picoHelpers";
+
+// Provenance dot color, mapped to theme tokens. Mirrors the tone→color mapping
+// formerly provided by picoHelpers.provenanceColor (which emitted now-removed
+// `--wb-*` vars): teal=success, gold=warning, slate=ghost text.
+function provenanceDotColor(tone: ProvenanceTone): string {
+  if (tone === "teal") return "var(--success)";
+  if (tone === "gold") return "var(--warning)";
+  return "var(--text-ghost)";
+}
 
 interface PicoNodeProps {
   id: NodeId;
@@ -84,14 +92,7 @@ export function PicoNode({
 
   return (
     <g
-      className={cn(
-        "pico-node",
-        focused && !isFramed && "focused",
-        placeholder && "placeholder",
-        isFramed && "framed",
-        id === "outcome" && focused && "outcome-focused",
-        breathing && "breathing",
-      )}
+      className={breathing ? "cursor-pointer animate-pulse" : "cursor-pointer"}
       onClick={() => onFocus(id)}
     >
       {!isFramed ? (
@@ -102,8 +103,12 @@ export function PicoNode({
           height={frame.height}
           rx="6"
           ry="6"
-          fill="#1E2026"
-          stroke={focused && id === "outcome" ? "#2DD4BF" : "rgba(255,255,255,0.10)"}
+          fill="var(--surface-elevated)"
+          stroke={
+            focused && id === "outcome"
+              ? "var(--success)"
+              : "var(--border-default)"
+          }
           strokeWidth="1"
         />
       ) : null}
@@ -116,7 +121,8 @@ export function PicoNode({
           rx="6"
           ry="6"
           fill="none"
-          stroke="rgba(45,212,191,0.18)"
+          stroke="var(--success)"
+          strokeOpacity="0.18"
           strokeWidth="3"
           pointerEvents="none"
         />
@@ -125,9 +131,8 @@ export function PicoNode({
       <text
         x={eyebrowX}
         y={eyebrowY}
-        fontFamily="var(--wb-font-mono)"
         fontSize="9.5"
-        fill={focused && id === "outcome" ? "#2DD4BF" : "#A8A89F"}
+        fill={focused && id === "outcome" ? "var(--success)" : "var(--text-muted)"}
         letterSpacing="1.5"
       >
         {meta.eyebrow}
@@ -147,7 +152,7 @@ export function PicoNode({
             onChange={(event) => onChangeEdit(event.target.value)}
             onKeyDown={onEditKey}
             onBlur={onCommitEdit}
-            className="pico-edit-input wb-serif"
+            className="h-7 w-full rounded-md border border-success bg-surface-elevated px-2 text-[13.5px] text-text-primary outline-none placeholder:text-text-ghost placeholder:italic"
             aria-label={`Edit ${meta.label}`}
             autoFocus
             placeholder={meta.placeholder}
@@ -157,9 +162,9 @@ export function PicoNode({
         <text
           x={valueX}
           y={valueY}
-          fontFamily="var(--wb-font-display)"
           fontSize="14"
-          fill={placeholder ? "#6E6E66" : "#E6E4DE"}
+          fontStyle={placeholder ? "italic" : undefined}
+          fill={placeholder ? "var(--text-ghost)" : "var(--text-primary)"}
         >
           {clamp(displayValue, 38)}
         </text>
@@ -198,7 +203,7 @@ export function PicoNode({
         >
           <button
             type="button"
-            className="pico-edit-save wb-mono"
+            className="inline-flex h-[22px] w-[46px] items-center justify-center gap-1 rounded-md border border-success/45 bg-success/10 text-[9.5px] uppercase tracking-wide text-text-primary"
             onMouseDown={(event) => {
               // mouseDown beats input blur so the save fires before the input
               // loses focus and triggers commitEdit again.
@@ -213,15 +218,14 @@ export function PicoNode({
       ) : null}
 
       {/* Provenance dot + label */}
-      <circle cx={dotX} cy={dotY} r="3" fill={provenanceColor(provenance.tone)}>
+      <circle cx={dotX} cy={dotY} r="3" fill={provenanceDotColor(provenance.tone)}>
         <title>{provenance.tooltip}</title>
       </circle>
       <text
         x={provenanceTextX}
         y={provenanceTextY}
-        fontFamily="var(--wb-font-mono)"
         fontSize="9.5"
-        fill="#A8A89F"
+        fill="var(--text-muted)"
       >
         {clamp(provenance.label, 30)}
       </text>

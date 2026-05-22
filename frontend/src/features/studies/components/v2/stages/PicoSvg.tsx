@@ -33,7 +33,7 @@ export function PicoSvg({
 }: PicoSvgProps) {
   return (
     <svg
-      className="pico-svg"
+      className="block h-auto w-full rounded-lg border border-border-default bg-surface-base"
       viewBox="0 0 720 420"
       preserveAspectRatio="xMidYMid meet"
       role="img"
@@ -49,7 +49,7 @@ export function PicoSvg({
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M0,0 L10,5 L0,10 z" fill="#A8A89F" />
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--text-muted)" />
         </marker>
       </defs>
 
@@ -63,7 +63,7 @@ export function PicoSvg({
           rx="6"
           ry="6"
           fill="none"
-          stroke="#3A3E48"
+          stroke="var(--border-default)"
           strokeWidth="1"
           strokeDasharray="2 3"
         />
@@ -106,16 +106,15 @@ export function PicoSvg({
         <path
           d="M150 226 C 150 252, 150 264, 150 278"
           fill="none"
-          stroke="#3A3E48"
+          stroke="var(--border-default)"
           strokeWidth="1"
           strokeDasharray="3 3"
         />
         <text
           x="158"
           y="260"
-          fontFamily="var(--wb-font-mono)"
           fontSize="9.5"
-          fill="#6E6E66"
+          fill="var(--text-ghost)"
           letterSpacing="1.2"
         >
           COMPARE TO
@@ -144,7 +143,7 @@ export function PicoSvg({
         <path
           d="M260 183 C 360 183, 380 183, 488 183"
           fill="none"
-          stroke="#A8A89F"
+          stroke="var(--text-muted)"
           strokeWidth="1.25"
           markerEnd="url(#pico-arrow)"
         />
@@ -156,16 +155,15 @@ export function PicoSvg({
             height="30"
             rx="4"
             ry="4"
-            fill="rgba(244,239,230,0.10)"
-            stroke="rgba(244,239,230,0.20)"
+            fill="var(--surface-elevated)"
+            stroke="var(--border-default)"
             strokeWidth="0.75"
           />
           <text
             x="10"
             y="13"
-            fontFamily="var(--wb-font-mono)"
             fontSize="8.5"
-            fill="#A8A89F"
+            fill="var(--text-muted)"
             letterSpacing="1.2"
           >
             TIME AT RISK
@@ -173,10 +171,8 @@ export function PicoSvg({
           <text
             x="10"
             y="25"
-            fontFamily="var(--wb-font-display)"
-            fontStyle="italic"
             fontSize="10"
-            fill="#E8E2D2"
+            fill="var(--text-primary)"
           >
             {clamp(formState.time || tAuto("studies.v2.pico.timeUnset"), 38)}
           </text>
@@ -206,16 +202,15 @@ export function PicoSvg({
         <path
           d="M598 256 L 598 300 L 552 300"
           fill="none"
-          stroke="#3A3E48"
+          stroke="var(--border-default)"
           strokeWidth="1"
           strokeDasharray="2 3"
         />
         <text
           x="486"
           y="312"
-          fontFamily="var(--wb-font-mono)"
           fontSize="9"
-          fill="#6E6E66"
+          fill="var(--text-ghost)"
           letterSpacing="1.2"
         >
           → HR · KM · COMPETING RISK
