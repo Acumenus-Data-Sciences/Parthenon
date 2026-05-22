@@ -22,7 +22,9 @@ interface VersionPopoverProps {
   onClose: () => void;
   versions: ReadonlyArray<StudyDesignVersion>;
   activeVersionId: number | null;
-  onSelectVersion: (id: number) => void;
+  /** Returns true when the switch succeeded, false when it was cancelled
+   *  (e.g. unsaved-edits confirm declined). The popover closes only on true. */
+  onSelectVersion: (id: number) => boolean;
 }
 
 interface DiffEndpoints {
@@ -146,8 +148,9 @@ export function VersionPopover({
       setPair((prev) => extendSelection(prev, versionId));
       return;
     }
-    onSelectVersion(versionId);
-    onClose();
+    // Close only when the switch actually happened — a guarded switch can be
+    // cancelled (unsaved edits), and the popover must stay open in that case.
+    if (onSelectVersion(versionId)) onClose();
   }
 
   function handleNodeKeyDown(event: KeyboardEvent<HTMLButtonElement>, versionId: number) {
@@ -155,8 +158,7 @@ export function VersionPopover({
       event.preventDefault();
       if (event.shiftKey) {
         setPair((prev) => extendSelection(prev, versionId));
-      } else {
-        onSelectVersion(versionId);
+      } else if (onSelectVersion(versionId)) {
         onClose();
       }
     }

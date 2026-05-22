@@ -487,10 +487,14 @@ export function useStudyDesignWorkbench(study: Study) {
   const confirmDiscardIfDirty = () =>
     !intentReviewDirty || window.confirm(t("studies.workbench.confirmDiscardEdits"));
 
-  const guardedSetSelectedVersion = (id: number) => {
-    if (!confirmDiscardIfDirty()) return;
+  // Returns true when the switch happened, false when the user cancelled the
+  // unsaved-edits confirm. Callers (e.g. the version popover) use this to only
+  // dismiss after a successful switch.
+  const guardedSetSelectedVersion = (id: number): boolean => {
+    if (!confirmDiscardIfDirty()) return false;
     setSelectedVersionId(id);
     setIntentReviewDirty(false);
+    return true;
   };
 
   const guardedSelectSession = (id: number) => {

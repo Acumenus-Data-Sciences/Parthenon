@@ -74,12 +74,15 @@ export function StudyDesignerStepper({
     }
   }
 
+  const activeLabel = steps[currentStep]?.label ?? "";
+
   return (
-    <nav
-      className="flex items-center justify-between pl-8 pr-14 pt-6 pb-2"
-      role="tablist"
-      aria-label={tAuto("studies.v2.wizard.stepperAria")}
-    >
+    <div>
+      <nav
+        className="flex items-center justify-between px-4 lg:pl-8 lg:pr-14 pt-6 pb-2"
+        role="tablist"
+        aria-label={tAuto("studies.v2.wizard.stepperAria")}
+      >
       {steps.map((step, index) => {
         const isCompleted = step.state === "complete";
         const isActive = index === currentStep;
@@ -138,7 +141,7 @@ export function StudyDesignerStepper({
               </button>
               <span
                 className={cn(
-                  "text-xs font-medium whitespace-nowrap",
+                  "hidden lg:block text-xs font-medium whitespace-nowrap",
                   isCompleted && "text-accent",
                   isActive && !isPartial && !isBlocked && "text-text-primary",
                   isPartial && "text-warning",
@@ -150,7 +153,7 @@ export function StudyDesignerStepper({
               </span>
             </div>
             {!isLast ? (
-              <div className="flex-1 mx-2 mb-5">
+              <div className="flex-1 mx-2 mb-0 lg:mb-5">
                 <div
                   className={cn(
                     "h-[2px] w-full rounded-full",
@@ -166,6 +169,20 @@ export function StudyDesignerStepper({
           </div>
         );
       })}
-    </nav>
+      </nav>
+      {/* Compact wayfinding for narrow viewports where the per-step labels are
+          hidden (lg:block). aria-hidden — each tab button still carries its
+          full label via aria-label, so this is a visual aid only. */}
+      <p
+        className="lg:hidden px-4 pb-3 text-center text-xs font-medium text-text-primary"
+        aria-hidden="true"
+      >
+        {tAuto("studies.v2.wizard.stepCaption", {
+          n: currentStep + 1,
+          total: steps.length,
+          label: activeLabel,
+        })}
+      </p>
+    </div>
   );
 }

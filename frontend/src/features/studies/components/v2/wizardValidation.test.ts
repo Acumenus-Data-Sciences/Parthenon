@@ -174,6 +174,8 @@ describe("canProceed", () => {
     expect(canProceed(guidance({ intent: "complete" }), 0)).toBe(true);
     expect(canProceed(guidance({ phenotypes: "complete" }), 1)).toBe(true);
     expect(canProceed(guidance({ cohorts: "complete" }), 3)).toBe(true);
+    // Lock (step 6) complete enables Next → the Lock→Package handoff.
+    expect(canProceed(guidance({ lock: "complete" }), 6)).toBe(true);
   });
 
   it("returns false when stage is 'active' — user still has work on this step", () => {

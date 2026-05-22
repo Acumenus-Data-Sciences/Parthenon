@@ -258,7 +258,7 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
         versionLabel={versionLabel}
         versions={wb.versions}
         activeVersionId={wb.selectedVersion?.id ?? null}
-        onSelectVersion={(id) => wb.guardedSetSelectedVersion(id)}
+        onSelectVersion={wb.guardedSetSelectedVersion}
       />
     </div>
   );

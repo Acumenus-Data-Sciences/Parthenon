@@ -696,6 +696,7 @@ const autoUserFacingEnglish: MessageTree = {
         wizard: {
           stepperAria: "Study Designer wizard steps",
           stepNumberAria: "Step {{n}}",
+          stepCaption: "Step {{n}} of {{total}} · {{label}}",
           back: "Back",
           next: "Next",
           uploadProtocolShort: "Upload protocol",

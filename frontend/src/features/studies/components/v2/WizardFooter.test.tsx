@@ -2,6 +2,16 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createRef } from "react";
 import { WizardFooter } from "./WizardFooter";
+import type { StudyDesignVersion } from "../../types/study";
+
+function ver(id: number, n: number): StudyDesignVersion {
+  return {
+    id,
+    version_number: n,
+    status: "draft",
+    updated_at: new Date("2026-01-01T00:00:00Z").toISOString(),
+  } as unknown as StudyDesignVersion;
+}
 
 function baseProps(overrides: Partial<Parameters<typeof WizardFooter>[0]> = {}) {
   return {
@@ -16,7 +26,7 @@ function baseProps(overrides: Partial<Parameters<typeof WizardFooter>[0]> = {}) 
     versionLabel: "v1 · draft",
     versions: [],
     activeVersionId: null,
-    onSelectVersion: vi.fn(),
+    onSelectVersion: vi.fn(() => true),
     ...overrides,
   };
 }
@@ -99,5 +109,43 @@ describe("WizardFooter", () => {
     fireEvent.click(screen.getByRole("button", { name: /upload/i }));
     expect(clickSpy).toHaveBeenCalled();
     clickSpy.mockRestore();
+  });
+
+  // TG-4: a guarded version switch can be cancelled (unsaved-edits confirm
+  // declined); the popover must stay open in that case and only dismiss on a
+  // successful switch.
+  it("keeps the version popover open when the switch is cancelled (onSelectVersion → false)", () => {
+    const onSelectVersion = vi.fn(() => false);
+    render(
+      <WizardFooter
+        {...baseProps({
+          versions: [ver(1, 1), ver(2, 2)],
+          activeVersionId: 1,
+          onSelectVersion,
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /active version/i }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: /v2/i }));
+    expect(onSelectVersion).toHaveBeenCalledWith(2);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("closes the version popover when the switch succeeds (onSelectVersion → true)", () => {
+    const onSelectVersion = vi.fn(() => true);
+    render(
+      <WizardFooter
+        {...baseProps({
+          versions: [ver(1, 1), ver(2, 2)],
+          activeVersionId: 1,
+          onSelectVersion,
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /active version/i }));
+    fireEvent.click(screen.getByRole("option", { name: /v2/i }));
+    expect(onSelectVersion).toHaveBeenCalledWith(2);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

@@ -27,7 +27,9 @@ interface WizardFooterProps {
   versionLabel: string | null;
   versions: ReadonlyArray<StudyDesignVersion>;
   activeVersionId: number | null;
-  onSelectVersion: (id: number) => void;
+  /** Returns true when the version switch succeeded, false when the user
+   *  cancelled the unsaved-edits confirm. The popover closes only on true. */
+  onSelectVersion: (id: number) => boolean;
 }
 
 export function WizardFooter({
@@ -110,10 +112,7 @@ export function WizardFooter({
               onClose={() => setPopoverOpen(false)}
               versions={versions}
               activeVersionId={activeVersionId}
-              onSelectVersion={(id) => {
-                onSelectVersion(id);
-                setPopoverOpen(false);
-              }}
+              onSelectVersion={onSelectVersion}
             />
           </div>
         ) : null}
