@@ -145,9 +145,10 @@ class LibraryBulkDeleteTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        // Production stores analysis_type as the model FQCN, not the slug.
         DB::table('study_analyses')->insert([
             'study_id' => $studyId,
-            'analysis_type' => 'incidence_rate_analysis',
+            'analysis_type' => IncidenceRateAnalysis::class,
             'analysis_id' => $analysis->id,
             'created_at' => now(),
             'updated_at' => now(),

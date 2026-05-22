@@ -467,7 +467,9 @@ class LibraryController extends Controller
      * Return Studies that reference this library item. Concept-set membership
      * is derived from `study_cohorts.concept_set_ids` (JSON array). Cohorts
      * pivot directly on `study_cohorts.cohort_definition_id`. Analyses use the
-     * polymorphic (`analysis_type`, `analysis_id`) pair on `study_analyses`.
+     * polymorphic (`analysis_type`, `analysis_id`) pair on `study_analyses`,
+     * where `analysis_type` is the model FQCN in production (not the slug) —
+     * so we resolve the slug to its class before matching.
      *
      * @return array<int, array{study_id: int, study_title: string}>
      */
@@ -486,7 +488,7 @@ class LibraryController extends Controller
                 ->get(['studies.id as study_id', 'studies.title as study_title']),
             default => DB::table('study_analyses')
                 ->join('studies', 'studies.id', '=', 'study_analyses.study_id')
-                ->where('study_analyses.analysis_type', $type)
+                ->where('study_analyses.analysis_type', $this->resolveModelClass($type) ?? $type)
                 ->where('study_analyses.analysis_id', $id)
                 ->distinct()
                 ->get(['studies.id as study_id', 'studies.title as study_title']),
