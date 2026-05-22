@@ -144,6 +144,7 @@ const navItems: NavItem[] = [
       { path: "/admin/user-audit", labelKey: "nav.auditLog", icon: ScrollText },
       { path: "/admin/roles", labelKey: "nav.rolesPermissions", icon: ShieldCheck, superAdminOnly: true },
       { path: "/admin/auth-providers", labelKey: "nav.authProviders", icon: KeyRound, superAdminOnly: true },
+      { path: "/admin/library", labelKey: "nav.adminLibrary", icon: Library, superAdminOnly: true },
       { path: "/admin/notifications", labelKey: "nav.notifications", icon: Bell },
     ],
   },

@@ -1583,6 +1583,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [LibraryController::class, 'index']);
                 Route::post('/bulk-delete', [LibraryController::class, 'bulkDelete']);
                 Route::post('/reassign', [LibraryController::class, 'reassign']);
+                Route::post('/restore', [LibraryController::class, 'restore']);
+                Route::post('/purge-now', [LibraryController::class, 'purgeNow']);
             });
         });
     });

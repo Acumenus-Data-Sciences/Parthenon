@@ -865,6 +865,13 @@ export const router = createBrowserRouter(
               ),
           },
           {
+            path: "library",
+            lazy: () =>
+              import("@/features/administration/pages/AdminLibraryPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
             path: "system-health",
             lazy: () =>
               import("@/features/administration/pages/SystemHealthPage").then(

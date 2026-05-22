@@ -324,6 +324,112 @@ class LibraryController extends Controller
     }
 
     /**
+     * Phase D · §6.7 — restore a soft-deleted item to its prior status
+     * (sets status='archived' so it remains visible in the admin surface
+     * but does not silently re-enter the active library).
+     */
+    public function restore(BulkDeleteRequest $request): JsonResponse
+    {
+        $restored = [];
+        $errors = [];
+
+        foreach ($request->input('items', []) as $entry) {
+            $type = $entry['type'];
+            $id = (int) $entry['id'];
+
+            $modelClass = $this->resolveModelClass($type);
+            if ($modelClass === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'unknown_type'];
+
+                continue;
+            }
+
+            /** @var Model|null $item */
+            $item = $modelClass::query()
+                ->withoutGlobalScope(LibraryDefaultScope::class)
+                ->withTrashed() // @phpstan-ignore-line — SoftDeletes scope macro
+                ->find($id);
+            if ($item === null || $item->getAttribute('deleted_at') === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'not_in_trash'];
+
+                continue;
+            }
+
+            DB::transaction(function () use ($item, $type, $id, $request): void {
+                $item->restore(); // @phpstan-ignore-line — SoftDeletes trait
+                DB::table('audit_log')->insert([
+                    'actor_id' => $request->user()?->id,
+                    'action' => 'library.restore',
+                    'subject_type' => $type,
+                    'subject_id' => $id,
+                    'snapshot' => null,
+                    'created_at' => now(),
+                ]);
+            });
+            $restored[] = $id;
+        }
+
+        if ($errors !== []) {
+            return response()->json(['restored' => $restored, 'errors' => $errors], 422);
+        }
+
+        return response()->json(['restored' => $restored]);
+    }
+
+    /**
+     * Phase D · §6.7 — force-delete a soft-deleted item immediately,
+     * bypassing the 30-day grace window. Records an audit row with the
+     * pre-purge snapshot so the row content survives the deletion.
+     */
+    public function purgeNow(BulkDeleteRequest $request): JsonResponse
+    {
+        $purged = [];
+        $errors = [];
+
+        foreach ($request->input('items', []) as $entry) {
+            $type = $entry['type'];
+            $id = (int) $entry['id'];
+
+            $modelClass = $this->resolveModelClass($type);
+            if ($modelClass === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'unknown_type'];
+
+                continue;
+            }
+
+            /** @var Model|null $item */
+            $item = $modelClass::query()
+                ->withoutGlobalScope(LibraryDefaultScope::class)
+                ->onlyTrashed() // @phpstan-ignore-line — SoftDeletes scope macro
+                ->find($id);
+            if ($item === null) {
+                $errors[] = ['id' => $id, 'type' => $type, 'error' => 'not_in_trash'];
+
+                continue;
+            }
+
+            DB::transaction(function () use ($item, $type, $id, $request): void {
+                DB::table('audit_log')->insert([
+                    'actor_id' => $request->user()?->id,
+                    'action' => 'library.purge_now',
+                    'subject_type' => $type,
+                    'subject_id' => $id,
+                    'snapshot' => json_encode($item->toArray()),
+                    'created_at' => now(),
+                ]);
+                $item->forceDelete();
+            });
+            $purged[] = $id;
+        }
+
+        if ($errors !== []) {
+            return response()->json(['purged' => $purged, 'errors' => $errors], 422);
+        }
+
+        return response()->json(['purged' => $purged]);
+    }
+
+    /**
      * Map an item_type to the RBAC permission a user must hold to own it.
      */
     private function permissionFor(string $type): string
