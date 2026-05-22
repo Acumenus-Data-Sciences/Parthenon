@@ -10,6 +10,7 @@ export interface User {
   bio: string | null;
   must_change_password: boolean;
   onboarding_completed: boolean;
+  seen_library_lifecycle_notice?: boolean;
   default_source_id: number | null;
   theme_preference: "dark" | "light";
   locale: string | null;

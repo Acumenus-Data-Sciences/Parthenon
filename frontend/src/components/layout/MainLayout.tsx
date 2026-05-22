@@ -15,6 +15,7 @@ import { AtlasMigrationContext } from "@/contexts/AtlasMigrationContext";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
+import { useLibraryLifecycleNotice } from "@/hooks/useLibraryLifecycleNotice";
 import { useCommonsMessageToasts } from "@/features/commons/hooks/useCommonsMessageToasts";
 import { useGlobalPresence } from "@/features/commons/hooks/usePresence";
 import { useNotificationListener } from "@/features/commons/hooks/useNotificationListener";
@@ -47,6 +48,9 @@ export function MainLayout() {
 
   // Toast new Commons messages when the user is elsewhere in the app.
   useCommonsMessageToasts();
+
+  // One-time toast introducing the library Draft/Active/Archived lifecycle.
+  useLibraryLifecycleNotice();
 
   const showWizard = wizardOpen && isSuperAdmin;
 

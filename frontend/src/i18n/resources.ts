@@ -40,6 +40,8 @@ const enUS: ParthenonNamespaces = {
       logout: "Logout",
       settings: "Settings",
     },
+    libraryLifecycleNotice:
+      "Library items now have Draft, Active, and Archived states. Manage them from each library page.",
   },
   layout: {
     header: {
@@ -135,6 +137,8 @@ const esES: ParthenonNamespaces = {
       logout: "Cerrar sesión",
       settings: "Configuración",
     },
+    libraryLifecycleNotice:
+      "Los elementos de la biblioteca ahora tienen estados Borrador, Activo y Archivado. Gestiónalos desde cada página de la biblioteca.",
   },
   layout: {
     header: {
@@ -230,6 +234,8 @@ const frFR: ParthenonNamespaces = {
       logout: "Déconnexion",
       settings: "Paramètres",
     },
+    libraryLifecycleNotice:
+      "Les éléments de la bibliothèque ont désormais les états Brouillon, Actif et Archivé. Gérez-les depuis chaque page de bibliothèque.",
   },
   layout: {
     header: {
@@ -325,6 +331,8 @@ const deDE: ParthenonNamespaces = {
       logout: "Abmelden",
       settings: "Einstellungen",
     },
+    libraryLifecycleNotice:
+      "Bibliothekselemente haben jetzt die Status Entwurf, Aktiv und Archiviert. Verwalten Sie sie auf den jeweiligen Bibliotheksseiten.",
   },
   layout: {
     header: {
@@ -420,6 +428,8 @@ const ptBR: ParthenonNamespaces = {
       logout: "Sair",
       settings: "Configurações",
     },
+    libraryLifecycleNotice:
+      "Os itens da biblioteca agora têm os estados Rascunho, Ativo e Arquivado. Gerencie-os em cada página da biblioteca.",
   },
   layout: {
     header: {
@@ -515,6 +525,8 @@ const fiFI: ParthenonNamespaces = {
       logout: "Kirjaudu ulos",
       settings: "Asetukset",
     },
+    libraryLifecycleNotice:
+      "Kirjaston kohteilla on nyt Luonnos-, Aktiivinen- ja Arkistoitu-tilat. Hallitse niitä kunkin kirjastosivun kautta.",
   },
   layout: {
     header: {
@@ -610,6 +622,8 @@ const jaJP: ParthenonNamespaces = {
       logout: "ログアウト",
       settings: "設定",
     },
+    libraryLifecycleNotice:
+      "ライブラリ項目に「下書き」「アクティブ」「アーカイブ済み」の状態が追加されました。各ライブラリページで管理できます。",
   },
   layout: {
     header: {
@@ -705,6 +719,8 @@ const zhHans: ParthenonNamespaces = {
       logout: "退出登录",
       settings: "设置",
     },
+    libraryLifecycleNotice:
+      "资料库项目现在具有草稿、活动和已归档状态。可在各资料库页面进行管理。",
   },
   layout: {
     header: {
@@ -800,6 +816,8 @@ const koKR: ParthenonNamespaces = {
       logout: "로그아웃",
       settings: "설정",
     },
+    libraryLifecycleNotice:
+      "라이브러리 항목에 초안, 활성, 보관됨 상태가 추가되었습니다. 각 라이브러리 페이지에서 관리하세요.",
   },
   layout: {
     header: {
@@ -895,6 +913,8 @@ const hiIN: ParthenonNamespaces = {
       logout: "लॉग आउट",
       settings: "सेटिंग्स",
     },
+    libraryLifecycleNotice:
+      "लाइब्रेरी आइटम में अब ड्राफ़्ट, सक्रिय और संग्रहीत स्थितियाँ होती हैं। उन्हें प्रत्येक लाइब्रेरी पेज से प्रबंधित करें।",
   },
   layout: {
     header: {
@@ -990,6 +1010,8 @@ const ar: ParthenonNamespaces = {
       logout: "تسجيل الخروج",
       settings: "الإعدادات",
     },
+    libraryLifecycleNotice:
+      "أصبح لعناصر المكتبة الآن حالات: مسودة، ونشط، ومؤرشف. يمكنك إدارتها من كل صفحة مكتبة.",
   },
   layout: {
     header: {

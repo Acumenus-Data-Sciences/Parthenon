@@ -151,6 +151,7 @@ use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\System\FeatureFlagsController;
 use App\Http\Controllers\Api\V1\TemplatesController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
+use App\Http\Controllers\Api\V1\UserNoticeController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\VsacController;
@@ -972,6 +973,9 @@ Route::prefix('v1')->group(function () {
 
         // Onboarding
         Route::put('user/onboarding', [OnboardingController::class, 'complete']);
+
+        // One-time library-lifecycle notice acknowledgement
+        Route::put('user/library-notice', [UserNoticeController::class, 'acknowledgeLibrary']);
 
         // User Profile
         Route::put('user/profile', [UserProfileController::class, 'update'])
