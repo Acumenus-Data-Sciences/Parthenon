@@ -159,18 +159,12 @@ export default function AdminLibraryPage() {
         </label>
         {selected.size > 0 && tab === "active" && (
           <div className="flex items-end gap-2">
-            <Button
-              variant="danger"
-              onClick={() => setDeleteOpen(true)}
-              icon={<Trash2 size={14} />}
-            >
+            <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+              <Trash2 size={14} />
               Delete ({selected.size})
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => setReassignOpen(true)}
-              icon={<UserCog size={14} />}
-            >
+            <Button variant="primary" onClick={() => setReassignOpen(true)}>
+              <UserCog size={14} />
               Reassign ({selected.size})
             </Button>
             <Button variant="ghost" onClick={clearSelection}>
@@ -283,7 +277,6 @@ export default function AdminLibraryPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              icon={<RotateCcw size={14} />}
                               disabled={restoreMut.isPending}
                               onClick={() =>
                                 restoreMut.mutate([
@@ -291,12 +284,12 @@ export default function AdminLibraryPage() {
                                 ])
                               }
                             >
+                              <RotateCcw size={14} />
                               Restore
                             </Button>
                             <Button
                               variant="danger"
                               size="sm"
-                              icon={<Zap size={14} />}
                               disabled={purgeMut.isPending}
                               onClick={() => {
                                 if (
@@ -310,6 +303,7 @@ export default function AdminLibraryPage() {
                                 }
                               }}
                             >
+                              <Zap size={14} />
                               Purge
                             </Button>
                           </div>

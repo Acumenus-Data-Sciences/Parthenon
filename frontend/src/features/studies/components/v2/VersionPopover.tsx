@@ -235,10 +235,9 @@ export function VersionPopover({
                   aria-hidden="true"
                   className={cn(
                     "w-2 h-2 rounded-full shrink-0",
-                    tone === "success" && "bg-success",
-                    tone === "warning" && "bg-warning",
-                    tone === "danger" && "bg-error",
-                    tone === "neutral" && "bg-text-ghost",
+                    tone === "teal" && "bg-success",
+                    tone === "gold" && "bg-warning",
+                    tone === "slate" && "bg-text-ghost",
                   )}
                 />
                 <span className="flex flex-col flex-1 min-w-0">
