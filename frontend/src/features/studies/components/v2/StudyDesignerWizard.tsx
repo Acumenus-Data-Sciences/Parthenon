@@ -26,6 +26,7 @@ import {
   type StepperStep,
 } from "./StudyDesignerStepper";
 import { WizardFooter } from "./WizardFooter";
+import { AgentCopilotPanel } from "./agent/AgentCopilotPanel";
 import {
   canProceed,
   computeInitialStep,
@@ -151,114 +152,122 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
   }
 
   return (
-    <div className="studies-v2-wizard flex flex-col h-full">
-      <style>{`
-        @keyframes wizardSlideFromRight {
-          from { opacity: 0; transform: translateX(18px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes wizardSlideFromLeft {
-          from { opacity: 0; transform: translateX(-18px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+    <div className="flex h-full min-h-0">
+      <div className="studies-v2-wizard flex flex-col flex-1 min-w-0 h-full">
+        <style>{`
+          @keyframes wizardSlideFromRight {
+            from { opacity: 0; transform: translateX(18px); }
+            to   { opacity: 1; transform: translateX(0); }
+          }
+          @keyframes wizardSlideFromLeft {
+            from { opacity: 0; transform: translateX(-18px); }
+            to   { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
 
-      <ProtocolImportProgress
-        phase={wb.protocolImportPhase}
-        elapsedSeconds={wb.protocolElapsedSeconds}
-        fileName={wb.protocolFileName}
-        className="px-8 pt-4"
-      />
+        <ProtocolImportProgress
+          phase={wb.protocolImportPhase}
+          elapsedSeconds={wb.protocolElapsedSeconds}
+          fileName={wb.protocolFileName}
+          className="px-8 pt-4"
+        />
 
-      <StudyDesignerStepper
-        steps={stepperSteps}
-        currentStep={currentStep}
-        onStepClick={navigateToStep}
-      />
+        <StudyDesignerStepper
+          steps={stepperSteps}
+          currentStep={currentStep}
+          onStepClick={navigateToStep}
+        />
 
-      <main
-        className="flex-1 min-h-0 overflow-y-auto px-8 py-4"
-        aria-label={tAuto("studies.v2.activeEditor")}
-      >
-        <div
-          key={animKey}
-          style={{
-            animation: `${slideDir === "forward" ? "wizardSlideFromRight" : "wizardSlideFromLeft"} 220ms ease forwards`,
-          }}
+        <main
+          className="flex-1 min-h-0 overflow-y-auto px-8 py-4"
+          aria-label={tAuto("studies.v2.activeEditor")}
         >
-          {currentStep === 0 ? (
-            <>
-              <PicoCanvas
-                session={wb.selectedSession}
-                version={wb.selectedVersion}
-                assistance={assistance}
-                initialFormState={initialFormState}
-                onSave={wb.handleSaveReview}
-                onAccept={wb.handleAccept}
-                onGenerateIntent={(question) => {
-                  void wb.handleGenerate(question);
-                }}
-                onDirtyChange={wb.setIntentReviewDirty}
-                isSaving={wb.updateVersion.isPending}
-                isAccepting={wb.acceptVersion.isPending}
-                isGenerating={wb.generateIntent.isPending}
-                generationGate={wb.intentGenerationGate}
-              />
-              {wb.selectedVersion ? (
-                <BottomUpCompatibilityPanel
-                  assets={wb.assets}
-                  isImporting={wb.importExistingStudy.isPending}
-                  isCritiquing={wb.critiqueStudyDesign.isPending}
-                  canCritique={wb.selectedVersion.status !== "locked"}
-                  onImport={wb.handleImportExistingStudy}
-                  onCritique={wb.handleCritiqueStudyDesign}
+          <div
+            key={animKey}
+            style={{
+              animation: `${slideDir === "forward" ? "wizardSlideFromRight" : "wizardSlideFromLeft"} 220ms ease forwards`,
+            }}
+          >
+            {currentStep === 0 ? (
+              <>
+                <PicoCanvas
+                  session={wb.selectedSession}
+                  version={wb.selectedVersion}
+                  assistance={assistance}
+                  initialFormState={initialFormState}
+                  onSave={wb.handleSaveReview}
+                  onAccept={wb.handleAccept}
+                  onGenerateIntent={(question) => {
+                    void wb.handleGenerate(question);
+                  }}
+                  onDirtyChange={wb.setIntentReviewDirty}
+                  isSaving={wb.updateVersion.isPending}
+                  isAccepting={wb.acceptVersion.isPending}
+                  isGenerating={wb.generateIntent.isPending}
+                  generationGate={wb.intentGenerationGate}
                 />
-              ) : null}
-            </>
-          ) : currentStep === 1 ? (
-            <PhenotypeMatrix workbench={wb} />
-          ) : currentStep === 2 ? (
-            <ConceptSetMatrix workbench={wb} />
-          ) : currentStep === 3 ? (
-            <CohortTriptych workbench={wb} />
-          ) : currentStep === 4 ? (
-            <FeasibilityView workbench={wb} />
-          ) : currentStep === 5 ? (
-            <AnalysisMatrix workbench={wb} />
-          ) : currentStep === 6 ? (
-            <LockLaunchpad
-              workbench={wb}
-              studyTitle={study.short_title?.trim() || study.title}
-              onNavigateStation={(id) => {
-                const step = stationIdToStep(id);
-                if (step !== null) navigateToStep(step);
-              }}
-            />
-          ) : currentStep === 7 ? (
-            <PackageReceipt
-              workbench={wb}
-              onNavigateStation={(id) => {
-                const step = stationIdToStep(id);
-                if (step !== null) navigateToStep(step);
-              }}
-            />
-          ) : null}
-        </div>
-      </main>
+                {wb.selectedVersion ? (
+                  <BottomUpCompatibilityPanel
+                    assets={wb.assets}
+                    isImporting={wb.importExistingStudy.isPending}
+                    isCritiquing={wb.critiqueStudyDesign.isPending}
+                    canCritique={wb.selectedVersion.status !== "locked"}
+                    onImport={wb.handleImportExistingStudy}
+                    onCritique={wb.handleCritiqueStudyDesign}
+                  />
+                ) : null}
+              </>
+            ) : currentStep === 1 ? (
+              <PhenotypeMatrix workbench={wb} />
+            ) : currentStep === 2 ? (
+              <ConceptSetMatrix workbench={wb} />
+            ) : currentStep === 3 ? (
+              <CohortTriptych workbench={wb} />
+            ) : currentStep === 4 ? (
+              <FeasibilityView workbench={wb} />
+            ) : currentStep === 5 ? (
+              <AnalysisMatrix workbench={wb} />
+            ) : currentStep === 6 ? (
+              <LockLaunchpad
+                workbench={wb}
+                studyTitle={study.short_title?.trim() || study.title}
+                onNavigateStation={(id) => {
+                  const step = stationIdToStep(id);
+                  if (step !== null) navigateToStep(step);
+                }}
+              />
+            ) : currentStep === 7 ? (
+              <PackageReceipt
+                workbench={wb}
+                onNavigateStation={(id) => {
+                  const step = stationIdToStep(id);
+                  if (step !== null) navigateToStep(step);
+                }}
+              />
+            ) : null}
+          </div>
+        </main>
 
-      <WizardFooter
-        currentStep={currentStep}
-        totalSteps={TOTAL_STEPS}
-        canProceed={proceedable}
-        onBack={handleBack}
-        onNext={handleNext}
-        protocolInputRef={wb.protocolInputRef}
-        onProtocolUpload={wb.handleProtocolUpload}
-        protocolBusy={wb.protocolBusy}
-        versionLabel={versionLabel}
-        versions={wb.versions}
-        activeVersionId={wb.selectedVersion?.id ?? null}
-        onSelectVersion={wb.guardedSetSelectedVersion}
+        <WizardFooter
+          currentStep={currentStep}
+          totalSteps={TOTAL_STEPS}
+          canProceed={proceedable}
+          onBack={handleBack}
+          onNext={handleNext}
+          protocolInputRef={wb.protocolInputRef}
+          onProtocolUpload={wb.handleProtocolUpload}
+          protocolBusy={wb.protocolBusy}
+          versionLabel={versionLabel}
+          versions={wb.versions}
+          activeVersionId={wb.selectedVersion?.id ?? null}
+          onSelectVersion={wb.guardedSetSelectedVersion}
+        />
+      </div>
+
+      <AgentCopilotPanel
+        slug={wb.slug}
+        sessionId={wb.selectedSession?.id ?? null}
+        versionId={wb.selectedVersion?.id ?? null}
       />
     </div>
   );
