@@ -37,14 +37,35 @@ def _build_default_client() -> pusher.Pusher:
 
 
 class ReverbPublisher:
-    """Thin wrapper around a Pusher client for agent event fan-out."""
+    """Thin wrapper around a Pusher client for agent event fan-out.
+
+    The Pusher client is constructed lazily on first publish so that importing
+    this module (and constructing ReverbPublisher()) succeeds even when
+    REVERB_APP_ID is not set (e.g. in tests). Publishing is fail-open: a
+    transport or configuration error must never break an in-flight agent turn.
+    """
 
     def __init__(self, client: Optional[pusher.Pusher] = None) -> None:
-        self._client = client or _build_default_client()
+        # If an explicit client is provided, store it eagerly.
+        # Otherwise, defer construction until first publish() call.
+        self._client: Optional[pusher.Pusher] = client
+        self._explicit = client is not None
+
+    def _get_client(self) -> Optional[pusher.Pusher]:
+        if self._client is None and not self._explicit:
+            try:
+                self._client = _build_default_client()
+            except Exception as exc:  # noqa: BLE001 — misconfigured in dev/test
+                logger.warning("ReverbPublisher: could not build Pusher client: %s", exc)
+        return self._client
 
     def publish(self, *, session_id: int, event: str, data: dict[str, Any]) -> None:
         channel = channel_for_session(session_id)
+        client = self._get_client()
+        if client is None:
+            logger.debug("ReverbPublisher: no client available, dropping %s on %s", event, channel)
+            return
         try:
-            self._client.trigger(channel, event, data)
+            client.trigger(channel, event, data)
         except Exception as exc:  # noqa: BLE001 — fail-open by design
             logger.warning("Reverb publish failed (%s on %s): %s", event, channel, exc)
