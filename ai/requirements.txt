@@ -20,6 +20,8 @@ ohdsi-circe-python-alpha>=0.2.0
 ariadne @ git+https://github.com/OHDSI/Ariadne.git
 spacy>=3.8.14
 anthropic>=0.42.0
+claude-agent-sdk>=0.2.86
+pusher>=3.3.4
 
 # GIS / Spatial
 geopandas>=1.1.3
