@@ -10,6 +10,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Optional
 
+import httpx
+
 from claude_agent_sdk import (
     AssistantMessage,
     ClaudeAgentOptions,
@@ -41,9 +43,39 @@ class AgentSessionState:
     _busy: bool = field(default=False, repr=False)
 
 
+class LaravelPersister:
+    """Persists agent turn results back to Laravel (fail-open)."""
+
+    async def persist(self, state: "AgentSessionState", *, status: str, cost_usd: float, tokens_in: int, tokens_out: int) -> None:
+        ctx = state.tool_context
+        url = (
+            f"{settings.agency_api_base_url.rstrip('/')}/api/v1/"
+            f"studies/{ctx.study_slug}/design-sessions/{ctx.design_session_id}"
+            f"/agent/sessions/{state.agent_session_id}/ingest"
+        )
+        headers = {
+            "Authorization": f"Bearer {ctx.auth_token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "anthropic_session_id": state.anthropic_session_id,
+            "cost_usd": cost_usd,
+            "tokens_in": tokens_in,
+            "tokens_out": tokens_out,
+            "status": status,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                await client.post(url, headers=headers, json=payload)
+        except httpx.HTTPError as exc:  # fail-open: persistence must not break the turn
+            logger.warning("agent persistence failed: %s", exc)
+
+
 class ParthenonAgentService:
-    def __init__(self, publisher: Optional[ReverbPublisher] = None) -> None:
+    def __init__(self, publisher: Optional[ReverbPublisher] = None, persister: Optional["LaravelPersister"] = None) -> None:
         self._publisher = publisher or ReverbPublisher()
+        self._persister = persister or LaravelPersister()
 
     def _options(self, state: AgentSessionState) -> ClaudeAgentOptions:
         profile = get_profile(state.profile_name)
@@ -102,6 +134,17 @@ class ParthenonAgentService:
                             "tokens_out": usage.get("output_tokens", 0),
                             "anthropic_session_id": state.anthropic_session_id,
                         })
+                        await self._persister.persist(
+                            state,
+                            status="active",
+                            cost_usd=cost,
+                            tokens_in=int(usage.get("input_tokens", 0) or 0),
+                            tokens_out=int(usage.get("output_tokens", 0) or 0),
+                        )
         except Exception as exc:  # noqa: BLE001
             logger.exception("agent turn failed")
             emit("agent.error", {"message": str(exc)[:500]})
+            try:
+                await self._persister.persist(state, status="error", cost_usd=0.0, tokens_in=0, tokens_out=0)
+            except Exception:  # noqa: BLE001
+                logger.warning("agent persistence failed during error handling")

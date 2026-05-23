@@ -141,3 +141,79 @@ it('message forwards to python-ai turn endpoint and returns 202', function () {
         return str_ends_with($request->url(), "/study-designer/sessions/{$agentSessionId}/turn");
     });
 });
+
+// ---------------------------------------------------------------------------
+// ingest — persists cost/tokens/session_id and returns 200
+// ---------------------------------------------------------------------------
+
+it('ingest persists cost tokens and anthropic_session_id and returns 200', function () {
+    Sanctum::actingAs($this->user, ['*']);
+
+    $agentSession = StudyDesignAgentSession::create([
+        'study_design_session_id' => $this->session->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'cost_usd' => 0,
+        'tokens_in' => 0,
+        'tokens_out' => 0,
+        'last_active_at' => now(),
+    ]);
+
+    $response = $this->postJson(
+        "/api/v1/studies/{$this->study->slug}/design-sessions/{$this->session->id}/agent/sessions/{$agentSession->id}/ingest",
+        [
+            'anthropic_session_id' => 'sess-abc',
+            'cost_usd' => 0.12,
+            'tokens_in' => 100,
+            'tokens_out' => 40,
+            'status' => 'active',
+        ],
+    );
+
+    $response->assertStatus(200)
+        ->assertJsonPath('data.ok', true);
+
+    $this->assertDatabaseHas('study_design_agent_sessions', [
+        'id' => $agentSession->id,
+        'anthropic_session_id' => 'sess-abc',
+        'tokens_in' => 100,
+        'tokens_out' => 40,
+        'status' => 'active',
+    ]);
+
+    // Check cost_usd persisted (float comparison via model)
+    $agentSession->refresh();
+    expect((float) $agentSession->cost_usd)->toBe(0.12);
+});
+
+it('ingest increments cost and tokens on a second call', function () {
+    Sanctum::actingAs($this->user, ['*']);
+
+    $agentSession = StudyDesignAgentSession::create([
+        'study_design_session_id' => $this->session->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'cost_usd' => 0,
+        'tokens_in' => 0,
+        'tokens_out' => 0,
+        'last_active_at' => now(),
+    ]);
+
+    $payload = [
+        'anthropic_session_id' => 'sess-abc',
+        'cost_usd' => 0.12,
+        'tokens_in' => 100,
+        'tokens_out' => 40,
+        'status' => 'active',
+    ];
+
+    $url = "/api/v1/studies/{$this->study->slug}/design-sessions/{$this->session->id}/agent/sessions/{$agentSession->id}/ingest";
+
+    $this->postJson($url, $payload)->assertStatus(200);
+    $this->postJson($url, $payload)->assertStatus(200);
+
+    $agentSession->refresh();
+    expect((float) $agentSession->cost_usd)->toBe(0.24);
+    expect($agentSession->tokens_in)->toBe(200);
+    expect($agentSession->tokens_out)->toBe(80);
+});

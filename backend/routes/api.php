@@ -911,6 +911,8 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:studies.create', 'throttle:30,1']);
                 Route::get('{session}/agent/sessions/{agentSession}/snapshot', [StudyDesignAgentController::class, 'snapshot'])
                     ->middleware('permission:studies.view');
+                Route::post('{session}/agent/sessions/{agentSession}/ingest', [StudyDesignAgentController::class, 'ingest'])
+                    ->middleware(['permission:studies.create', 'throttle:120,1']);
             });
         });
 

@@ -111,4 +111,29 @@ class StudyDesignAgentController extends Controller
             'channel_name' => "private-study-design.session.{$session->id}",
         ]]);
     }
+
+    public function ingest(Request $request, Study $study, StudyDesignSession $session, StudyDesignAgentSession $agentSession): JsonResponse
+    {
+        $this->authorizeAccess($request, $study, $session);
+        abort_unless((int) $agentSession->study_design_session_id === (int) $session->id, 404);
+
+        $validated = $request->validate([
+            'anthropic_session_id' => ['nullable', 'string', 'max:255'],
+            'cost_usd' => ['required', 'numeric', 'min:0'],
+            'tokens_in' => ['required', 'integer', 'min:0'],
+            'tokens_out' => ['required', 'integer', 'min:0'],
+            'status' => ['required', 'string', 'in:active,closed,error'],
+        ]);
+
+        $agentSession->update([
+            'anthropic_session_id' => $validated['anthropic_session_id'] ?? $agentSession->anthropic_session_id,
+            'cost_usd' => (float) $agentSession->cost_usd + (float) $validated['cost_usd'],
+            'tokens_in' => (int) $agentSession->tokens_in + (int) $validated['tokens_in'],
+            'tokens_out' => (int) $agentSession->tokens_out + (int) $validated['tokens_out'],
+            'status' => $validated['status'],
+            'last_active_at' => now(),
+        ]);
+
+        return response()->json(['data' => ['ok' => true]]);
+    }
 }
