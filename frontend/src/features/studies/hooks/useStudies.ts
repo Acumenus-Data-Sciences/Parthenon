@@ -307,7 +307,7 @@ export function useStudyDesignGuidance(slug: string | null, sessionId: number | 
   });
 }
 
-function invalidateStudyDesignCompiler(queryClient: QueryClient, slug: string, sessionId: number, versionId?: number) {
+export function invalidateStudyDesignCompiler(queryClient: QueryClient, slug: string, sessionId: number, versionId?: number) {
   queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions"] });
   queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "versions"] });
   queryClient.invalidateQueries({ queryKey: ["studies", slug, "design-sessions", sessionId, "assets"] });
