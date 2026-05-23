@@ -55,9 +55,18 @@ class ParthenonAgentService:
             model=profile.model,
             effort=profile.effort,
             mcp_servers={"parthenon": server},
+            # HIGHSEC lockdown: tools=[] → CLI `--tools ""` removes ALL built-in
+            # tools (Bash/Read/Edit/Write/Glob/Grep/WebSearch/WebFetch); only our
+            # in-process MCP tools (via mcp_servers + allowed_tools) remain reachable.
+            # allowed_tools alone only controls auto-approval, not availability.
+            # dontAsk denies anything not pre-approved (headless server, no prompt).
+            # strict_mcp_config blocks any stray project .mcp.json from adding servers.
+            # setting_sources=[] keeps the dev .claude/ out of a clinical agent.
+            tools=[],
             allowed_tools=allowed,
             setting_sources=[],
-            permission_mode="acceptEdits",
+            strict_mcp_config=True,
+            permission_mode="dontAsk",
             max_turns=settings.agent_max_turns,
             max_budget_usd=settings.agent_max_budget_usd,
             resume=state.anthropic_session_id,

@@ -223,6 +223,9 @@ services:
       - CUDA_VISIBLE_DEVICES=
       - TORCH_DEVICE=cpu
       - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      # Claude Agent SDK / CLI authenticate via ANTHROPIC_API_KEY; alias the
+      # existing key so the Study Designer agent can auth (no new secret).
+      - ANTHROPIC_API_KEY=${CLAUDE_API_KEY:-}
       - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-sonnet-4-6}
       - CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-60}
       - PHI_DETECTION_ENABLED=${PHI_DETECTION_ENABLED:-true}
