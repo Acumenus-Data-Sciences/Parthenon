@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\Http;
 
 class StudyDesignAgentController extends Controller
 {
+    // NOTE (review C3 — known Phase-1 gap): these abilities scope the minted
+    // Sanctum token, but the study-design routes the agent calls are gated by
+    // Spatie `permission:` middleware (which checks the USER's permissions), not
+    // Sanctum `abilities:` middleware (which checks the TOKEN's abilities). So the
+    // agent currently acts with the user's FULL permission set, not this subset —
+    // "cannot exceed the user" holds, but "scoped to studies.view+create" does NOT.
+    // Phase 2 must add `abilities:studies.view`/`abilities:studies.create` (or
+    // `$token->can(...)` checks) to the agent-reachable routes to enforce this.
     private const AGENT_ABILITIES = ['studies.view', 'studies.create'];
 
     private function aiBaseUrl(): string
