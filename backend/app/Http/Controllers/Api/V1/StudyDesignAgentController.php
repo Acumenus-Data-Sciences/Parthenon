@@ -68,7 +68,9 @@ class StudyDesignAgentController extends Controller
         ]);
 
         if ($resp->failed()) {
-            $agentSession->update(['status' => 'error']);
+            // Revoke the just-minted scoped token — no agent process will consume it.
+            $newToken->accessToken->delete();
+            $agentSession->update(['status' => 'error', 'token_id' => null]);
 
             return response()->json(['message' => 'Agent service unavailable'], 503);
         }

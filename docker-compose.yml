@@ -218,6 +218,7 @@ services:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - STUDY_AGENT_URL=http://study-agent:8765
+      - AGENCY_API_BASE_URL=${AGENCY_API_BASE_URL:-http://nginx:80}
       - HECATE_URL=http://hecate:8080
       - ARIADNE_VOCAB_SCHEMA=vocab
       - CUDA_VISIBLE_DEVICES=

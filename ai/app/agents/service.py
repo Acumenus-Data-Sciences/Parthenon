@@ -7,7 +7,7 @@ Session continuity via resume=anthropic_session_id (no idle in-memory clients).
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import httpx
@@ -37,10 +37,7 @@ class AgentSessionState:
     profile_name: str
     tool_context: StudyDesignToolContext
     anthropic_session_id: Optional[str] = None
-    cost_usd: float = 0.0
-    tokens_in: int = 0
-    tokens_out: int = 0
-    _busy: bool = field(default=False, repr=False)
+    last_idempotency_key: Optional[str] = None
 
 
 class LaravelPersister:
@@ -125,21 +122,23 @@ class ParthenonAgentService:
                         state.anthropic_session_id = getattr(message, "session_id", state.anthropic_session_id)
                         cost = float(getattr(message, "total_cost_usd", 0.0) or 0.0)
                         usage = getattr(message, "usage", {}) or {}
-                        state.cost_usd += cost
-                        state.tokens_in += int(usage.get("input_tokens", 0) or 0)
-                        state.tokens_out += int(usage.get("output_tokens", 0) or 0)
+                        tokens_in = int(usage.get("input_tokens", 0) or 0)
+                        tokens_out = int(usage.get("output_tokens", 0) or 0)
+                        # Laravel's study_design_agent_sessions row is the authoritative
+                        # running total (ingest increments). We send PER-TURN deltas only;
+                        # do not also accumulate in memory (would invite a double-count).
                         emit("agent.turn.done", {
                             "cost_usd": cost,
-                            "tokens_in": usage.get("input_tokens", 0),
-                            "tokens_out": usage.get("output_tokens", 0),
+                            "tokens_in": tokens_in,
+                            "tokens_out": tokens_out,
                             "anthropic_session_id": state.anthropic_session_id,
                         })
                         await self._persister.persist(
                             state,
                             status="active",
                             cost_usd=cost,
-                            tokens_in=int(usage.get("input_tokens", 0) or 0),
-                            tokens_out=int(usage.get("output_tokens", 0) or 0),
+                            tokens_in=tokens_in,
+                            tokens_out=tokens_out,
                         )
         except Exception as exc:  # noqa: BLE001
             logger.exception("agent turn failed")

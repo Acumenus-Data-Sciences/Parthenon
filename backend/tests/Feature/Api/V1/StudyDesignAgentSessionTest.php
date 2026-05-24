@@ -186,6 +186,33 @@ it('ingest persists cost tokens and anthropic_session_id and returns 200', funct
     expect((float) $agentSession->cost_usd)->toBe(0.12);
 });
 
+// ---------------------------------------------------------------------------
+// start — python-ai failure revokes token and sets status=error
+// ---------------------------------------------------------------------------
+
+it('start revokes scoped token and sets status error when python-ai fails', function () {
+    Http::fake(['*' => Http::response([], 500)]);
+
+    Sanctum::actingAs($this->user, ['*']);
+
+    $response = $this->postJson(
+        "/api/v1/studies/{$this->study->slug}/design-sessions/{$this->session->id}/agent/sessions",
+    );
+
+    $response->assertStatus(503);
+
+    // No study-designer-agent token must remain for the user
+    expect($this->user->tokens()->where('name', 'study-designer-agent')->count())->toBe(0);
+
+    // The agent session row must exist with status=error and token_id=null
+    $this->assertDatabaseHas('study_design_agent_sessions', [
+        'study_design_session_id' => $this->session->id,
+        'user_id' => $this->user->id,
+        'status' => 'error',
+        'token_id' => null,
+    ]);
+});
+
 it('ingest increments cost and tokens on a second call', function () {
     Sanctum::actingAs($this->user, ['*']);
 

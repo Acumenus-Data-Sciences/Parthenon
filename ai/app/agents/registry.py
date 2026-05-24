@@ -10,6 +10,7 @@ from app.config import settings
 
 _sessions: dict[int, AgentSessionState] = {}
 _turn_semaphore = asyncio.Semaphore(settings.agent_max_concurrent_turns)
+_locks: dict[int, asyncio.Lock] = {}
 
 
 def put(state: AgentSessionState) -> None:
@@ -22,6 +23,15 @@ def get(agent_session_id: int) -> Optional[AgentSessionState]:
 
 def drop(agent_session_id: int) -> None:
     _sessions.pop(agent_session_id, None)
+    _locks.pop(agent_session_id, None)
+
+
+def session_lock(agent_session_id: int) -> asyncio.Lock:
+    lock = _locks.get(agent_session_id)
+    if lock is None:
+        lock = asyncio.Lock()
+        _locks[agent_session_id] = lock
+    return lock
 
 
 def turn_slot() -> asyncio.Semaphore:

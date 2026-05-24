@@ -57,17 +57,27 @@ async def create_session(body: CreateSessionRequest) -> dict:
     return {"agent_session_id": body.agent_session_id, "channel": body.channel}
 
 
-async def _run(agent_session_id: int, text: str) -> None:
+async def _run(agent_session_id: int, text: str, idempotency_key: str) -> None:
     state = registry.get(agent_session_id)
     if state is None:
         return
-    async with registry.turn_slot():
-        await _get_service().run_turn(state, text)
+    # Serialize turns per session so a double-submit can't interleave events or
+    # race the resume session id. Dedup an identical idempotency key.
+    async with registry.session_lock(agent_session_id):
+        if idempotency_key and state.last_idempotency_key == idempotency_key:
+            return
+        state.last_idempotency_key = idempotency_key
+        async with registry.turn_slot():
+            await _get_service().run_turn(state, text)
 
 
 @router.post("/sessions/{agent_session_id}/turn", status_code=202)
 async def turn(agent_session_id: int, body: TurnRequest, background: BackgroundTasks) -> dict:
     if registry.get(agent_session_id) is None:
         raise HTTPException(status_code=404, detail="agent session not found")
-    background.add_task(_run, agent_session_id, body.text)
+    # Soft backpressure: if all concurrent-turn slots are taken, reject rather
+    # than unboundedly queuing background tasks. (Full admission control: Phase 2.)
+    if registry.turn_slot().locked():
+        raise HTTPException(status_code=429, detail="agent is busy; retry shortly")
+    background.add_task(_run, agent_session_id, body.text, body.idempotency_key)
     return {"accepted": True}
