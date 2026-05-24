@@ -51,6 +51,20 @@ def _error(message: str) -> dict[str, Any]:
     return {"content": [{"type": "text", "text": message}], "is_error": True}
 
 
+def _require_version(ctx: "StudyDesignToolContext") -> dict[str, Any] | None:
+    """Guard for version-scoped tools: return a clear error if no version is set.
+
+    Without this, ``version_base`` would interpolate ``versions/None`` and every
+    version-scoped route would 404 with an opaque message.
+    """
+    if ctx.version_id is None:
+        return _error(
+            "No study design version is selected. Ask the user to create or select "
+            "a study design version before using this tool."
+        )
+    return None
+
+
 async def _request(
     ctx: "StudyDesignToolContext",
     method: str,
@@ -103,6 +117,9 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         {},
     )
     async def get_guidance(args: dict[str, Any]) -> dict[str, Any]:
+        guard = _require_version(ctx)
+        if guard is not None:
+            return guard
         return await _request(ctx, "GET", f"{ctx.version_base}/guidance")
 
     @tool(
@@ -111,6 +128,9 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         {},
     )
     async def recommend_phenotypes(args: dict[str, Any]) -> dict[str, Any]:
+        guard = _require_version(ctx)
+        if guard is not None:
+            return guard
         return await _request(ctx, "POST", f"{ctx.version_base}/phenotypes/recommend", json_body={})
 
     @tool(
@@ -119,6 +139,9 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         {"drafts": list},
     )
     async def draft_concept_sets(args: dict[str, Any]) -> dict[str, Any]:
+        guard = _require_version(ctx)
+        if guard is not None:
+            return guard
         return await _request(
             ctx,
             "POST",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStudyDesignerAgent } from "../../../hooks/useStudyDesignerAgent";
 import { useStudyDesignerAgentStore } from "../../../stores/studyDesignerAgentStore";
@@ -15,9 +15,21 @@ export function AgentCopilotPanel({ slug, sessionId, versionId }: Props) {
   const { start, starting, send } = useStudyDesignerAgent({ slug, sessionId, versionId });
   const { transcript, isStreaming, agentSessionId, errorMessage } = useStudyDesignerAgentStore();
   const [draft, setDraft] = useState("");
+  const startAttemptedRef = useRef(false);
 
+  // Reset the one-shot start guard when the design-session context changes.
   useEffect(() => {
-    if (agentSessionId == null && slug && sessionId) start();
+    startAttemptedRef.current = false;
+  }, [slug, sessionId]);
+
+  // Auto-start exactly once per session context. The ref survives React 19
+  // strict-mode double-invoke and in-flight re-renders, preventing duplicate
+  // agent sessions + scoped tokens.
+  useEffect(() => {
+    if (agentSessionId == null && !startAttemptedRef.current && slug && sessionId) {
+      startAttemptedRef.current = true;
+      start();
+    }
   }, [agentSessionId, slug, sessionId, start]);
 
   return (

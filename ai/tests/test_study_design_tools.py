@@ -15,6 +15,27 @@ def _ctx() -> StudyDesignToolContext:
     )
 
 
+def _ctx_no_version() -> StudyDesignToolContext:
+    return StudyDesignToolContext(
+        study_slug="t2dm-study",
+        design_session_id=7,
+        version_id=None,
+        auth_token="scoped-token-xyz",
+    )
+
+
+@respx.mock
+async def test_version_scoped_tools_error_cleanly_without_a_version():
+    # No HTTP route registered: if a tool built `versions/None` and called out,
+    # respx would raise. Instead each version-scoped tool must short-circuit.
+    tools = {t.name: t for t in build_tool_pack(_ctx_no_version())}
+    for name in ("get_guidance", "recommend_phenotypes", "draft_concept_sets"):
+        args = {"drafts": []} if name == "draft_concept_sets" else {}
+        result = await tools[name].handler(args)
+        assert result.get("is_error") is True
+        assert "version" in result["content"][0]["text"].lower()
+
+
 @respx.mock
 async def test_search_concepts_calls_vocabulary_search():
     route = respx.get(f"{BASE}/vocabulary/search").mock(
