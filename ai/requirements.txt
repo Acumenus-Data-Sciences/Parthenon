@@ -15,7 +15,7 @@ chromadb==1.*
 sentence-transformers==5.*
 langchain-text-splitters==1.*
 pymupdf>=1.27.2.3
-python-multipart>=0.0.28
+python-multipart>=0.0.29
 ohdsi-circe-python-alpha>=0.2.0
 ariadne @ git+https://github.com/OHDSI/Ariadne.git
 spacy>=3.8.14
