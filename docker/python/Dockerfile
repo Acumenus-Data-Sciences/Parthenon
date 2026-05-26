@@ -15,6 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt \
 
 COPY ai/ .
 
+# Node.js 20 + Claude Code CLI (required by claude-agent-sdk, which shells out to the CLI)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g @anthropic-ai/claude-code \
+    && npm cache clean --force \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
     && chown -R appuser:appgroup /app
 USER appuser

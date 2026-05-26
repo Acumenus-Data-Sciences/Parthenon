@@ -2,7 +2,13 @@
 doc_type: spec
 status: active
 date: 2026-05-18
+owner: acumenus
+module: studies
+lineage_anchor: true
 supersedes: 2026-05-12-studies-design-workbench-redesign.md
+superseded_by: null
+related_code: []
+related_prs: []
 ---
 
 # Study Designer Wizard Conversion (v2 → wizard-shell)

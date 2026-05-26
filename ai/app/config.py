@@ -72,6 +72,22 @@ class Settings(BaseSettings):
     cloud_budget_alert_thresholds: list[float] = [0.50, 0.80, 0.95]
     cloud_budget_cutoff_threshold: float = 0.95
 
+    # Claude Agent SDK (Study Designer agent)
+    agent_model: str = "claude-opus-4-7"
+    agent_effort: str = "xhigh"
+    agent_max_turns: int = 24
+    agent_max_budget_usd: float = 5.0
+    agent_max_concurrent_turns: int = 4
+    agent_approval_timeout_seconds: int = 600
+
+    # Reverb (Pusher-protocol) — python-ai publishes agent events
+    reverb_app_id: str = ""
+    reverb_app_key: str = ""
+    reverb_app_secret: str = ""
+    reverb_host: str = "reverb"
+    reverb_port: int = 8080
+    reverb_scheme: str = "http"
+
     # Knowledge graph (Phase 3)
     knowledge_cache_ttl: int = 3600
     knowledge_cache_prefix: str = "abby:kg:"

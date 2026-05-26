@@ -218,15 +218,28 @@ services:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - STUDY_AGENT_URL=http://study-agent:8765
+      - AGENCY_API_BASE_URL=${AGENCY_API_BASE_URL:-http://nginx:80}
       - HECATE_URL=http://hecate:8080
       - ARIADNE_VOCAB_SCHEMA=vocab
       - CUDA_VISIBLE_DEVICES=
       - TORCH_DEVICE=cpu
       - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      # Claude Agent SDK / CLI authenticate via ANTHROPIC_API_KEY. Prefer a
+      # dedicated ANTHROPIC_API_KEY from root .env; fall back to CLAUDE_API_KEY.
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-${CLAUDE_API_KEY:-}}
       - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-sonnet-4-6}
       - CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-60}
       - PHI_DETECTION_ENABLED=${PHI_DETECTION_ENABLED:-true}
       - CLOUD_MONTHLY_BUDGET_USD=${CLOUD_MONTHLY_BUDGET_USD:-500}
+      - REVERB_APP_ID=${REVERB_APP_ID}
+      - REVERB_APP_KEY=${REVERB_APP_KEY}
+      - REVERB_APP_SECRET=${REVERB_APP_SECRET}
+      - REVERB_HOST=reverb
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+      - AGENT_MODEL=${AGENT_MODEL:-claude-opus-4-7}
+      - AGENT_EFFORT=${AGENT_EFFORT:-xhigh}
+      - AGENT_MAX_BUDGET_USD=${AGENT_MAX_BUDGET_USD:-5}
       - KNOWLEDGE_CDM_SCHEMA=omop
       - KNOWLEDGE_VOCAB_SCHEMA=vocab
     extra_hosts:
@@ -238,6 +251,8 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_healthy
+      reverb:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:8000/health"]
       interval: 30s

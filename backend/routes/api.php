@@ -136,6 +136,7 @@ use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyArtifactController;
 use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
+use App\Http\Controllers\Api\V1\StudyDesignAgentController;
 use App\Http\Controllers\Api\V1\StudyDesignController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
 use App\Http\Controllers\Api\V1\StudyResultController;
@@ -902,6 +903,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('{session}/assets/{asset}/cohorts/link-to-study', [StudyDesignController::class, 'linkCohortDraft'])->middleware('permission:studies.create');
                 Route::post('{session}/assets/{asset}/analysis-plans/verify', [StudyDesignController::class, 'verifyAnalysisPlanDraft'])->middleware('permission:studies.create');
                 Route::post('{session}/assets/{asset}/analysis-plans/materialize', [StudyDesignController::class, 'materializeAnalysisPlanDraft'])->middleware('permission:studies.create');
+
+                // Agent SDK sessions
+                Route::post('{session}/agent/sessions', [StudyDesignAgentController::class, 'start'])
+                    ->middleware(['permission:studies.create', 'throttle:20,1']);
+                Route::post('{session}/agent/sessions/{agentSession}/messages', [StudyDesignAgentController::class, 'message'])
+                    ->middleware(['permission:studies.create', 'throttle:30,1']);
+                Route::get('{session}/agent/sessions/{agentSession}/snapshot', [StudyDesignAgentController::class, 'snapshot'])
+                    ->middleware('permission:studies.view');
+                Route::post('{session}/agent/sessions/{agentSession}/ingest', [StudyDesignAgentController::class, 'ingest'])
+                    ->middleware(['permission:studies.create', 'throttle:120,1']);
             });
         });
 
