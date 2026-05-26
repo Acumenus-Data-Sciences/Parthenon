@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\App\AgentSession;
 use App\Models\App\Study;
-use App\Models\App\StudyDesignAgentSession;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,7 +37,7 @@ beforeEach(function () {
 
 it('start creates an agent session and returns 201 with channel name', function () {
     Http::fake([
-        '*/study-designer/sessions' => Http::response(['ok' => true], 200),
+        '*/agent/sessions' => Http::response(['ok' => true], 200),
     ]);
 
     Sanctum::actingAs($this->user, ['*']);
@@ -52,9 +52,11 @@ it('start creates an agent session and returns 201 with channel name', function 
     $agentSessionId = $response->json('data.agent_session_id');
     expect($agentSessionId)->toBeInt();
 
-    $this->assertDatabaseHas('study_design_agent_sessions', [
+    $this->assertDatabaseHas('agent_sessions', [
         'id' => $agentSessionId,
-        'study_design_session_id' => $this->session->id,
+        'profile' => 'study_design',
+        'subject_type' => 'study_design_session',
+        'subject_id' => $this->session->id,
         'user_id' => $this->user->id,
         'status' => 'active',
     ]);
@@ -66,7 +68,7 @@ it('start creates an agent session and returns 201 with channel name', function 
 
 it('start mints a scoped token with study-designer-agent name and correct abilities', function () {
     Http::fake([
-        '*/study-designer/sessions' => Http::response(['ok' => true], 200),
+        '*/agent/sessions' => Http::response(['ok' => true], 200),
     ]);
 
     Sanctum::actingAs($this->user, ['*']);
@@ -78,7 +80,7 @@ it('start mints a scoped token with study-designer-agent name and correct abilit
     $response->assertStatus(201);
 
     $agentSessionId = $response->json('data.agent_session_id');
-    $agentSession = StudyDesignAgentSession::findOrFail($agentSessionId);
+    $agentSession = AgentSession::findOrFail($agentSessionId);
 
     // token_id must be recorded on the agent session row
     expect($agentSession->token_id)->not->toBeNull();
@@ -87,6 +89,35 @@ it('start mints a scoped token with study-designer-agent name and correct abilit
 
     expect($token->name)->toBe('study-designer-agent');
     expect($token->abilities)->toBe(['studies.view', 'studies.create']);
+});
+
+// ---------------------------------------------------------------------------
+// start — python-ai receives correct generic /agent/sessions body
+// ---------------------------------------------------------------------------
+
+it('start posts correct profile/subject_id/channel/ingest_path/context to python-ai', function () {
+    Http::fake([
+        '*/agent/sessions' => Http::response(['ok' => true], 200),
+    ]);
+
+    Sanctum::actingAs($this->user, ['*']);
+
+    $this->postJson(
+        "/api/v1/studies/{$this->study->slug}/design-sessions/{$this->session->id}/agent/sessions",
+    )->assertStatus(201);
+
+    Http::assertSent(function ($request) {
+        $body = $request->data();
+
+        return str_ends_with($request->url(), '/agent/sessions')
+            && $body['profile'] === 'study_design'
+            && (int) $body['subject_id'] === (int) $this->session->id
+            && $body['channel'] === "private-study-design.session.{$this->session->id}"
+            && str_contains($body['ingest_path'], '/agent/sessions/')
+            && str_contains($body['ingest_path'], '/ingest')
+            && isset($body['context']['study_slug'])
+            && (int) $body['context']['design_session_id'] === (int) $this->session->id;
+    });
 });
 
 // ---------------------------------------------------------------------------
@@ -107,13 +138,13 @@ it('start returns 403 for a user without studies.create permission', function ()
 });
 
 // ---------------------------------------------------------------------------
-// message — 202 and python-ai turn endpoint is called
+// message — 202 and python-ai /agent/sessions/{id}/turn endpoint is called
 // ---------------------------------------------------------------------------
 
 it('message forwards to python-ai turn endpoint and returns 202', function () {
     Http::fake([
-        '*/study-designer/sessions' => Http::response(['ok' => true], 200),
-        '*/study-designer/sessions/*/turn' => Http::response(['ok' => true], 200),
+        '*/agent/sessions' => Http::response(['ok' => true], 200),
+        '*/agent/sessions/*/turn' => Http::response(['ok' => true], 200),
     ]);
 
     Sanctum::actingAs($this->user, ['*']);
@@ -138,7 +169,7 @@ it('message forwards to python-ai turn endpoint and returns 202', function () {
         ->assertJsonPath('data.accepted', true);
 
     Http::assertSent(function ($request) use ($agentSessionId) {
-        return str_ends_with($request->url(), "/study-designer/sessions/{$agentSessionId}/turn");
+        return str_ends_with($request->url(), "/agent/sessions/{$agentSessionId}/turn");
     });
 });
 
@@ -149,8 +180,10 @@ it('message forwards to python-ai turn endpoint and returns 202', function () {
 it('ingest persists cost tokens and anthropic_session_id and returns 200', function () {
     Sanctum::actingAs($this->user, ['*']);
 
-    $agentSession = StudyDesignAgentSession::create([
-        'study_design_session_id' => $this->session->id,
+    $agentSession = AgentSession::create([
+        'profile' => 'study_design',
+        'subject_type' => 'study_design_session',
+        'subject_id' => $this->session->id,
         'user_id' => $this->user->id,
         'status' => 'active',
         'cost_usd' => 0,
@@ -173,7 +206,7 @@ it('ingest persists cost tokens and anthropic_session_id and returns 200', funct
     $response->assertStatus(200)
         ->assertJsonPath('data.ok', true);
 
-    $this->assertDatabaseHas('study_design_agent_sessions', [
+    $this->assertDatabaseHas('agent_sessions', [
         'id' => $agentSession->id,
         'anthropic_session_id' => 'sess-abc',
         'tokens_in' => 100,
@@ -205,8 +238,10 @@ it('start revokes scoped token and sets status error when python-ai fails', func
     expect($this->user->tokens()->where('name', 'study-designer-agent')->count())->toBe(0);
 
     // The agent session row must exist with status=error and token_id=null
-    $this->assertDatabaseHas('study_design_agent_sessions', [
-        'study_design_session_id' => $this->session->id,
+    $this->assertDatabaseHas('agent_sessions', [
+        'profile' => 'study_design',
+        'subject_type' => 'study_design_session',
+        'subject_id' => $this->session->id,
         'user_id' => $this->user->id,
         'status' => 'error',
         'token_id' => null,
@@ -216,8 +251,10 @@ it('start revokes scoped token and sets status error when python-ai fails', func
 it('ingest increments cost and tokens on a second call', function () {
     Sanctum::actingAs($this->user, ['*']);
 
-    $agentSession = StudyDesignAgentSession::create([
-        'study_design_session_id' => $this->session->id,
+    $agentSession = AgentSession::create([
+        'profile' => 'study_design',
+        'subject_type' => 'study_design_session',
+        'subject_id' => $this->session->id,
         'user_id' => $this->user->id,
         'status' => 'active',
         'cost_usd' => 0,

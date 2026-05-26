@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\AgentSession;
 use App\Models\App\Study;
-use App\Models\App\StudyDesignAgentSession;
 use App\Models\App\StudyDesignSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,11 +42,17 @@ class StudyDesignAgentController extends Controller
 
         $validated = $request->validate(['version_id' => ['nullable', 'integer']]);
 
-        $agentSession = StudyDesignAgentSession::create([
-            'study_design_session_id' => $session->id,
-            'study_design_version_id' => $validated['version_id'] ?? null,
+        $agentSession = AgentSession::create([
+            'profile' => 'study_design',
+            'subject_type' => 'study_design_session',
+            'subject_id' => $session->id,
             'user_id' => $request->user()->id,
             'status' => 'active',
+            'context_json' => [
+                'study_slug' => $study->slug,
+                'design_session_id' => $session->id,
+                'version_id' => $validated['version_id'] ?? null,
+            ],
             'last_active_at' => now(),
         ]);
 
@@ -57,14 +63,18 @@ class StudyDesignAgentController extends Controller
 
         // Internal call to python-ai (internal-only network, unauthenticated —
         // same pattern as StudyIntentService). The scoped token travels in the body.
-        $resp = Http::acceptJson()->post($this->aiBaseUrl().'/study-designer/sessions', [
+        $resp = Http::acceptJson()->post($this->aiBaseUrl().'/agent/sessions', [
             'profile' => 'study_design',
             'agent_session_id' => $agentSession->id,
-            'study_slug' => $study->slug,
-            'design_session_id' => $session->id,
-            'version_id' => $validated['version_id'] ?? null,
-            'scoped_token' => $newToken->plainTextToken,
+            'subject_id' => $session->id,
             'channel' => $channel,
+            'ingest_path' => "/api/v1/studies/{$study->slug}/design-sessions/{$session->id}/agent/sessions/{$agentSession->id}/ingest",
+            'scoped_token' => $newToken->plainTextToken,
+            'context' => [
+                'study_slug' => $study->slug,
+                'design_session_id' => $session->id,
+                'version_id' => $validated['version_id'] ?? null,
+            ],
         ]);
 
         if ($resp->failed()) {
@@ -83,10 +93,10 @@ class StudyDesignAgentController extends Controller
         ], 201);
     }
 
-    public function message(Request $request, Study $study, StudyDesignSession $session, StudyDesignAgentSession $agentSession): JsonResponse
+    public function message(Request $request, Study $study, StudyDesignSession $session, AgentSession $agentSession): JsonResponse
     {
         $this->authorizeAccess($request, $study, $session);
-        abort_unless((int) $agentSession->study_design_session_id === (int) $session->id, 404);
+        abort_unless((int) $agentSession->subject_id === (int) $session->id && $agentSession->profile === 'study_design', 404);
 
         $validated = $request->validate([
             'text' => ['required', 'string', 'max:8000'],
@@ -95,7 +105,7 @@ class StudyDesignAgentController extends Controller
 
         $agentSession->update(['last_active_at' => now()]);
 
-        $resp = Http::acceptJson()->post($this->aiBaseUrl()."/study-designer/sessions/{$agentSession->id}/turn", [
+        $resp = Http::acceptJson()->post($this->aiBaseUrl()."/agent/sessions/{$agentSession->id}/turn", [
             'text' => $validated['text'],
             'idempotency_key' => $validated['idempotency_key'],
         ]);
@@ -107,10 +117,10 @@ class StudyDesignAgentController extends Controller
         return response()->json(['data' => ['accepted' => true]], 202);
     }
 
-    public function snapshot(Request $request, Study $study, StudyDesignSession $session, StudyDesignAgentSession $agentSession): JsonResponse
+    public function snapshot(Request $request, Study $study, StudyDesignSession $session, AgentSession $agentSession): JsonResponse
     {
         $this->authorizeAccess($request, $study, $session);
-        abort_unless((int) $agentSession->study_design_session_id === (int) $session->id, 404);
+        abort_unless((int) $agentSession->subject_id === (int) $session->id && $agentSession->profile === 'study_design', 404);
 
         return response()->json(['data' => [
             'agent_session_id' => $agentSession->id,
@@ -122,10 +132,10 @@ class StudyDesignAgentController extends Controller
         ]]);
     }
 
-    public function ingest(Request $request, Study $study, StudyDesignSession $session, StudyDesignAgentSession $agentSession): JsonResponse
+    public function ingest(Request $request, Study $study, StudyDesignSession $session, AgentSession $agentSession): JsonResponse
     {
         $this->authorizeAccess($request, $study, $session);
-        abort_unless((int) $agentSession->study_design_session_id === (int) $session->id, 404);
+        abort_unless((int) $agentSession->subject_id === (int) $session->id && $agentSession->profile === 'study_design', 404);
 
         $validated = $request->validate([
             'anthropic_session_id' => ['nullable', 'string', 'max:255'],
