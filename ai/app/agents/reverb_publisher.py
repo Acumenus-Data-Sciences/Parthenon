@@ -1,9 +1,12 @@
-"""Publish Study Designer agent events to Reverb over the Pusher HTTP protocol.
+"""Publish agent events to Reverb over the Pusher HTTP protocol.
 
 Reverb is Pusher-compatible, so we use the official ``pusher`` client pointed at
 the internal ``reverb`` container. Publishing is fail-open: a transport error must
 never break an in-flight agent turn (the Laravel snapshot endpoint is the
 authoritative source of final state).
+
+The caller supplies the full channel name (e.g. ``"private-study-design.session.7"``
+or ``"private-publish.draft.42"``); this module has no knowledge of domain naming.
 """
 
 from __future__ import annotations
@@ -16,13 +19,6 @@ import pusher
 from app.config import settings
 
 logger = logging.getLogger(__name__)
-
-_CHANNEL_PREFIX = "private-study-design.session."
-
-
-def channel_for_session(session_id: int) -> str:
-    """Return the private Reverb channel name for a design session."""
-    return f"{_CHANNEL_PREFIX}{session_id}"
 
 
 def _build_default_client() -> pusher.Pusher:
@@ -59,8 +55,7 @@ class ReverbPublisher:
                 logger.warning("ReverbPublisher: could not build Pusher client: %s", exc)
         return self._client
 
-    def publish(self, *, session_id: int, event: str, data: dict[str, Any]) -> None:
-        channel = channel_for_session(session_id)
+    def publish(self, *, channel: str, event: str, data: dict[str, Any]) -> None:
         client = self._get_client()
         if client is None:
             logger.debug("ReverbPublisher: no client available, dropping %s on %s", event, channel)

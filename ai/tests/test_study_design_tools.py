@@ -1,26 +1,23 @@
 import httpx
 import respx
 
-from app.agents.study_design_tools import StudyDesignToolContext, build_tool_pack
+from app.agents.tool_base import AgentToolContext
+from app.agents.study_design_tools import build_tool_pack
 
 BASE = "http://nginx:80/api/v1"
 
 
-def _ctx() -> StudyDesignToolContext:
-    return StudyDesignToolContext(
-        study_slug="t2dm-study",
-        design_session_id=7,
-        version_id=3,
+def _ctx() -> AgentToolContext:
+    return AgentToolContext(
         auth_token="scoped-token-xyz",
+        context={"study_slug": "t2dm-study", "design_session_id": 7, "version_id": 3},
     )
 
 
-def _ctx_no_version() -> StudyDesignToolContext:
-    return StudyDesignToolContext(
-        study_slug="t2dm-study",
-        design_session_id=7,
-        version_id=None,
+def _ctx_no_version() -> AgentToolContext:
+    return AgentToolContext(
         auth_token="scoped-token-xyz",
+        context={"study_slug": "t2dm-study", "design_session_id": 7, "version_id": None},
     )
 
 

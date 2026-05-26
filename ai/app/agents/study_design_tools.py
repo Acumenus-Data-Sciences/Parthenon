@@ -8,94 +8,41 @@ session id, version id, scoped token) is captured per session via closures.
 
 from __future__ import annotations
 
-import json
 import logging
-from dataclasses import dataclass
 from typing import Any
 
-import httpx
 from claude_agent_sdk import tool
 
-from app.config import settings
+from app.agents.tool_base import AgentToolContext, error_result, request
 
 logger = logging.getLogger(__name__)
 
-_TIMEOUT = 60.0
+
+def _version_base(ctx: AgentToolContext) -> str:
+    study_slug = ctx.context["study_slug"]
+    design_session_id = ctx.context["design_session_id"]
+    version_id = ctx.context.get("version_id")
+    return (
+        f"studies/{study_slug}/design-sessions/{design_session_id}"
+        f"/versions/{version_id}"
+    )
 
 
-@dataclass(frozen=True)
-class StudyDesignToolContext:
-    study_slug: str
-    design_session_id: int
-    version_id: int | None
-    auth_token: str
-
-    @property
-    def version_base(self) -> str:
-        return (
-            f"studies/{self.study_slug}/design-sessions/{self.design_session_id}"
-            f"/versions/{self.version_id}"
-        )
-
-
-def _api_url(path: str) -> str:
-    base = settings.agency_api_base_url.rstrip("/")
-    return f"{base}/api/v1/{path.lstrip('/')}"
-
-
-def _text(payload: Any) -> dict[str, Any]:
-    return {"content": [{"type": "text", "text": json.dumps(payload, default=str)[:20000]}]}
-
-
-def _error(message: str) -> dict[str, Any]:
-    return {"content": [{"type": "text", "text": message}], "is_error": True}
-
-
-def _require_version(ctx: "StudyDesignToolContext") -> dict[str, Any] | None:
+def _require_version(ctx: AgentToolContext) -> dict[str, Any] | None:
     """Guard for version-scoped tools: return a clear error if no version is set.
 
-    Without this, ``version_base`` would interpolate ``versions/None`` and every
+    Without this, ``_version_base`` would interpolate ``versions/None`` and every
     version-scoped route would 404 with an opaque message.
     """
-    if ctx.version_id is None:
-        return _error(
+    if ctx.context.get("version_id") is None:
+        return error_result(
             "No study design version is selected. Ask the user to create or select "
             "a study design version before using this tool."
         )
     return None
 
 
-async def _request(
-    ctx: "StudyDesignToolContext",
-    method: str,
-    path: str,
-    *,
-    params: dict | None = None,
-    json_body: dict | None = None,
-) -> dict[str, Any]:
-    headers = {
-        "Authorization": f"Bearer {ctx.auth_token}",
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-    }
-    try:
-        async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-            resp = await client.request(
-                method, _api_url(path), headers=headers, params=params, json=json_body
-            )
-    except httpx.HTTPError as exc:
-        return _error(f"tool transport error calling {path}: {exc}")
-
-    if resp.status_code >= 400:
-        return _error(f"Laravel returned {resp.status_code} for {path}: {resp.text[:500]}")
-    try:
-        body = resp.json()
-    except ValueError:
-        body = {"raw": resp.text[:2000]}
-    return _text(body.get("data", body) if isinstance(body, dict) else body)
-
-
-def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
+def build_tool_pack(ctx: AgentToolContext) -> list:
     """Return the read/draft tool list for a session (Phase 1 — no materialization)."""
 
     @tool(
@@ -109,7 +56,7 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
             params["domain"] = args["domain"]
         if args.get("vocabulary"):
             params["vocabulary"] = args["vocabulary"]
-        return await _request(ctx, "GET", "vocabulary/search", params=params)
+        return await request(ctx, "GET", "vocabulary/search", params=params)
 
     @tool(
         "get_guidance",
@@ -120,7 +67,7 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         guard = _require_version(ctx)
         if guard is not None:
             return guard
-        return await _request(ctx, "GET", f"{ctx.version_base}/guidance")
+        return await request(ctx, "GET", f"{_version_base(ctx)}/guidance")
 
     @tool(
         "recommend_phenotypes",
@@ -131,7 +78,7 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         guard = _require_version(ctx)
         if guard is not None:
             return guard
-        return await _request(ctx, "POST", f"{ctx.version_base}/phenotypes/recommend", json_body={})
+        return await request(ctx, "POST", f"{_version_base(ctx)}/phenotypes/recommend", json_body={})
 
     @tool(
         "draft_concept_sets",
@@ -142,10 +89,10 @@ def build_tool_pack(ctx: "StudyDesignToolContext") -> list:
         guard = _require_version(ctx)
         if guard is not None:
             return guard
-        return await _request(
+        return await request(
             ctx,
             "POST",
-            f"{ctx.version_base}/concept-sets/draft",
+            f"{_version_base(ctx)}/concept-sets/draft",
             json_body={"drafts": args["drafts"]},
         )
 

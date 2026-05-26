@@ -1,4 +1,8 @@
-"""Study Designer agent endpoints (called by Laravel, internal-only)."""
+"""Generic agent endpoints (called by Laravel, internal-only).
+
+Replaces the profile-specific study_designer.py router. Laravel supplies the
+full channel name and ingest_path so this router has no domain knowledge.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +13,7 @@ from pydantic import BaseModel, Field
 
 from app.agents import registry
 from app.agents.service import AgentSessionState, ParthenonAgentService
-from app.agents.study_design_tools import StudyDesignToolContext
+from app.agents.tool_base import AgentToolContext
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -25,13 +29,13 @@ def _get_service() -> ParthenonAgentService:
 
 
 class CreateSessionRequest(BaseModel):
-    profile: str = "study_design"
+    profile: str
     agent_session_id: int
-    study_slug: str
-    design_session_id: int
-    version_id: int | None = None
-    scoped_token: str
+    subject_id: int
     channel: str
+    ingest_path: str
+    scoped_token: str
+    context: dict = Field(default_factory=dict)
 
 
 class TurnRequest(BaseModel):
@@ -41,16 +45,13 @@ class TurnRequest(BaseModel):
 
 @router.post("/sessions")
 async def create_session(body: CreateSessionRequest) -> dict:
-    ctx = StudyDesignToolContext(
-        study_slug=body.study_slug,
-        design_session_id=body.design_session_id,
-        version_id=body.version_id,
-        auth_token=body.scoped_token,
-    )
+    ctx = AgentToolContext(auth_token=body.scoped_token, context=body.context)
     state = AgentSessionState(
         agent_session_id=body.agent_session_id,
-        design_session_id=body.design_session_id,
         profile_name=body.profile,
+        subject_id=body.subject_id,
+        channel=body.channel,
+        ingest_path=body.ingest_path,
         tool_context=ctx,
     )
     registry.put(state)
