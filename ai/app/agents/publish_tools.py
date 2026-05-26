@@ -6,12 +6,20 @@ route. The agent never touches the database directly: Laravel enforces ownership
 
 Phase 1 (read-only): four tools that let the agent research a study and draft
 IMRAD sections grounded in real analysis results. No writes, no snapshots.
-Phase 2 (approval-gated write tools) is added in a subsequent task.
+Phase 2: two approval-gated write tools (update_draft, create_snapshot).
+These write tools are declared in tool_packs._WRITE_TOOLS["publish"] so that
+_options() excludes them from allowed_tools and routes them through the
+can_use_tool approval gate.
+
+NOTE: Optimistic-locking via If-Unmodified-Since on update_draft is deferred —
+the controller header is optional and each write is human-approved, which
+provides an equivalent safety check for the current scope.
 """
 
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Any
 
 from claude_agent_sdk import tool
@@ -83,4 +91,63 @@ def build_tool_pack(ctx: AgentToolContext) -> list:
             body["execution_id"] = int(args["execution_id"])
         return await request(ctx, "POST", "publish/narrative", json_body=body)
 
-    return [list_studies_for_publish, get_study_analyses, get_draft, draft_narrative_section]
+    # -------------------------------------------------------------------------
+    # Phase 2 — approval-gated write tools
+    # These are excluded from allowed_tools and routed through can_use_tool.
+    # -------------------------------------------------------------------------
+
+    @tool(
+        "update_draft",
+        (
+            "Apply changes to the publication draft (title and/or document sections). "
+            "A WRITE — requires explicit human approval before execution."
+        ),
+        {"document_json": dict, "title": str},
+    )
+    async def update_draft(args: dict[str, Any]) -> dict[str, Any]:
+        draft_id = ctx.context.get("draft_id")
+        if not draft_id:
+            return error_result("No publication draft is selected. Cannot update draft.")
+        body: dict[str, Any] = {}
+        if "document_json" in args and args["document_json"] is not None:
+            body["document_json"] = args["document_json"]
+        if "title" in args and args["title"] is not None:
+            body["title"] = args["title"]
+        if not body:
+            return error_result("update_draft requires at least one of: document_json, title.")
+        return await request(ctx, "PATCH", f"publish/drafts/{int(draft_id)}", json_body=body)
+
+    @tool(
+        "create_snapshot",
+        (
+            "Save a named snapshot/version of the draft. "
+            "A WRITE — requires explicit human approval before execution."
+        ),
+        {"label": str, "comment": str},
+    )
+    async def create_snapshot(args: dict[str, Any]) -> dict[str, Any]:
+        draft_id = ctx.context.get("draft_id")
+        if not draft_id:
+            return error_result("No publication draft is selected. Cannot create snapshot.")
+        label = args.get("label", "").strip()
+        if not label:
+            return error_result("label is required and must not be empty.")
+        return await request(
+            ctx,
+            "POST",
+            f"publish/drafts/{int(draft_id)}/snapshots",
+            json_body={
+                "label": label,
+                "comment": args.get("comment"),
+                "idempotency_key": str(uuid.uuid4()),
+            },
+        )
+
+    return [
+        list_studies_for_publish,
+        get_study_analyses,
+        get_draft,
+        draft_narrative_section,
+        update_draft,
+        create_snapshot,
+    ]

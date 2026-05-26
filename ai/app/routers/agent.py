@@ -82,3 +82,24 @@ async def turn(agent_session_id: int, body: TurnRequest, background: BackgroundT
         raise HTTPException(status_code=429, detail="agent is busy; retry shortly")
     background.add_task(_run, agent_session_id, body.text, body.idempotency_key)
     return {"accepted": True}
+
+
+class ApproveRequest(BaseModel):
+    tool_use_id: str
+    approved: bool
+
+
+@router.post("/sessions/{agent_session_id}/approve")
+async def approve(agent_session_id: int, body: ApproveRequest) -> dict:
+    """Resolve a pending can_use_tool approval for a write tool.
+
+    Called by Laravel (which forwards the frontend's approval/rejection) after
+    the agent has published an ``agent.approval.request`` event and is blocked
+    waiting for the Future to be resolved. Returns 404 if the session does not
+    exist or if no pending approval matches the given tool_use_id.
+    """
+    if registry.get(agent_session_id) is None:
+        raise HTTPException(status_code=404, detail="agent session not found")
+    if not _get_service().resolve_approval(body.tool_use_id, body.approved):
+        raise HTTPException(status_code=404, detail="no pending approval for that tool_use_id")
+    return {"resolved": True}

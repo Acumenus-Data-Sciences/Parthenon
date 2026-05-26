@@ -176,3 +176,120 @@ async def test_draft_narrative_section_valid_section_types_all_accepted():
             {"section_type": section_type, "context": {}}
         )
         assert result.get("is_error") is not True, f"Unexpected error for section_type={section_type}"
+
+
+# ---------------------------------------------------------------------------
+# update_draft (Phase 2 write tool)
+# ---------------------------------------------------------------------------
+
+
+@respx.mock
+async def test_update_draft_patches_correct_url():
+    route = respx.patch(f"{BASE}/publish/drafts/5").mock(
+        return_value=httpx.Response(
+            200,
+            json={"data": {"id": 5, "title": "New title"}},
+        )
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["update_draft"].handler({"title": "New title"})
+
+    assert route.called
+    import json
+    body = json.loads(route.calls.last.request.content)
+    assert body == {"title": "New title"}
+    assert "New title" in result["content"][0]["text"]
+
+
+@respx.mock
+async def test_update_draft_sends_document_json():
+    route = respx.patch(f"{BASE}/publish/drafts/5").mock(
+        return_value=httpx.Response(
+            200,
+            json={"data": {"id": 5}},
+        )
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    doc = {"sections": [{"key": "methods", "content": "We enrolled..."}]}
+    result = await tools["update_draft"].handler({"document_json": doc})
+
+    assert route.called
+    import json
+    body = json.loads(route.calls.last.request.content)
+    assert body == {"document_json": doc}
+    assert result.get("is_error") is not True
+
+
+@respx.mock
+async def test_update_draft_without_draft_id_returns_error_no_http():
+    # No route registered — confirms no HTTP call is made
+    tools = {t.name: t for t in build_tool_pack(_ctx_no_draft())}
+    result = await tools["update_draft"].handler({"title": "anything"})
+
+    assert result.get("is_error") is True
+    assert "draft" in result["content"][0]["text"].lower()
+
+
+@respx.mock
+async def test_update_draft_no_fields_returns_error_no_http():
+    # No route registered — empty body is rejected before any HTTP call
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["update_draft"].handler({})
+
+    assert result.get("is_error") is True
+
+
+# ---------------------------------------------------------------------------
+# create_snapshot (Phase 2 write tool)
+# ---------------------------------------------------------------------------
+
+
+@respx.mock
+async def test_create_snapshot_posts_correct_url():
+    route = respx.post(f"{BASE}/publish/drafts/5/snapshots").mock(
+        return_value=httpx.Response(
+            201,
+            json={"data": {"id": 12, "label": "v1.0"}},
+        )
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["create_snapshot"].handler({"label": "v1.0", "comment": "Initial draft"})
+
+    assert route.called
+    import json
+    body = json.loads(route.calls.last.request.content)
+    assert body["label"] == "v1.0"
+    assert body["comment"] == "Initial draft"
+    assert "idempotency_key" in body
+    # idempotency_key must be a non-empty string (UUID)
+    assert isinstance(body["idempotency_key"], str)
+    assert len(body["idempotency_key"]) > 0
+    assert "v1.0" in result["content"][0]["text"]
+
+
+@respx.mock
+async def test_create_snapshot_without_draft_id_returns_error_no_http():
+    # No route registered — confirms no HTTP call is made
+    tools = {t.name: t for t in build_tool_pack(_ctx_no_draft())}
+    result = await tools["create_snapshot"].handler({"label": "v1.0"})
+
+    assert result.get("is_error") is True
+    assert "draft" in result["content"][0]["text"].lower()
+
+
+@respx.mock
+async def test_create_snapshot_empty_label_returns_error_no_http():
+    # No route registered — empty label is rejected before any HTTP call
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["create_snapshot"].handler({"label": ""})
+
+    assert result.get("is_error") is True
+    assert "label" in result["content"][0]["text"].lower()
+
+
+@respx.mock
+async def test_create_snapshot_missing_label_returns_error_no_http():
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["create_snapshot"].handler({})
+
+    assert result.get("is_error") is True

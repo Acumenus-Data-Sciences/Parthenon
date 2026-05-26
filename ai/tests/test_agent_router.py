@@ -72,6 +72,93 @@ def test_turn_on_unknown_session_404():
     assert resp.status_code == 404
 
 
+def test_approve_unknown_session_404():
+    """POST /sessions/{id}/approve returns 404 when the session does not exist."""
+    resp = client.post(
+        "/agent/sessions/88888/approve",
+        json={"tool_use_id": "t-abc", "approved": True},
+    )
+    assert resp.status_code == 404
+
+
+def test_approve_no_pending_future_404(monkeypatch):
+    """POST /sessions/{id}/approve returns 404 when there is no pending future
+    for the given tool_use_id (already resolved, timed-out, or fabricated)."""
+    from app.agents import registry as reg
+    from app.agents.service import AgentSessionState
+    from app.agents.tool_base import AgentToolContext
+
+    async def fake_run_turn(self, state, text):
+        pass
+
+    import app.agents.service as svc
+    monkeypatch.setattr(svc.ParthenonAgentService, "run_turn", fake_run_turn)
+
+    ctx = AgentToolContext(auth_token="tok", context={"draft_id": 5})
+    state = AgentSessionState(
+        agent_session_id=77700,
+        profile_name="publish",
+        subject_id=5,
+        channel="private-publish.draft.5",
+        ingest_path="/api/v1/publish/drafts/5/agent/sessions/77700/ingest",
+        tool_context=ctx,
+    )
+    reg.put(state)
+    try:
+        resp = client.post(
+            "/agent/sessions/77700/approve",
+            json={"tool_use_id": "no-such-future", "approved": True},
+        )
+        assert resp.status_code == 404
+    finally:
+        reg.drop(77700)
+
+
+def test_approve_resolves_pending_future(monkeypatch):
+    """POST /sessions/{id}/approve returns 200 and resolves a seeded pending future."""
+    import asyncio
+    from app.agents import registry as reg
+    from app.agents.service import AgentSessionState
+    from app.agents.tool_base import AgentToolContext
+    from app.routers.agent import _get_service
+
+    async def fake_run_turn(self, state, text):
+        pass
+
+    import app.agents.service as svc
+    monkeypatch.setattr(svc.ParthenonAgentService, "run_turn", fake_run_turn)
+
+    ctx = AgentToolContext(auth_token="tok", context={"draft_id": 5})
+    state = AgentSessionState(
+        agent_session_id=77701,
+        profile_name="publish",
+        subject_id=5,
+        channel="private-publish.draft.5",
+        ingest_path="/api/v1/publish/drafts/5/agent/sessions/77701/ingest",
+        tool_context=ctx,
+    )
+    reg.put(state)
+
+    # Manually seed a pending future onto the state (simulates a blocked can_use_tool)
+    loop = asyncio.new_event_loop()
+    fut = loop.create_future()
+    state._pending["test-tool-use-id"] = fut
+
+    try:
+        resp = client.post(
+            "/agent/sessions/77701/approve",
+            json={"tool_use_id": "test-tool-use-id", "approved": True},
+        )
+        assert resp.status_code == 200
+        assert resp.json() == {"resolved": True}
+        # The future must now be done and resolved to True
+        assert fut.done()
+        assert fut.result() is True
+    finally:
+        reg.drop(77701)
+        loop.close()
+
+
 async def test_duplicate_idempotency_key_runs_once(monkeypatch):
     """Second call with the same idempotency key must be deduped — run_turn called exactly once."""
     from app.agents import registry as reg
