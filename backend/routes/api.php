@@ -123,6 +123,7 @@ use App\Http\Controllers\Api\V1\PoseidonController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\PublicSurveyController;
+use App\Http\Controllers\Api\V1\PublishAgentController;
 use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\RiskScoreAnalysisController;
@@ -1318,15 +1319,22 @@ Route::prefix('v1')->group(function () {
         Route::get('publish/drafts', [PublicationController::class, 'listDrafts']);
         Route::post('publish/drafts', [PublicationController::class, 'createDraft']);
         Route::get('publish/drafts/{draft}', [PublicationController::class, 'showDraft']);
-        Route::patch('publish/drafts/{draft}', [PublicationController::class, 'updateDraft']);
+        Route::patch('publish/drafts/{draft}', [PublicationController::class, 'updateDraft'])->middleware('abilities:publications.update');
         Route::delete('publish/drafts/{draft}', [PublicationController::class, 'deleteDraft']);
         Route::get('publish/drafts/{draft}/snapshots', [PublicationController::class, 'listSnapshots']);
-        Route::post('publish/drafts/{draft}/snapshots', [PublicationController::class, 'createSnapshot']);
+        Route::post('publish/drafts/{draft}/snapshots', [PublicationController::class, 'createSnapshot'])->middleware('abilities:publications.update');
         Route::post('publish/drafts/{draft}/snapshots/{snapshot}/revert', [PublicationController::class, 'revertSnapshot']);
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
         Route::post('publish/export', [PublicationController::class, 'export']);
         Route::post('publish/report-bundles/export', [PublicationController::class, 'exportReportBundle']);
         Route::post('publish/report-bundles/import', [PublicationController::class, 'importReportBundle']);
+
+        // Publish Agent (C.1 — Phase 1: auth:sanctum only; no permission: middleware — see C3 Phase 2)
+        Route::post('publish/drafts/{draft}/agent/sessions', [PublishAgentController::class, 'start'])->middleware('throttle:20,1');
+        Route::post('publish/drafts/{draft}/agent/sessions/{agentSession}/messages', [PublishAgentController::class, 'message'])->middleware('throttle:30,1');
+        Route::get('publish/drafts/{draft}/agent/sessions/{agentSession}/snapshot', [PublishAgentController::class, 'snapshot']);
+        Route::post('publish/drafts/{draft}/agent/sessions/{agentSession}/ingest', [PublishAgentController::class, 'ingest'])->middleware('throttle:120,1');
+        Route::post('publish/drafts/{draft}/agent/sessions/{agentSession}/approve', [PublishAgentController::class, 'approve'])->middleware('throttle:60,1');
 
         // ETL Tools
         Route::prefix('etl')->group(function () {

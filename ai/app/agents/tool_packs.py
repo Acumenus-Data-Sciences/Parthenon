@@ -3,6 +3,12 @@
 Each agent profile registers a callable that, given an ``AgentToolContext``,
 returns the list of MCP tools for that profile. Profiles are registered at
 import time; the generic ``/agent`` router dispatches via ``build_tool_pack``.
+
+``_WRITE_TOOLS`` declares which tools in each profile are gated writes (require
+human approval before execution). Tools NOT listed are treated as reads and
+placed in ``allowed_tools`` (auto-approved). Write tools are intentionally
+excluded from ``allowed_tools`` so the Claude Agent SDK CLI routes them through
+the ``can_use_tool`` callback, which blocks on a human-approval future.
 """
 
 from __future__ import annotations
@@ -10,11 +16,24 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from app.agents.tool_base import AgentToolContext
-from app.agents import study_design_tools
+from app.agents import publish_tools, study_design_tools
 
 _BUILDERS: dict[str, Callable[[AgentToolContext], list]] = {
     "study_design": study_design_tools.build_tool_pack,
+    "publish": publish_tools.build_tool_pack,
 }
+
+# Per-profile set of tool names that require explicit human approval before
+# execution (write tools). An empty set means all tools are auto-approved reads.
+_WRITE_TOOLS: dict[str, set[str]] = {
+    "study_design": set(),
+    "publish": {"update_draft", "create_snapshot"},
+}
+
+
+def write_tools(profile: str) -> set[str]:
+    """Return the set of write-tool names for ``profile`` (empty set if none)."""
+    return set(_WRITE_TOOLS.get(profile, set()))
 
 
 def register(profile: str, builder: Callable[[AgentToolContext], list]) -> None:

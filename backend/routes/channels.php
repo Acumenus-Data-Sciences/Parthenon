@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\App\PublicationDraft;
 use App\Models\App\Study;
 use App\Models\App\StudyDesignSession;
 use App\Models\Commons\ChannelMember;
+use App\Policies\PublicationDraftPolicy;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Str;
 
@@ -36,4 +38,10 @@ Broadcast::channel('study-design.session.{session}', function ($user, int $sessi
     }
 
     return Study::accessibleBy($user->id)->whereKey($design->study_id)->exists();
+});
+
+Broadcast::channel('publish.draft.{draft}', function ($user, int $draft) {
+    $d = PublicationDraft::find($draft);
+
+    return $d !== null && (new PublicationDraftPolicy)->view($user, $d);
 });

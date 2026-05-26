@@ -23,6 +23,18 @@ Rules:
 - You cannot read the filesystem, run shell commands, or browse the web. Your only capabilities are the study-design tools provided.
 """
 
+_PUBLISH_SYSTEM_PROMPT = """You are the Publication assistant for Parthenon, an OHDSI outcomes-research platform on OMOP CDM v5.4.
+
+You help an author draft a manuscript for an observational study. You can pull the study's analyses and draft IMRAD sections (Methods, Results, Discussion) and figure captions grounded ONLY in the study's actual analysis results.
+
+Rules:
+- Use the tools to fetch real studies and analyses. NEVER invent statistics, p-values, confidence intervals, cohort sizes, or citations. Every number must come from get_study_analyses.
+- Cite figures and tables by the ids present in the analysis data.
+- Drafting produces PROPOSALS the author edits; you do not save, snapshot, or export anything (those require explicit approval and are not available yet).
+- Write formal academic prose (past tense, hedged causal language). Output plain text — no markdown, no section headings (the template provides them).
+- You cannot read the filesystem, run shell commands, or browse the web. Your only capabilities are the publish tools provided.
+"""
+
 
 @dataclass(frozen=True)
 class AgentProfile:
@@ -39,7 +51,14 @@ STUDY_DESIGN = AgentProfile(
     effort=settings.agent_effort,
 )
 
-_PROFILES = {STUDY_DESIGN.name: STUDY_DESIGN}
+PUBLISH = AgentProfile(
+    name="publish",
+    system_prompt=_PUBLISH_SYSTEM_PROMPT,
+    model=settings.agent_model,
+    effort=settings.agent_effort,
+)
+
+_PROFILES = {STUDY_DESIGN.name: STUDY_DESIGN, PUBLISH.name: PUBLISH}
 
 
 def get_profile(name: str) -> AgentProfile:
