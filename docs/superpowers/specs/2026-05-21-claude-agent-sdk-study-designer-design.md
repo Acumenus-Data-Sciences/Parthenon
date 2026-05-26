@@ -1,3 +1,17 @@
+---
+doc_type: spec
+status: active
+date: 2026-05-21
+owner: acumenus
+module: studies
+lineage_anchor: false
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs:
+  - 343
+---
+
 # Claude Agent SDK for Assistive Tasks — Study Designer (Design)
 
 **Date:** 2026-05-21

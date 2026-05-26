@@ -1,3 +1,20 @@
+---
+doc_type: reference
+status: active
+date: 2026-05-24
+owner: acumenus
+module: studies
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code:
+  - ai/app/agents/service.py
+  - backend/app/Http/Controllers/Api/V1/StudyDesignAgentController.php
+  - frontend/src/features/studies/components/v2/agent/AgentCopilotPanel.tsx
+related_prs:
+  - 343
+---
+
 # Claude Agent SDK Integration Playbook
 
 **Status:** Reference / handoff guide
