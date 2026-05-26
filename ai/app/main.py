@@ -72,7 +72,7 @@ OPTIONAL_ROUTERS: list[tuple[str, dict[str, Any]]] = [
     ("app.routers.gis_import", {}),
     ("app.routers.genomics", {}),
     ("app.routers.patient_similarity", {"tags": ["patient-similarity"]}),
-    ("app.routers.study_designer", {"prefix": "/study-designer", "tags": ["study-designer"]}),
+    ("app.routers.agent", {"prefix": "/agent", "tags": ["agent"]}),
 ]
 
 for module_name, kwargs in OPTIONAL_ROUTERS:

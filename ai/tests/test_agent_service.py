@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from unittest.mock import AsyncMock, MagicMock
 
 from app.agents.service import ParthenonAgentService, AgentSessionState
-from app.agents.study_design_tools import StudyDesignToolContext
+from app.agents.tool_base import AgentToolContext
 
 
 @dataclass
@@ -41,8 +41,19 @@ class _FakeClient:
 
 
 def _state() -> AgentSessionState:
-    ctx = StudyDesignToolContext("t2dm", 7, 3, "tok")
-    return AgentSessionState(agent_session_id=11, design_session_id=7, profile_name="study_design", tool_context=ctx, anthropic_session_id=None)
+    ctx = AgentToolContext(
+        auth_token="tok",
+        context={"study_slug": "t2dm", "design_session_id": 7, "version_id": 3},
+    )
+    return AgentSessionState(
+        agent_session_id=11,
+        profile_name="study_design",
+        subject_id=7,
+        channel="private-study-design.session.7",
+        ingest_path="/api/v1/studies/t2dm/design-sessions/7/agent/sessions/11/ingest",
+        tool_context=ctx,
+        anthropic_session_id=None,
+    )
 
 
 async def test_run_turn_publishes_text_and_done(monkeypatch):
@@ -63,6 +74,9 @@ async def test_run_turn_publishes_text_and_done(monkeypatch):
     assert state.anthropic_session_id == "sess-abc"
     done = next(c for c in publisher.publish.call_args_list if c.kwargs["event"] == "agent.turn.done")
     assert done.kwargs["data"]["cost_usd"] == 0.12
+    # Verify publish was called with the channel keyword argument
+    for call in publisher.publish.call_args_list:
+        assert call.kwargs["channel"] == "private-study-design.session.7"
 
 
 async def test_run_turn_calls_persister_on_done(monkeypatch):
@@ -82,6 +96,23 @@ async def test_run_turn_calls_persister_on_done(monkeypatch):
     call_kwargs = persister.persist.call_args.kwargs
     assert call_kwargs["status"] == "active"
     assert call_kwargs["cost_usd"] == 0.12
+
+
+async def test_persister_uses_ingest_path(monkeypatch):
+    """LaravelPersister must POST to the ingest_path Laravel supplied, not a hard-coded URL."""
+    import httpx
+    import respx
+
+    state = _state()
+    expected_url = f"http://nginx:80{state.ingest_path}"
+
+    with respx.mock:
+        route = respx.post(expected_url).mock(return_value=httpx.Response(200, json={}))
+        from app.agents.service import LaravelPersister
+        persister = LaravelPersister()
+        await persister.persist(state, status="active", cost_usd=0.05, tokens_in=10, tokens_out=5)
+
+    assert route.called
 
 
 async def test_run_turn_calls_persister_with_error_status_on_exception(monkeypatch):

@@ -24,7 +24,8 @@ from claude_agent_sdk import (
 
 from app.agents.profiles import get_profile
 from app.agents.reverb_publisher import ReverbPublisher
-from app.agents.study_design_tools import StudyDesignToolContext, build_tool_pack
+from app.agents.tool_base import AgentToolContext
+from app.agents.tool_packs import build_tool_pack
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -36,9 +37,11 @@ EffortLevel = Literal["low", "medium", "high", "xhigh", "max"]
 @dataclass
 class AgentSessionState:
     agent_session_id: int
-    design_session_id: int
     profile_name: str
-    tool_context: StudyDesignToolContext
+    subject_id: int          # Reverb routing key (was design_session_id)
+    channel: str             # full "private-<domain>.<subject>.{id}" from Laravel
+    ingest_path: str         # absolute "/api/v1/.../ingest" path Laravel supplied
+    tool_context: AgentToolContext
     anthropic_session_id: Optional[str] = None
     last_idempotency_key: Optional[str] = None
 
@@ -47,14 +50,9 @@ class LaravelPersister:
     """Persists agent turn results back to Laravel (fail-open)."""
 
     async def persist(self, state: "AgentSessionState", *, status: str, cost_usd: float, tokens_in: int, tokens_out: int) -> None:
-        ctx = state.tool_context
-        url = (
-            f"{settings.agency_api_base_url.rstrip('/')}/api/v1/"
-            f"studies/{ctx.study_slug}/design-sessions/{ctx.design_session_id}"
-            f"/agent/sessions/{state.agent_session_id}/ingest"
-        )
+        url = f"{settings.agency_api_base_url.rstrip('/')}{state.ingest_path}"
         headers = {
-            "Authorization": f"Bearer {ctx.auth_token}",
+            "Authorization": f"Bearer {state.tool_context.auth_token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
@@ -79,7 +77,7 @@ class ParthenonAgentService:
 
     def _options(self, state: AgentSessionState) -> ClaudeAgentOptions:
         profile = get_profile(state.profile_name)
-        tools = build_tool_pack(state.tool_context)
+        tools = build_tool_pack(state.profile_name, state.tool_context)
         server = create_sdk_mcp_server(name="parthenon", version="1.0.0", tools=tools)
         allowed = [f"mcp__parthenon__{t.name}" for t in tools]
         return ClaudeAgentOptions(
@@ -105,10 +103,8 @@ class ParthenonAgentService:
         )
 
     async def run_turn(self, state: AgentSessionState, text: str) -> None:
-        sid = state.design_session_id
-
         def emit(event: str, data: dict) -> None:
-            self._publisher.publish(session_id=sid, event=event, data=data)
+            self._publisher.publish(channel=state.channel, event=event, data=data)
 
         emit("agent.turn.start", {"agent_session_id": state.agent_session_id})
         try:
@@ -127,9 +123,9 @@ class ParthenonAgentService:
                         usage = getattr(message, "usage", {}) or {}
                         tokens_in = int(usage.get("input_tokens", 0) or 0)
                         tokens_out = int(usage.get("output_tokens", 0) or 0)
-                        # Laravel's study_design_agent_sessions row is the authoritative
-                        # running total (ingest increments). We send PER-TURN deltas only;
-                        # do not also accumulate in memory (would invite a double-count).
+                        # Laravel's agent_sessions row is the authoritative running total
+                        # (ingest increments). We send PER-TURN deltas only; do not also
+                        # accumulate in memory (would invite a double-count).
                         emit("agent.turn.done", {
                             "cost_usd": cost,
                             "tokens_in": tokens_in,
