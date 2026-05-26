@@ -13,6 +13,7 @@ import DocumentConfigurator from "../components/DocumentConfigurator";
 import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
 import { HybridPromptModal } from "../components/PublishPage/HybridPromptModal";
+import { AgentCopilotPanel } from "../components/agent/AgentCopilotPanel";
 import { ShareDropdown } from "../components/PublishPage/ShareDropdown";
 import { SaveDraftButton } from "../components/library/SaveDraftButton";
 import { SaveStatusIndicator } from "../components/PublishPage/SaveStatusIndicator";
@@ -684,7 +685,8 @@ export default function PublishPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="flex gap-0">
+      <div className="min-w-0 flex-1 space-y-6">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -891,6 +893,8 @@ export default function PublishPage() {
         onSave={handlePromptSave}
         onContinueWithoutSaving={() => setPromptOpen(false)}
       />
+      </div>
+      {draftId !== null && <AgentCopilotPanel draftId={draftId} />}
     </div>
   );
 }
