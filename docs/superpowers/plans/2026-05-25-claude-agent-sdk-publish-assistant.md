@@ -62,10 +62,10 @@ PHASE B — generalize the core (on main, after merge)
   ai/app/routers/agent.py                        NEW   (generic /agent router; replaces study_designer.py)
   ai/app/routers/study_designer.py               DELETE
   ai/app/main.py                                 EDIT  (register app.routers.agent at /agent; drop study_designer)
-  backend/database/migrations/<ts>_create_agent_sessions_table.php   NEW (+ data-migrate + drop study_design_agent_sessions)
+  backend/database/migrations/<ts>_create_agent_sessions_table.php   NEW (ADDITIVE: create + copy rows; NEVER drops study_design_agent_sessions)
   docs/lineage/<ts>-agent-sessions-table.md      NEW
   backend/app/Models/App/AgentSession.php        NEW
-  backend/app/Models/App/StudyDesignAgentSession.php   DELETE (after repoint)
+  backend/app/Models/App/StudyDesignAgentSession.php   KEEP (deprecated, unused after repoint — not deleted; non-destructive)
   backend/app/Http/Controllers/Api/V1/StudyDesignAgentController.php  EDIT (use AgentSession; post /agent/sessions; send ingest_path+context)
   frontend/src/features/studies/api/agentApi.ts  EDIT  (start posts nothing structural-new; event schemas unchanged)
   ai/tests/* + backend/tests/*                   EDIT  (repoint to generic table/router; keep green)
@@ -278,16 +278,17 @@ async def create_session(body: CreateSessionRequest) -> dict:
 
 ## 2B.2 — Laravel: generic `agent_sessions` table + model
 
-### Task B.7: `agent_sessions` migration + lineage doc (+ migrate & drop SD table)
+### Task B.7: `agent_sessions` migration + lineage doc (ADDITIVE — never drops the SD table)
+> **NON-DESTRUCTIVE RULE (standing):** this migration only CREATEs and COPIEs. It must never `DROP`/`TRUNCATE` `study_design_agent_sessions`. The old table is left orphaned (empty on prod). Any drop is a separate, explicitly-confirmed cleanup.
 - [ ] **Step 1:** `docs/lineage/2026-05-25-agent-sessions-table.md` (purpose, columns, supersedes `study_design_agent_sessions`, rollback note).
 - [ ] **Step 2:** migration `<ts>_create_agent_sessions_table.php`:
   - columns: `id`, `profile` (string, index), `subject_type` (string), `subject_id` (unsignedBigInteger), `user_id` (FK users), `anthropic_session_id` (nullable string), `status` (string, default `active`), `cost_usd` (decimal(10,4), default 0), `tokens_in`/`tokens_out` (unsignedBigInteger, default 0), `token_id` (nullable unsignedBigInteger), `context_json` (jsonb nullable), `last_active_at` (nullable timestamp), timestamps. Composite index `(profile, subject_type, subject_id)`.
-  - **Data migration in `up()` after createTable:** if `study_design_agent_sessions` exists, copy rows → `agent_sessions` (`profile='study_design'`, `subject_type='study_design_session'`, `subject_id=study_design_session_id`, `context_json={"version_id": study_design_version_id}`), then `Schema::dropIfExists('study_design_agent_sessions')`. (SD just merged — table is empty in practice; the copy is a safety net.)
-  - `down()`: recreate `study_design_agent_sessions` (mirror the original migration) and drop `agent_sessions`.
+  - **Data migration in `up()` after createTable (ADDITIVE ONLY):** if `study_design_agent_sessions` exists, copy rows → `agent_sessions` (`profile='study_design'`, `subject_type='study_design_session'`, `subject_id=study_design_session_id`, `context_json={"version_id": study_design_version_id}`). **Do NOT drop `study_design_agent_sessions`** — leave it orphaned (empty on prod). A drop is a separate, explicitly-confirmed cleanup migration.
+  - `down()`: drop `agent_sessions` only. Never recreates/touches `study_design_agent_sessions`.
 - [ ] **Step 3:** run `php artisan migrate --path=database/migrations/<file>` (as parthenon_migrator; host PG17). Verify `\d agent_sessions`.
 - [ ] **Step 4:** Pint; commit migration + lineage doc together `feat(db): generic agent_sessions table (supersedes study_design_agent_sessions)`.
 
-### Task B.8: `AgentSession` model; delete `StudyDesignAgentSession`
+### Task B.8: `AgentSession` model (keep `StudyDesignAgentSession` — non-destructive)
 - [ ] `backend/app/Models/App/AgentSession.php` — `$fillable = ['profile','subject_type','subject_id','user_id','anthropic_session_id','status','cost_usd','tokens_in','tokens_out','token_id','context_json','last_active_at']`; casts `cost_usd`=`decimal:4`, `context_json`=`array`, `last_active_at`=`datetime`. Scope `forSubject($profile,$type,$id)`. **Never `$guarded=[]`** (HIGHSEC §3.1).
 - [ ] Commit `feat(models): AgentSession`.
 
@@ -298,7 +299,7 @@ async def create_session(body: CreateSessionRequest) -> dict:
   - on fail: revoke token, null `token_id`, status `error`, 503 (playbook Bug #2).
 - [ ] `message()`: POST `{ai}/agent/sessions/{id}/turn`.
 - [ ] `snapshot()`/`ingest()`: operate on `AgentSession` (ingest still **increments** cost/tokens — Laravel owns the running total, playbook Bug #1).
-- [ ] Update `StudyDesignAgentSessionTest.php` to assert on `agent_sessions`/`AgentSession`. Run Pest + PHPStan(8) + Pint. `git rm StudyDesignAgentSession.php`.
+- [ ] Update `StudyDesignAgentSessionTest.php` to assert on `agent_sessions`/`AgentSession`. Run Pest + PHPStan(8) + Pint. Leave `StudyDesignAgentSession.php` in place (deprecated, unused — not deleted).
 - [ ] **Step:** rebuild python image only if Dockerfile changed (it didn't). `docker compose up -d python-ai` to pick up the router rename. Commit `refactor(studies): study-design agent uses generic AgentSession + /agent router`.
 
 ### Task B.10: Phase-B regression gate
