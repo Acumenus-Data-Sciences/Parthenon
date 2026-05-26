@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { tAuto } from "@/i18n/autoUserFacing";
+import { useFlag } from "@/stores/featureFlagsStore";
 import type { Study } from "../../types/study";
 import { useStudyDesignWorkbench } from "../../hooks/useStudyDesignWorkbench";
 import { useStudyDesignerWizardStore } from "../../stores/studyDesignerWizardStore";
@@ -89,6 +90,7 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
   const { currentStep, slideDir, visited, setStep, goNext, goBack } =
     useStudyDesignerWizardStore();
   const [animKey, setAnimKey] = useState(0);
+  const agentsEnabled = useFlag("ai.agents");
 
   // One-shot auto-jump to the user's last-active stage on first guidance
   // arrival — mirrors v1's `useState(defaultActive)` resume behavior. Uses
@@ -264,11 +266,13 @@ export function StudyDesignerWizard({ study }: StudyDesignerWizardProps) {
         />
       </div>
 
-      <AgentCopilotPanel
-        slug={wb.slug}
-        sessionId={wb.selectedSession?.id ?? null}
-        versionId={wb.selectedVersion?.id ?? null}
-      />
+      {agentsEnabled && (
+        <AgentCopilotPanel
+          slug={wb.slug}
+          sessionId={wb.selectedSession?.id ?? null}
+          versionId={wb.selectedVersion?.id ?? null}
+        />
+      )}
     </div>
   );
 }

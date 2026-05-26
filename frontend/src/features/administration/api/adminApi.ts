@@ -129,6 +129,19 @@ export const disableAiProvider = (type: string) =>
 export const testAiProvider = (type: string) =>
   apiClient.post<TestResult>(`/admin/ai-providers/${type}/test`).then((r) => r.data);
 
+// ── AI Agents Feature Flag ────────────────────────────────────────────────────
+
+export interface AgentSettings {
+  enabled: boolean;
+  anthropic_ready: boolean;
+}
+
+export const fetchAgentSettings = (): Promise<AgentSettings> =>
+  apiClient.get<AgentSettings>("/admin/ai-agents").then((r) => r.data);
+
+export const setAgentSettings = (enabled: boolean): Promise<AgentSettings> =>
+  apiClient.put<AgentSettings>("/admin/ai-agents", { enabled }).then((r) => r.data);
+
 // ── System Health ─────────────────────────────────────────────────────────────
 
 export const fetchSystemHealth = () =>

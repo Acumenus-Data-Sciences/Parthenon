@@ -323,7 +323,7 @@ export default function PublishPage() {
     draftIdParam && /^\d+$/.test(draftIdParam) ? Number(draftIdParam) : null;
   // Ships dark: the AI publication copilot only renders when the deployment flag
   // is enabled (PUBLISH_AGENT_ENABLED) — keeps it off prod until credit is added.
-  const publishAgentEnabled = useFlag("publish.agent");
+  const publishAgentEnabled = useFlag("ai.agents");
 
   const [searchParams] = useSearchParams();
   const initialStudyId = searchParams.get("studyId")
