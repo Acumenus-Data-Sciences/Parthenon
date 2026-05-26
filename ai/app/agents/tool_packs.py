@@ -10,10 +10,11 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from app.agents.tool_base import AgentToolContext
-from app.agents import study_design_tools
+from app.agents import publish_tools, study_design_tools
 
 _BUILDERS: dict[str, Callable[[AgentToolContext], list]] = {
     "study_design": study_design_tools.build_tool_pack,
+    "publish": publish_tools.build_tool_pack,
 }
 
 
