@@ -2,9 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Models\App\SystemSetting;
 use App\Tenancy\SingleTenantResolver;
 
-it('returns 200 + a tenancy.multi flag without authentication on a fresh CE install', function () {
+beforeEach(function () {
+    // Ensure the ai.agents DB setting is absent so each test starts clean.
+    SystemSetting::where('key', 'agents.enabled')->delete();
+});
+
+it('returns 200 + tenancy.multi and ai.agents flags without authentication on a fresh CE install', function () {
     config(['tenancy.resolver' => SingleTenantResolver::class]);
     config(['feature-flags.flags' => []]);
 
@@ -18,8 +24,13 @@ it('returns 200 + a tenancy.multi flag without authentication on a fresh CE inst
     $names = collect($body['data'])->pluck('name')->all();
     expect($names)
         ->toContain('tenancy.multi')
+        ->toContain('ai.agents')
         ->and($names)->not->toContain('auth.saml')
         ->and($names)->not->toContain('auth.keycloak');
+
+    // ai.agents defaults disabled when no DB row is present.
+    $agents = collect($body['data'])->firstWhere('name', 'ai.agents');
+    expect($agents['enabled'])->toBeFalse();
 });
 
 it('reports tenancy.multi=false / source=ce on the CE single-tenant default', function () {

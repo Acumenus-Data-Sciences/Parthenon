@@ -3,17 +3,23 @@ import {
   activateAiProvider,
   disableAiProvider,
   enableAiProvider,
+  fetchAgentSettings,
   fetchAiProvider,
   fetchAiProviders,
   fetchHadesPackageInventory,
   fetchLiveKitConfig,
   fetchServiceDetail,
   fetchSystemHealth,
+  setAgentSettings,
   testAiProvider,
   testLiveKitConnection,
   updateAiProvider,
   updateLiveKitConfig,
 } from "../api/adminApi";
+
+// Feature-flags query key — must match the key used in useFeatureFlagsQuery
+// (frontend/src/features/system/api.ts) so invalidation refreshes useFlag().
+const FEATURE_FLAGS_KEY = ["system", "feature-flags"] as const;
 
 const QUERY_KEY = "ai-providers";
 const HEALTH_KEY = "system-health";
@@ -109,4 +115,31 @@ export function useUpdateLiveKitConfig() {
 
 export function useTestLiveKitConnection() {
   return useMutation({ mutationFn: testLiveKitConnection });
+}
+
+// ── AI Agents Feature Flag ────────────────────────────────────────────────────
+
+const AGENT_SETTINGS_KEY = "ai-agents";
+
+export function useAgentSettings() {
+  return useQuery({
+    queryKey: [AGENT_SETTINGS_KEY],
+    queryFn: fetchAgentSettings,
+  });
+}
+
+export function useSetAgentSettings() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (enabled: boolean) => setAgentSettings(enabled),
+    onSuccess: () => {
+      // Invalidate the agent settings cache so the toggle reflects the new state.
+      void qc.invalidateQueries({ queryKey: [AGENT_SETTINGS_KEY] });
+      // Invalidate the feature-flags query so useFlag("ai.agents") refreshes
+      // app-wide. FlagsLoader calls useFeatureFlagsQuery which uses this key;
+      // the refetch re-runs setFlags() on the store, updating every subscriber.
+      void qc.invalidateQueries({ queryKey: [...FEATURE_FLAGS_KEY] });
+    },
+  });
 }

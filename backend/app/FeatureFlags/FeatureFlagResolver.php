@@ -6,6 +6,7 @@ namespace App\FeatureFlags;
 
 use App\Auth\AuthDriverRegistry;
 use App\Contracts\TenantResolverInterface;
+use App\Models\App\SystemSetting;
 use App\Tenancy\SingleTenantResolver;
 
 /**
@@ -80,6 +81,14 @@ class FeatureFlagResolver
             enabled: $isMulti,
             source: $isMulti ? 'ee' : 'ce',
             description: 'Multi-tenant request routing.',
+        );
+
+        $agentsEnabled = SystemSetting::getValue('agents.enabled', '0') === '1';
+        $flags[] = new FeatureFlag(
+            name: 'ai.agents',
+            enabled: $agentsEnabled,
+            source: 'config',
+            description: 'AI agent copilots (Claude Agent SDK) across Study Designer and Publish.',
         );
 
         return $flags;

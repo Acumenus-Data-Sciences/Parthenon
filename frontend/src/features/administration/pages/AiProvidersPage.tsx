@@ -6,7 +6,9 @@ import { Panel, Badge, Button } from "@/components/ui";
 import type { AiProviderSetting } from "@/types/models";
 import {
   useActivateAiProvider,
+  useAgentSettings,
   useAiProviders,
+  useSetAgentSettings,
   useTestAiProvider,
   useToggleAiProvider,
   useUpdateAiProvider,
@@ -80,6 +82,72 @@ const PROVIDER_META: Record<string, ProviderMeta> = {
     hasBaseUrl: false,
   },
 };
+
+// ── AI Agents toggle card ─────────────────────────────────────────────────────
+
+function AgentsToggleCard() {
+  const { t } = useTranslation("app");
+  const { data, isLoading } = useAgentSettings();
+  const setAgents = useSetAgentSettings();
+
+  const enabled = data?.enabled ?? false;
+  const anthropicReady = data?.anthropic_ready ?? false;
+
+  return (
+    <Panel>
+      <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
+          <Bot className="h-5 w-5 text-muted-foreground" />
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground">
+              {t("admin.agents.title", "AI Agents")}
+            </span>
+            {enabled && <Badge variant="primary">{t("administration.aiProviders.values.enabled", "Enabled")}</Badge>}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              "admin.agents.description",
+              "Enables the Claude Agent SDK copilots in Study Designer and Publish.",
+            )}
+          </p>
+          {enabled && !anthropicReady && (
+            <p className="mt-1 text-xs text-amber-500">
+              {t(
+                "admin.agents.notReady",
+                "Anthropic provider not configured — agents won't run until a credited Anthropic key is set.",
+              )}
+            </p>
+          )}
+        </div>
+
+        {/* Enable toggle */}
+        <label
+          className="relative inline-flex cursor-pointer items-center"
+          aria-label={t("admin.agents.toggleLabel", "Toggle AI Agents")}
+        >
+          <input
+            type="checkbox"
+            className="peer sr-only"
+            checked={enabled}
+            disabled={isLoading || setAgents.isPending}
+            onChange={(e) => setAgents.mutate(e.target.checked)}
+          />
+          <div className="peer h-5 w-9 rounded-full bg-muted after:absolute after:left-[2px] after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-4" />
+          <span className="ml-2 text-sm text-muted-foreground">
+            {enabled
+              ? t("administration.aiProviders.values.enabled", "Enabled")
+              : t("administration.aiProviders.values.disabled", "Disabled")}
+          </span>
+        </label>
+
+        {setAgents.isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+    </Panel>
+  );
+}
 
 // ── Provider card ─────────────────────────────────────────────────────────────
 
@@ -365,6 +433,9 @@ export default function AiProvidersPage() {
         </div>
         <HelpButton helpKey="admin.ai-providers" />
       </div>
+
+      {/* AI Agents global toggle */}
+      <AgentsToggleCard />
 
       {/* Active provider banner */}
       {activeProvider && (
