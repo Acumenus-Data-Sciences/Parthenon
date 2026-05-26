@@ -38,8 +38,32 @@ export const agentTurnDone = z.object({
 });
 export const agentError = z.object({ message: z.string() });
 
+export const agentApprovalRequest = z.object({
+  tool_use_id: z.string(),
+  tool: z.string(),
+  input: z.unknown(),
+});
+export const agentApprovalDenied = z.object({
+  tool_use_id: z.string(),
+  tool: z.string(),
+});
+
 export type AgentEvent =
   | { type: "text"; text: string }
   | { type: "tool"; name: string; input: unknown }
   | { type: "done"; costUsd: number }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string }
+  | { type: "approval-request"; toolUseId: string; tool: string; input: unknown }
+  | { type: "approval-denied"; toolUseId: string };
+
+export async function approveTool(
+  draftId: number,
+  agentSessionId: number,
+  toolUseId: string,
+  approved: boolean,
+): Promise<void> {
+  await apiClient.post(`${base(draftId)}/${agentSessionId}/approve`, {
+    tool_use_id: toolUseId,
+    approved,
+  });
+}

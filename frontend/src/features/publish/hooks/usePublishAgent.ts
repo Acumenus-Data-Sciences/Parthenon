@@ -2,10 +2,13 @@ import { useCallback, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEcho } from "@/lib/echo";
 import {
+  agentApprovalDenied,
+  agentApprovalRequest,
   agentError,
   agentTextDelta,
   agentToolStart,
   agentTurnDone,
+  approveTool,
   sendAgentMessage,
   startAgentSession,
 } from "../api/publishAgentApi";
@@ -61,7 +64,15 @@ export function usePublishAgent({ draftId }: Params) {
       })
       .listen(".agent.error", (e: unknown) =>
         applyEvent({ type: "error", ...agentError.parse(e) }),
-      );
+      )
+      .listen(".agent.approval.request", (e: unknown) => {
+        const p = agentApprovalRequest.parse(e);
+        applyEvent({ type: "approval-request", toolUseId: p.tool_use_id, tool: p.tool, input: p.input });
+      })
+      .listen(".agent.approval.denied", (e: unknown) => {
+        const p = agentApprovalDenied.parse(e);
+        applyEvent({ type: "approval-denied", toolUseId: p.tool_use_id });
+      });
 
     subscribedRef.current = name;
     return () => {
@@ -80,5 +91,14 @@ export function usePublishAgent({ draftId }: Params) {
     [draftId],
   );
 
-  return { start: startMutation.mutate, starting: startMutation.isPending, send };
+  const approve = useCallback(
+    async (toolUseId: string, approved: boolean) => {
+      const { agentSessionId } = usePublishAgentStore.getState();
+      if (draftId == null || agentSessionId == null) return;
+      await approveTool(draftId, agentSessionId, toolUseId, approved);
+    },
+    [draftId],
+  );
+
+  return { start: startMutation.mutate, starting: startMutation.isPending, send, approve };
 }

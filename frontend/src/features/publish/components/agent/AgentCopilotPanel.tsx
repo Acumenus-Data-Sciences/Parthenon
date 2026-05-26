@@ -10,8 +10,9 @@ interface Props {
 
 export function AgentCopilotPanel({ draftId }: Props) {
   const { t } = useTranslation();
-  const { start, starting, send } = usePublishAgent({ draftId });
-  const { transcript, isStreaming, agentSessionId, errorMessage } = usePublishAgentStore();
+  const { start, starting, send, approve } = usePublishAgent({ draftId });
+  const { transcript, isStreaming, agentSessionId, errorMessage, pendingApprovals } =
+    usePublishAgentStore();
   const [draft, setDraft] = useState("");
   const startAttemptedRef = useRef(false);
 
@@ -34,6 +35,38 @@ export function AgentCopilotPanel({ draftId }: Props) {
     <aside data-testid="agent-copilot-panel" className="flex h-full w-[360px] flex-col border-l border-white/10 bg-[#0E0E11] p-4">
       <h2 className="mb-2 text-sm font-semibold text-slate-200">{t("publish.agent.title", "Publication Assistant")}</h2>
       {errorMessage && <div className="mb-2 rounded bg-[#9B1B30]/20 p-2 text-xs text-[#9B1B30]">{errorMessage}</div>}
+      {pendingApprovals.length > 0 && (
+        <div className="mb-2 flex flex-col gap-2">
+          {pendingApprovals.map((approval) => (
+            <div
+              key={approval.toolUseId}
+              data-testid="approval-card"
+              className="rounded border border-white/10 bg-white/5 p-2 text-xs text-slate-200"
+            >
+              <p className="mb-1 font-semibold text-[#C9A227]">{approval.tool}</p>
+              <p className="mb-2 break-all text-slate-400">
+                {JSON.stringify(approval.input).slice(0, 160)}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => void approve(approval.toolUseId, true)}
+                  className="rounded bg-[#2DD4BF] px-2 py-0.5 text-black"
+                >
+                  {t("publish.agent.approve", "Approve")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void approve(approval.toolUseId, false)}
+                  className="rounded bg-[#9B1B30] px-2 py-0.5 text-white"
+                >
+                  {t("publish.agent.reject", "Reject")}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto">
         <AgentTranscript transcript={transcript} isStreaming={isStreaming} />
       </div>

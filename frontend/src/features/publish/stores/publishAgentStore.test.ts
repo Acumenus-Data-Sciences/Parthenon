@@ -62,5 +62,49 @@ describe("publishAgentStore", () => {
     expect(s.isStreaming).toBe(false);
     expect(s.lastCostUsd).toBeNull();
     expect(s.errorMessage).toBeNull();
+    expect(s.pendingApprovals).toEqual([]);
+  });
+
+  describe("pendingApprovals", () => {
+    it("approval-request appends a pending item", () => {
+      usePublishAgentStore
+        .getState()
+        .applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: { path: "out.md" } });
+      expect(usePublishAgentStore.getState().pendingApprovals).toEqual([
+        { toolUseId: "tu-1", tool: "write_file", input: { path: "out.md" } },
+      ]);
+    });
+
+    it("a second identical toolUseId does not duplicate", () => {
+      const st = usePublishAgentStore.getState();
+      st.applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: { path: "out.md" } });
+      st.applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: { path: "out.md" } });
+      expect(usePublishAgentStore.getState().pendingApprovals).toHaveLength(1);
+    });
+
+    it("approval-denied removes the matching toolUseId", () => {
+      const st = usePublishAgentStore.getState();
+      st.applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: {} });
+      st.applyEvent({ type: "approval-request", toolUseId: "tu-2", tool: "read_file", input: {} });
+      st.applyEvent({ type: "approval-denied", toolUseId: "tu-1" });
+      const approvals = usePublishAgentStore.getState().pendingApprovals;
+      expect(approvals).toHaveLength(1);
+      expect(approvals[0].toolUseId).toBe("tu-2");
+    });
+
+    it("done clears all pending approvals", () => {
+      const st = usePublishAgentStore.getState();
+      st.applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: {} });
+      st.applyEvent({ type: "done", costUsd: 0.1 });
+      expect(usePublishAgentStore.getState().pendingApprovals).toEqual([]);
+    });
+
+    it("reset clears pending approvals", () => {
+      usePublishAgentStore
+        .getState()
+        .applyEvent({ type: "approval-request", toolUseId: "tu-1", tool: "write_file", input: {} });
+      usePublishAgentStore.getState().reset();
+      expect(usePublishAgentStore.getState().pendingApprovals).toEqual([]);
+    });
   });
 });

@@ -12,6 +12,12 @@ export interface TranscriptTurn {
   tools?: ToolCall[];
 }
 
+export interface PendingApproval {
+  toolUseId: string;
+  tool: string;
+  input: unknown;
+}
+
 interface AgentState {
   agentSessionId: number | null;
   channelName: string | null;
@@ -19,6 +25,7 @@ interface AgentState {
   isStreaming: boolean;
   lastCostUsd: number | null;
   errorMessage: string | null;
+  pendingApprovals: PendingApproval[];
   setSession: (id: number, channel: string) => void;
   pushUserMessage: (text: string) => void;
   setStreaming: (v: boolean) => void;
@@ -41,6 +48,7 @@ export const usePublishAgentStore = create<AgentState>((set) => ({
   isStreaming: false,
   lastCostUsd: null,
   errorMessage: null,
+  pendingApprovals: [],
 
   setSession: (id, channel) => set({ agentSessionId: id, channelName: channel }),
 
@@ -70,8 +78,24 @@ export const usePublishAgentStore = create<AgentState>((set) => ({
         };
         return { transcript: [...t.slice(0, -1), updated] };
       }
+      if (event.type === "approval-request") {
+        // Dedupe: ignore if toolUseId already present
+        const already = s.pendingApprovals.some((p) => p.toolUseId === event.toolUseId);
+        if (already) return {};
+        return {
+          pendingApprovals: [
+            ...s.pendingApprovals,
+            { toolUseId: event.toolUseId, tool: event.tool, input: event.input },
+          ],
+        };
+      }
+      if (event.type === "approval-denied") {
+        return {
+          pendingApprovals: s.pendingApprovals.filter((p) => p.toolUseId !== event.toolUseId),
+        };
+      }
       if (event.type === "done") {
-        return { isStreaming: false, lastCostUsd: event.costUsd };
+        return { isStreaming: false, lastCostUsd: event.costUsd, pendingApprovals: [] };
       }
       return { isStreaming: false, errorMessage: event.message };
     }),
@@ -84,5 +108,6 @@ export const usePublishAgentStore = create<AgentState>((set) => ({
       isStreaming: false,
       lastCostUsd: null,
       errorMessage: null,
+      pendingApprovals: [],
     }),
 }));
