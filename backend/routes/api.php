@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AbbyProfileController;
 use App\Http\Controllers\Api\V1\AchillesController;
+use App\Http\Controllers\Api\V1\Admin\AgentSettingsController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AppSettingsController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
@@ -1504,6 +1505,12 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{type}/disable', [AiProviderController::class, 'disable']);
                 Route::post('/{type}/activate', [AiProviderController::class, 'activate']);
                 Route::post('/{type}/test', [AiProviderController::class, 'test']);
+            });
+
+            // ── AI agent toggle (super-admin only) ───────────────────────
+            Route::middleware('role:super-admin')->prefix('ai-agents')->group(function () {
+                Route::get('/', [AgentSettingsController::class, 'show']);
+                Route::put('/', [AgentSettingsController::class, 'update']);
             });
 
             // ── WebAPI registry (admin+) ──────────────────────────────────

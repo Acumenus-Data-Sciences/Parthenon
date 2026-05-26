@@ -18,13 +18,10 @@ return [
     | is installed.
     */
     'flags' => [
-        // AI publication copilot (Claude Agent SDK) on the Publish page. Ships
-        // dark: default OFF. Enable per-deployment with PUBLISH_AGENT_ENABLED=true
-        // once the Anthropic account behind ANTHROPIC_API_KEY is credited.
-        'publish.agent' => [
-            'enabled' => (bool) env('PUBLISH_AGENT_ENABLED', false),
-            'source' => 'config',
-            'description' => 'AI publication copilot (Claude Agent SDK) on the Publish page.',
-        ],
+        // CE ships zero static entries here. The runtime `ai.agents` flag is
+        // emitted by FeatureFlagResolver directly from the `system_settings` DB
+        // row (key: agents.enabled) so super-admins can toggle it without a
+        // redeploy. EE bundles may append entries via their own published
+        // config or by binding their own FeatureFlagResolver subclass.
     ],
 ];

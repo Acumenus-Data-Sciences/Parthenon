@@ -8,13 +8,14 @@ use App\Contracts\AuthDriverInterface;
 use App\Contracts\TenantResolverInterface;
 use App\FeatureFlags\FeatureFlag;
 use App\FeatureFlags\FeatureFlagResolver;
+use App\Models\App\SystemSetting;
 use App\Tenancy\SingleTenantResolver;
 
 beforeEach(function () {
     config(['feature-flags.flags' => []]);
 });
 
-it('returns only the tenancy.multi flag on a fresh CE single-tenant install', function () {
+it('returns tenancy.multi and ai.agents on a fresh CE single-tenant install', function () {
     config(['tenancy.resolver' => SingleTenantResolver::class]);
 
     $resolver = new FeatureFlagResolver(
@@ -27,6 +28,7 @@ it('returns only the tenancy.multi flag on a fresh CE single-tenant install', fu
     $names = array_map(fn (FeatureFlag $f) => $f->name, $flags);
     expect($names)
         ->toContain('tenancy.multi')
+        ->toContain('ai.agents')
         ->and($names)->not->toContain('auth.saml')
         ->and($names)->not->toContain('auth.keycloak');
 
@@ -35,6 +37,13 @@ it('returns only the tenancy.multi flag on a fresh CE single-tenant install', fu
         ->not->toBeNull()
         ->and($tenancy->enabled)->toBeFalse()
         ->and($tenancy->source)->toBe('ce');
+
+    // ai.agents defaults to disabled when no DB row exists.
+    $agents = collect($flags)->firstWhere('name', 'ai.agents');
+    expect($agents)
+        ->not->toBeNull()
+        ->and($agents->enabled)->toBeFalse()
+        ->and($agents->source)->toBe('config');
 });
 
 it('flips tenancy.multi=true when a non-CE resolver is configured', function () {
@@ -150,4 +159,17 @@ it('every flag toArray() round-trips with stable shape', function () {
             ->and($row['enabled'])->toBeBool()
             ->and(in_array($row['source'], ['ce', 'ee', 'config', 'license'], true))->toBeTrue();
     }
+});
+
+it('ai.agents flips to enabled=true when agents.enabled system setting is 1', function () {
+    SystemSetting::setValue('agents.enabled', '1', 'agents');
+
+    $resolver = new FeatureFlagResolver(authDrivers: null, tenants: null);
+    $flags = $resolver->resolve();
+
+    $agents = collect($flags)->firstWhere('name', 'ai.agents');
+    expect($agents)
+        ->not->toBeNull()
+        ->and($agents->enabled)->toBeTrue()
+        ->and($agents->source)->toBe('config');
 });
