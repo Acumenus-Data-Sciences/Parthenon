@@ -18,11 +18,13 @@ return [
     | is installed.
     */
     'flags' => [
-        // Example (commented):
-        // 'audit.signed' => [
-        //     'enabled' => false,
-        //     'source'  => 'ce',
-        //     'description' => 'Signed (HMAC) audit chain shipped to WORM storage.',
-        // ],
+        // AI publication copilot (Claude Agent SDK) on the Publish page. Ships
+        // dark: default OFF. Enable per-deployment with PUBLISH_AGENT_ENABLED=true
+        // once the Anthropic account behind ANTHROPIC_API_KEY is credited.
+        'publish.agent' => [
+            'enabled' => (bool) env('PUBLISH_AGENT_ENABLED', false),
+            'source' => 'config',
+            'description' => 'AI publication copilot (Claude Agent SDK) on the Publish page.',
+        ],
     ],
 ];

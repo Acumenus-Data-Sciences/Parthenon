@@ -27,6 +27,7 @@ export interface FlagNameRegistry {
   "observability.opentelemetry": true;
   "crypto.fips": true;
   "operator.k8s": true;
+  "publish.agent": true;
 }
 
 export type FlagName = keyof FlagNameRegistry;

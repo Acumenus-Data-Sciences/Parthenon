@@ -22,6 +22,7 @@ import { useAutosave } from "../hooks/useAutosave";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { useDraft, useCreateDraft, useUpdateDraftById } from "../hooks/useDrafts";
 import { useAuthStore } from "@/stores/authStore";
+import { useFlag } from "@/stores/featureFlagsStore";
 import { buildTableFromResults } from "../lib/tableBuilders";
 import { buildDiagramData } from "../lib/diagramBuilders";
 import { getDiagramSvgMarkup } from "../lib/svgExport";
@@ -320,6 +321,9 @@ export default function PublishPage() {
   const { draftId: draftIdParam } = useParams<{ draftId: string }>();
   const draftId =
     draftIdParam && /^\d+$/.test(draftIdParam) ? Number(draftIdParam) : null;
+  // Ships dark: the AI publication copilot only renders when the deployment flag
+  // is enabled (PUBLISH_AGENT_ENABLED) — keeps it off prod until credit is added.
+  const publishAgentEnabled = useFlag("publish.agent");
 
   const [searchParams] = useSearchParams();
   const initialStudyId = searchParams.get("studyId")
@@ -894,7 +898,7 @@ export default function PublishPage() {
         onContinueWithoutSaving={() => setPromptOpen(false)}
       />
       </div>
-      {draftId !== null && <AgentCopilotPanel draftId={draftId} />}
+      {publishAgentEnabled && draftId !== null && <AgentCopilotPanel draftId={draftId} />}
     </div>
   );
 }
