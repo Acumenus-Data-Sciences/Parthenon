@@ -237,6 +237,173 @@ it('ingest persists cost tokens and anthropic_session_id and returns 200', funct
 });
 
 // ---------------------------------------------------------------------------
+// approve — forwards decision to python-ai and returns 200
+// ---------------------------------------------------------------------------
+
+it('approve forwards tool_use_id and approved flag to python-ai and returns 200', function () {
+    $agentSession = AgentSession::create([
+        'profile' => 'publish',
+        'subject_type' => 'publication_draft',
+        'subject_id' => $this->draft->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'last_active_at' => now(),
+    ]);
+
+    Http::fake([
+        '*/agent/sessions/*/approve' => Http::response(['ok' => true], 200),
+    ]);
+
+    Sanctum::actingAs($this->user, ['*']);
+
+    $response = $this->postJson(
+        "/api/v1/publish/drafts/{$this->draft->id}/agent/sessions/{$agentSession->id}/approve",
+        ['tool_use_id' => 'toolu_abc123', 'approved' => true],
+    );
+
+    $response->assertStatus(200)
+        ->assertJsonPath('data.resolved', true);
+
+    Http::assertSent(function ($request) use ($agentSession) {
+        $body = $request->data();
+
+        return str_ends_with($request->url(), "/agent/sessions/{$agentSession->id}/approve")
+            && $body['tool_use_id'] === 'toolu_abc123'
+            && $body['approved'] === true;
+    });
+});
+
+it('approve returns 503 when python-ai is unavailable', function () {
+    $agentSession = AgentSession::create([
+        'profile' => 'publish',
+        'subject_type' => 'publication_draft',
+        'subject_id' => $this->draft->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'last_active_at' => now(),
+    ]);
+
+    Http::fake(['*' => Http::response([], 503)]);
+
+    Sanctum::actingAs($this->user, ['*']);
+
+    $this->postJson(
+        "/api/v1/publish/drafts/{$this->draft->id}/agent/sessions/{$agentSession->id}/approve",
+        ['tool_use_id' => 'toolu_abc123', 'approved' => false],
+    )->assertStatus(503);
+});
+
+it('approve returns 404 for a non-owner of the draft', function () {
+    $agentSession = AgentSession::create([
+        'profile' => 'publish',
+        'subject_type' => 'publication_draft',
+        'subject_id' => $this->draft->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'last_active_at' => now(),
+    ]);
+
+    Http::fake(['*/agent/sessions/*/approve' => Http::response(['ok' => true], 200)]);
+
+    $stranger = User::factory()->create();
+    $stranger->assignRole('researcher');
+    Sanctum::actingAs($stranger, ['*']);
+
+    $this->postJson(
+        "/api/v1/publish/drafts/{$this->draft->id}/agent/sessions/{$agentSession->id}/approve",
+        ['tool_use_id' => 'toolu_abc123', 'approved' => true],
+    )->assertStatus(404);
+});
+
+it('approve returns 404 when agentSession profile or draft does not match', function () {
+    $otherDraft = PublicationDraft::create([
+        'user_id' => $this->user->id,
+        'study_id' => null,
+        'title' => 'Other draft',
+        'template' => 'standard',
+        'document_json' => [],
+        'status' => 'draft',
+        'visibility' => 'private',
+    ]);
+
+    // Session belongs to otherDraft, not $this->draft
+    $agentSession = AgentSession::create([
+        'profile' => 'publish',
+        'subject_type' => 'publication_draft',
+        'subject_id' => $otherDraft->id,
+        'user_id' => $this->user->id,
+        'status' => 'active',
+        'last_active_at' => now(),
+    ]);
+
+    Http::fake(['*/agent/sessions/*/approve' => Http::response(['ok' => true], 200)]);
+
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Passing $this->draft id but session belongs to $otherDraft — must 404
+    $this->postJson(
+        "/api/v1/publish/drafts/{$this->draft->id}/agent/sessions/{$agentSession->id}/approve",
+        ['tool_use_id' => 'toolu_abc123', 'approved' => true],
+    )->assertStatus(404);
+});
+
+// ---------------------------------------------------------------------------
+// abilities enforcement — PATCH publish/drafts/{draft} (updateDraft)
+// ---------------------------------------------------------------------------
+
+it('updateDraft is accessible with a wildcard token', function () {
+    // Real login tokens are minted with createToken() → Sanctum default ['*'].
+    // (Sanctum::actingAs with no abilities arg defaults to [] — not a wildcard.)
+    Sanctum::actingAs($this->user, ['*']);
+
+    $this->patchJson("/api/v1/publish/drafts/{$this->draft->id}", ['title' => 'Updated title'])
+        ->assertStatus(200);
+});
+
+it('updateDraft is accessible with a publications.update scoped token', function () {
+    Sanctum::actingAs($this->user, ['publications.update']);
+
+    $this->patchJson("/api/v1/publish/drafts/{$this->draft->id}", ['title' => 'Updated title'])
+        ->assertStatus(200);
+});
+
+it('updateDraft returns 403 with a publications.view-only scoped token', function () {
+    Sanctum::actingAs($this->user, ['publications.view']);
+
+    $this->patchJson("/api/v1/publish/drafts/{$this->draft->id}", ['title' => 'Blocked'])
+        ->assertStatus(403);
+});
+
+// ---------------------------------------------------------------------------
+// abilities enforcement — POST publish/drafts/{draft}/snapshots (createSnapshot)
+// ---------------------------------------------------------------------------
+
+it('createSnapshot is accessible with a wildcard token', function () {
+    // Real login tokens carry ['*'] (createToken default); replicate that here.
+    Sanctum::actingAs($this->user, ['*']);
+
+    $this->postJson("/api/v1/publish/drafts/{$this->draft->id}/snapshots", [
+        'label' => 'v1',
+    ])->assertStatus(201);
+});
+
+it('createSnapshot is accessible with a publications.update scoped token', function () {
+    Sanctum::actingAs($this->user, ['publications.update']);
+
+    $this->postJson("/api/v1/publish/drafts/{$this->draft->id}/snapshots", [
+        'label' => 'v1',
+    ])->assertStatus(201);
+});
+
+it('createSnapshot returns 403 with a publications.view-only scoped token', function () {
+    Sanctum::actingAs($this->user, ['publications.view']);
+
+    $this->postJson("/api/v1/publish/drafts/{$this->draft->id}/snapshots", [
+        'label' => 'blocked',
+    ])->assertStatus(403);
+});
+
+// ---------------------------------------------------------------------------
 // ingest — increments cost and tokens on a second call
 // ---------------------------------------------------------------------------
 

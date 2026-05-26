@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\Http;
 
 class PublishAgentController extends Controller
 {
-    // NOTE (review C3 — known Phase-1 gap): these abilities scope the minted
-    // Sanctum token, but the publish routes the agent calls are gated only by
-    // auth:sanctum + PublicationDraftPolicy (not Sanctum `abilities:` middleware).
-    // So the agent currently acts with the user's FULL permission set, not this
-    // subset — "cannot exceed the user" holds, but "scoped to publications.view+update"
-    // does NOT. Phase 2 must add `abilities:publications.view` / `abilities:publications.update`
-    // (or `$token->can(...)` checks) to the agent-reachable routes to enforce this.
+    // NOTE (C3 — closed in Phase 2): these abilities scope the minted Sanctum
+    // token. As of Phase 2, the agent-reachable WRITE routes
+    // (PATCH publish/drafts/{draft} and POST publish/drafts/{draft}/snapshots)
+    // carry `abilities:publications.update` middleware, so the scoped token IS
+    // enforced on writes — C3 is closed for the write path. Regular SPA users
+    // are unaffected because their login tokens carry ['*'], which satisfies any
+    // `abilities:` check.
     private const AGENT_ABILITIES = ['publications.view', 'publications.update'];
 
     private function aiBaseUrl(): string
@@ -128,6 +128,36 @@ class PublishAgentController extends Controller
         }
 
         return response()->json(['data' => ['accepted' => true]], 202);
+    }
+
+    /**
+     * Forward a human-approval decision to the agent (tool-use gate).
+     *
+     * POST /api/v1/publish/drafts/{draft}/agent/sessions/{agentSession}/approve
+     */
+    public function approve(Request $request, PublicationDraft $draft, AgentSession $agentSession): JsonResponse
+    {
+        $this->authorizeAccess($request, $draft);
+        abort_unless(
+            (int) $agentSession->subject_id === (int) $draft->id && $agentSession->profile === 'publish',
+            404,
+        );
+
+        $validated = $request->validate([
+            'tool_use_id' => ['required', 'string', 'max:255'],
+            'approved' => ['required', 'boolean'],
+        ]);
+
+        $resp = Http::acceptJson()->post($this->aiBaseUrl()."/agent/sessions/{$agentSession->id}/approve", [
+            'tool_use_id' => $validated['tool_use_id'],
+            'approved' => $validated['approved'],
+        ]);
+
+        if ($resp->failed()) {
+            return response()->json(['message' => 'Agent service unavailable'], 503);
+        }
+
+        return response()->json(['data' => ['resolved' => true]], 200);
     }
 
     /**
