@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Literal, Optional, cast
 
 import httpx
 
@@ -28,6 +28,9 @@ from app.agents.study_design_tools import StudyDesignToolContext, build_tool_pac
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+# ClaudeAgentOptions.effort is a Literal; settings/profiles carry it as a plain str.
+EffortLevel = Literal["low", "medium", "high", "xhigh", "max"]
 
 
 @dataclass
@@ -82,7 +85,7 @@ class ParthenonAgentService:
         return ClaudeAgentOptions(
             system_prompt=profile.system_prompt,
             model=profile.model,
-            effort=profile.effort,
+            effort=cast(EffortLevel, profile.effort),
             mcp_servers={"parthenon": server},
             # HIGHSEC lockdown: tools=[] → CLI `--tools ""` removes ALL built-in
             # tools (Bash/Read/Edit/Write/Glob/Grep/WebSearch/WebFetch); only our
