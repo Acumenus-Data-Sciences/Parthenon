@@ -48,7 +48,7 @@ const config: Config = {
   tagline: "Next-generation unified outcomes research platform",
   favicon: "img/favicon.ico",
 
-  url: "http://localhost:8082",
+  url: process.env.DOCUSAURUS_URL ?? "https://parthenon.acumenus.net",
   baseUrl: "/docs/",
 
   onBrokenLinks: "warn",
