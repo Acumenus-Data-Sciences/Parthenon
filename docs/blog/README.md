@@ -73,6 +73,7 @@ Deep dives into architecture, design decisions, and capability announcements.
 | [2026-03-15](2026-03-15-query-assistant-overhaul.md) | Query Assistant Overhaul |
 | [2026-03-19](2026-03-19-r-runtime-hardening.md) | R Runtime Hardening |
 | [2026-03-20](2026-03-20-rise-of-darkstar.md) | Rise of Darkstar |
+| [2026-05-26](2026-05-26-ee-kubernetes-helm-terraform-foundation.md) | Parthenon EE Kubernetes Foundation |
 
 ## Community & References
 
