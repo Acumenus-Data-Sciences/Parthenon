@@ -2,7 +2,7 @@
 
 All notable changes to Parthenon are documented here.
 
-## [1.1.0] — 2026-05-28
+## [1.0.8] — 2026-05-28
 
 ### Added
 - **Publish module** — server-side publication drafts with debounced autosave (retry + beforeunload guards), snapshot create/list/revert with optimistic locking, and study-scoped sharing via VisibilityBadge and ShareDropdown
