@@ -1,5 +1,6 @@
 pandera~=0.29
 psycopg2-binary~=2.9
+requests~=2.31  # WebAPI/Achilles/DQD HTTP calls in create_cohort_definitions & validate_*
 pydantic-settings~=2.0
 rich~=13.0
 pytest~=8.0

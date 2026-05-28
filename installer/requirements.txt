@@ -1,2 +1,4 @@
 keyring>=25.0.0
+rich>=13.0          # console/progress UI used across cli, bootstrap, docker_ops, eunomia, hecate_bootstrap
+psycopg2-binary>=2.9.0  # direct DB driver for etl_mbu_patient / license checks
 pytest>=8.0.0

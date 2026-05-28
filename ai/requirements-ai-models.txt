@@ -1,5 +1,8 @@
-# Heavy ML dependencies - install when needed for SapBERT embeddings
-# These are deferred from the base requirements due to large download size
-transformers==5.*
+# Heavy ML dependency for MedCAT NER+L — install when needed.
+# NOTE: transformers and torch now live in the base requirements.txt (they are
+# installed unconditionally and present in the runtime image). They are repeated
+# here, aligned to the base specifiers, only so this file installs standalone in
+# a bare env. medcat is the sole package genuinely deferred from base.
+transformers>=5.8.0,<6
 torch==2.*
 medcat==2.*
