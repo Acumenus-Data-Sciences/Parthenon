@@ -2,18 +2,64 @@
 
 All notable changes to Parthenon are documented here.
 
-## [Unreleased] — 2026-05-03
+## [1.1.0] — 2026-05-28
 
-### Added (Phase 1 templates work — not yet in a release)
+### Added
+- **Publish module** — server-side publication drafts with debounced autosave (retry + beforeunload guards), snapshot create/list/revert with optimistic locking, and study-scoped sharing via VisibilityBadge and ShareDropdown
+- **Publication agent** — Claude Agent SDK copilot for manuscript drafting, with read-only and write/approval phases
+- **Study Designer agent** — Claude Agent SDK copilot that assists study design (read-only slice)
+- **Library Lifecycle management** — draft / published / archived / deprecated states across cohort definitions, concept sets, and analyses, with status tabs and live counts on every list page
+- **Admin Library console** (`/admin/library`) — unified index with bulk delete, owner reassignment (permission-checked + audited), trash, and hard-delete with attachment preflight
+- **Cleanup suggestions** — nightly job that surfaces unused library items with an in-app banner and dedicated suggestions page
+- **Studies v2 wizard** — 8-step stepper shell with version popover; Compiler Workbench v2 promoted to default
+- Read-only Publish wizard mode for viewer collaborators
 
-- `app.unmapped_concepts_queue` table for the FHIR→OMOP mapping review flow.
-  Surfaces unmapped (system, code) pairs to the existing Laravel
-  MappingReviewController. Phase 1 does NOT call any AI mapping pathway
-  (devplan §6.7).
-- `app.consent_decisions` table for the FHIR→OMOP PR-C Consent flow.
-  Records every Consent resource's permit/deny decision so downstream
-  cohort exports can exclude denied patients. Phase 1 policy: never
-  silently drop a Consent — malformed Consents fail the run.
+### Changed
+- Auto-promote flow (409 contract) when attaching draft library items to a study
+- Runtime **AI Agents** admin toggle now gates both Claude Agent SDK copilots (replaces the `publish.agent` flag)
+
+### Fixed
+- One-time lifecycle notice toast for end users
+- Admin hard-delete preflight matches analyses by fully-qualified class name
+- Nightly 30-day purge of soft-deleted library items
+
+## [1.0.7] — 2026-05-10
+
+### Added
+- **Enterprise extension points** — pluggable AuthDriver, TenantResolver, CryptoProvider, AuditSink, and ObservabilityShipper, plus a feature-flag store and EnterpriseGate
+- **Managed OHDSI Shiny viewer** — official viewer handoff, managed result loader and manifest contract, launch metrics with throttling, and workspace pruning
+- **Aqueduct ingestion templates** — run progress, current node, timestamps, and error surfacing; NCDR commercial template (SQL stages, column map, end-to-end test)
+- **CMS eCQM / VSAC** — sortable, filterable CMS Measures page and 72 backfilled eCQM titles
+- Composition contract verification (`--check-infra-overlay`) and Acropolis phase registry
+
+### Fixed
+- Deploy auto-heals a composer autoloader poisoned by worktree paths
+- R `fs` package build (libuv1-dev) and test-infra database host resolution
+
+## [1.0.6] — 2026-04-16
+
+### Added
+- **FinnGen Cohort Workbench (SP4)** — operation-tree algebra and compiler, cohort matching wrapper, live preview counts, materialize flow, run history, and Atlas import via the active WebAPI registry
+- SMD diagnostics and attrition waterfall in the FinnGen workbench; surfaced on the launcher
+- Installer `--community` flag for the fastest path to login
+
+### Fixed
+- Fresh-machine install hardening — portable Compose defaults, lazy nginx upstream resolution, macOS host GID collision, and idempotent migrations
+- Windows compatibility (`os.getuid`/`os.getgid` guards)
+- FinnGen SP4 double-dispatch causing duplicate materialize rows
+
+> Interim patch releases 1.0.4.1 and 1.0.5 delivered FinnGen SP3 close-out and earlier fresh-machine install fixes.
+
+## [1.0.4] — 2026-04-09
+
+### Added
+- **OHDSI Wiki corpus** — curated 982-paper corpus with metadata extraction, chronological ordering, streaming chat, Claude routing, and Abby RAG integration
+- Deeper Chroma Studio cluster explorer with hardened ingestion quality
+
+### Fixed
+- Vector Explorer tooltip stability (pause auto-rotate on hover) and rendering hardening
+- Abby chat streaming restored; fake-PDF detection in the corpus scraper
+- OMOP vocabulary table-name corrections and concept_embeddings schema
 
 ## [1.0.3] — 2026-03-30
 
