@@ -88,6 +88,73 @@ describe("AdminLibraryPage", () => {
     expect(screen.getByText(/Delete 1 library item/i)).toBeInTheDocument();
   });
 
+  it("archives a row via the lifecycle action menu", async () => {
+    mock.onGet("/api/v1/admin/library").reply(200, {
+      data: [sampleRow],
+      count: 1,
+      limit: 500,
+      types: ["concept_set"],
+    });
+    mock
+      .onPost("/api/v1/concept-sets/7/archive")
+      .reply(200, { id: 7, status: "archived" });
+
+    const client = makeClient();
+    render(
+      <Wrapper client={client}>
+        <AdminLibraryPage />
+      </Wrapper>,
+    );
+
+    await screen.findByText("Sample Concept Set");
+    // Open the row's lifecycle menu, choose Archive, confirm in the modal.
+    fireEvent.click(screen.getByLabelText("Lifecycle actions"));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Archive/i }));
+    await screen.findByRole("dialog");
+    fireEvent.click(screen.getByRole("button", { name: "Archive" }));
+
+    await waitFor(() =>
+      expect(
+        mock.history.post.some(
+          (r) => r.url === "/concept-sets/7/archive",
+        ),
+      ).toBe(true),
+    );
+  });
+
+  it("filters rows by lifecycle status tab", async () => {
+    mock.onGet("/api/v1/admin/library").reply(200, {
+      data: [
+        sampleRow,
+        {
+          ...sampleRow,
+          id: 8,
+          name: "Draft Concept Set",
+          status: "draft" as const,
+        },
+      ],
+      count: 2,
+      limit: 500,
+      types: ["concept_set"],
+    });
+
+    const client = makeClient();
+    render(
+      <Wrapper client={client}>
+        <AdminLibraryPage />
+      </Wrapper>,
+    );
+
+    // Default "Active" tab hides the draft row.
+    await screen.findByText("Sample Concept Set");
+    expect(screen.queryByText("Draft Concept Set")).not.toBeInTheDocument();
+
+    // Switching to the Drafts tab reveals it and hides the active row.
+    fireEvent.click(screen.getByRole("tab", { name: /Drafts/i }));
+    await screen.findByText("Draft Concept Set");
+    expect(screen.queryByText("Sample Concept Set")).not.toBeInTheDocument();
+  });
+
   it("switches to the trash tab and requests include_trash", async () => {
     mock.onGet("/api/v1/admin/library").reply((config) => {
       const includeTrash = String(config.params?.include_trash ?? "");

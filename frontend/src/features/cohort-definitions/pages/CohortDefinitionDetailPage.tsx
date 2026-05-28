@@ -43,6 +43,9 @@ import {
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type { CohortExpression, CohortDomain } from "../types/cohortExpression";
 import { useTranslation } from "react-i18next";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "editor" | "results" | "diagnostics" | "overlap" | "patients";
 
@@ -437,11 +440,21 @@ export default function CohortDefinitionDetailPage() {
             </p>
           )}
 
-          {/* Version badge + last saved */}
+          {/* Version badge + lifecycle status + last saved */}
           <div className="flex items-center gap-3 mt-2">
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
               v{definition.version}
             </span>
+            <LifecycleHeaderControl
+              entity="cohort-definitions"
+              id={definition.id}
+              status={(definition.status as LibraryStatus | null | undefined) ?? "active"}
+              name={definition.name}
+              canEdit={
+                useAuthStore.getState().user?.id === definition.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
             <span className="text-[10px] text-text-ghost">
               {t("cohortDefinitions.auto.lastSaved_c6dad3")}{" "}
               {new Date(definition.updated_at).toLocaleString("en-US", {

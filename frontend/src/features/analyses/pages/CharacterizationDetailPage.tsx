@@ -24,6 +24,9 @@ import {
 } from "../hooks/useCharacterizations";
 import type { DirectRunResult } from "../types/analysis";
 import { useTranslation } from "react-i18next";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -155,6 +158,18 @@ export default function CharacterizationDetailPage() {
               {characterization.description}
             </p>
           )}
+          <div className="mt-2">
+            <LifecycleHeaderControl
+              entity="characterizations"
+              id={characterization.id}
+              status={(characterization.status as LibraryStatus | null | undefined) ?? "active"}
+              name={characterization.name}
+              canEdit={
+                useAuthStore.getState().user?.id === characterization.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

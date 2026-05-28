@@ -321,6 +321,7 @@ class AppServiceProvider extends ServiceProvider
         // Library lifecycle policies (concept sets, cohort definitions, 8 analyses)
         Gate::policy(ConceptSet::class, ConceptSetPolicy::class);
         Gate::policy(CohortDefinition::class, CohortDefinitionPolicy::class);
+        Gate::policy(Characterization::class, AnalysisPolicy::class);
         Gate::policy(IncidenceRateAnalysis::class, AnalysisPolicy::class);
         Gate::policy(PathwayAnalysis::class, AnalysisPolicy::class);
         Gate::policy(EstimationAnalysis::class, AnalysisPolicy::class);

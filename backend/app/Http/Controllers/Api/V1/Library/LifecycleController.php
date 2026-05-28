@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Library;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Library\BulkArchiveRequest;
+use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
@@ -27,6 +28,7 @@ class LifecycleController extends Controller
     private const ENTITY_MAP = [
         'concept-sets' => ConceptSet::class,
         'cohort-definitions' => CohortDefinition::class,
+        'characterizations' => Characterization::class,
         'incidence-rate-analyses' => IncidenceRateAnalysis::class,
         'pathway-analyses' => PathwayAnalysis::class,
         'estimation-analyses' => EstimationAnalysis::class,

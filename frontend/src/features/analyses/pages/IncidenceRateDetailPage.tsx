@@ -25,6 +25,9 @@ import {
 } from "../hooks/useIncidenceRates";
 import type { DirectCalcResponse } from "../types/analysis";
 import { useTranslation } from "react-i18next";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -158,6 +161,18 @@ export default function IncidenceRateDetailPage() {
               {analysis.description}
             </p>
           )}
+          <div className="mt-2">
+            <LifecycleHeaderControl
+              entity="incidence-rate-analyses"
+              id={analysis.id}
+              status={(analysis.status as LibraryStatus | null | undefined) ?? "active"}
+              name={analysis.name}
+              canEdit={
+                useAuthStore.getState().user?.id === analysis.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

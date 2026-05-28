@@ -22,6 +22,9 @@ import {
   useExecuteSccs,
   useSccsExecution,
 } from "../hooks/useSccs";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -139,6 +142,20 @@ export default function SccsDetailPage() {
             <p className="mt-1 text-sm text-text-muted">
               {sccs.description}
             </p>
+          )}
+          {!isNew && sccs && (
+            <div className="mt-2">
+              <LifecycleHeaderControl
+                entity="sccs-analyses"
+                id={sccs.id}
+                status={(sccs.status as LibraryStatus | null | undefined) ?? "active"}
+                name={sccs.name}
+                canEdit={
+                  useAuthStore.getState().user?.id === sccs.author_id ||
+                  useAuthStore.getState().isSuperAdmin()
+                }
+              />
+            </div>
           )}
         </div>
 

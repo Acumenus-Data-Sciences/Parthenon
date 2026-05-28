@@ -18,6 +18,9 @@ import {
 } from "../hooks/useEvidenceSynthesis";
 import { EvidenceSynthesisDesigner } from "../components/EvidenceSynthesisDesigner";
 import { EvidenceSynthesisResults } from "../components/EvidenceSynthesisResults";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -129,6 +132,20 @@ export default function EvidenceSynthesisDetailPage() {
             <p className="mt-1 text-sm text-text-muted">
               {analysis.description}
             </p>
+          )}
+          {!isNew && analysis && (
+            <div className="mt-2">
+              <LifecycleHeaderControl
+                entity="evidence-synthesis-analyses"
+                id={analysis.id}
+                status={(analysis.status as LibraryStatus | null | undefined) ?? "active"}
+                name={analysis.name}
+                canEdit={
+                  useAuthStore.getState().user?.id === analysis.author_id ||
+                  useAuthStore.getState().isSuperAdmin()
+                }
+              />
+            </div>
           )}
         </div>
 

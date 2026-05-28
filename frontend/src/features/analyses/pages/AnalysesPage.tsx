@@ -507,6 +507,7 @@ export default function AnalysesPage() {
           perPage={charData?.limit ?? 15}
           onPageChange={setCharPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -523,6 +524,7 @@ export default function AnalysesPage() {
           perPage={irData?.limit ?? 15}
           onPageChange={setIRPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -539,6 +541,7 @@ export default function AnalysesPage() {
           perPage={pathwayData?.limit ?? 15}
           onPageChange={setPathwayPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -555,6 +558,7 @@ export default function AnalysesPage() {
           perPage={estData?.limit ?? 15}
           onPageChange={setEstPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -571,6 +575,7 @@ export default function AnalysesPage() {
           perPage={predData?.limit ?? 15}
           onPageChange={setPredPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -587,6 +592,7 @@ export default function AnalysesPage() {
           perPage={sccsData?.limit ?? 15}
           onPageChange={setSccsPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
 
@@ -603,6 +609,7 @@ export default function AnalysesPage() {
           perPage={esData?.limit ?? 15}
           onPageChange={setEsPage}
           isSearching={!!debouncedSearch}
+          lifecycleStatus={lifecycleStatus}
         />
       )}
     </div>

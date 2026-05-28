@@ -26,6 +26,24 @@ import { useAuthStore } from "@/stores/authStore";
 import { useCohortDefinitions, useGroupedCohortDefinitions } from "../hooks/useCohortDefinitions";
 import type { CohortGeneration, GenerationSource, QualityTier } from "../types/cohortExpression";
 import { useTranslation } from "react-i18next";
+import { useRowSelection } from "@/features/library/hooks/useRowSelection";
+import {
+  useLifecycleMutations,
+  useBulkLifecycleMutations,
+} from "@/features/library/hooks/useLifecycleActions";
+import { LifecycleStatusBadge } from "@/features/library/components/LifecycleStatusBadge";
+import {
+  LifecycleActionMenu,
+  type LifecycleAction,
+} from "@/features/library/components/LifecycleActionMenu";
+import { LifecycleConfirmModal } from "@/features/library/components/LifecycleConfirmModal";
+import { BulkActionToolbar } from "@/features/library/components/BulkActionToolbar";
+import type { StatusTab } from "@/features/library/components/StatusTabs";
+import type { LibraryStatus } from "@/features/library/types";
+
+type PendingLifecycle =
+  | { action: LifecycleAction; id: number; name: string | null }
+  | { action: LifecycleAction; ids: number[]; name?: undefined; id?: undefined };
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -158,6 +176,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   const [myOnly, setMyOnly] = useState(true);
   const effectiveMyOnly = allUsers ? false : myOnly;
   const currentUser = useAuthStore((s) => s.user);
+  const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin());
   const limit = 20;
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -179,6 +198,8 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     search: search || undefined,
     tags: tags && tags.length > 0 ? tags : undefined,
     author_id: effectiveMyOnly && currentUser ? currentUser.id : undefined,
+    status: lifecycleStatus,
+    scope: allUsers ? "all" : undefined,
     enabled: isGrouped,
   });
 
@@ -197,6 +218,65 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search, tags, isPublic, withGenerations, myOnly, allUsers]);
+
+  // ---------------------------------------------------------------------
+  // Lifecycle: selection state, mutations, confirm modal
+  // ---------------------------------------------------------------------
+  const sel = useRowSelection();
+  const { promote, archive, restore } = useLifecycleMutations("cohort-definitions");
+  const { bulkArchive, bulkRestore } = useBulkLifecycleMutations(
+    "cohort-definitions",
+  );
+  const [pending, setPending] = useState<PendingLifecycle | null>(null);
+
+  // Reset selection whenever the visible set could change.
+  useEffect(() => {
+    sel.clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, tags, isPublic, withGenerations, myOnly, allUsers, lifecycleStatus, page]);
+
+  const handleRowAction = (
+    action: LifecycleAction,
+    id: number,
+    name: string | null,
+  ) => setPending({ action, id, name });
+
+  const handleBulkArchive = (ids: number[]) =>
+    setPending({ action: "archive", ids });
+  const handleBulkRestore = (ids: number[]) =>
+    setPending({ action: "restore", ids });
+
+  const mutationPending =
+    promote.isPending ||
+    archive.isPending ||
+    restore.isPending ||
+    bulkArchive.isPending ||
+    bulkRestore.isPending;
+
+  const confirmPending = () => {
+    if (!pending) return;
+    if (pending.ids && pending.ids.length > 0) {
+      const mut = pending.action === "archive" ? bulkArchive : bulkRestore;
+      mut.mutate(pending.ids, {
+        onSuccess: () => {
+          setPending(null);
+          sel.clear();
+        },
+      });
+      return;
+    }
+    if (pending.id != null) {
+      const mut =
+        pending.action === "archive"
+          ? archive
+          : pending.action === "promote"
+            ? promote
+            : restore;
+      mut.mutate(pending.id, { onSuccess: () => setPending(null) });
+    }
+  };
+
+  const statusContext: StatusTab = lifecycleStatus ?? "active";
 
   const { data, isLoading, error } = useCohortDefinitions({
     page,
@@ -302,6 +382,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                             {t("cohortDefinitions.auto.name_49ee30")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
+                            Status
+                          </th>
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             {t("cohortDefinitions.auto.tier_9483f1")}
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
@@ -312,6 +395,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                           </th>
                           <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             {t("cohortDefinitions.auto.updated_ff0a3b")}
+                          </th>
+                          <th className="w-12 px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
+                            <span className="sr-only">Actions</span>
                           </th>
                         </tr>
                       </thead>
@@ -343,6 +429,12 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                               </div>
                             </td>
                             <td className="px-4 py-2.5">
+                              <LifecycleStatusBadge
+                                size="xs"
+                                status={(def.status as LibraryStatus | null | undefined) ?? "active"}
+                              />
+                            </td>
+                            <td className="px-4 py-2.5">
                               <TierBadge tier={def.quality_tier} />
                             </td>
                             <td className="px-4 py-2.5">
@@ -361,6 +453,20 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                             <td className="px-4 py-2.5 text-xs text-text-muted">
                               {formatDate(def.updated_at)}
                             </td>
+                            <td className="px-2 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                              {(() => {
+                                const groupedStatus: LibraryStatus = (def.status as LibraryStatus | null | undefined) ?? "active";
+                                const groupedCanEdit = (currentUser?.id === def.author_id) || isSuperAdmin;
+                                return (
+                                  <LifecycleActionMenu
+                                    status={groupedStatus}
+                                    canEdit={groupedCanEdit}
+                                    disabled={mutationPending}
+                                    onAction={(action) => handleRowAction(action, def.id, def.name)}
+                                  />
+                                );
+                              })()}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -371,6 +477,20 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             })}
           </div>
         )}
+
+        {/* Lifecycle confirm modal — shared between grouped and flat views */}
+        <LifecycleConfirmModal
+          open={pending !== null}
+          action={pending?.action ?? "archive"}
+          itemName={pending?.id != null ? pending.name : null}
+          count={pending?.ids?.length ?? 1}
+          itemNoun="cohorts"
+          isPending={mutationPending}
+          onConfirm={confirmPending}
+          onClose={() => {
+            if (!mutationPending) setPending(null);
+          }}
+        />
       </div>
     );
   }
@@ -473,13 +593,43 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
         </div>
       )}
 
+      {/* Bulk action toolbar (visible when rows are selected) */}
+      <BulkActionToolbar
+        statusContext={statusContext}
+        selectedIds={sel.selectedIds}
+        onArchive={handleBulkArchive}
+        onRestore={handleBulkRestore}
+        onClear={sel.clear}
+        itemNoun="cohorts"
+        isPending={bulkArchive.isPending || bulkRestore.isPending}
+      />
+
       {/* Table */}
       <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="bg-surface-overlay">
+              <th className="w-8 px-3 py-2.5 text-left">
+                <input
+                  type="checkbox"
+                  aria-label="Select all visible rows"
+                  checked={items.length > 0 && items.every((d) => sel.isSelected(d.id))}
+                  ref={(el) => {
+                    if (el) {
+                      const some = items.some((d) => sel.isSelected(d.id));
+                      const all = items.length > 0 && items.every((d) => sel.isSelected(d.id));
+                      el.indeterminate = some && !all;
+                    }
+                  }}
+                  onChange={() => sel.toggleAll(items.map((d) => d.id))}
+                  className="h-3.5 w-3.5 rounded border-border-default bg-surface-overlay accent-accent cursor-pointer"
+                />
+              </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 {t("cohortDefinitions.auto.name_49ee30")}
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                Status
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 {t("cohortDefinitions.auto.tier_9483f1")}
@@ -501,75 +651,104 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 {t("cohortDefinitions.auto.created_0eceeb")}
               </th>
+              <th className="w-12 px-2 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {items.map((def, i) => (
-              <tr
-                key={def.id}
-                onClick={() => navigate(`/cohort-definitions/${def.id}`)}
-                className={cn(
-                  "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
-                  i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
-                  def.deprecated_at && "opacity-60",
-                )}
-              >
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    {def.is_public ? (
-                      <Globe size={12} className="text-info shrink-0" />
-                    ) : (
-                      <Lock size={12} className="text-text-ghost shrink-0" />
-                    )}
-                    <div className="min-w-0">
-                      <p className={cn(
-                        "text-sm font-medium text-text-primary truncate",
-                        def.deprecated_at && "line-through",
-                      )}>
-                        {def.name}
-                      </p>
-                      {def.description && (
-                        <p className="text-[10px] text-text-ghost truncate max-w-[250px]">
-                          {def.description}
-                        </p>
-                      )}
-                    </div>
-                    {def.deprecated_at && <DeprecatedBadge />}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <TierBadge tier={def.quality_tier} />
-                </td>
-                {!effectiveMyOnly && (
-                  <td className="px-4 py-3">
-                    <p className="text-xs text-text-muted">
-                      {def.author?.name ?? "--"}
-                    </p>
+            {items.map((def, i) => {
+              const status: LibraryStatus = (def.status as LibraryStatus | null | undefined) ?? "active";
+              const isOwner = currentUser?.id === def.author_id;
+              const canEdit = isOwner || isSuperAdmin;
+              return (
+                <tr
+                  key={def.id}
+                  onClick={() => navigate(`/cohort-definitions/${def.id}`)}
+                  className={cn(
+                    "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
+                    i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+                    def.deprecated_at && "opacity-60",
+                    sel.isSelected(def.id) && "bg-accent/5",
+                  )}
+                >
+                  <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      aria-label={`Select cohort ${def.name}`}
+                      checked={sel.isSelected(def.id)}
+                      onChange={() => sel.toggle(def.id)}
+                      className="h-3.5 w-3.5 rounded border-border-default bg-surface-overlay accent-accent cursor-pointer"
+                    />
                   </td>
-                )}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {def.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-block rounded px-1.5 py-0.5 text-[10px] bg-surface-overlay text-text-muted border border-border-default"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <LatestGenerationBadge generation={def.latest_generation} />
-                </td>
-                <td className="px-4 py-3">
-                  <SourceBadges sources={def.generation_sources} />
-                </td>
-                <td className="px-4 py-3 text-sm text-text-muted">
-                  {formatDate(def.created_at)}
-                </td>
-              </tr>
-            ))}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {def.is_public ? (
+                        <Globe size={12} className="text-info shrink-0" />
+                      ) : (
+                        <Lock size={12} className="text-text-ghost shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className={cn(
+                          "text-sm font-medium text-text-primary truncate",
+                          def.deprecated_at && "line-through",
+                        )}>
+                          {def.name}
+                        </p>
+                        {def.description && (
+                          <p className="text-[10px] text-text-ghost truncate max-w-[250px]">
+                            {def.description}
+                          </p>
+                        )}
+                      </div>
+                      {def.deprecated_at && <DeprecatedBadge />}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <LifecycleStatusBadge status={status} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <TierBadge tier={def.quality_tier} />
+                  </td>
+                  {!effectiveMyOnly && (
+                    <td className="px-4 py-3">
+                      <p className="text-xs text-text-muted">
+                        {def.author?.name ?? "--"}
+                      </p>
+                    </td>
+                  )}
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {def.tags?.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-block rounded px-1.5 py-0.5 text-[10px] bg-surface-overlay text-text-muted border border-border-default"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <LatestGenerationBadge generation={def.latest_generation} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <SourceBadges sources={def.generation_sources} />
+                  </td>
+                  <td className="px-4 py-3 text-sm text-text-muted">
+                    {formatDate(def.created_at)}
+                  </td>
+                  <td className="px-2 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                    <LifecycleActionMenu
+                      status={status}
+                      canEdit={canEdit}
+                      disabled={mutationPending}
+                      onAction={(action) => handleRowAction(action, def.id, def.name)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -609,6 +788,20 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
           </div>
         </div>
       )}
+
+      {/* Lifecycle confirm modal (shared for row + bulk actions) */}
+      <LifecycleConfirmModal
+        open={pending !== null}
+        action={pending?.action ?? "archive"}
+        itemName={pending?.id != null ? pending.name : null}
+        count={pending?.ids?.length ?? 1}
+        itemNoun="cohorts"
+        isPending={mutationPending}
+        onConfirm={confirmPending}
+        onClose={() => {
+          if (!mutationPending) setPending(null);
+        }}
+      />
     </div>
   );
 }

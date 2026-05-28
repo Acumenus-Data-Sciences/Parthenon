@@ -3,6 +3,7 @@ import apiClient from "@/lib/api-client";
 export const ADMIN_LIBRARY_ITEM_TYPES = [
   "concept_set",
   "cohort_definition",
+  "characterization",
   "incidence_rate_analysis",
   "pathway_analysis",
   "estimation_analysis",
@@ -116,7 +117,7 @@ export async function listAdminLibrary(
   if (params.limit) query.limit = params.limit;
 
   const { data } = await apiClient.get<AdminLibraryListResponse>(
-    "/api/v1/admin/library",
+    "/admin/library",
     { params: query },
   );
   return data;
@@ -126,7 +127,7 @@ export async function bulkDeleteAdminLibrary(
   items: AdminLibraryItemRef[],
 ): Promise<AdminLibraryBulkDeleteResponse> {
   const { data } = await apiClient.post<AdminLibraryBulkDeleteResponse>(
-    "/api/v1/admin/library/bulk-delete",
+    "/admin/library/bulk-delete",
     { items },
   );
   return data;
@@ -137,7 +138,7 @@ export async function reassignAdminLibrary(
   items: AdminLibraryItemRef[],
 ): Promise<AdminLibraryReassignResponse> {
   const { data } = await apiClient.post<AdminLibraryReassignResponse>(
-    "/api/v1/admin/library/reassign",
+    "/admin/library/reassign",
     { target_email, items },
   );
   return data;
@@ -147,7 +148,7 @@ export async function restoreAdminLibrary(
   items: AdminLibraryItemRef[],
 ): Promise<AdminLibraryRestoreResponse> {
   const { data } = await apiClient.post<AdminLibraryRestoreResponse>(
-    "/api/v1/admin/library/restore",
+    "/admin/library/restore",
     { items },
   );
   return data;
@@ -157,7 +158,7 @@ export async function purgeAdminLibrary(
   items: AdminLibraryItemRef[],
 ): Promise<AdminLibraryPurgeResponse> {
   const { data } = await apiClient.post<AdminLibraryPurgeResponse>(
-    "/api/v1/admin/library/purge-now",
+    "/admin/library/purge-now",
     { items },
   );
   return data;

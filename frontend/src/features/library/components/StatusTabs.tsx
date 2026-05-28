@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { LibraryStatus } from "../types";
 
 export type StatusTab = LibraryStatus | "all";
@@ -6,22 +7,37 @@ interface Props {
   value: StatusTab;
   counts: Record<StatusTab, number>;
   onChange: (v: StatusTab) => void;
+  /** Hide a tab whose count is zero. Default keeps all 4 visible. */
+  hideEmpty?: boolean;
+  className?: string;
 }
 
-const TABS: { key: StatusTab; label: string }[] = [
-  { key: "active", label: "Active" },
-  { key: "draft", label: "Drafts" },
-  { key: "archived", label: "Archived" },
-  { key: "all", label: "All mine" },
+const TABS: { key: StatusTab; label: string; description: string }[] = [
+  { key: "active", label: "Active", description: "Broadly visible" },
+  { key: "draft", label: "Drafts", description: "Your private working copies" },
+  { key: "archived", label: "Archived", description: "Retired but recoverable" },
+  { key: "all", label: "All", description: "Across statuses" },
 ];
 
-export function StatusTabs({ value, counts, onChange }: Props) {
+export function StatusTabs({
+  value,
+  counts,
+  onChange,
+  hideEmpty = false,
+  className,
+}: Props) {
   return (
     <div
-      className="inline-flex rounded-md bg-zinc-900 p-1 ring-1 ring-zinc-800"
       role="tablist"
+      aria-label="Filter by lifecycle status"
+      className={cn(
+        "inline-flex items-center gap-0.5 rounded-lg bg-surface-overlay p-0.5",
+        className,
+      )}
     >
       {TABS.map((t) => {
+        const count = counts[t.key] ?? 0;
+        if (hideEmpty && count === 0 && t.key !== value) return null;
         const active = value === t.key;
         return (
           <button
@@ -29,17 +45,24 @@ export function StatusTabs({ value, counts, onChange }: Props) {
             type="button"
             role="tab"
             aria-selected={active}
+            title={t.description}
             onClick={() => onChange(t.key)}
-            className={
-              "rounded-md px-3 py-1.5 text-sm transition " +
-              (active
-                ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700"
-                : "text-zinc-400 hover:text-zinc-200")
-            }
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium",
+              "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              active
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
+            )}
           >
             {t.label}
-            <span className="ml-1 text-xs text-zinc-500">
-              {counts[t.key] ?? 0}
+            <span
+              className={cn(
+                "text-[10px] tabular-nums",
+                active ? "text-text-secondary" : "text-text-ghost",
+              )}
+            >
+              {count}
             </span>
           </button>
         );

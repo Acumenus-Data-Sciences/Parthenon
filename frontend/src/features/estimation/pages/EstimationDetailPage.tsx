@@ -23,6 +23,9 @@ import {
   useEstimationExecutions,
   useEstimationExecution,
 } from "../hooks/useEstimations";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -141,6 +144,18 @@ export default function EstimationDetailPage() {
               {estimation.description}
             </p>
           )}
+          <div className="mt-2">
+            <LifecycleHeaderControl
+              entity="estimation-analyses"
+              id={estimation.id}
+              status={(estimation.status as LibraryStatus | null | undefined) ?? "active"}
+              name={estimation.name}
+              canEdit={
+                useAuthStore.getState().user?.id === estimation.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

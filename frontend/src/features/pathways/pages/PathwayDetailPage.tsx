@@ -25,6 +25,9 @@ import {
   usePathwayExecution,
 } from "../hooks/usePathways";
 import type { PathwayResult, PathwayEntry } from "../types/pathway";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 type Tab = "design" | "results";
 
@@ -147,6 +150,18 @@ export default function PathwayDetailPage() {
               {pathway.description}
             </p>
           )}
+          <div className="mt-2">
+            <LifecycleHeaderControl
+              entity="pathway-analyses"
+              id={pathway.id}
+              status={(pathway.status as LibraryStatus | null | undefined) ?? "active"}
+              name={pathway.name}
+              canEdit={
+                useAuthStore.getState().user?.id === pathway.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

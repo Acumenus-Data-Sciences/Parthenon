@@ -239,6 +239,11 @@ export interface CohortDefinition {
   deprecated_at?: string | null;
   superseded_by?: number | null;
   superseded_by_cohort?: Pick<CohortDefinition, 'id' | 'name'> | null;
+  // Library lifecycle (Phase D §6.x)
+  status?: "draft" | "active" | "archived" | null;
+  archived_at?: string | null;
+  archived_by?: number | null;
+  promoted_at?: string | null;
 }
 
 export interface CohortGeneration {
@@ -324,6 +329,10 @@ export interface CohortDefinitionGroupedParams {
   search?: string;
   tags?: string[];
   author_id?: number;
+  /** Library lifecycle filter (Phase D §6.x) — forwarded to applyLibraryListFilters server-side. */
+  status?: "active" | "draft" | "archived" | "all";
+  /** Super-admin override: when "all", backend bypasses owner restriction. */
+  scope?: "mine" | "all";
 }
 
 export interface PaginatedResponse<T> {

@@ -1,3 +1,6 @@
+import { Archive, RotateCcw, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import type { StatusTab } from "./StatusTabs";
 
 interface Props {
@@ -6,6 +9,9 @@ interface Props {
   onArchive: (ids: number[]) => void;
   onRestore: (ids: number[]) => void;
   onClear: () => void;
+  itemNoun?: string;
+  isPending?: boolean;
+  className?: string;
 }
 
 export function BulkActionToolbar({
@@ -14,6 +20,9 @@ export function BulkActionToolbar({
   onArchive,
   onRestore,
   onClear,
+  itemNoun = "items",
+  isPending = false,
+  className,
 }: Props) {
   if (selectedIds.length === 0) return null;
 
@@ -24,33 +33,54 @@ export function BulkActionToolbar({
   const restorable = statusContext === "archived";
 
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-3 rounded-md bg-zinc-900 px-4 py-2 ring-1 ring-zinc-800">
-      <span className="text-sm text-zinc-300">
+    <div
+      role="region"
+      aria-label="Bulk actions"
+      className={cn(
+        "sticky top-0 z-10 flex items-center gap-3 rounded-lg",
+        "border border-accent/40 bg-surface-elevated/95 backdrop-blur",
+        "px-4 py-2 shadow-sm",
+        className,
+      )}
+    >
+      <span className="text-sm font-medium text-text-primary">
         {selectedIds.length} selected
       </span>
+      <span className="text-xs text-text-muted">·</span>
       {archiveable && (
-        <button
-          type="button"
+        <Button
+          variant="danger"
+          size="sm"
           onClick={() => onArchive(selectedIds)}
-          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+          disabled={isPending}
         >
+          <Archive size={14} aria-hidden="true" />
           Archive {selectedIds.length}
-        </button>
+        </Button>
       )}
       {restorable && (
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => onRestore(selectedIds)}
-          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+          disabled={isPending}
         >
+          <RotateCcw size={14} aria-hidden="true" />
           Restore {selectedIds.length}
-        </button>
+        </Button>
       )}
+      <span className="ml-auto" />
       <button
         type="button"
         onClick={onClear}
-        className="ml-auto text-sm text-zinc-400 hover:text-zinc-200"
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs",
+          "text-text-muted hover:text-text-primary hover:bg-surface-overlay",
+          "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+        )}
+        aria-label={`Clear ${selectedIds.length} ${itemNoun} from selection`}
       >
+        <X size={12} aria-hidden="true" />
         Clear
       </button>
     </div>

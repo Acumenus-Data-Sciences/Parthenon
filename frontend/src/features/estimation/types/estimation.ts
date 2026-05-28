@@ -47,6 +47,11 @@ export interface EstimationAnalysis {
   updated_at: string;
   executions?: AnalysisExecution[];
   latest_execution?: AnalysisExecution | null;
+  // Library lifecycle (Phase D §6.x)
+  status?: "draft" | "active" | "archived" | null;
+  archived_at?: string | null;
+  archived_by?: number | null;
+  promoted_at?: string | null;
 }
 
 export interface KaplanMeierPoint {

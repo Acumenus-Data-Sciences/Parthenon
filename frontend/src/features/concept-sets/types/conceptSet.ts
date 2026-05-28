@@ -12,6 +12,11 @@ export interface ConceptSet {
   recent_items?: Record<number, string>;
   created_at: string;
   updated_at: string;
+  // Library lifecycle (Phase D §6.x)
+  status?: "draft" | "active" | "archived" | null;
+  archived_at?: string | null;
+  archived_by?: number | null;
+  promoted_at?: string | null;
 }
 
 export interface ConceptSetItem {

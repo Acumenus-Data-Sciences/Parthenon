@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Library\BulkDeleteRequest;
 use App\Http\Requests\Admin\Library\ReassignOwnerRequest;
+use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
@@ -36,6 +37,7 @@ class LibraryController extends Controller
     public const TABLES = [
         ['table' => 'concept_sets', 'type' => 'concept_set'],
         ['table' => 'cohort_definitions', 'type' => 'cohort_definition'],
+        ['table' => 'characterizations', 'type' => 'characterization'],
         ['table' => 'incidence_rate_analyses', 'type' => 'incidence_rate_analysis'],
         ['table' => 'pathway_analyses', 'type' => 'pathway_analysis'],
         ['table' => 'estimation_analyses', 'type' => 'estimation_analysis'],
@@ -451,6 +453,7 @@ class LibraryController extends Controller
         return match ($type) {
             'concept_set' => ConceptSet::class,
             'cohort_definition' => CohortDefinition::class,
+            'characterization' => Characterization::class,
             'incidence_rate_analysis' => IncidenceRateAnalysis::class,
             'pathway_analysis' => PathwayAnalysis::class,
             'estimation_analysis' => EstimationAnalysis::class,

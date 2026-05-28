@@ -29,6 +29,9 @@ import {
 } from "../hooks/useConceptSets";
 import { useAggregatedPhoebeRecommendations } from "../hooks/usePhoebeRecommendations";
 import { exportConceptSet } from "../api/conceptSetApi";
+import { LifecycleHeaderControl } from "@/features/library/components/LifecycleHeaderControl";
+import { useAuthStore } from "@/stores/authStore";
+import type { LibraryStatus } from "@/features/library/types";
 
 export default function ConceptSetDetailPage() {
   const { t } = useTranslation("app");
@@ -285,6 +288,20 @@ export default function ConceptSetDetailPage() {
               {conceptSet.description ?? t("conceptSets.detail.addDescription")}
             </p>
           )}
+
+          {/* Lifecycle status */}
+          <div className="mt-2">
+            <LifecycleHeaderControl
+              entity="concept-sets"
+              id={conceptSet.id}
+              status={(conceptSet.status as LibraryStatus | null | undefined) ?? "active"}
+              name={conceptSet.name}
+              canEdit={
+                useAuthStore.getState().user?.id === conceptSet.author_id ||
+                useAuthStore.getState().isSuperAdmin()
+              }
+            />
+          </div>
 
           {/* Tags */}
           {conceptSet.tags?.length > 0 && (

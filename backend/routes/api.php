@@ -2200,6 +2200,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     foreach ([
         'concept-sets' => 'concept-sets',
         'cohort-definitions' => 'cohorts',
+        'characterizations' => 'analyses',
         'incidence-rate-analyses' => 'analyses',
         'pathway-analyses' => 'analyses',
         'estimation-analyses' => 'analyses',
