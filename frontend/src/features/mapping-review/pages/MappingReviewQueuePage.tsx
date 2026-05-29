@@ -15,6 +15,7 @@ import { SimilarityBar } from "../components/SimilarityBar";
 import { StatusPill } from "../components/StatusPill";
 import { KeyboardHelpOverlay } from "../components/KeyboardHelpOverlay";
 import { useReviewerKeyboardShortcuts } from "../hooks/useReviewerKeyboardShortcuts";
+import { HelpButton } from "@/features/help";
 import { tAuto } from "@/i18n/autoUserFacing";
 
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
@@ -131,16 +132,19 @@ function MappingReviewQueuePage() {
               {tAuto("harmoniaHarmonizesTheRerankQueueReviewPendingSuggestions_9e9cee97")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setHelpOpen(true)}
-            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800"
-            aria-label={tAuto("showKeyboardShortcuts_9855e663")}
-            aria-keyshortcuts="?"
-          >
-            <kbd className="font-mono text-xs">?</kbd>{" "}
-            <span className="ml-1">{tAuto("keyboard_6662c40b")}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <HelpButton helpKey="admin.mapping-review" />
+            <button
+              type="button"
+              onClick={() => setHelpOpen(true)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800"
+              aria-label={tAuto("showKeyboardShortcuts_9855e663")}
+              aria-keyshortcuts="?"
+            >
+              <kbd className="font-mono text-xs">?</kbd>{" "}
+              <span className="ml-1">{tAuto("keyboard_6662c40b")}</span>
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusPill status="pending" count={statsQuery.data?.pending ?? 0} />

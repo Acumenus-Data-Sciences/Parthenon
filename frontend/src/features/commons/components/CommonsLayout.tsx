@@ -20,7 +20,7 @@ import AskAbbyChannel from "./abby/AskAbbyChannel";
 import AbbyMentionHandler from "./abby/AbbyMentionHandler";
 import { CallBanner } from "./calls/CallBanner";
 import { CommonsCallModal } from "./calls/CommonsCallModal";
-import { WhatsNewModal } from "@/features/help";
+import { HelpButton, WhatsNewModal } from "@/features/help";
 
 export function CommonsLayout() {
   const { t } = useTranslation("commons");
@@ -137,7 +137,10 @@ export function CommonsLayout() {
           <h1 className="text-[15px] font-semibold tracking-tight text-foreground">
             {t("page.title")}
           </h1>
-          <NotificationBell />
+          <div className="flex items-center gap-1">
+            <HelpButton helpKey="commons" />
+            <NotificationBell />
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {channelsLoading ? (

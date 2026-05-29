@@ -1,0 +1,15 @@
+{
+  "key": "library.cleanup",
+  "title": "Cleanup Suggestions",
+  "description": "Cleanup Suggestions surfaces concept sets, cohort definitions, and analyses you own that are still active but haven't been used or updated in 90+ days. It helps you keep your workspace tidy by recommending stale items to archive.\n\nArchiving is non-destructive — items move out of your active lists but remain fully recoverable from the Library's Trash tab.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Items appear here only after 90 days of inactivity — recently touched work is never flagged.",
+    "Archiving is reversible: restore anything from the Library Trash tab if you need it again.",
+    "Use the bulk archive action to clear several stale items in one step.",
+    "Tidying your active lists makes search and selection faster across the whole platform.",
+    "An empty page ('All clean') means none of your items are currently stale.",
+    "Cleanup only ever suggests items you own — it never touches other users' work."
+  ]
+}

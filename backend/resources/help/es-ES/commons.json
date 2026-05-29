@@ -1,0 +1,15 @@
+{
+  "key": "commons",
+  "title": "Commons",
+  "description": "Commons es el espacio de colaboración donde los equipos de investigación discuten estudios, comparten artefactos y coordinan el trabajo en tiempo real. Los canales organizan la conversación por proyecto, cohorte o tema; la vista de Anuncios difunde avisos a toda la plataforma; y la Base de conocimiento muestra artículos curados del wiki.\n\nMencione a Abby en cualquier canal para incorporar asistencia de IA a la conversación, y referencie definiciones de cohortes, análisis o figuras directamente desde su biblioteca para que los colaboradores siempre vean el objeto en vivo.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Cree un canal por cohorte, estudio o análisis para mantener las discusiones agrupadas y en contexto.",
+    "Mencione a Abby con @ en un mensaje para hacer una pregunta sin salir de la conversación; su respuesta es visible para todo el canal.",
+    "La Base de conocimiento (icono de libro) contiene artículos curados sincronizados desde el wiki del proyecto; búsquela antes de repetir una pregunta.",
+    "El panel Novedades resume los lanzamientos recientes de la plataforma extraídos del registro de cambios.",
+    "Los colaboradores en línea aparecen al final de la barra lateral; la presencia se actualiza en vivo mediante WebSockets.",
+    "Las referencias compartidas enlazan a objetos en vivo de la biblioteca: cuando la cohorte o el análisis subyacente cambian, la referencia se mantiene actualizada."
+  ]
+}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, RotateCcw, Search, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { HelpButton } from "@/features/help";
 import { HardDeleteModal } from "../components/HardDeleteModal";
 import { ReassignOwnerModal } from "../components/ReassignOwnerModal";
 import { PurgeConfirmModal } from "../components/PurgeConfirmModal";
@@ -163,9 +164,12 @@ export default function AdminLibraryPage() {
   return (
     <div className="p-6 space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-text-primary">
-          Library Administration
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-text-primary">
+            Library Administration
+          </h1>
+          <HelpButton helpKey="admin.library" />
+        </div>
         <p className="text-sm text-text-muted">
           Cross-cuts every lifecycle-managed table — concept sets, cohort
           definitions, and analyses. Promote, archive, restore, reassign, or

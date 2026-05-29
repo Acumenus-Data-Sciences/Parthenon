@@ -1,0 +1,15 @@
+{
+  "key": "risk-scores",
+  "title": "Puntuaciones de riesgo",
+  "description": "Puntuaciones de riesgo calcula puntuaciones de riesgo clínico validadas sobre una cohorte OMOP CDM, incluyendo el Índice de Comorbilidad de Charlson, Elixhauser, CHA₂DS₂-VASc, HAS-BLED y APACHE. Seleccione una cohorte y una definición de puntuación, confirme los conjuntos de conceptos OMOP que aportan cada entrada clínica y luego ejecute un cálculo por lotes que registra puntuaciones por paciente y distribuciones a nivel poblacional.\n\nEl Hub lista cada ejecución con su estado y fuente. Abra una ejecución para ver el histograma de puntuaciones, la estratificación por bandas de riesgo y el detalle por paciente. Use **Crear** para configurar una nueva ejecución.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Cada puntuación declara los dominios OMOP que necesita (condiciones, fármacos, mediciones, demografía); confirme que la fuente tiene esos dominios poblados antes de ejecutar.",
+    "CHA₂DS₂-VASc y HAS-BLED están diseñados para poblaciones con fibrilación auricular; restrinja la cohorte en consecuencia para obtener resultados clínicamente significativos.",
+    "Los índices de Charlson y Elixhauser dependen de mapeos de condiciones ICD/SNOMED; revise los conjuntos de conceptos incluidos si su fuente usa un vocabulario inusual.",
+    "Los umbrales de las bandas de riesgo siguen guías publicadas; la vista de detalle permite reestratificar con puntos de corte personalizados.",
+    "Las puntuaciones se calculan sobre la instantánea de la cohorte en el momento de la ejecución, no en vivo; vuelva a ejecutar tras regenerar la cohorte.",
+    "Las cohortes grandes se procesan como trabajos en segundo plano; siga el progreso en la página de Trabajos y abra la ejecución al finalizar."
+  ]
+}

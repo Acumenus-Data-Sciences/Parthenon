@@ -32,6 +32,7 @@ const ROUTE_CONTEXT_MAP: [RegExp, string, string][] = [
   [/^\/ingestion/, "data_ingestion", "Data Ingestion"],
   [/^\/care-gaps/, "care_gaps", "Care Gaps"],
   [/^\/care-bundles/, "care_gaps", "Care Gaps"],
+  [/^\/library/, "library", "Library"],
   [/^\/jobs/, "jobs", "Jobs"],
   [/^\/gis/, "gis", "GIS Explorer"],
   [/^\/query-assistant/, "query_assistant", "Query Assistant"],

@@ -1,0 +1,15 @@
+{
+  "key": "commons",
+  "title": "Commons",
+  "description": "Commons is the collaboration workspace where research teams discuss studies, share artifacts, and coordinate work in real time. Channels organize conversation by project, cohort, or topic; the Announcements view broadcasts platform-wide notices; and the Knowledge Base surfaces curated wiki articles.\n\nMention Abby in any channel to pull AI assistance into the conversation, and reference cohort definitions, analyses, or figures directly from your library so collaborators always see the live object.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Create one channel per cohort, study, or analysis to keep discussions threaded and in context.",
+    "@-mention Abby in a message to ask a question without leaving the conversation — her reply is visible to the whole channel.",
+    "The Knowledge Base (book icon) holds curated articles synced from the project wiki; search it before asking a repeat question.",
+    "The What's New panel summarizes recent platform releases drawn from the changelog.",
+    "Online collaborators appear at the bottom of the sidebar; presence updates live over WebSockets.",
+    "Shared references link to live library objects — when the underlying cohort or analysis changes, the reference stays current."
+  ]
+}

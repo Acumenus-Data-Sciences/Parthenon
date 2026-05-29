@@ -1,0 +1,15 @@
+{
+  "key": "admin.mapping-review",
+  "title": "Concept Mapping Review",
+  "description": "The Concept Mapping Review queue is where data stewards review AI-suggested mappings from source codes to OMOP standard concepts. Harmonia generates and re-ranks candidate mappings; reviewers approve, reject, or escalate each suggestion.\n\nFilter by status (pending, approved, rejected, escalated) and confidence, sort the queue to triage low-confidence or frequently-seen codes first, and use keyboard shortcuts to move through the queue rapidly.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Sort by 'Lowest confidence first' to focus review effort where the model is least certain.",
+    "Sort by 'Most seen first' to prioritize source codes that affect the largest number of records.",
+    "Press ? to see all keyboard shortcuts — approve and reject are single keystrokes for fast triage.",
+    "Escalate a mapping when it needs a domain expert rather than a simple yes/no decision.",
+    "Approved mappings flow into the source-to-standard vocabulary used by every cohort and analysis — accuracy here propagates everywhere.",
+    "Confidence reflects the re-ranker's score; always confirm the standard concept's domain matches the source code's intent."
+  ]
+}

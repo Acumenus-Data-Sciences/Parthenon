@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { HelpButton } from "@/features/help";
 import { useCleanupSuggestions } from "../api/cleanupApi";
 import {
   useBulkArchive,
@@ -90,9 +91,12 @@ export default function CleanupSuggestionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">
-          Cleanup Suggestions
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-text-primary">
+            Cleanup Suggestions
+          </h1>
+          <HelpButton helpKey="library.cleanup" />
+        </div>
         <p className="mt-1 text-sm text-text-muted">
           Items you own that are active but haven't been used or updated in
           90+ days. Archive what you no longer need — it stays recoverable.

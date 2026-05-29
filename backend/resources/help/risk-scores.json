@@ -1,0 +1,15 @@
+{
+  "key": "risk-scores",
+  "title": "Risk Scores",
+  "description": "Risk Scores computes validated clinical risk scores across an OMOP CDM cohort — including the Charlson Comorbidity Index, Elixhauser, CHA₂DS₂-VASc, HAS-BLED, and APACHE. Pick a cohort and a score definition, confirm the OMOP concept sets that supply each clinical input, then run a batch calculation that writes per-patient scores and population-level distributions.\n\nThe Hub lists every analysis run with its status and source. Open a run to see the score histogram, risk-band stratification, and per-patient detail. Use **Create** to configure a new run.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Each score declares the OMOP domains it needs (conditions, drugs, measurements, demographics) — confirm the source has those domains populated before running.",
+    "CHA₂DS₂-VASc and HAS-BLED are intended for atrial-fibrillation populations; restrict the cohort accordingly for clinically meaningful results.",
+    "The Charlson and Elixhauser indices rely on ICD/SNOMED condition mappings — review the bundled concept sets if your source uses an unusual vocabulary.",
+    "Risk-band thresholds follow published guidelines; the detail view lets you re-stratify with custom cut points.",
+    "Scores are computed against the cohort snapshot at run time, not live — re-run after regenerating the cohort.",
+    "Large cohorts run as background jobs; track progress on the Jobs page and open the run when it completes."
+  ]
+}

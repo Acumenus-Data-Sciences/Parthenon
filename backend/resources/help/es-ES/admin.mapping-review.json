@@ -1,0 +1,15 @@
+{
+  "key": "admin.mapping-review",
+  "title": "Revisión de mapeo de conceptos",
+  "description": "La cola de Revisión de mapeo de conceptos es donde los administradores de datos revisan los mapeos sugeridos por IA desde códigos fuente a conceptos estándar OMOP. Harmonia genera y reordena los mapeos candidatos; los revisores aprueban, rechazan o escalan cada sugerencia.\n\nFiltre por estado (pendiente, aprobado, rechazado, escalado) y confianza, ordene la cola para triar primero los códigos de baja confianza o más frecuentes, y use atajos de teclado para avanzar rápidamente por la cola.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Ordene por 'Menor confianza primero' para concentrar el esfuerzo de revisión donde el modelo está menos seguro.",
+    "Ordene por 'Más vistos primero' para priorizar códigos fuente que afectan al mayor número de registros.",
+    "Pulse ? para ver todos los atajos de teclado; aprobar y rechazar son pulsaciones únicas para un triaje rápido.",
+    "Escale un mapeo cuando requiera un experto en la materia en lugar de una decisión simple de sí/no.",
+    "Los mapeos aprobados se incorporan al vocabulario fuente-a-estándar que usan todas las cohortes y análisis; la precisión aquí se propaga a todo.",
+    "La confianza refleja la puntuación del reordenador; confirme siempre que el dominio del concepto estándar coincide con la intención del código fuente."
+  ]
+}

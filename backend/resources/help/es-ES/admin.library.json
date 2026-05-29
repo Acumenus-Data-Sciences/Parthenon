@@ -1,0 +1,15 @@
+{
+  "key": "admin.library",
+  "title": "Administración de la biblioteca",
+  "description": "Administración de la biblioteca es la vista de superadministrador sobre todos los objetos gestionados por ciclo de vida en Parthenon —conjuntos de conceptos, definiciones de cohortes y análisis— independientemente del propietario. Desde aquí puede promover borradores a publicados, archivar elementos obsoletos, restaurar desde la papelera, reasignar la propiedad cuando un usuario se va, o purgar permanentemente registros eliminados de forma lógica.\n\nLa pestaña **Activos** muestra elementos vivos agrupados por estado del ciclo de vida; la pestaña **Papelera** muestra elementos eliminados de forma lógica que pueden restaurarse o eliminarse definitivamente.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Esta vista está restringida a superadministradores y abarca los elementos de todos los usuarios; trate el trabajo ajeno con cuidado.",
+    "Archivar es una eliminación lógica reversible (recuperable desde la pestaña Papelera); Purgar es una eliminación física permanente que no se puede deshacer.",
+    "Reasignar propietario es la herramienta correcta al dar de baja a un investigador: transfiere los elementos sin perder el historial.",
+    "Use el filtro de Tipo y las pestañas de estado para acotar bibliotecas grandes antes de ejecutar acciones masivas.",
+    "Las acciones de ciclo de vida masivas se aplican a cada fila seleccionada; confirme el recuento de selección en la barra de herramientas antes de confirmar.",
+    "El estado del ciclo de vida (borrador → publicado → archivado) se comparte con la vista de Biblioteca de cada usuario; los cambios aquí son visibles de inmediato para los propietarios."
+  ]
+}

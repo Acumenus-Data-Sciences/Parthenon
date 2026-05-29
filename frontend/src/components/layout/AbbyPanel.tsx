@@ -111,6 +111,12 @@ const CONTEXT_SUGGESTIONS: Record<string, string[]> = {
     "What is a care gap measure?",
     "How do I create a care bundle?",
   ],
+  library: [
+    "What does archiving a concept set or cohort do?",
+    "How do I restore something I archived by mistake?",
+    "What makes an item show up in Cleanup Suggestions?",
+    "What's the difference between draft, published, and archived?",
+  ],
   patient_similarity: [
     "How does patient similarity search work?",
     "What features are used to find similar patients?",
@@ -227,6 +233,7 @@ const CONTEXT_LABELS: Record<string, string> = {
   morpheus: "Morpheus",
   data_ingestion: "Data Ingestion",
   care_gaps: "Care Gaps",
+  library: "Library",
   commons: "Commons",
   phenotype_library: "Phenotype Library",
   workbench: "Workbench",

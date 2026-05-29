@@ -1,0 +1,15 @@
+{
+  "key": "library.cleanup",
+  "title": "Sugerencias de limpieza",
+  "description": "Sugerencias de limpieza muestra los conjuntos de conceptos, definiciones de cohortes y análisis de su propiedad que siguen activos pero que no se han usado ni actualizado en más de 90 días. Le ayuda a mantener su espacio de trabajo ordenado recomendando archivar elementos obsoletos.\n\nArchivar no es destructivo: los elementos salen de sus listas activas pero permanecen totalmente recuperables desde la pestaña Papelera de la Biblioteca.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Los elementos solo aparecen aquí tras 90 días de inactividad; el trabajo reciente nunca se marca.",
+    "Archivar es reversible: restaure cualquier elemento desde la pestaña Papelera de la Biblioteca si vuelve a necesitarlo.",
+    "Use la acción de archivado masivo para retirar varios elementos obsoletos de una vez.",
+    "Ordenar sus listas activas acelera la búsqueda y la selección en toda la plataforma.",
+    "Una página vacía ('Todo limpio') significa que ninguno de sus elementos está obsoleto actualmente.",
+    "La limpieza solo sugiere elementos de su propiedad; nunca afecta al trabajo de otros usuarios."
+  ]
+}
