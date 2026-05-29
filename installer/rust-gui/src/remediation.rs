@@ -163,7 +163,7 @@ pub async fn run_server_mode_setup(
     #[cfg(not(target_os = "linux"))]
     {
         let _ = (fqdn, acme_email, proxy);
-        return Err("Server mode is currently Linux-only in v0.3.0".into());
+        Err("Server mode is currently Linux-only in v0.3.0".into())
     }
     #[cfg(target_os = "linux")]
     {
