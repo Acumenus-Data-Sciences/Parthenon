@@ -142,11 +142,7 @@ pub fn run_elevated(cmd: &ElevatedCommand) -> Result<Output, ElevationError> {
 /// `auth_admin_keep`, so the user gets one prompt per ~5-minute session for
 /// the entire installer flow.
 #[cfg(target_os = "linux")]
-pub fn run_helper(
-    subcommand: &str,
-    args: &[&str],
-    reason: &str,
-) -> Result<Output, ElevationError> {
+pub fn run_helper(subcommand: &str, args: &[&str], reason: &str) -> Result<Output, ElevationError> {
     const HELPER_PATH: &str = "/usr/libexec/parthenon-installer-helper";
     if !std::path::Path::new(HELPER_PATH).exists() {
         return Err(ElevationError::NotAvailable(format!(
@@ -258,7 +254,11 @@ fn run_elevated_windows(cmd: &ElevatedCommand) -> Result<Output, ElevationError>
          exit $p.ExitCode"
     );
 
-    let pwsh = if which("pwsh").is_some() { "pwsh" } else { "powershell" };
+    let pwsh = if which("pwsh").is_some() {
+        "pwsh"
+    } else {
+        "powershell"
+    };
     let result = Command::new(pwsh)
         .args(["-NoProfile", "-NonInteractive", "-Command", &ps_script])
         .output()

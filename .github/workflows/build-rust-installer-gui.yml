@@ -161,6 +161,47 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Pin the installer bundle version to the release tag so installer
+      # artifacts always match the Parthenon release version. Without this the
+      # committed tauri.conf.json version (a dev default) would name bundles,
+      # which silently drifts behind releases. Release events only — dispatch /
+      # PR builds keep the committed version.
+      - name: Pin installer version to release tag
+        if: ${{ github.event_name == 'release' }}
+        working-directory: installer/rust-gui
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${RELEASE_TAG#v}"
+          echo "Pinning installer version to ${VERSION} (release tag ${RELEASE_TAG})"
+          python - "$VERSION" <<'PY'
+          import json, pathlib, re, sys
+          version = sys.argv[1]
+          conf = pathlib.Path("tauri.conf.json")
+          data = json.loads(conf.read_text())
+          data["version"] = version
+          conf.write_text(json.dumps(data, indent=2) + "\n")
+          # Cargo.toml: [package] version is the first version line in the file.
+          cargo = pathlib.Path("Cargo.toml")
+          cargo.write_text(
+              re.sub(r'(?m)^version = "[^"]*"', f'version = "{version}"', cargo.read_text(), count=1)
+          )
+          # Cargo.lock: anchor on the package name — the first version line in
+          # the lockfile belongs to some other (alphabetically-first) crate.
+          lock = pathlib.Path("Cargo.lock")
+          lock.write_text(
+              re.sub(
+                  r'(name = "parthenon-installer-gui"\nversion = ")[^"]*"',
+                  rf'\g<1>{version}"',
+                  lock.read_text(),
+                  count=1,
+              )
+          )
+          PY
+          test "$(python -c "import json;print(json.load(open('tauri.conf.json'))['version'])")" = "$VERSION"
+          echo "Installer version is now ${VERSION}"
+
       - name: Add Rust targets for macOS universal
         if: ${{ runner.os == 'macOS' && matrix.tauri_target == 'universal-apple-darwin' }}
         run: |

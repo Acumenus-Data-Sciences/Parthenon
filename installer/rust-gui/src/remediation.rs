@@ -262,8 +262,11 @@ fn server_mode_caddy(fqdn: &str, acme_email: &str) -> Result<RemediationOutcome,
         .duration_since(SystemTime::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let temp_path = std::env::temp_dir()
-        .join(format!("parthenon-caddyfile-{}-{}.tmp", std::process::id(), stamp));
+    let temp_path = std::env::temp_dir().join(format!(
+        "parthenon-caddyfile-{}-{}.tmp",
+        std::process::id(),
+        stamp
+    ));
 
     {
         let mut f = fs::File::create(&temp_path)
@@ -412,7 +415,7 @@ fn run_remediation_linux(action: &str) -> Result<RemediationOutcome, ElevationEr
 // persistence so the installer can resume after the user reboots.
 #[cfg(target_os = "windows")]
 fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, ElevationError> {
-    use crate::elevation::{ElevatedCommand, run_elevated};
+    use crate::elevation::{run_elevated, ElevatedCommand};
 
     fn ps_cmd(script: &str, reason: &str) -> ElevatedCommand {
         // Run a PowerShell snippet via the system powershell.exe. -NoProfile
@@ -504,10 +507,7 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
                 Write-Output 'wsl-installed'
             "#;
-            let out = run_elevated(&ps_cmd(
-                script,
-                "Install WSL2 + default Ubuntu distro",
-            ))?;
+            let out = run_elevated(&ps_cmd(script, "Install WSL2 + default Ubuntu distro"))?;
             Ok(outcome_with_followup(
                 out,
                 true,
@@ -531,10 +531,7 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                 if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) { exit $LASTEXITCODE }
                 Write-Output 'docker-desktop-installed'
             "#;
-            let out = run_elevated(&ps_cmd(
-                script,
-                "Install Docker Desktop via winget",
-            ))?;
+            let out = run_elevated(&ps_cmd(script, "Install Docker Desktop via winget"))?;
             Ok(outcome_with_followup(
                 out,
                 false,
@@ -554,10 +551,7 @@ fn run_remediation_windows(action: &str) -> Result<RemediationOutcome, Elevation
                 if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) { exit $LASTEXITCODE }
                 Write-Output 'rancher-installed'
             "#;
-            let out = run_elevated(&ps_cmd(
-                script,
-                "Install Rancher Desktop via winget",
-            ))?;
+            let out = run_elevated(&ps_cmd(script, "Install Rancher Desktop via winget"))?;
             Ok(outcome_with_followup(
                 out,
                 false,
@@ -662,7 +656,10 @@ fn run_remediation_macos(action: &str) -> Result<RemediationOutcome, ElevationEr
         "open-docker-desktop-download" => {
             // Can't redistribute Docker Desktop's .dmg. Open the official
             // download page and wait for the user to install + first-run.
-            let _ = user_shell("/usr/bin/open", &["https://www.docker.com/products/docker-desktop/"])?;
+            let _ = user_shell(
+                "/usr/bin/open",
+                &["https://www.docker.com/products/docker-desktop/"],
+            )?;
             Ok(RemediationOutcome {
                 success: true,
                 stdout: String::new(),

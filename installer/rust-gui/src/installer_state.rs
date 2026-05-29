@@ -59,9 +59,8 @@ pub fn state_dir() -> Option<PathBuf> {
     }
     #[cfg(target_os = "macos")]
     {
-        return std::env::var_os("HOME").map(|h| {
-            PathBuf::from(h).join("Library/Application Support/parthenon-installer")
-        });
+        return std::env::var_os("HOME")
+            .map(|h| PathBuf::from(h).join("Library/Application Support/parthenon-installer"));
     }
     #[cfg(target_os = "windows")]
     {
@@ -115,7 +114,11 @@ fn write_atomic(target: &Path, bytes: &[u8]) -> Result<(), String> {
         if cfg!(target_os = "windows") {
             let _ = fs::remove_file(target);
             fs::rename(&tmp, target).map_err(|e2| {
-                format!("rename {} -> {} (after remove): {e2}", tmp.display(), target.display())
+                format!(
+                    "rename {} -> {} (after remove): {e2}",
+                    tmp.display(),
+                    target.display()
+                )
             })?;
         } else {
             return Err(format!(
