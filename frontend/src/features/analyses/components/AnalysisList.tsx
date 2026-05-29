@@ -31,7 +31,7 @@ import type { LibraryEntity, LibraryStatus } from "@/features/library/types";
 import { lifecycleEntityForAnalysis } from "@/features/library/lib/entityMap";
 
 type PendingLifecycle =
-  | { action: LifecycleAction; id: number; name: string | null }
+  | { action: LifecycleAction; id: number; name: string | null; ids?: undefined }
   | { action: LifecycleAction; ids: number[]; name?: undefined; id?: undefined };
 
 type Analysis =

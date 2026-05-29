@@ -32,7 +32,7 @@ import type { StatusTab } from "@/features/library/components/StatusTabs";
 import type { LibraryStatus } from "@/features/library/types";
 
 type PendingLifecycle =
-  | { action: LifecycleAction; id: number; name: string | null }
+  | { action: LifecycleAction; id: number; name: string | null; ids?: undefined }
   | { action: LifecycleAction; ids: number[]; name?: undefined; id?: undefined };
 
 interface ConceptSetListProps {
