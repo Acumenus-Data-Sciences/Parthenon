@@ -54,25 +54,24 @@ pub fn state_dir() -> Option<PathBuf> {
         if let Some(xdg) = std::env::var_os("XDG_DATA_HOME") {
             return Some(PathBuf::from(xdg).join("parthenon-installer"));
         }
-        return std::env::var_os("HOME")
-            .map(|h| PathBuf::from(h).join(".local/share/parthenon-installer"));
+        std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share/parthenon-installer"))
     }
     #[cfg(target_os = "macos")]
     {
-        return std::env::var_os("HOME")
-            .map(|h| PathBuf::from(h).join("Library/Application Support/parthenon-installer"));
+        std::env::var_os("HOME")
+            .map(|h| PathBuf::from(h).join("Library/Application Support/parthenon-installer"))
     }
     #[cfg(target_os = "windows")]
     {
         if let Some(local) = std::env::var_os("LOCALAPPDATA") {
             return Some(PathBuf::from(local).join("ParthenonInstaller"));
         }
-        return std::env::var_os("USERPROFILE")
-            .map(|h| PathBuf::from(h).join("AppData/Local/ParthenonInstaller"));
+        std::env::var_os("USERPROFILE")
+            .map(|h| PathBuf::from(h).join("AppData/Local/ParthenonInstaller"))
     }
     #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
     {
-        return None;
+        None
     }
 }
 
@@ -88,7 +87,7 @@ pub fn load() -> InstallerState {
         Ok(s) => s,
         Err(_) => return InstallerState::default(),
     };
-    serde_json::from_str(&raw).unwrap_or_else(|_| InstallerState {
+    serde_json::from_str(&raw).unwrap_or(InstallerState {
         schema_version: STATE_SCHEMA_VERSION,
         pending_reboot: None,
     })
