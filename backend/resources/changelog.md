@@ -8,7 +8,7 @@ All notable changes to Parthenon are documented here.
 - **Publish module** — server-side publication drafts with debounced autosave (retry + beforeunload guards), snapshot create/list/revert with optimistic locking, and study-scoped sharing via VisibilityBadge and ShareDropdown
 - **Publication agent** — Claude Agent SDK copilot for manuscript drafting, with read-only and write/approval phases
 - **Study Designer agent** — Claude Agent SDK copilot that assists study design (read-only slice)
-- **Library Lifecycle management** — draft / published / archived / deprecated states across cohort definitions, concept sets, and analyses, with status tabs and live counts on every list page
+- **Library Lifecycle management** — draft / active / archived states across cohort definitions, concept sets, and analyses, with status tabs and live counts on every list page
 - **Admin Library console** (`/admin/library`) — unified index with bulk delete, owner reassignment (permission-checked + audited), trash, and hard-delete with attachment preflight
 - **Cleanup suggestions** — nightly job that surfaces unused library items with an in-app banner and dedicated suggestions page
 - **Studies v2 wizard** — 8-step stepper shell with version popover; Compiler Workbench v2 promoted to default

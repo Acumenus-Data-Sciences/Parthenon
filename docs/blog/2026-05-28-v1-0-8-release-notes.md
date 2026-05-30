@@ -13,8 +13,8 @@ After the v1.0.7 platform/architecture release (CE/EE fork, extension
 points, AGPLv3), v1.0.8 returns to the research surface and lands three
 intertwined feature lines at once: the **Publish module** for authoring and
 sharing study write-ups, **Library Lifecycle management** that gives every
-cohort, concept set, and analysis a draft → published → archived →
-deprecated state machine plus an admin console, and the first two
+cohort, concept set, and analysis a draft → active → archived state
+machine plus an admin console, and the first two
 **Claude Agent SDK copilots** — a Study Designer and a Publication
 assistant — gated behind a single runtime toggle.
 
@@ -48,8 +48,8 @@ analysis types — now carries a lifecycle state, with the plumbing to manage
 it at both user and admin scale.
 
 **Model + API (Phases A–B)**
-- `HasLibraryLifecycle` trait with `draft` / `published` / `archived` /
-  `deprecated` transitions, reapplied to 9 models
+- `HasLibraryLifecycle` trait with `draft` / `active` / `archived`
+  transitions, reapplied to 9 models
 - Lifecycle columns on `concept_sets`, `cohort_definitions`, and 8 analyses
   tables (folding in the prior `deprecated_at`)
 - Owner + super-admin lifecycle policies

@@ -1,7 +1,7 @@
 {
   "key": "admin.library",
   "title": "Library Administration",
-  "description": "Library Administration is the super-admin view across every lifecycle-managed object in Parthenon — concept sets, cohort definitions, and analyses — regardless of owner. From here you can promote drafts to published, archive stale items, restore from trash, reassign ownership when a user leaves, or permanently purge soft-deleted records.\n\nThe **Active** tab shows live items grouped by lifecycle status; the **Trash** tab shows soft-deleted items eligible for restore or hard delete.",
+  "description": "Library Administration is the super-admin view across every lifecycle-managed object in Parthenon — concept sets, cohort definitions, and analyses — regardless of owner. From here you can promote drafts to active, archive stale items, restore from trash, reassign ownership when a user leaves, or permanently purge soft-deleted records.\n\nThe **Active** tab shows live items grouped by lifecycle status; the **Trash** tab shows soft-deleted items eligible for restore or hard delete.",
   "docs_url": null,
   "video_url": null,
   "tips": [
@@ -10,6 +10,6 @@
     "Reassign Owner is the correct tool when off-boarding a researcher — it transfers items without losing history.",
     "Use the Type filter and status tabs to narrow large libraries before running bulk actions.",
     "Bulk lifecycle actions apply to every selected row — confirm the selection count in the toolbar before committing.",
-    "Lifecycle status (draft → published → archived) is shared with each user's own Library view; changes here are immediately visible to owners."
+    "Lifecycle status (draft → active → archived) is shared with each user's own Library view; changes here are immediately visible to owners."
   ]
 }
