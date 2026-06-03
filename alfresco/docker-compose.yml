@@ -72,11 +72,25 @@ services:
         -XX:MinRAMPercentage=50
         -XX:MaxRAMPercentage=60
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/ready"]
-      interval: 20s
-      timeout: 2s
+      # Real LibreOffice probe: convert a tiny .docx -> PDF so a dead
+      # JODConverter OfficeManager surfaces as 'unhealthy'. The stock
+      # /ready probe only checks the Spring app and stays green even when
+      # soffice has died. Test artifact: ./transform-healthcheck/test.docx
+      test:
+        - CMD-SHELL
+        - >-
+          curl -fs -o /tmp/hc.pdf
+          -F file=@/healthcheck/test.docx
+          -F sourceMimetype=application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          -F targetMimetype=application/pdf -F targetExtension=pdf
+          http://localhost:8090/transform
+          && head -c5 /tmp/hc.pdf | grep -q %PDF
+      interval: 120s
+      timeout: 30s
       retries: 3
-      start_period: 10s
+      start_period: 150s
+    volumes:
+      - ./transform-healthcheck:/healthcheck:ro
     depends_on:
       alfresco-activemq:
         condition: service_healthy

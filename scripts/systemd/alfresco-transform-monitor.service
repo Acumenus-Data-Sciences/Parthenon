@@ -1,0 +1,12 @@
+[Unit]
+Description=Alfresco transform-core-aio LibreOffice self-heal watchdog
+Documentation=file:///home/smudoshi/Github/Parthenon/scripts/alfresco-transform-monitor.sh
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/smudoshi/Github/Parthenon/scripts/alfresco-transform-monitor.sh
+# Detection-only (no auto-restart): uncomment the next line, then daemon-reload.
+# Environment=ALFRESCO_MONITOR_MODE=detect
+Nice=10
