@@ -66,11 +66,11 @@ services:
     container_name: alfresco-transform-core-aio
     image: alfresco/alfresco-transform-core-aio:5.4.0
     restart: unless-stopped
-    mem_limit: 1536m
+    mem_limit: 2560m
     environment:
       JAVA_OPTS: >-
         -XX:MinRAMPercentage=50
-        -XX:MaxRAMPercentage=80
+        -XX:MaxRAMPercentage=60
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/ready"]
       interval: 20s
