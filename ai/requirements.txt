@@ -19,7 +19,7 @@ python-multipart>=0.0.30
 ohdsi-circe-python-alpha>=0.2.0
 ariadne @ git+https://github.com/OHDSI/Ariadne.git
 spacy>=3.8.14
-anthropic>=0.42.0
+anthropic>=0.105.2
 claude-agent-sdk>=0.2.86
 pusher>=3.3.4
 
