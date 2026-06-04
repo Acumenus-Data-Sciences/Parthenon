@@ -44,6 +44,17 @@ RUN curl -fL -o /tmp/plink2.zip \
 ## ──────────────────────────────────────────────────────────────────
 FROM rocker/r-ver:4.4 AS hades-base
 
+# GitHub API auth for the many remotes::install_github() calls below.
+# Anonymous GitHub API is capped at 60 req/hr, which the ~11 install_github
+# steps exhaust mid-build — surfacing as an intermittent
+# "Failed to install 'unknown package' from GitHub" (a 403 the API masks).
+# Callers pass a token via --build-arg GITHUB_PAT=... (CI: secrets.GITHUB_TOKEN);
+# remotes reads $GITHUB_PAT automatically. The empty default preserves anonymous
+# behavior for builds that don't supply one — so the pushed images produced by
+# docker-build.yml (which passes no build-arg) never bake in a token.
+ARG GITHUB_PAT=""
+ENV GITHUB_PAT=${GITHUB_PAT}
+
 # System dependencies required by HADES / DatabaseConnector / Cyclops / Arrow
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \

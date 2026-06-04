@@ -273,7 +273,13 @@ jobs:
           [ -f .env ] || cp .env.example .env 2>/dev/null || touch .env
 
       - name: Build darkstar image
-        run: docker compose build darkstar
+        # Pass the CI token as GITHUB_PAT so the Dockerfile's many
+        # remotes::install_github() calls authenticate against the GitHub API
+        # (1000+ req/hr) instead of the anonymous 60/hr limit, which
+        # intermittently fails the build with "Failed to install 'unknown
+        # package' from GitHub". The image is built locally for testing and not
+        # pushed, and the token is ephemeral.
+        run: docker compose build --build-arg GITHUB_PAT="${{ secrets.GITHUB_TOKEN }}" darkstar
 
       - name: Start supporting services + darkstar
         run: |
