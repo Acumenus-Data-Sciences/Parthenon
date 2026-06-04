@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from collections import Counter
+from typing import cast
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -62,7 +63,7 @@ async def chroma_health() -> dict:
 async def ingest_docs() -> dict:
     """Trigger documentation ingestion into ChromaDB."""
     stats = await run_in_threadpool(ingest_docs_directory, DOCS_DIR)
-    return stats
+    return cast(dict, stats)
 
 
 @router.post("/prune-conversations/{user_id}")
@@ -81,7 +82,7 @@ async def promote_faq(days: int = 7) -> dict:
 @router.post("/ingest-clinical")
 async def ingest_clinical(limit: int | None = None) -> dict:
     """Trigger clinical concept ingestion from OMOP vocabulary."""
-    return await run_in_threadpool(ingest_clinical_concepts, limit=limit)
+    return cast(dict, await run_in_threadpool(ingest_clinical_concepts, limit=limit))
 
 
 @router.post("/seed-faq")
@@ -93,7 +94,7 @@ async def seed_faq() -> dict:
 @router.post("/aggregate-conversations")
 async def aggregate_convos() -> dict:
     """Backfill legacy per-user Abby memory into the shared conversation collection."""
-    return await run_in_threadpool(aggregate_conversations)
+    return cast(dict, await run_in_threadpool(aggregate_conversations))
 
 
 class CommonsMessageInput(BaseModel):
@@ -137,7 +138,7 @@ async def ingest_ohdsi_papers(corpus_dir: str | None = None) -> dict:
     the ohdsi_papers collection for RAG retrieval on clinical pages.
     """
     target_dir = corpus_dir or OHDSI_CORPUS_DIR
-    return await run_in_threadpool(ingest_ohdsi_corpus, target_dir)
+    return cast(dict, await run_in_threadpool(ingest_ohdsi_corpus, target_dir))
 
 
 TEXTBOOKS_DIR = os.environ.get("TEXTBOOKS_DIR", "/app/medical_textbooks")
@@ -146,7 +147,7 @@ TEXTBOOKS_DIR = os.environ.get("TEXTBOOKS_DIR", "/app/medical_textbooks")
 @router.post("/ingest-textbooks")
 async def ingest_textbooks_endpoint() -> dict:
     """Ingest pre-extracted medical textbook JSONL into medical_textbooks collection."""
-    return await run_in_threadpool(ingest_medical_textbooks, TEXTBOOKS_DIR)
+    return cast(dict, await run_in_threadpool(ingest_medical_textbooks, TEXTBOOKS_DIR))
 
 
 OHDSI_BOOK_DIR = os.environ.get("OHDSI_BOOK_DIR", "/app/book_of_ohdsi")
@@ -161,11 +162,14 @@ async def ingest_knowledge() -> dict:
     Ingests Book of OHDSI, HADES vignettes, and forum threads into
     the ohdsi_papers collection for comprehensive RAG retrieval.
     """
-    return await run_in_threadpool(
-        ingest_ohdsi_knowledge,
-        book_dir=OHDSI_BOOK_DIR,
-        vignettes_dir=OHDSI_VIGNETTES_DIR,
-        forums_dir=OHDSI_FORUMS_DIR,
+    return cast(
+        dict,
+        await run_in_threadpool(
+            ingest_ohdsi_knowledge,
+            book_dir=OHDSI_BOOK_DIR,
+            vignettes_dir=OHDSI_VIGNETTES_DIR,
+            forums_dir=OHDSI_FORUMS_DIR,
+        ),
     )
 
 

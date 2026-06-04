@@ -11,6 +11,7 @@ Batch mode consolidates all concepts across patients into minimal encoding calls
 """
 
 import logging
+from typing import cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -132,7 +133,7 @@ def compute_patient_embedding(features: dict) -> list[float]:
     if norm > 0:
         embedding = embedding / norm
 
-    return embedding.tolist()
+    return cast("list[float]", embedding.tolist())
 
 
 # ---------------------------------------------------------------------------
@@ -221,4 +222,4 @@ def compute_patient_embeddings_batch(patients: list[dict]) -> list[list[float]]:
     norms = np.where(norms > 0, norms, 1.0)
     embeddings = embeddings / norms
 
-    return embeddings.tolist()
+    return cast("list[list[float]]", embeddings.tolist())
