@@ -34,9 +34,19 @@ jobs:
           REPO=$(grep '^repository=' "$PIN_FILE" | cut -d'=' -f2)
           echo "pinned=$PINNED" >> "$GITHUB_OUTPUT"
           echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          # The pin SHA is captured at integration time; until then it is a
+          # placeholder and there is nothing upstream to diff. Skip cleanly
+          # (green) rather than 404 on a compare against a bogus ref.
+          if [ "$PINNED" = "PLACEHOLDER_REPLACE_AT_INTEGRATION" ] || [ -z "$PINNED" ]; then
+            echo "Pin not yet integrated — skipping upstream drift check."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Fetch upstream HEAD
         id: head
+        if: steps.pin.outputs.skip != 'true'
         run: |
           REPO_PATH=$(echo "${{ steps.pin.outputs.repo }}" | sed 's|https://github.com/||')
           HEAD=$(curl -fsSL "https://api.github.com/repos/$REPO_PATH/commits/HEAD" | jq -r '.sha')
@@ -44,13 +54,14 @@ jobs:
 
       - name: Compare pinned vs HEAD
         id: diff
+        if: steps.pin.outputs.skip != 'true'
         run: |
           PINNED="${{ steps.pin.outputs.pinned }}"
           HEAD="${{ steps.head.outputs.head }}"
           REPO_PATH=$(echo "${{ steps.pin.outputs.repo }}" | sed 's|https://github.com/||')
-          if [ "$PINNED" = "$HEAD" ] || [ "$PINNED" = "PLACEHOLDER_REPLACE_AT_INTEGRATION" ]; then
-            echo "no-drift" >> "$GITHUB_OUTPUT"
+          if [ "$PINNED" = "$HEAD" ]; then
             echo "no-drift=true" >> "$GITHUB_OUTPUT"
+            echo "open-issue=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           # Count changed lines between PINNED and HEAD via the GitHub

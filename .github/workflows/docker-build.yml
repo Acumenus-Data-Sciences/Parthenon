@@ -169,7 +169,12 @@ jobs:
           else
             # Only build images whose Dockerfiles, service code, or dependency files changed.
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              git fetch origin "${{ github.base_ref }}" --depth=1
+              # Fetch the FULL base branch — NOT --depth=1. A shallow base ref
+              # severs the common ancestor, so the three-dot (merge-base) diff
+              # `origin/<base>...HEAD` dies with "fatal: ...: no merge base"
+              # (exit 128). checkout above already uses fetch-depth: 0, so a
+              # plain fetch keeps history intact and the merge base reachable.
+              git fetch --no-tags origin "${{ github.base_ref }}"
               CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD)
             else
               BEFORE="${{ github.event.before }}"
