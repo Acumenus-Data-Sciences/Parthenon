@@ -11,7 +11,7 @@ jobs:
     name: Verify no stale sudoshi/Parthenon references
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check for stale org references
         run: |
           set -e
@@ -51,7 +51,7 @@ jobs:
     name: Verify public docs current-state claims
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check public docs for stale installer, repo, and license claims
         run: sh docs/site/scripts/check-public-docs-current.sh
 
@@ -59,7 +59,7 @@ jobs:
     name: Verify docs lineage metadata and placement
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
       - name: Check Markdown/MDX lineage contract
@@ -69,7 +69,7 @@ jobs:
     name: Verify LICENSE is AGPL-3.0
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check LICENSE first lines
         run: |
           set -e
@@ -89,7 +89,7 @@ jobs:
     name: Verify package manifests declare AGPL-3.0-only
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - uses: actions/setup-python@v5
@@ -143,7 +143,7 @@ jobs:
     name: Verify NOTICE, LICENSING.md, TRADEMARKS.md exist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           set -e
           for f in NOTICE LICENSING.md TRADEMARKS.md; do
