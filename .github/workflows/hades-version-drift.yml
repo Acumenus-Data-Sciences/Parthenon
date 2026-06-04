@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+  issues: write
 
 jobs:
   check-hades-versions:
@@ -43,22 +43,89 @@ jobs:
           name: hades-version-drift
           path: output/hades/
 
-      - name: Open drift pull request
-        uses: peter-evans/create-pull-request@v6
+      # GitHub Actions is not permitted to open PRs under the org policy, so
+      # instead of peter-evans/create-pull-request we push the refreshed targets
+      # to a branch and open (or update) a tracking issue. A human opens the PR
+      # from the branch — or enables "Allow GitHub Actions to create and approve
+      # pull requests" in repo settings to restore the automated PR.
+      - name: Detect target drift
+        id: drift
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No HADES target drift detected."
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "diffstat<<DIFF_EOF"
+            git diff --stat
+            echo "DIFF_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Push drift branch
+        if: steps.drift.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C automation/hades-version-drift
+          git add -A
+          git commit -m "chore(hades): refresh target package versions"
+          git push --force origin automation/hades-version-drift
+
+      - name: Open or update drift issue
+        if: steps.drift.outputs.changed == 'true'
+        uses: actions/github-script@v9
+        env:
+          DIFFSTAT: ${{ steps.drift.outputs.diffstat }}
         with:
-          branch: automation/hades-version-drift
-          commit-message: "chore(hades): refresh target package versions"
-          title: "chore(hades): refresh target package versions"
-          body: |
-            Automated HADES package drift check.
-
-            Reports are attached to the workflow run:
-            - latest target drift
-            - stable HADES release lock parity
-
-            The latest-target mode may update Parthenon's tracked target versions.
-            The stable-lock mode is reported separately and does not rewrite latest targets.
-          labels: |
-            automation
-            hades
-            dependencies
+          script: |
+            const marker = '<!-- hades-drift-bot -->';
+            const branch = 'automation/hades-version-drift';
+            const title = 'chore(hades): target package version drift detected';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const compareUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/compare/main...${branch}?expand=1`;
+            const body = [
+              marker,
+              '## HADES target package drift detected',
+              '',
+              'The weekly HADES version check refreshed the tracked target versions and',
+              `pushed the proposed change to \`${branch}\`.`,
+              '',
+              '```',
+              (process.env.DIFFSTAT || '').trim() || '(see workflow run artifacts)',
+              '```',
+              '',
+              `**Review & merge:** [open a PR from \`${branch}\`](${compareUrl}).`,
+              `**Drift reports:** download the \`hades-version-drift\` artifact from ${runUrl}`,
+              '',
+              '> GitHub Actions cannot open the PR directly under the current org/repo',
+              '> policy, so this issue is the notification. Open the PR manually, or enable',
+              '> "Allow GitHub Actions to create and approve pull requests" in Settings →',
+              '> Actions → General to restore the fully-automated flow.',
+            ].join('\n');
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const existing = open.find((i) => i.body && i.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.info(`Updated HADES drift issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['dependencies'],
+              });
+              core.info(`Opened HADES drift issue #${created.data.number}`);
+            }

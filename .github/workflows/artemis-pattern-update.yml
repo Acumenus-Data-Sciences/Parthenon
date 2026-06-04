@@ -68,18 +68,41 @@ jobs:
           echo "ref=$PIN" >> "$GITHUB_OUTPUT"
           echo "Pinned HemOnc ref: $PIN"
 
+      - name: Check HemOnc source availability
+        id: hemonc
+        run: |
+          # HemOnc is license-gated and the public HemOnc-org/HemOnc repo is not
+          # resolvable anonymously. Probe it first; if unreachable, skip the
+          # extraction gracefully (job stays green) instead of failing the
+          # scheduled run red. Supply a reachable repo path or a PAT-authenticated
+          # remote in the steps below to re-enable extraction. Use curl (not
+          # git ls-remote) so a private/404 repo returns a status code instead
+          # of hanging on a credential prompt.
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://api.github.com/repos/HemOnc-org/HemOnc")
+          if [ "$CODE" = "200" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "HemOnc source reachable — proceeding with extraction."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=ARTEMIS extraction skipped::HemOnc source (HemOnc-org/HemOnc) returned HTTP ${CODE} — skipping pattern extraction until a reachable source or PAT is supplied."
+          fi
+
       - name: Install HemOnc R-package
+        if: steps.hemonc.outputs.available == 'true'
         run: |
           R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
           R -e "remotes::install_github('HemOnc-org/HemOnc@${{ steps.pin.outputs.ref }}', upgrade='never')"
 
       - name: Run extractor
+        if: steps.hemonc.outputs.available == 'true'
         run: |
           mkdir -p templates/runtime/oncology/artemis/v0.2.0
           Rscript templates/tools/extract_artemis_regimens.R \
             --output templates/runtime/oncology/artemis/v0.2.0/patterns.json
 
       - name: Validate generated JSON shape
+        if: steps.hemonc.outputs.available == 'true'
         run: |
           jq -e '.version == "v0.2.0"' \
             templates/runtime/oncology/artemis/v0.2.0/patterns.json
@@ -92,6 +115,7 @@ jobs:
           done
 
       - name: Auto-commit if changed
+        if: steps.hemonc.outputs.available == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

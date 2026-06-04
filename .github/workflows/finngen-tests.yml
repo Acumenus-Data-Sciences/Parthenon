@@ -260,6 +260,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Provision env files for docker compose
+        run: |
+          # docker-compose.yml loads backend/.env via env_file for several
+          # services and interpolates ${VARS} from the root .env. Both are
+          # gitignored and absent in CI, so `docker compose` aborts with
+          # "env file backend/.env not found" before darkstar ever starts.
+          # Seed them from the committed examples; the finngen-* testthat
+          # suite runs against fixtures (not a live DB), so example values
+          # are sufficient to bring the service up.
+          cp backend/.env.example backend/.env
+          [ -f .env ] || cp .env.example .env 2>/dev/null || touch .env
+
       - name: Build darkstar image
         run: docker compose build darkstar
 
