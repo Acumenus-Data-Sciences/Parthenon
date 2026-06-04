@@ -304,6 +304,12 @@ jobs:
           file: ${{ steps.meta.outputs.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
+          # Authenticate the darkstar image's many remotes::install_github()
+          # calls against the GitHub API (1000+/hr) instead of the anonymous
+          # 60/hr limit it intermittently exhausts. Delivered as a BuildKit
+          # secret (never persisted in any pushed layer); other images ignore it.
+          secrets: |
+            github_pat=${{ secrets.GITHUB_TOKEN }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           labels: |

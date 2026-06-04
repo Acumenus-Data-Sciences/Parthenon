@@ -45,13 +45,18 @@ RUN curl -fL -o /tmp/plink2.zip \
 FROM rocker/r-ver:4.4 AS hades-base
 
 # GitHub API auth for the many remotes::install_github() calls below.
-# Anonymous GitHub API is capped at 60 req/hr, which the ~11 install_github
-# steps exhaust mid-build — surfacing as an intermittent
-# "Failed to install 'unknown package' from GitHub" (a 403 the API masks).
-# Callers pass a token via --build-arg GITHUB_PAT=... (CI: secrets.GITHUB_TOKEN);
-# remotes reads $GITHUB_PAT automatically. The empty default preserves anonymous
-# behavior for builds that don't supply one — so the pushed images produced by
-# docker-build.yml (which passes no build-arg) never bake in a token.
+# Anonymous GitHub API is capped at 60 req/hr, which the install_github steps
+# exhaust mid-build — surfacing as an intermittent "API rate limit exceeded /
+# Failed to install 'unknown package' from GitHub" (HTTP 403). Each R install
+# RUN below reads $GITHUB_PAT, resolved in this order:
+#   1. the GITHUB_PAT build-arg / ENV (used by FinnGen's `docker compose build
+#      --build-arg`; that image is built locally and never pushed), else
+#   2. a BuildKit secret mounted at /run/secrets/github_pat (used by
+#      docker-build.yml's build-push-action, which PUSHES — a secret mount is
+#      never written to any image layer, so the pushed image stays token-free),
+#      else
+#   3. empty → anonymous (local builds that supply neither).
+# The empty ARG default guarantees pushed images carry no token in their ENV.
 ARG GITHUB_PAT=""
 ENV GITHUB_PAT=${GITHUB_PAT}
 
@@ -102,7 +107,9 @@ RUN JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) \
 
 ## Layer 1 — base R plumbing + the two packages that require native compilation
 ##            (rJava needs javareconf to have run; duckdb compiles a C++ library)
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -123,7 +130,9 @@ RUN R -e " \
 "
 
 ## Layer 2 — OHDSI connectivity core (depends on rJava + duckdb from layer 1)
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -136,7 +145,9 @@ RUN R -e " \
 "
 
 ## Layer 3 — analytics core (depends on layer 2)
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -164,7 +175,9 @@ RUN FE_SQL="/usr/local/lib/R/site-library/FeatureExtraction/sql/sql_server" && \
 ## Layer 4 — HADES analysis packages (depends on layers 2 + 3)
 ## install_github used because r-universe lags behind GitHub releases;
 ## pinned tags ensure reproducibility.
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -184,7 +197,9 @@ RUN R -e " \
 ## CohortDiagnostics: phenotype evaluation (incidence, orphan concepts, temporal characterization)
 ## DataQualityDashboard: OHDSI DQ checks (now on CRAN as of Feb 2026)
 ## DeepPatientLevelPrediction: neural network models (Transformer, ResNet, MLP) for PLP
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -201,7 +216,9 @@ RUN R -e " \
 ## Strategus: coordinated multi-analysis study execution
 ## CohortIncidence: epidemiological incidence rate calculations
 ## Characterization: standardized baseline characterization with Table 1 + SMD
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -218,7 +235,9 @@ RUN R -e " \
 ## Runtime-capability parity for package-native OHDSI workflows. Native React
 ## remains the preferred UI for Shiny-adjacent capabilities; the packages are
 ## installed so report/artifact imports and method-specific endpoints can load.
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -243,7 +262,9 @@ RUN R -e " \
 "
 
 ## Layer 7B — OHDSI method + authoring parity packages from pinned GitHub tags
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -265,7 +286,9 @@ RUN R -e " \
 "
 
 ## Layer 7C — OHDSI sharing, exploration, method evaluation, and Shiny compatibility
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -289,7 +312,9 @@ RUN R -e " \
 
 ## Layer 8 — Phase E: ETL tools
 ## ETL-Synthea: Synthea CSV → OMOP CDM converter for synthetic data generation
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
@@ -306,7 +331,9 @@ RUN R -e " \
 ## execute_DBProfile functions.
 ## See docs/lineage/design/specs/2026-04-12-finngen-runtime-foundation-design.md
 ## Commits pinned 2026-04-12 — bump refs after validating upstream changes.
-RUN R -e " \
+RUN --mount=type=secret,id=github_pat,required=false \
+    GITHUB_PAT="${GITHUB_PAT:-$(cat /run/secrets/github_pat 2>/dev/null || true)}" \
+    R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
