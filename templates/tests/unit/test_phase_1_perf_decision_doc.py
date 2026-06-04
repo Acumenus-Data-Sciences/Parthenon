@@ -7,7 +7,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 DECISION_DOC = (
-    REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-perf-decision.md"
+    REPO.parent
+    / "docs"
+    / "lineage"
+    / "modules"
+    / "ingestion"
+    / "templates-phase-1-perf-decision.md"
 )
 
 

@@ -188,7 +188,14 @@ def test_readme_documents_pr_b_resources() -> None:
 
 
 def test_adr_0008_has_pr_b_amendment() -> None:
-    adr = Path(__file__).resolve().parents[3] / "docs" / "adr" / "0008-fhir-to-omop-architecture.md"
+    adr = (
+        Path(__file__).resolve().parents[3]
+        / "docs"
+        / "lineage"
+        / "decisions"
+        / "adr"
+        / "0008-fhir-to-omop-architecture.md"
+    )
     text = adr.read_text(encoding="utf-8")
     assert "PR-B" in text
     assert "drug_type_concept_id" in text

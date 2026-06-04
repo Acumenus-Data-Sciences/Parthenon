@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-DEVLOG = REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1.md"
+DEVLOG = REPO.parent / "docs" / "lineage" / "modules" / "ingestion" / "templates-phase-1.md"
 
 REQUIRED_SECTIONS = [
     "## Goal recap",

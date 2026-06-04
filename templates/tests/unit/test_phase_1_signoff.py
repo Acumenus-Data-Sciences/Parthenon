@@ -5,7 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SIGNOFF = REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-signoff.md"
+SIGNOFF = (
+    REPO.parent / "docs" / "lineage" / "modules" / "ingestion" / "templates-phase-1-signoff.md"
+)
 
 
 def test_phase_1_signoff_exists() -> None:

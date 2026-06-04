@@ -6,7 +6,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 SECURITY_DOC = (
-    REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-security.md"
+    REPO.parent / "docs" / "lineage" / "modules" / "ingestion" / "templates-phase-1-security.md"
 )
 
 

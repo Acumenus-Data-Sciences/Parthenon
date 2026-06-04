@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-DOD_DOC = REPO.parent / "docs" / "devlog" / "modules" / "ingestion" / "templates-phase-1-dod.md"
+DOD_DOC = REPO.parent / "docs" / "lineage" / "modules" / "ingestion" / "templates-phase-1-dod.md"
 
 
 def test_phase_1_dod_doc_exists() -> None:
