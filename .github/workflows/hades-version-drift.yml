@@ -44,7 +44,7 @@ jobs:
           path: output/hades/
 
       - name: Open drift pull request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/hades-version-drift
           commit-message: "chore(hades): refresh target package versions"
