@@ -918,13 +918,17 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Patient Profiles
-        Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
-        Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
-        Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
-        Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
-        Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
-        Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+        // Patient Profiles — PHI, incl. clinical notes (NOTE_NLP). HIGHSEC §7.1/§7.3
+        // require profiles.view on every profile route. Previously these were reachable
+        // by any authenticated principal (e.g. mapping-reviewer) with no RBAC check.
+        Route::middleware('permission:profiles.view')->group(function () {
+            Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
+            Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
+            Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
+            Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
+            Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
+            Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+        });
 
         // Patient Similarity
         Route::prefix('patient-similarity')->group(function () {
@@ -2087,8 +2091,15 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
 });
 
 // ── Morpheus Dashboard & Patient Journey ─────────────────────────────────────
-Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
-    // TODO: Phase H — add permission:morpheus.view middleware per HIGHSEC spec
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve', 'permission:profiles.view'])->group(function () {
+    // Morpheus serves MIMIC-IV ICU patient-journey PHI (diagnoses, meds, labs,
+    // microbiology). HIGHSEC §7 forbids unauthorized access to clinical data; these
+    // routes previously had auth:sanctum only, so any authenticated user — including a
+    // default viewer or mapping-reviewer — could read full ICU patient journeys.
+    // Gated on the existing profiles.view permission (patient-data viewing, granted to
+    // researcher/viewer/super-admin) rather than a new morpheus.view: deploy.sh
+    // intentionally does not run seeders, so a brand-new permission would 403 for
+    // everyone until manually re-seeded.
     // Morpheus Datasets
     Route::get('morpheus/datasets', [MorpheusDatasetController::class, 'index']);
     Route::get('morpheus/datasets/{datasetId}', [MorpheusDatasetController::class, 'show']);
