@@ -161,6 +161,13 @@ class CdmWriterService
         $cdmRow = [];
 
         foreach ($tableMappings as $mapping) {
+            $cdmColumn = $mapping->cdm_column;
+
+            if ($cdmColumn === null) {
+                // Mapping has no target CDM column; nothing to write.
+                continue;
+            }
+
             $sourceColIndex = $headerIndex[$mapping->source_column] ?? null;
 
             if ($sourceColIndex === null) {
@@ -177,7 +184,7 @@ class CdmWriterService
 
             // Apply transform if configured
             $value = $this->applyTransform($sourceValue, $mapping);
-            $cdmRow[$mapping->cdm_column] = $value;
+            $cdmRow[$cdmColumn] = $value;
 
             // Apply concept triple pattern for concept_id columns
             $this->applyConceptTriple(
