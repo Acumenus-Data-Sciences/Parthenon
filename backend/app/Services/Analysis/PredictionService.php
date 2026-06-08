@@ -91,16 +91,20 @@ class PredictionService
             // Call R sidecar
             $result = $this->rService->runPrediction($spec);
 
-            // Check if R returned a 501 (not yet implemented)
+            // The R statistical sidecar reported the analysis package is unavailable.
+            // Do NOT mark this Completed — a "completed" execution with no trained model
+            // misrepresents an empty run as a successful research result. Fail explicitly
+            // while preserving the validated design.
             if ($this->isNotImplemented($result)) {
-                $this->log($execution, 'warning', 'R PatientLevelPrediction package not yet implemented, storing placeholder result');
+                $this->log($execution, 'warning', 'R PatientLevelPrediction package unavailable; marking execution failed (design validated, no model trained)');
 
                 $execution->update([
-                    'status' => ExecutionStatus::Completed,
+                    'status' => ExecutionStatus::Failed,
                     'completed_at' => now(),
+                    'fail_message' => 'Patient-level prediction could not produce results: the R statistical execution environment (PatientLevelPrediction) is not available in this deployment. Your model design was validated and saved, but no model was trained. Contact your administrator to enable the R analytics sidecar.',
                     'result_json' => PredictionResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
-                        'message' => 'R PatientLevelPrediction package not yet configured. Results will be available once the R sidecar is fully implemented.',
+                        'message' => 'R PatientLevelPrediction package not configured. The model design was validated; no model was trained.',
                         'design_validated' => true,
                         'design_summary' => [
                             'target_cohort_id' => $targetCohortId,
@@ -114,7 +118,7 @@ class PredictionService
                     ]),
                 ]);
 
-                $this->log($execution, 'info', 'Prediction execution completed with placeholder result');
+                $this->log($execution, 'info', 'Prediction execution marked failed (R sidecar unavailable)');
 
                 return;
             }

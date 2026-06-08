@@ -104,15 +104,19 @@ class SccsService
 
             $result = $this->rService->runSccs($spec);
 
+            // The R statistical sidecar reported the analysis package is unavailable.
+            // Do NOT mark this Completed — fail explicitly so an empty run is not counted
+            // as a successful research result, while preserving the validated design.
             if ($this->isNotImplemented($result)) {
-                $this->log($execution, 'warning', 'R SCCS package not yet implemented, storing placeholder result');
+                $this->log($execution, 'warning', 'R SelfControlledCaseSeries package unavailable; marking execution failed (design validated, no estimates produced)');
 
                 $execution->update([
-                    'status' => ExecutionStatus::Completed,
+                    'status' => ExecutionStatus::Failed,
                     'completed_at' => now(),
+                    'fail_message' => 'Self-controlled case series could not produce results: the R statistical execution environment (SelfControlledCaseSeries) is not available in this deployment. Your study design was validated and saved, but no estimates were generated. Contact your administrator to enable the R analytics sidecar.',
                     'result_json' => SccsResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
-                        'message' => 'R SelfControlledCaseSeries package not yet configured.',
+                        'message' => 'R SelfControlledCaseSeries package not configured. The study design was validated; no estimates were produced.',
                         'design_validated' => true,
                     ]),
                 ]);
