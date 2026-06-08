@@ -83,7 +83,9 @@ export default function RiskScoreCreatePage() {
   const { data: cohortDefs } = useQuery({
     queryKey: ["cohort-definitions", sourceId],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/sources/${sourceId}/cohort-definitions`);
+      // Cohort definitions are source-agnostic; there is no source-scoped route
+      // (the previous /sources/{id}/cohort-definitions 404'd, leaving the picker empty).
+      const { data } = await apiClient.get(`/cohort-definitions`);
       return (data.data ?? data) as Array<{
         id: number;
         name: string;
