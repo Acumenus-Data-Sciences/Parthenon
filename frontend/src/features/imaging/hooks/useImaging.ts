@@ -256,24 +256,3 @@ export function useComputeResponse() {
   });
 }
 
-// AI extraction
-
-export function useAiExtractMeasurements() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: imagingApi.aiExtractMeasurements,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["imaging", "study-measurements"] });
-      qc.invalidateQueries({ queryKey: ["imaging", "patient-measurements"] });
-      qc.invalidateQueries({ queryKey: ["imaging", "timeline"] });
-    },
-  });
-}
-
-export function useSuggestTemplate(studyId: number) {
-  return useQuery({
-    queryKey: ["imaging", "suggest-template", studyId] as const,
-    queryFn: () => imagingApi.suggestTemplate(studyId),
-    enabled: studyId > 0,
-  });
-}

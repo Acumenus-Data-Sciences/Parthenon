@@ -1700,10 +1700,6 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
         Route::get('/patients/{personId}/measurements', [ImagingTimelineController::class, 'patientMeasurements'])->middleware('permission:imaging.view');
         Route::get('/patients/{personId}/measurements/trends', [ImagingTimelineController::class, 'measurementTrends'])->middleware('permission:imaging.view');
 
-        // AI-powered measurement extraction
-        Route::post('/studies/{study}/ai-extract', [ImagingTimelineController::class, 'aiExtractMeasurements'])->middleware('permission:imaging.run');
-        Route::post('/studies/{study}/suggest-template', [ImagingTimelineController::class, 'suggestTemplate'])->middleware('permission:imaging.view');
-
         // Response assessments
         Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments'])->middleware('permission:imaging.view');
         Route::post('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'storeResponseAssessment'])->middleware('permission:imaging.create');

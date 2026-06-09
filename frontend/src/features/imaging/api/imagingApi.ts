@@ -250,19 +250,4 @@ export const imagingApi = {
         payload,
       )
       .then((r) => r.data.data),
-
-  // AI-powered measurement extraction
-  aiExtractMeasurements: (studyId: number) =>
-    apiClient
-      .post<{ data: { extracted: number; measurement_types: string[] } }>(
-        `/imaging/studies/${studyId}/ai-extract`,
-      )
-      .then((r) => r.data.data),
-
-  suggestTemplate: (studyId: number) =>
-    apiClient
-      .get<{ data: { template: string; fields: Array<{ type: string; name: string; unit: string }> } }>(
-        `/imaging/studies/${studyId}/suggest-template`,
-      )
-      .then((r) => r.data.data),
 };
