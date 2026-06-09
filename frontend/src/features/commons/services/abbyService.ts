@@ -9,7 +9,6 @@ import type {
   AbbySource,
 } from "../types/abby";
 import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
-import type { ExecutePlanResponse } from '../../abby-ai/types/agency';
 
 interface AbbyStreamHandlers {
   onToken?: (token: string) => void;
@@ -345,9 +344,4 @@ export async function updateAbbyProfile(
 
 export async function resetAbbyProfile(): Promise<void> {
   await apiClient.post('/abby/profile/reset');
-}
-
-export async function executePlan(planId: string): Promise<ExecutePlanResponse> {
-  const response = await apiClient.post('/abby/execute-plan', { plan_id: planId });
-  return response.data;
 }
