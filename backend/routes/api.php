@@ -434,7 +434,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // Achilles (Data Characterization)
-        Route::prefix('sources/{source}/achilles')->group(function () {
+        Route::prefix('sources/{source}/achilles')->middleware('permission:analyses.view')->group(function () {
             Route::get('/record-counts', [AchillesController::class, 'recordCounts']);
             Route::get('/demographics', [AchillesController::class, 'demographics']);
             Route::get('/observation-periods', [AchillesController::class, 'observationPeriods']);
@@ -448,10 +448,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/heel', [AchillesController::class, 'heel']);
             Route::get('/heel/runs', [AchillesController::class, 'heelRuns']);
             Route::get('/heel/runs/{runId}/progress', [AchillesController::class, 'heelProgress']);
-            Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+            Route::post('/heel/run', [AchillesController::class, 'runHeel'])->middleware('permission:analyses.run');
             Route::get('/runs', [AchillesController::class, 'achillesRuns']);
             Route::get('/runs/{runId}/progress', [AchillesController::class, 'achillesProgress']);
-            Route::post('/run', [AchillesController::class, 'run']);
+            Route::post('/run', [AchillesController::class, 'run'])->middleware('permission:analyses.run');
         });
 
         // Ares (Release Management & Chart Annotations)
@@ -574,12 +574,12 @@ Route::prefix('v1')->group(function () {
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)
-        Route::get('/risk-scores/catalogue', [PopulationRiskScoreController::class, 'catalogue']);
-        Route::prefix('sources/{source}/risk-scores')->group(function () {
+        Route::get('/risk-scores/catalogue', [PopulationRiskScoreController::class, 'catalogue'])->middleware('permission:analyses.view');
+        Route::prefix('sources/{source}/risk-scores')->middleware('permission:analyses.view')->group(function () {
             Route::get('/', [PopulationRiskScoreController::class, 'index']);
-            Route::post('/run', [PopulationRiskScoreController::class, 'run']);
+            Route::post('/run', [PopulationRiskScoreController::class, 'run'])->middleware('permission:analyses.run');
             Route::get('/eligibility', [PopulationRiskScoreController::class, 'eligibility']);
-            Route::post('/eligibility/refresh', [PopulationRiskScoreController::class, 'refreshEligibility']);
+            Route::post('/eligibility/refresh', [PopulationRiskScoreController::class, 'refreshEligibility'])->middleware('permission:analyses.run');
             Route::post('/recommend', [RiskScoreAnalysisController::class, 'recommend']);
             Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });
@@ -601,23 +601,23 @@ Route::prefix('v1')->group(function () {
         });
 
         // Clinical Coherence (Tier 1 Parthenon-native analyses)
-        Route::prefix('sources/{source}/clinical-coherence')->group(function () {
+        Route::prefix('sources/{source}/clinical-coherence')->middleware('permission:analyses.view')->group(function () {
             Route::get('/', [ClinicalCoherenceController::class, 'index']);
-            Route::post('/run', [ClinicalCoherenceController::class, 'run']);
+            Route::post('/run', [ClinicalCoherenceController::class, 'run'])->middleware('permission:analyses.run');
             Route::get('/{analysisId}', [ClinicalCoherenceController::class, 'show']);
         });
 
         // Data Quality Dashboard
-        Route::prefix('sources/{source}/dqd')->group(function () {
+        Route::prefix('sources/{source}/dqd')->middleware('permission:data-quality.view')->group(function () {
             Route::get('/runs', [DataQualityController::class, 'runs']);
             Route::get('/runs/{runId}', [DataQualityController::class, 'showRun']);
             Route::get('/runs/{runId}/results', [DataQualityController::class, 'results']);
             Route::get('/runs/{runId}/summary', [DataQualityController::class, 'summary']);
             Route::get('/runs/{runId}/tables/{table}', [DataQualityController::class, 'tableResults']);
-            Route::post('/run', [DataQualityController::class, 'dispatch']);
+            Route::post('/run', [DataQualityController::class, 'dispatch'])->middleware('permission:data-quality.run');
             Route::get('/latest', [DataQualityController::class, 'latest']);
             Route::get('/runs/{runId}/progress', [DataQualityController::class, 'progress']);
-            Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
+            Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun'])->middleware('permission:data-quality.delete');
         });
 
         // Concept Sets — static routes BEFORE apiResource (avoid wildcard clash)
