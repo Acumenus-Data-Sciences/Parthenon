@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Ruler, Plus, Trash2, Loader2, Target, Sparkles } from "lucide-react";
-import { useStudyMeasurements, useCreateMeasurement, useDeleteMeasurement, useAiExtractMeasurements, useSuggestTemplate } from "../hooks/useImaging";
+import { Ruler, Plus, Trash2, Loader2, Target } from "lucide-react";
+import { useStudyMeasurements, useCreateMeasurement, useDeleteMeasurement } from "../hooks/useImaging";
 import type { ImagingMeasurement, MeasurementType } from "../types";
 
 const MEASUREMENT_PRESETS: Array<{
@@ -62,9 +62,6 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
   const createMutation = useCreateMeasurement();
   const deleteMutation = useDeleteMeasurement();
 
-  const aiExtract = useAiExtractMeasurements();
-  const { data: suggestedTemplate } = useSuggestTemplate(studyId);
-
   const [showForm, setShowForm] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
 
@@ -124,51 +121,6 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
 
   return (
     <div className="space-y-4">
-      {/* AI Extraction */}
-      <div className="rounded-lg border border-domain-observation/30 bg-domain-observation/5 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles size={14} className="text-domain-observation" />
-            <h3 className="text-sm font-semibold text-text-primary">
-              {t("imaging.measurements.aiExtraction")}
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => aiExtract.mutate(studyId)}
-            disabled={aiExtract.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-domain-observation px-4 py-2 text-sm font-medium text-text-primary hover:bg-domain-observation disabled:opacity-50 transition-colors"
-          >
-            {aiExtract.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            {aiExtract.isPending ? t("imaging.measurements.extracting") : t("imaging.measurements.autoExtract")}
-          </button>
-        </div>
-        <p className="text-xs text-text-muted">
-          {t("imaging.measurements.medGemmaHelp")}
-          {suggestedTemplate
-            ? ` ${t("imaging.measurements.suggestedTemplate", { template: suggestedTemplate.template })}`
-            : ""}
-        </p>
-        {aiExtract.isSuccess && (
-          <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-            {t("imaging.measurements.extractedCount", {
-              count: (aiExtract.data as { extracted: number }).extracted,
-            })}
-            {(aiExtract.data as { measurement_types: string[] }).measurement_types.length > 0 &&
-              ` ${t("imaging.measurements.extractedTypes", {
-                types: (aiExtract.data as { measurement_types: string[] }).measurement_types.join(", "),
-              })}`}
-          </div>
-        )}
-        {aiExtract.isError && (
-          <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
-            {t("imaging.measurements.extractionFailed", {
-              message: (aiExtract.error as Error)?.message ?? "Unknown error",
-            })}
-          </div>
-        )}
-      </div>
-
       {/* Measurement presets */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">

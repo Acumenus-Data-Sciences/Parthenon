@@ -434,7 +434,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // Achilles (Data Characterization)
-        Route::prefix('sources/{source}/achilles')->group(function () {
+        Route::prefix('sources/{source}/achilles')->middleware('permission:analyses.view')->group(function () {
             Route::get('/record-counts', [AchillesController::class, 'recordCounts']);
             Route::get('/demographics', [AchillesController::class, 'demographics']);
             Route::get('/observation-periods', [AchillesController::class, 'observationPeriods']);
@@ -448,10 +448,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/heel', [AchillesController::class, 'heel']);
             Route::get('/heel/runs', [AchillesController::class, 'heelRuns']);
             Route::get('/heel/runs/{runId}/progress', [AchillesController::class, 'heelProgress']);
-            Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+            Route::post('/heel/run', [AchillesController::class, 'runHeel'])->middleware('permission:analyses.run');
             Route::get('/runs', [AchillesController::class, 'achillesRuns']);
             Route::get('/runs/{runId}/progress', [AchillesController::class, 'achillesProgress']);
-            Route::post('/run', [AchillesController::class, 'run']);
+            Route::post('/run', [AchillesController::class, 'run'])->middleware('permission:analyses.run');
         });
 
         // Ares (Release Management & Chart Annotations)
@@ -574,12 +574,12 @@ Route::prefix('v1')->group(function () {
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)
-        Route::get('/risk-scores/catalogue', [PopulationRiskScoreController::class, 'catalogue']);
-        Route::prefix('sources/{source}/risk-scores')->group(function () {
+        Route::get('/risk-scores/catalogue', [PopulationRiskScoreController::class, 'catalogue'])->middleware('permission:analyses.view');
+        Route::prefix('sources/{source}/risk-scores')->middleware('permission:analyses.view')->group(function () {
             Route::get('/', [PopulationRiskScoreController::class, 'index']);
-            Route::post('/run', [PopulationRiskScoreController::class, 'run']);
+            Route::post('/run', [PopulationRiskScoreController::class, 'run'])->middleware('permission:analyses.run');
             Route::get('/eligibility', [PopulationRiskScoreController::class, 'eligibility']);
-            Route::post('/eligibility/refresh', [PopulationRiskScoreController::class, 'refreshEligibility']);
+            Route::post('/eligibility/refresh', [PopulationRiskScoreController::class, 'refreshEligibility'])->middleware('permission:analyses.run');
             Route::post('/recommend', [RiskScoreAnalysisController::class, 'recommend']);
             Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });
@@ -601,23 +601,23 @@ Route::prefix('v1')->group(function () {
         });
 
         // Clinical Coherence (Tier 1 Parthenon-native analyses)
-        Route::prefix('sources/{source}/clinical-coherence')->group(function () {
+        Route::prefix('sources/{source}/clinical-coherence')->middleware('permission:analyses.view')->group(function () {
             Route::get('/', [ClinicalCoherenceController::class, 'index']);
-            Route::post('/run', [ClinicalCoherenceController::class, 'run']);
+            Route::post('/run', [ClinicalCoherenceController::class, 'run'])->middleware('permission:analyses.run');
             Route::get('/{analysisId}', [ClinicalCoherenceController::class, 'show']);
         });
 
         // Data Quality Dashboard
-        Route::prefix('sources/{source}/dqd')->group(function () {
+        Route::prefix('sources/{source}/dqd')->middleware('permission:data-quality.view')->group(function () {
             Route::get('/runs', [DataQualityController::class, 'runs']);
             Route::get('/runs/{runId}', [DataQualityController::class, 'showRun']);
             Route::get('/runs/{runId}/results', [DataQualityController::class, 'results']);
             Route::get('/runs/{runId}/summary', [DataQualityController::class, 'summary']);
             Route::get('/runs/{runId}/tables/{table}', [DataQualityController::class, 'tableResults']);
-            Route::post('/run', [DataQualityController::class, 'dispatch']);
+            Route::post('/run', [DataQualityController::class, 'dispatch'])->middleware('permission:data-quality.run');
             Route::get('/latest', [DataQualityController::class, 'latest']);
             Route::get('/runs/{runId}/progress', [DataQualityController::class, 'progress']);
-            Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
+            Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun'])->middleware('permission:data-quality.delete');
         });
 
         // Concept Sets — static routes BEFORE apiResource (avoid wildcard clash)
@@ -918,28 +918,20 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Patient Profiles
-        Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
-        Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
-        Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
-        Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
-        Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
-        Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+        // Patient Profiles — PHI, incl. clinical notes (NOTE_NLP). HIGHSEC §7.1/§7.3
+        // require profiles.view on every profile route. Previously these were reachable
+        // by any authenticated principal (e.g. mapping-reviewer) with no RBAC check.
+        Route::middleware('permission:profiles.view')->group(function () {
+            Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
+            Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
+            Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
+            Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
+            Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
+            Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+        });
 
         // Patient Similarity
         Route::prefix('patient-similarity')->group(function () {
-            Route::get('/runs', [PatientSimilarityController::class, 'listRuns'])
-                ->middleware('permission:patient-similarity.view');
-            Route::post('/runs', [PatientSimilarityController::class, 'createRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::get('/runs/{run}', [PatientSimilarityController::class, 'showRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::patch('/runs/{run}', [PatientSimilarityController::class, 'updateRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::delete('/runs/{run}', [PatientSimilarityController::class, 'deleteRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::post('/runs/{run}/steps', [PatientSimilarityController::class, 'saveRunStep'])
-                ->middleware('permission:patient-similarity.view');
             Route::post('/search', [PatientSimilarityController::class, 'search'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:30,1']);
             Route::get('/dimensions', [PatientSimilarityController::class, 'dimensions'])
@@ -972,8 +964,6 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:patient-similarity.view', 'throttle:10,1']);
             Route::post('/phenotype-discovery', [PatientSimilarityController::class, 'phenotypeDiscovery'])
                 ->middleware(['permission:patient-similarity.compute', 'throttle:10,1']);
-            Route::post('/interpret-step', [PatientSimilarityController::class, 'interpretStep'])
-                ->middleware(['permission:patient-similarity.view', 'throttle:20,1']);
         });
 
         // Negative Control Outcomes
@@ -1555,8 +1545,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/ingest-ohdsi-papers', [ChromaStudioController::class, 'ingestOhdsiPapers']);
                 Route::post('/ingest-ohdsi-knowledge', [ChromaStudioController::class, 'ingestOhdsiKnowledge']);
                 Route::post('/ingest-textbooks', [ChromaStudioController::class, 'ingestTextbooks']);
-                Route::post('/seed-faq', [ChromaStudioController::class, 'seedFaq']);
-                Route::post('/aggregate-conversations', [ChromaStudioController::class, 'aggregateConversations']);
                 Route::post('/collections/{name}/project', [ChromaStudioController::class, 'projectCollection']);
                 Route::get('/collections/{name}/projection-search', [ChromaStudioController::class, 'searchProjectionPoints']);
                 Route::get('/collections/{name}/projection-point', [ChromaStudioController::class, 'projectionPoint']);
@@ -1709,10 +1697,6 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
         Route::delete('/measurements/{measurement}', [ImagingTimelineController::class, 'destroyMeasurement'])->middleware('permission:imaging.delete');
         Route::get('/patients/{personId}/measurements', [ImagingTimelineController::class, 'patientMeasurements'])->middleware('permission:imaging.view');
         Route::get('/patients/{personId}/measurements/trends', [ImagingTimelineController::class, 'measurementTrends'])->middleware('permission:imaging.view');
-
-        // AI-powered measurement extraction
-        Route::post('/studies/{study}/ai-extract', [ImagingTimelineController::class, 'aiExtractMeasurements'])->middleware('permission:imaging.run');
-        Route::post('/studies/{study}/suggest-template', [ImagingTimelineController::class, 'suggestTemplate'])->middleware('permission:imaging.view');
 
         // Response assessments
         Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments'])->middleware('permission:imaging.view');
@@ -2087,8 +2071,15 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
 });
 
 // ── Morpheus Dashboard & Patient Journey ─────────────────────────────────────
-Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
-    // TODO: Phase H — add permission:morpheus.view middleware per HIGHSEC spec
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve', 'permission:profiles.view'])->group(function () {
+    // Morpheus serves MIMIC-IV ICU patient-journey PHI (diagnoses, meds, labs,
+    // microbiology). HIGHSEC §7 forbids unauthorized access to clinical data; these
+    // routes previously had auth:sanctum only, so any authenticated user — including a
+    // default viewer or mapping-reviewer — could read full ICU patient journeys.
+    // Gated on the existing profiles.view permission (patient-data viewing, granted to
+    // researcher/viewer/super-admin) rather than a new morpheus.view: deploy.sh
+    // intentionally does not run seeders, so a brand-new permission would 403 for
+    // everyone until manually re-seeded.
     // Morpheus Datasets
     Route::get('morpheus/datasets', [MorpheusDatasetController::class, 'index']);
     Route::get('morpheus/datasets/{datasetId}', [MorpheusDatasetController::class, 'show']);

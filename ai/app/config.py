@@ -106,7 +106,11 @@ class Settings(BaseSettings):
     knowledge_cache_prefix: str = "abby:kg:"
     knowledge_max_traversal_depth: int = 5
     knowledge_vocab_schema: str = "vocab"
-    knowledge_cdm_schema: str = "cdm"
+    # Primary CDM schema the Abby data-quality profiler queries. Parthenon has no
+    # "cdm" schema — clinical data lives in per-source schemas (omop, synpuf, ...);
+    # the old "cdm" default made every data-quality query fail silently. Override
+    # via KNOWLEDGE_CDM_SCHEMA to point the profiler at a different source schema.
+    knowledge_cdm_schema: str = "omop"
 
     # Agency (Phase 4)
     agency_api_base_url: str = "http://nginx:80"

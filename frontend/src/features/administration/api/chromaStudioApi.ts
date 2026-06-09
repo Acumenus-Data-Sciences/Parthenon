@@ -209,12 +209,6 @@ export const ingestOhdsiKnowledge = () =>
 export const ingestTextbooks = () =>
   apiClient.post<IngestResult>("/admin/chroma-studio/ingest-textbooks").then((r) => r.data);
 
-export const seedFaq = () =>
-  apiClient.post<Record<string, number>>("/admin/chroma-studio/seed-faq").then((r) => r.data);
-
-export const aggregateConversations = () =>
-  apiClient.post<Record<string, number>>("/admin/chroma-studio/aggregate-conversations").then((r) => r.data);
-
 export const fetchProjection = (
   name: string,
   request: ProjectionRequest,

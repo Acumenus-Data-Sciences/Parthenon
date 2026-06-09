@@ -9,7 +9,6 @@ import type {
   AbbySource,
 } from "../types/abby";
 import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
-import type { ExecutePlanResponse } from '../../abby-ai/types/agency';
 
 interface AbbyStreamHandlers {
   onToken?: (token: string) => void;
@@ -330,22 +329,19 @@ export async function fetchAbbyConversation(
 }
 
 export async function fetchAbbyProfile(): Promise<AbbyProfileResponse> {
-  const response = await apiClient.get('/api/v1/abby/profile');
+  // apiClient baseURL is already "/api/v1" — paths must NOT repeat it (was 404ing
+  // on /api/v1/api/v1/abby/profile).
+  const response = await apiClient.get('/abby/profile');
   return response.data;
 }
 
 export async function updateAbbyProfile(
   data: AbbyProfileUpdateRequest
 ): Promise<AbbyProfileResponse> {
-  const response = await apiClient.put('/api/v1/abby/profile', data);
+  const response = await apiClient.put('/abby/profile', data);
   return response.data;
 }
 
 export async function resetAbbyProfile(): Promise<void> {
-  await apiClient.post('/api/v1/abby/profile/reset');
-}
-
-export async function executePlan(planId: string): Promise<ExecutePlanResponse> {
-  const response = await apiClient.post('/api/v1/abby/execute-plan', { plan_id: planId });
-  return response.data;
+  await apiClient.post('/abby/profile/reset');
 }

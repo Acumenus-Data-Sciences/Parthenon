@@ -31,8 +31,20 @@ test('unauthenticated user cannot view patient details', function () {
         ->assertStatus(401);
 });
 
+test('authenticated user without profiles.view is forbidden from patient PHI', function () {
+    // mapping-reviewer is a seeded role that lacks profiles.view; it must not reach
+    // MIMIC-IV ICU patient data. Locks in HIGHSEC §7 RBAC on the Morpheus routes.
+    $user = User::factory()->create();
+    $user->assignRole('mapping-reviewer');
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/morpheus/patients/10001/diagnoses')
+        ->assertStatus(403);
+});
+
 test('authenticated user can list patients', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('listPatients')
@@ -57,6 +69,7 @@ test('authenticated user can list patients', function () {
 
 test('authenticated user can search patients', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('searchPatients')
@@ -75,6 +88,7 @@ test('authenticated user can search patients', function () {
 
 test('search with empty query returns empty data', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     // searchPatients should NOT be called when q is empty
     $this->mock(MorpheusPatientService::class, function ($mock) {
@@ -89,6 +103,7 @@ test('search with empty query returns empty data', function () {
 
 test('authenticated user can view patient demographics', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getDemographics')
@@ -109,6 +124,7 @@ test('authenticated user can view patient demographics', function () {
 
 test('patient not found returns 404', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getDemographics')
@@ -125,6 +141,7 @@ test('patient not found returns 404', function () {
 
 test('authenticated user can view patient admissions', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getAdmissions')
@@ -143,6 +160,7 @@ test('authenticated user can view patient admissions', function () {
 
 test('authenticated user can view patient diagnoses', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getDiagnoses')
@@ -161,6 +179,7 @@ test('authenticated user can view patient diagnoses', function () {
 
 test('authenticated user can view patient medications', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getMedications')
@@ -177,6 +196,7 @@ test('authenticated user can view patient medications', function () {
 
 test('authenticated user can view patient lab results', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusPatientService::class, function ($mock) {
         $mock->shouldReceive('getLabResults')

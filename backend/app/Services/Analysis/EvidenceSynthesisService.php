@@ -54,15 +54,19 @@ class EvidenceSynthesisService
 
             $result = $this->rService->runEvidenceSynthesis($spec);
 
+            // The R statistical sidecar reported the analysis package is unavailable.
+            // Do NOT mark this Completed — fail explicitly so an empty run is not counted
+            // as a successful research result, while preserving the validated design.
             if ($this->isNotImplemented($result)) {
-                $this->log($execution, 'warning', 'R EvidenceSynthesis package not yet implemented');
+                $this->log($execution, 'warning', 'R EvidenceSynthesis package unavailable; marking execution failed (design validated, no pooled estimates produced)');
 
                 $execution->update([
-                    'status' => ExecutionStatus::Completed,
+                    'status' => ExecutionStatus::Failed,
                     'completed_at' => now(),
+                    'fail_message' => 'Evidence synthesis could not produce results: the R statistical execution environment (EvidenceSynthesis) is not available in this deployment. Your meta-analysis design was validated and saved, but no pooled estimates were generated. Contact your administrator to enable the R analytics sidecar.',
                     'result_json' => EvidenceSynthesisResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
-                        'message' => 'R EvidenceSynthesis package not yet configured.',
+                        'message' => 'R EvidenceSynthesis package not configured. The meta-analysis design was validated; no pooled estimates were produced.',
                         'design_validated' => true,
                     ]),
                 ]);

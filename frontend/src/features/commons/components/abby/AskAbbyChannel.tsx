@@ -8,7 +8,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AbbyProfilePanel } from "../../../abby-ai/components/AbbyProfilePanel";
-import AbbyPlanCard from "../../../abby-ai/components/AbbyPlanCard";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatDate } from "@/i18n/format";
@@ -21,7 +20,6 @@ import {
   fetchAbbyConversation,
   normalizeConversationResponse,
   submitFeedback,
-  executePlan,
 } from "../../services/abbyService";
 import { askDataQuestion } from "../../services/dataInterrogationService";
 import { DataInterrogationResult } from "./DataInterrogationResult";
@@ -35,7 +33,6 @@ import type {
   DataInterrogationResponse,
   ObjectReference,
 } from "../../types/abby";
-import type { ActionPlan } from "../../../abby-ai/types/agency";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -233,7 +230,6 @@ export default function AskAbbyChannel() {
   const [inputValue, setInputValue] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const {
     response,
@@ -455,19 +451,6 @@ export default function AskAbbyChannel() {
     } catch (err) {
       console.error("Failed to submit feedback:", err);
     }
-  }, []);
-
-  const handleApprovePlan = useCallback(async (planId: string) => {
-    try {
-      const result = await executePlan(planId);
-      setActivePlan(result.plan);
-    } catch (err) {
-      console.error("Failed to execute plan:", err);
-    }
-  }, []);
-
-  const handleCancelPlan = useCallback(() => {
-    setActivePlan(null);
   }, []);
 
   const handleKeyDown = useCallback(
@@ -704,16 +687,6 @@ export default function AskAbbyChannel() {
               <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-red-950/40 border border-red-800/30 text-[13px] text-red-400">
                 {t("abby.errorTryAgain")}
               </div>
-            </div>
-          )}
-
-          {activePlan && (
-            <div className="px-1">
-              <AbbyPlanCard
-                plan={activePlan}
-                onApprove={handleApprovePlan}
-                onCancel={handleCancelPlan}
-              />
             </div>
           )}
         </div>
