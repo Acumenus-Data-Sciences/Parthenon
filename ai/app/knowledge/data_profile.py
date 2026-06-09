@@ -15,7 +15,20 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_SCHEMAS = {"vocab", "cdm", "omop", "eunomia", "public", "achilles_results"}
+# Real Parthenon CDM/vocab schema names the profiler may target. The phantom
+# "cdm" schema was removed: it never existed, so a misconfigured value now fails
+# loudly at init rather than silently returning zero rows.
+ALLOWED_SCHEMAS = {
+    "vocab",
+    "omop",
+    "synpuf",
+    "irsf",
+    "pancreas",
+    "inpatient",
+    "eunomia",
+    "public",
+    "achilles_results",
+}
 
 # Ordered list of CDM domain tables to profile
 _DOMAIN_TABLES = [
@@ -50,7 +63,7 @@ class DataProfileService:
         self,
         engine: Engine,
         redis_client: Any,
-        cdm_schema: str = "cdm",
+        cdm_schema: str = "omop",
     ) -> None:
         schema = cdm_schema
         if schema not in ALLOWED_SCHEMAS:

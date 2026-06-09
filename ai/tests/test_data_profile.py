@@ -30,7 +30,7 @@ def mock_redis():
     return redis
 
 
-def _make_svc(mock_engine, mock_redis, cdm_schema="cdm"):
+def _make_svc(mock_engine, mock_redis, cdm_schema="omop"):
     engine, _ = mock_engine
     return DataProfileService(engine=engine, redis_client=mock_redis, cdm_schema=cdm_schema)
 
