@@ -33,8 +33,20 @@ test('unauthenticated user cannot access dashboard trends', function () {
         ->assertStatus(401);
 });
 
+test('authenticated user without profiles.view is forbidden from dashboard PHI', function () {
+    // mapping-reviewer is a seeded role lacking profiles.view; MIMIC-IV dashboard
+    // metrics are derived from ICU PHI and must be gated. HIGHSEC §7.
+    $user = User::factory()->create();
+    $user->assignRole('mapping-reviewer');
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/morpheus/dashboard/metrics')
+        ->assertStatus(403);
+});
+
 test('authenticated user can access dashboard metrics', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getMetrics')
@@ -56,6 +68,7 @@ test('authenticated user can access dashboard metrics', function () {
 
 test('authenticated user can access dashboard trends', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getTrends')
@@ -75,6 +88,7 @@ test('authenticated user can access dashboard trends', function () {
 
 test('authenticated user can access top diagnoses', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getTopDiagnoses')
@@ -94,6 +108,7 @@ test('authenticated user can access top diagnoses', function () {
 
 test('authenticated user can access top procedures', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getTopProcedures')
@@ -112,6 +127,7 @@ test('authenticated user can access top procedures', function () {
 
 test('authenticated user can access demographics', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getDemographics')
@@ -131,6 +147,7 @@ test('authenticated user can access demographics', function () {
 
 test('authenticated user can access LOS distribution', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getLosDistribution')
@@ -150,6 +167,7 @@ test('authenticated user can access LOS distribution', function () {
 
 test('authenticated user can access ICU units', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getIcuUnits')
@@ -169,6 +187,7 @@ test('authenticated user can access ICU units', function () {
 
 test('authenticated user can access mortality by type', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getMortalityByType')
@@ -188,6 +207,7 @@ test('authenticated user can access mortality by type', function () {
 
 test('top diagnoses respects custom limit parameter', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getTopDiagnoses')
@@ -208,6 +228,7 @@ test('unauthenticated user cannot access concept stats', function () {
 
 test('authenticated user can access concept stats', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getConceptStats')
@@ -233,6 +254,7 @@ test('authenticated user can access concept stats', function () {
 
 test('concept stats returns null for unknown concept', function () {
     $user = User::factory()->create();
+    $user->assignRole('viewer'); // Morpheus PHI requires profiles.view (HIGHSEC §7)
 
     $this->mock(MorpheusDashboardService::class, function ($mock) {
         $mock->shouldReceive('getConceptStats')
