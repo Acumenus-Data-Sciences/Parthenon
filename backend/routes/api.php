@@ -932,18 +932,6 @@ Route::prefix('v1')->group(function () {
 
         // Patient Similarity
         Route::prefix('patient-similarity')->group(function () {
-            Route::get('/runs', [PatientSimilarityController::class, 'listRuns'])
-                ->middleware('permission:patient-similarity.view');
-            Route::post('/runs', [PatientSimilarityController::class, 'createRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::get('/runs/{run}', [PatientSimilarityController::class, 'showRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::patch('/runs/{run}', [PatientSimilarityController::class, 'updateRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::delete('/runs/{run}', [PatientSimilarityController::class, 'deleteRun'])
-                ->middleware('permission:patient-similarity.view');
-            Route::post('/runs/{run}/steps', [PatientSimilarityController::class, 'saveRunStep'])
-                ->middleware('permission:patient-similarity.view');
             Route::post('/search', [PatientSimilarityController::class, 'search'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:30,1']);
             Route::get('/dimensions', [PatientSimilarityController::class, 'dimensions'])
@@ -976,8 +964,6 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:patient-similarity.view', 'throttle:10,1']);
             Route::post('/phenotype-discovery', [PatientSimilarityController::class, 'phenotypeDiscovery'])
                 ->middleware(['permission:patient-similarity.compute', 'throttle:10,1']);
-            Route::post('/interpret-step', [PatientSimilarityController::class, 'interpretStep'])
-                ->middleware(['permission:patient-similarity.view', 'throttle:20,1']);
         });
 
         // Negative Control Outcomes
