@@ -42,7 +42,20 @@ class Settings(BaseSettings):
     ollama_embedding_model: str = "nomic-embed-text:latest"
 
     # Ariadne concept mapping configuration
-    ariadne_vocab_schema: str = "omop"
+    # Vector search uses vocab.concept_embedding_bge (BAAI/bge-base-en-v1.5,
+    # 768-dim, ~632k standard concepts). The query encoder MUST match the model
+    # that populated the table, hence the dedicated BGE settings below.
+    ariadne_vocab_schema: str = "vocab"
+    ariadne_embedding_table: str = "concept_embedding_bge"
+    ariadne_bge_model: str = "BAAI/bge-base-en-v1.5"
+    # Empty = no instruction prefix (symmetric concept-name ↔ concept-name match).
+    # Set to "Represent this sentence for searching relevant passages: " for
+    # asymmetric short-query → long-passage retrieval.
+    ariadne_bge_query_instruction: str = ""
+    # MODEL_CACHE_DIR (/models) is a read-only tmpfs for the non-root appuser;
+    # BGE downloads must target a writable path. /tmp/parthenon-models is the
+    # de-facto writable HF cache already used by the Chroma embedder.
+    ariadne_bge_cache_dir: str = "/tmp/parthenon-models"
 
     # Memory settings
     memory_intent_stack_max_depth: int = 3

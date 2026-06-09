@@ -320,6 +320,11 @@ def _vector_search_sql(
         target_vocabularies, target_domains, param_prefix="vs_"
     )
 
+    # NOTE: use CAST(:emb AS vector) rather than :emb::vector — SQLAlchemy's
+    # text() bind-param parser refuses to bind a name immediately followed by
+    # "::", so :emb::vector reaches Postgres verbatim and errors with
+    # "syntax error at or near ':'". CAST(...) keeps the bind separated.
+    embedding_table = settings.ariadne_embedding_table
     sql = f"""
         SELECT
             ce.concept_id,
@@ -327,13 +332,13 @@ def _vector_search_sql(
             c.vocabulary_id,
             c.domain_id,
             c.standard_concept,
-            1 - (ce.embedding <=> :emb::vector) AS similarity
-        FROM {vocab_schema}.concept_embeddings ce
+            1 - (ce.embedding <=> CAST(:emb AS vector)) AS similarity
+        FROM {vocab_schema}.{embedding_table} ce
         JOIN {vocab_schema}.concept c ON c.concept_id = ce.concept_id
         WHERE c.invalid_reason IS NULL
           AND c.standard_concept = 'S'
           {filter_clause}
-        ORDER BY ce.embedding <=> :emb::vector
+        ORDER BY ce.embedding <=> CAST(:emb AS vector)
         LIMIT :lim
     """
 
@@ -357,35 +362,30 @@ def _vector_search_sql(
 
 
 def _encode_term_to_vector(term: str) -> list[float] | None:
-    """Encode a term using SapBERT (if available) and return the vector.
+    """Encode a query term with BGE (BAAI/bge-base-en-v1.5).
 
-    Returns None when SapBERT is not initialised so the caller can fall back.
+    This MUST match the model that populated ``vocab.concept_embedding_bge`` —
+    SapBERT/Ollama/Ariadne encoders share the 768-dim shape but land in a
+    different semantic space, which silently collapses every similarity score.
+    Returns None when the BGE model cannot be loaded so the caller can fall back.
     """
     try:
-        from app.services.sapbert import get_sapbert_service
+        from app.services.bge import get_bge_service
 
-        service = get_sapbert_service()
-        return service.encode_single(term)
+        return get_bge_service().encode_query(term)
     except Exception:
-        logger.debug("SapBERT unavailable for vector encoding of %r", term)
+        logger.exception("BGE encoding failed for %r", term)
         return None
 
 
 def _try_ariadne_encode(term: str) -> list[float] | None:
-    """Attempt to use Ariadne's vector_search module for encoding.
+    """Encode a query term for vector search.
 
-    Falls back to SapBERT if Ariadne is not installed or raises.
+    Deliberately bound to BGE (the model behind ``concept_embedding_bge``) and
+    NOT to ``ariadne.vector_search``: the upstream Ariadne encoder produces a
+    different embedding space than our stored document vectors, so using it
+    would reintroduce the silent model-mismatch bug.
     """
-    try:
-        from ariadne.vector_search import VectorSearcher  # type: ignore[import]
-
-        searcher = VectorSearcher()
-        vec = searcher.encode(term)
-        if vec is not None:
-            return list(vec)
-    except Exception:
-        logger.debug("Ariadne VectorSearcher unavailable, falling back to SapBERT")
-
     return _encode_term_to_vector(term)
 
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Qdrant meddra page-cache warmer (keeps Hecate semantic search fast)
+Documentation=file:///home/smudoshi/Github/Parthenon/scripts/qdrant-warm-cache.sh
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/smudoshi/Github/Parthenon/scripts/qdrant-warm-cache.sh
+Nice=15
+IOSchedulingClass=idle

@@ -446,7 +446,13 @@ services:
     volumes:
       - ${QDRANT_DATA_DIR:-qdrant-data}:/qdrant/storage
     environment:
-      - QDRANT__STORAGE__OPTIMIZERS__MEMMAP_THRESHOLD_KB=20000
+      # Keep vector segments RAM-preferred. The previous 20 MB threshold forced
+      # every meddra segment (~750 MB) onto disk-backed mmap, so cold HNSW
+      # traversals faulted from disk (4-12 s) and blew past Hecate's 10 s gRPC
+      # deadline. 20 GB keeps the ~6.8 GB collection in RAM. (The live meddra
+      # collection is also PATCHed to this; scripts/qdrant-warm-cache.sh keeps
+      # the page cache warm against host memory pressure.)
+      - QDRANT__STORAGE__OPTIMIZERS__MEMMAP_THRESHOLD_KB=20000000
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
       interval: 10s
