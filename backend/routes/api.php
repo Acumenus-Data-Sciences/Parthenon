@@ -142,6 +142,7 @@ use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyDesignAgentController;
 use App\Http\Controllers\Api\V1\StudyDesignController;
 use App\Http\Controllers\Api\V1\StudyGateController;
+use App\Http\Controllers\Api\V1\StudyManuscriptController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
 use App\Http\Controllers\Api\V1\StudyPackageController;
 use App\Http\Controllers\Api\V1\StudyResultController;
@@ -894,6 +895,12 @@ Route::prefix('v1')->group(function () {
             Route::get('agent/sessions/{agentSession}/snapshot', [ClioAgentController::class, 'snapshot']);
             Route::post('agent/sessions/{agentSession}/ingest', [ClioAgentController::class, 'ingest'])
                 ->middleware('throttle:120,1');
+
+            // Manuscript synthesis (Clio / ADR-0020 Phase 6)
+            Route::get('manuscript', [StudyManuscriptController::class, 'compose'])
+                ->middleware('permission:studies.view');
+            Route::post('manuscript/export', [StudyManuscriptController::class, 'export'])
+                ->middleware('permission:studies.view');
 
             // Synthesis
             Route::get('synthesis', [StudySynthesisController::class, 'index']);
