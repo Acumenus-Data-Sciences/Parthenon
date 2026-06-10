@@ -17,6 +17,7 @@ import {
   type GateStatus,
   type StudyGate,
 } from "../api/gatesApi";
+import { ClioCopilotPanel } from "./ClioCopilotPanel";
 
 const STAGES: { stage: GateStage; label: string }[] = [
   { stage: "design", label: "1 · Design (PICO)" },
@@ -228,6 +229,8 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
           );
         })}
       </div>
+
+      <ClioCopilotPanel slug={slug} />
     </div>
   );
 }
