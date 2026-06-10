@@ -6,9 +6,34 @@
 **Status:** running
 **Origin:** Created from protocol upload `Hypertension study (v3).docx`
 **Report compiled:** 2026-06-09
-**Latest analysis run:** 2026-05-19
+**Latest analysis run:** 2026-06-09 (post-fix re-run — executions 264 / 266 / 267)
 
-> **Scope note.** This report reflects the analyses currently *linked* to study 114 in `app.study_analyses` and their most recent completed executions in `app.analysis_executions`. The study record itself carries no populated objective/hypothesis text (it was imported from a protocol document), so the interpretation below is derived from the analysis designs and their results rather than from a stated protocol.
+> **Scope note.** This report reflects the analyses currently *linked* to study 114 in `app.study_analyses` and their executions in `app.analysis_executions`. The study record itself carries no populated objective/hypothesis text (it was imported from a protocol document), so the interpretation below is derived from the analysis designs and their results rather than from a stated protocol.
+>
+> **Two snapshots.** §0 below is the **current state** after the 2026-06-09 platform fixes and re-run. §§1–7 are the **original as-found snapshot** (pre-fix executions 259–262, 2026-05-19) preserved for the forensic record and the before→after comparison.
+
+---
+
+## 0. Current State — Post-Fix Re-Run (2026-06-09)
+
+After the four platform defects were corrected (estimation sidecar, separation handling, age-binning, incidence CIs — see `docs/research/hypertension-v3/reports/v4-readiness-assessment.md`), all four analyses were re-run on source 47. The current results supersede §§1–7 below where they differ.
+
+| Analysis | Before (259–262) | Now (264/266/267) |
+|----------|------------------|-------------------|
+| **Characterization** age groups | 100% "Unknown" (binning bug) | **Real**: 18–34 59.3%, 35–49 30.0%, 50–64 9.5%, 65+ 1.2% |
+| **Incidence rate** 95% CIs | `0 / 0` placeholders | **Real Byar CIs**: MACE 1.12 **[1.06, 1.18]**, CKD 19.56 **[19.32, 19.81]**, zero-event NCs **[0, 0.003]** |
+| **Estimation** | FAILED ("cannot open the connection") | **Completes** — full CohortMethod pipeline produces HR estimates |
+
+### Population-level estimation (execution 266) — now runs, but not yet interpretable
+
+| Outcome | HR [95% CI] | p | Plausibility |
+|---------|-------------|---|--------------|
+| MACE composite | **0.086** [0.076, 0.096] | <0.0001 | Implausible — implies HTN patients have ~91% *lower* MACE risk than normotensives |
+| Incident CKD | **7.96** [7.35, 8.63] | <0.0001 | Direction plausible, magnitude inflated |
+
+Propensity diagnostics: **AUC = 0.50** (no discrimination), **max SMD after matching 0.312 ≈ before 0.311** (matching did *not* improve balance); 0 of 12 negative controls fitted (≈0 events). **Read: the engine is reliable, but these estimates are invalid because comparator 5425 is structurally non-comparable** (the separation escape-hatch dropped the separating covariates, leaving the PS model with nothing to balance on). Fixing this requires the comparator redesign — open question **OQ-5**, still pending — not a platform change.
+
+> The sections below (§§1–7) describe the **pre-fix** state and remain accurate as the as-found baseline; their "data-quality flags" (age = Unknown, CIs = 0/0) and the estimation **failure** are the defects that §0 confirms are now resolved.
 
 ---
 
