@@ -73,4 +73,90 @@ class IncidenceRateResultNormalizerTest extends TestCase
         $this->assertSame('age', $normalized['results'][0]['strata'][0]['stratum_name']);
         $this->assertSame('65+', $normalized['results'][0]['strata'][0]['stratum_value']);
     }
+
+    public function test_it_computes_a_poisson_ci_when_bounds_are_absent(): void
+    {
+        $normalized = IncidenceRateResultNormalizer::normalize([
+            'results' => [
+                [
+                    'outcome_cohort_id' => 5426,
+                    'outcome_cohort_name' => 'MACE',
+                    'persons_at_risk' => 265498,
+                    'persons_with_outcome' => 1482,
+                    'person_years' => 1323204.6543,
+                    'incidence_rate' => 1.12,
+                ],
+            ],
+        ]);
+
+        $row = $normalized['results'][0];
+
+        // Byar's interval must bracket the point estimate and be strictly positive.
+        $this->assertGreaterThan(0.0, $row['rate_95_ci_lower']);
+        $this->assertLessThan($row['incidence_rate'], $row['rate_95_ci_lower']);
+        $this->assertGreaterThan($row['incidence_rate'], $row['rate_95_ci_upper']);
+        $this->assertEqualsWithDelta(1.0637, $row['rate_95_ci_lower'], 0.01);
+        $this->assertEqualsWithDelta(1.1785, $row['rate_95_ci_upper'], 0.01);
+    }
+
+    public function test_it_yields_a_one_sided_ci_for_zero_event_outcomes(): void
+    {
+        $normalized = IncidenceRateResultNormalizer::normalize([
+            'results' => [
+                [
+                    'outcome_cohort_id' => 5439,
+                    'outcome_cohort_name' => 'NC: zero events',
+                    'persons_at_risk' => 265498,
+                    'persons_with_outcome' => 0,
+                    'person_years' => 1326581.3826,
+                    'incidence_rate' => 0.0,
+                ],
+            ],
+        ]);
+
+        $row = $normalized['results'][0];
+
+        $this->assertSame(0.0, $row['rate_95_ci_lower']);
+        $this->assertGreaterThan(0.0, $row['rate_95_ci_upper']);
+    }
+
+    public function test_it_preserves_an_existing_confidence_interval(): void
+    {
+        $normalized = IncidenceRateResultNormalizer::normalize([
+            'results' => [
+                [
+                    'outcome_cohort_id' => 7,
+                    'outcome_cohort_name' => 'AMI',
+                    'persons_at_risk' => 20,
+                    'persons_with_outcome' => 2,
+                    'person_years' => 14.2,
+                    'incidence_rate' => 140.8,
+                    'rate_95_ci_lower' => 17.0,
+                    'rate_95_ci_upper' => 508.6,
+                ],
+            ],
+        ]);
+
+        $this->assertSame(17.0, $normalized['results'][0]['rate_95_ci_lower']);
+        $this->assertSame(508.6, $normalized['results'][0]['rate_95_ci_upper']);
+    }
+
+    public function test_it_does_not_fabricate_a_ci_for_masked_rows(): void
+    {
+        $normalized = IncidenceRateResultNormalizer::normalize([
+            'results' => [
+                [
+                    'outcome_cohort_id' => 9,
+                    'outcome_cohort_name' => 'Masked',
+                    'persons_at_risk' => 265498,
+                    'persons_with_outcome' => -1, // min-cell-count masked
+                    'person_years' => 1000.0,
+                    'incidence_rate' => -1.0,
+                ],
+            ],
+        ]);
+
+        $this->assertSame(0.0, $normalized['results'][0]['rate_95_ci_lower']);
+        $this->assertSame(0.0, $normalized['results'][0]['rate_95_ci_upper']);
+    }
 }

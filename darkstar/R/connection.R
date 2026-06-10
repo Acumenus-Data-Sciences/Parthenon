@@ -192,6 +192,39 @@ create_hades_connection <- function(source_spec) {
   )
 }
 
+#' Open a DatabaseConnector connection, retrying on transient failures.
+#'
+#' The CDM lives on host PostgreSQL reached over host.docker.internal; a job
+#' dispatched while that host is briefly unavailable (restart, the HADES
+#' startup race) otherwise dies with an opaque "cannot open the connection".
+#' Retry a few times with linear backoff before giving up.
+#'
+#' @param connectionDetails  A DatabaseConnector connectionDetails object.
+#' @param attempts           Maximum connection attempts (default 3).
+#' @param delay_seconds      Base backoff; attempt i waits i * delay_seconds.
+#' @return An open DatabaseConnector connection.
+connect_with_retry <- function(connectionDetails, attempts = 3L, delay_seconds = 5L) {
+  last_err <- NULL
+  for (i in seq_len(attempts)) {
+    conn <- tryCatch(
+      DatabaseConnector::connect(connectionDetails),
+      error = function(e) { last_err <<- e; NULL }
+    )
+    if (!is.null(conn)) {
+      if (i > 1L) cat(sprintf("[INFO] DB connection established on attempt %d/%d\n", i, attempts))
+      return(conn)
+    }
+    if (i < attempts) {
+      cat(sprintf("[WARN] DB connect attempt %d/%d failed (%s); retrying in %ds\n",
+                  i, attempts, if (!is.null(last_err)) conditionMessage(last_err) else "unknown",
+                  delay_seconds * i))
+      Sys.sleep(delay_seconds * i)
+    }
+  }
+  stop(sprintf("cannot open the connection after %d attempts: %s",
+               attempts, if (!is.null(last_err)) conditionMessage(last_err) else "unknown error"))
+}
+
 #' Safely disconnect a DatabaseConnector connection, ignoring errors.
 safe_disconnect <- function(connection) {
   tryCatch(

@@ -26,7 +26,7 @@ class DemographicFeatureBuilder implements FeatureBuilderInterface
             SELECT
                 'Age Group' AS feature_name,
                 CASE
-                    WHEN DATEDIFF(c.cohort_start_date, p.birth_datetime) < 0 THEN 'Unknown'
+                    WHEN p.year_of_birth IS NULL OR (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) < 0 THEN 'Unknown'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 0 AND 17 THEN '0-17'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 18 AND 34 THEN '18-34'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 35 AND 49 THEN '35-49'
@@ -46,7 +46,7 @@ class DemographicFeatureBuilder implements FeatureBuilderInterface
             WHERE c.cohort_definition_id = {$cohortDefinitionId}
             GROUP BY
                 CASE
-                    WHEN DATEDIFF(c.cohort_start_date, p.birth_datetime) < 0 THEN 'Unknown'
+                    WHEN p.year_of_birth IS NULL OR (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) < 0 THEN 'Unknown'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 0 AND 17 THEN '0-17'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 18 AND 34 THEN '18-34'
                     WHEN (EXTRACT(YEAR FROM c.cohort_start_date) - p.year_of_birth) BETWEEN 35 AND 49 THEN '35-49'
