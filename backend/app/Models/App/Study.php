@@ -202,6 +202,14 @@ class Study extends Model
     }
 
     /**
+     * @return HasMany<StudyGate, $this>
+     */
+    public function gates(): HasMany
+    {
+        return $this->hasMany(StudyGate::class);
+    }
+
+    /**
      * @return HasMany<StudyPackage, $this>
      */
     public function packages(): HasMany

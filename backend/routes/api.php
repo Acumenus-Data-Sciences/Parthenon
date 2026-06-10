@@ -140,6 +140,7 @@ use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyDesignAgentController;
 use App\Http\Controllers\Api\V1\StudyDesignController;
+use App\Http\Controllers\Api\V1\StudyGateController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
 use App\Http\Controllers\Api\V1\StudyPackageController;
 use App\Http\Controllers\Api\V1\StudyResultController;
@@ -871,6 +872,16 @@ Route::prefix('v1')->group(function () {
             Route::post('results/{result}/shiny-launch', [StudyResultController::class, 'launchShiny'])
                 ->middleware('permission:studies.view');
             Route::put('results/{result}', [StudyResultController::class, 'update']);
+
+            // Scientific gate ledger (Clio / ADR-0020 Phase 3)
+            Route::get('gates', [StudyGateController::class, 'index'])
+                ->middleware('permission:studies.view');
+            Route::post('gates/evaluate', [StudyGateController::class, 'evaluate'])
+                ->middleware('permission:studies.execute');
+            Route::post('gates/{studyGate}/approve', [StudyGateController::class, 'approve'])
+                ->middleware('permission:studies.edit');
+            Route::post('gates/{studyGate}/override', [StudyGateController::class, 'override'])
+                ->middleware('permission:studies.edit');
 
             // Synthesis
             Route::get('synthesis', [StudySynthesisController::class, 'index']);

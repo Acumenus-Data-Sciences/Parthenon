@@ -56,6 +56,29 @@ final class EstimationResultNormalizer
         ];
     }
 
+    /**
+     * Withhold effect estimates until the study-diagnostics (S5) gate clears
+     * (ADR-0020 Phase 3 — estimate blinding). Diagnostics (PS, balance,
+     * equipoise, negative-control distribution) are retained; hazard ratios,
+     * CIs, p-values, and calibrated point estimates are removed and the payload
+     * is flagged so the UI can show a "pending diagnostics review" state.
+     *
+     * @param  array<string, mixed>  $result
+     * @return array<string, mixed>
+     */
+    public static function blind(array $result): array
+    {
+        $result['estimates'] = [];
+
+        if (isset($result['calibration']) && is_array($result['calibration'])) {
+            $result['calibration']['calibrated_estimates'] = [];
+        }
+
+        $result['blinded'] = true;
+
+        return $result;
+    }
+
     private static function intValue(mixed $value): int
     {
         return is_numeric($value) ? (int) $value : 0;
