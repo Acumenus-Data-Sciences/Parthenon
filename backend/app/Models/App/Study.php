@@ -202,6 +202,14 @@ class Study extends Model
     }
 
     /**
+     * @return HasMany<StudyPackage, $this>
+     */
+    public function packages(): HasMany
+    {
+        return $this->hasMany(StudyPackage::class);
+    }
+
+    /**
      * @return HasMany<StudySynthesis, $this>
      */
     public function syntheses(): HasMany

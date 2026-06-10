@@ -17,6 +17,10 @@ class CohortGeneration extends Model
         'completed_at',
         'person_count',
         'fail_message',
+        'compiled_sql',
+        'expression_sha256',
+        'vocabulary_version',
+        'cdm_source_release',
     ];
 
     /**

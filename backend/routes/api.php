@@ -141,6 +141,7 @@ use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyDesignAgentController;
 use App\Http\Controllers\Api\V1\StudyDesignController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
+use App\Http\Controllers\Api\V1\StudyPackageController;
 use App\Http\Controllers\Api\V1\StudyResultController;
 use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
@@ -855,6 +856,14 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:studies.view');
             Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
             Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
+
+            // Reproducible study packages (Clio provenance spine, ADR-0020)
+            Route::get('packages', [StudyPackageController::class, 'index'])
+                ->middleware('permission:studies.view');
+            Route::post('package', [StudyPackageController::class, 'store'])
+                ->middleware('permission:studies.create');
+            Route::get('packages/{studyPackage}/export', [StudyPackageController::class, 'export'])
+                ->middleware('permission:studies.view');
 
             // Results
             Route::get('results', [StudyResultController::class, 'index']);

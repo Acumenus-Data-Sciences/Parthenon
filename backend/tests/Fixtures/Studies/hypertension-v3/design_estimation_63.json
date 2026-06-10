@@ -1,0 +1,43 @@
+{
+    "model": {
+        "type": "cox",
+        "endAnchor": "cohort_start",
+        "timeAtRiskEnd": 1825,
+        "timeAtRiskStart": 1
+    },
+    "targetCohortId": 5424,
+    "propensityScore": {
+        "method": "matching",
+        "enabled": true
+    },
+    "outcomeCohortIds": [
+        5426,
+        5427
+    ],
+    "covariateSettings": {
+        "useDemographicsAge": true,
+        "useDemographicsGender": true,
+        "excludedCovariateConceptIds": [
+            312648,
+            317898,
+            320128,
+            4034031,
+            4058987,
+            4083723,
+            4148205,
+            4159755,
+            4180283,
+            4215640,
+            4217486,
+            4263067,
+            4269358,
+            4302591,
+            4321603,
+            45757787,
+            3012888,
+            3004249
+        ],
+        "useConditionOccurrenceLongTerm": true
+    },
+    "comparatorCohortId": 5425
+}

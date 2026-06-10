@@ -1,0 +1,9 @@
+{
+    "eventCohortIds": [
+        5425,
+        5426
+    ],
+    "minEraDuration": 0,
+    "targetCohortId": 5424,
+    "periodPriorToIndex": 0
+}
