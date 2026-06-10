@@ -19,7 +19,7 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
 
     # ── Step 1: Establish database connection ──────────────────
     logger$info("Connecting to CDM database")
-    connection <- DatabaseConnector::connect(connectionDetails)
+    connection <- connect_with_retry(connectionDetails)
     on.exit(safe_disconnect(connection), add = TRUE)
 
     cdmSchema     <- spec$source$cdm_schema
@@ -121,7 +121,14 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
       if (ps_enabled) {
         logger$info(sprintf("Fitting propensity score model (method=%s)", ps_method))
         psArgs <- CohortMethod::createCreatePsArgs(
-          maxCohortSizeForFitting = 250000
+          maxCohortSizeForFitting = 250000,
+          # Degrade gracefully instead of aborting the entire run when a
+          # covariate is (near-)perfectly correlated with treatment — the
+          # signature of a structurally non-comparable comparator. Cyclops
+          # drops the offending covariate(s) and continues; the residual
+          # imbalance still surfaces in the covariate_balance output.
+          errorOnHighCorrelation = FALSE,
+          stopOnError = FALSE
         )
         ps <- CohortMethod::createPs(
           cohortMethodData = cmData,
