@@ -1,6 +1,6 @@
 ---
 doc_type: adr
-status: proposed
+status: accepted
 date: 2026-06-09
 owner: acumenus
 module: studies
@@ -250,6 +250,6 @@ only — never row-level patient data).
 ## Implementation
 
 Phased plan with task-level detail, file paths, and per-phase acceptance
-criteria: **`docs/devlog/plans/protocol-to-publication-implementation-plan.md`**.
+criteria: **`docs/lineage/plans/protocol-to-publication-implementation-plan.md`**.
 Ordering is deliberate — provenance and gates precede the orchestrator so that
 the agent is wiring a rigorous substrate rather than improvising one.

@@ -1,8 +1,16 @@
 ---
-doc_type: operations
+doc_type: runbook
+status: active
 date: 2026-06-09
 owner: acumenus
 module: studies
+lineage_anchor: false
+supersedes: []
+superseded_by: null
+related_code:
+  - backend/database/migrations/2026_06_09_110001_create_study_gates_table.php
+related_prs:
+  - 357
 related_adr: docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md
 ---
 # Migration: `study_gates` (Clio gate ledger, ADR-0020 Phase 3)

@@ -1,3 +1,17 @@
+---
+doc_type: plan
+status: active
+date: 2026-06-09
+owner: acumenus
+module: studies
+lineage_anchor: false
+supersedes: []
+superseded_by: null
+related_code:
+  - docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md
+related_prs:
+  - 357
+---
 # Clio — Protocol-to-Publication Pipeline: Implementation Plan
 
 **ADR:** `docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md`
