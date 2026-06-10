@@ -32,7 +32,7 @@ def test_probe_strips_trailing_slash_from_url():
     with patch("installer.health._http_get") as mock_get:
         mock_get.return_value = (200, "")
         result = health.probe("http://localhost:8082/", attempt=1)
-    mock_get.assert_called_once_with("http://localhost:8082/api/v1/health")
+    mock_get.assert_called_once_with("http://localhost:8082/api/health")
     assert result == {"ready": True, "attempt": 1, "last_status": 200}
 
 
@@ -42,7 +42,7 @@ def test_http_get_translates_httperror_to_status_code():
     from urllib.error import HTTPError
 
     fake_error = HTTPError(
-        url="http://localhost:8082/api/v1/health",
+        url="http://localhost:8082/api/health",
         code=502,
         msg="Bad Gateway",
         hdrs=None,  # type: ignore[arg-type]
@@ -52,7 +52,7 @@ def test_http_get_translates_httperror_to_status_code():
     # Exercise _http_get directly — NOT the seam mock — to verify the real urlopen path.
     with patch("installer.health.urlopen") as mock_urlopen:
         mock_urlopen.side_effect = fake_error
-        status, body = health._http_get("http://localhost:8082/api/v1/health")
+        status, body = health._http_get("http://localhost:8082/api/health")
 
     assert status == 502
     assert "upstream nginx" in body

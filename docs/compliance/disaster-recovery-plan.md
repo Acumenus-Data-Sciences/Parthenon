@@ -103,7 +103,7 @@ docker compose up -d <service>
 
 # 5. Verify health
 docker compose ps
-# For PHP/API: curl https://parthenon.acumenus.net/api/v1/health
+# For PHP/API: curl https://parthenon.acumenus.net/api/health
 ```
 
 **Common container-specific notes:**
@@ -149,7 +149,7 @@ docker compose exec -T postgres psql -U parthenon < backups/latest.sql
 docker compose up -d
 
 # 7. Verify
-curl https://parthenon.acumenus.net/api/v1/health
+curl https://parthenon.acumenus.net/api/health
 # Spot-check row counts against backup manifest
 ```
 
@@ -213,7 +213,7 @@ sudo certbot --apache -d parthenon.acumenus.net
 
 # 12. Verify all services
 docker compose ps
-curl https://parthenon.acumenus.net/api/v1/health
+curl https://parthenon.acumenus.net/api/health
 ```
 
 ### Scenario D: Ransomware

@@ -109,7 +109,7 @@ docker compose exec php sh -c 'cd /var/www/html && php artisan config:clear && p
 ./deploy.sh --frontend
 
 # 8. Post-deploy verification
-curl -s https://parthenon.acumenus.net/api/v1/health | jq '.finngen'
+curl -s https://parthenon.acumenus.net/api/health | jq '.services.darkstar'
 docker compose exec php sh -c 'cd /var/www/html && php artisan finngen:smoke-test'
 # Expected: both pass
 

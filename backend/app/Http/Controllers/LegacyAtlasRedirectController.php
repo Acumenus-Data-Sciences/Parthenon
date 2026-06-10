@@ -72,7 +72,7 @@ class LegacyAtlasRedirectController extends Controller
     public function webApiRedirect(Request $request, ?string $path = null): RedirectResponse
     {
         if (! $path) {
-            return redirect('/api/v1/health', 301);
+            return redirect('/api/health', 301);
         }
 
         $segments = explode('/', trim($path, '/'));
@@ -140,6 +140,6 @@ class LegacyAtlasRedirectController extends Controller
         }
 
         // Unknown WebAPI paths → health check
-        return redirect('/api/v1/health', 301);
+        return redirect('/api/health', 301);
     }
 }

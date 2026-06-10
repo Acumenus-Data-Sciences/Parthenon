@@ -207,6 +207,22 @@ if [ -d templates ] && command -v uv >/dev/null 2>&1; then
     fi
 fi
 
+# ── Health endpoint reference guard ─────────────────────────────────────────
+# Prevents a consumer (installer probe, deploy smoke, infra healthcheck, SPA)
+# from referencing a backend health URL that does not exist — the /api/v1/health
+# 404 that silently hung the installer readiness loop. Derives the real routes
+# from backend/routes/api.php, so it stays correct as routes evolve.
+if command -v python3 > /dev/null 2>&1; then
+    echo "Pre-commit: Health URLs..."
+    if python3 scripts/checks/check_health_urls.py > /tmp/parthenon_health_guard.out 2>&1; then
+        echo "  ✓ Health URLs"
+    else
+        cat /tmp/parthenon_health_guard.out
+        echo "  ✗ Health URLs — fix the reference, or add the route to api.php + a HealthCheckTest assertion."
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
 # ── Result ──────────────────────────────────────────────────────────────────
 if [ "$ERRORS" -gt 0 ]; then
     echo ""

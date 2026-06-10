@@ -65,6 +65,16 @@ jobs:
       - name: Check Markdown/MDX lineage contract
         run: python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter
 
+  health-url-references:
+    name: Verify health-endpoint references resolve to real routes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Check health-endpoint references
+        run: python3 scripts/checks/check_health_urls.py
+
   license-text:
     name: Verify LICENSE is AGPL-3.0
     runs-on: ubuntu-latest

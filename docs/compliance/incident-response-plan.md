@@ -178,7 +178,7 @@ sudo -u postgres pg_dump parthenon > /tmp/incident-db-snapshot.sql
    - Run Wazuh syscheck scan: wait for next scheduled scan or trigger manually
    - Run CIS SCA benchmark check
    - Verify all 29 containers healthy: `docker compose ps`
-   - Verify API health: `curl https://parthenon.acumenus.net/api/v1/health`
+   - Verify API health: `curl https://parthenon.acumenus.net/api/health`
    - Verify database integrity: compare row counts against backup manifest
 4. **Monitor closely** for 48 hours post-recovery. Watch for:
    - Recurring alerts from the same detection source

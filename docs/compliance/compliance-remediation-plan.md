@@ -284,7 +284,7 @@ docker compose up -d
 
 # 9. Verify everything is running
 docker compose ps
-curl -s https://parthenon.acumenus.net/api/v1/health
+curl -s https://parthenon.acumenus.net/api/health
 ```
 
 **Risk mitigation:** Do this on a weekend. Keep the backup copy on a separate physical drive until you've verified the encrypted volume works for 48+ hours.
@@ -609,7 +609,7 @@ If ePHI was accessed or disclosed without authorization:
 3. Restore: `psql parthenon < backups/YYYY-MM-DD_HH-MM.sql`
 4. Verify row counts against backup manifest JSON
 5. Restart: `docker compose up -d`
-6. Verify: `curl https://parthenon.acumenus.net/api/v1/health`
+6. Verify: `curl https://parthenon.acumenus.net/api/health`
 
 ### Scenario B: Full Server Loss
 1. Provision new Ubuntu 24.04 server
