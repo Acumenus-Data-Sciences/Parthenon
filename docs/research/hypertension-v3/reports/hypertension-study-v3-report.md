@@ -1,3 +1,16 @@
+---
+doc_type: research
+status: active
+date: 2026-06-09
+owner: acumenus
+module: hypertension-v3
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Hypertension Study (V3) — Analysis Report & Interpretation
 
 **Study ID:** 114 (`hypertension-study-v3-2`)
