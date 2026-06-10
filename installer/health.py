@@ -12,13 +12,13 @@ from urllib.request import Request, urlopen
 
 
 def probe(app_url: str, attempt: int) -> dict[str, Any]:
-    """Probe `<app_url>/api/v1/health` and return the result.
+    """Probe `<app_url>/api/health` and return the result.
 
     Returns:
         {"ready": bool, "attempt": int, "last_status": int}
         last_status is 0 when the connection failed entirely.
     """
-    url = app_url.rstrip("/") + "/api/v1/health"
+    url = app_url.rstrip("/") + "/api/health"
     try:
         status, _body = _http_get(url)
     except URLError:

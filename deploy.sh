@@ -855,6 +855,11 @@ else
     if $DO_PHP || $DO_DB || $DO_OPENAPI; then
       smoke_check "api /sanctum/csrf-cookie" "/sanctum/csrf-cookie" "204"
       smoke_check "api /api/v1/nonexistent-endpoint" "/api/v1/nonexistent-endpoint" "404"
+      # Canonical health endpoint and its backward-compatible alias must both
+      # serve 200. Catches a route/prefix regression that would 404 the
+      # installer readiness probe and external monitors.
+      smoke_check "api /api/health" "/api/health" "200"
+      smoke_check "api /api/v1/health (alias)" "/api/v1/health" "200"
     fi
 
     if $DO_PHP || $DO_DB; then

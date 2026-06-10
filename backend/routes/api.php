@@ -170,8 +170,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
-// Public health check
+// Public health check. routes/api.php is mounted under the "/api" prefix, so
+// this is GET /api/health (the canonical endpoint).
 Route::get('/health', [HealthController::class, 'index']);
+// Backward-compatible alias → GET /api/v1/health. Consumers that assume the
+// /api/v1 prefix (the installer readiness probe, external uptime monitors,
+// already-shipped installer binaries, legacy WebAPI redirects) get the same
+// payload instead of a 404. Direct route, NOT a redirect: probes check for 200.
+Route::get('/v1/health', [HealthController::class, 'index']);
 
 // Broadcasting auth — registered under Sanctum so SPA bearer tokens work.
 // Must use /api/broadcasting/auth path; Echo is configured to match.
