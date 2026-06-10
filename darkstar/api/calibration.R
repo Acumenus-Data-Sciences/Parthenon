@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────────
-# Empirical Calibration — standalone endpoint (Clio / ADR-0020 Phase 2)
+# Empirical Calibration — standalone endpoint (Abby / ADR-0020 Phase 2)
 # POST /analysis/calibrate
 #
 # Calibrates effect estimates against a study's negative controls without

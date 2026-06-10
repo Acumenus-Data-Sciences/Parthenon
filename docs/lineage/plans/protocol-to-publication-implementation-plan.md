@@ -12,7 +12,7 @@ related_code:
 related_prs:
   - 357
 ---
-# Clio — Protocol-to-Publication Pipeline: Implementation Plan
+# Abby — Protocol-to-Publication Pipeline: Implementation Plan
 
 **ADR:** `docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md`
 **Status:** Proposed — pending checkpoint review
@@ -250,7 +250,7 @@ additive `generateStats` flag, default off, so existing generation is untouched.
 
 ---
 
-## Phase 5 — Clio orchestrator (Claude Agent SDK, Python AI) (5–7 days)
+## Phase 5 — Abby orchestrator (Claude Agent SDK, Python AI) (5–7 days)
 
 **Goal.** The coordinator that drives S1→S7, calling the deterministic services
 behind the gate ledger.

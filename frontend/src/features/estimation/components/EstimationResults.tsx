@@ -526,7 +526,7 @@ export function EstimationResults({
         </div>
       )}
 
-      {/* Empirical Calibration (Clio / ADR-0020 Phase 2) */}
+      {/* Empirical Calibration (Abby / ADR-0020 Phase 2) */}
       {result.calibration && <CalibrationPanel result={result} />}
 
       {/* Legacy Negative Control / Systematic Error Plot (pre-calibration runs) */}

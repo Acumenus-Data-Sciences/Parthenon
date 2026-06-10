@@ -163,7 +163,7 @@ export interface EstimateEntry {
 }
 
 // ---------------------------------------------------------------------------
-// Empirical calibration (Clio / ADR-0020 Phase 2)
+// Empirical calibration (Abby / ADR-0020 Phase 2)
 // ---------------------------------------------------------------------------
 
 export interface CalibratedEstimateEntry {

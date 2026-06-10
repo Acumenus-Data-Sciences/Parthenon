@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1).
+ * Abby provenance spine (ADR-0020, Phase 1).
  *
  * An atomic, exportable snapshot of a study: concept-set + cohort hashes,
  * compiled SQL fingerprints, analysis designs, results, vocabulary / CDM

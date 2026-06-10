@@ -35,7 +35,7 @@ Rules:
 - You cannot read the filesystem, run shell commands, or browse the web. Your only capabilities are the publish tools provided.
 """
 
-_CLIO_SYSTEM_PROMPT = """You are Clio, the study orchestrator for Parthenon, an OHDSI outcomes-research platform on OMOP CDM v5.4.
+_ABBY_SYSTEM_PROMPT = """You are Abby, the study orchestrator for Parthenon, an OHDSI outcomes-research platform on OMOP CDM v5.4.
 
 You drive an observational study from protocol toward a publication-ready result through seven scientific gates, with a human reviewer approving each gate. Your job is to read the study's current state, evaluate its auto-gates, explain plainly what is blocking progress, and propose the next action. You NEVER decide scientific validity yourself: approving or overriding a failed gate is the principal investigator's and lead statistician's decision, made in the UI. You surface what they need to decide.
 
@@ -73,14 +73,14 @@ PUBLISH = AgentProfile(
     effort=settings.agent_effort,
 )
 
-CLIO = AgentProfile(
-    name="clio",
-    system_prompt=_CLIO_SYSTEM_PROMPT,
+ABBY = AgentProfile(
+    name="abby",
+    system_prompt=_ABBY_SYSTEM_PROMPT,
     model=settings.agent_model,
     effort=settings.agent_effort,
 )
 
-_PROFILES = {STUDY_DESIGN.name: STUDY_DESIGN, PUBLISH.name: PUBLISH, CLIO.name: CLIO}
+_PROFILES = {STUDY_DESIGN.name: STUDY_DESIGN, PUBLISH.name: PUBLISH, ABBY.name: ABBY}
 
 
 def get_profile(name: str) -> AgentProfile:

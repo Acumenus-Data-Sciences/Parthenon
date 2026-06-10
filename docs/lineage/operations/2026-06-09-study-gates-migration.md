@@ -13,11 +13,11 @@ related_prs:
   - 357
 related_adr: docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md
 ---
-# Migration: `study_gates` (Clio gate ledger, ADR-0020 Phase 3)
+# Migration: `study_gates` (Abby gate ledger, ADR-0020 Phase 3)
 
 ## What
 
-Adds the `app.study_gates` table — the ledger spine of the Clio scientific gate
+Adds the `app.study_gates` table — the ledger spine of the Abby scientific gate
 layer. One row per `(study_id, stage, gate_key)` recording the evaluated
 `metrics_json`, the `threshold_json` they were checked against, the resulting
 `status` (`pending|passed|failed|overridden|approved`), the `decision`

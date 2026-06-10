@@ -13,7 +13,7 @@ use App\Support\EstimationResultNormalizer;
 use InvalidArgumentException;
 
 /**
- * The spine of the Clio gate ledger (ADR-0020 Phase 3): auto-evaluates stage
+ * The spine of the Abby gate ledger (ADR-0020 Phase 3): auto-evaluates stage
  * gates from computed metrics, records human approvals / justified overrides,
  * and answers whether downstream work may proceed. When gating is disabled the
  * service is inert and never blocks anything.

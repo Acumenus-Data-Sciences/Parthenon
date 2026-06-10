@@ -36,7 +36,7 @@ function Metric({ label, value, hint, accent }: MetricProps) {
 
 /**
  * Empirical-calibration section for population-level estimation
- * (Clio / ADR-0020 Phase 2). Surfaces the systematic-error model, EASE,
+ * (Abby / ADR-0020 Phase 2). Surfaces the systematic-error model, EASE,
  * calibrated-vs-uncalibrated effect estimates, and the negative-control
  * distribution — or a clear warning when the control panel is too thin to
  * calibrate (the study-114 failure mode the S6 gate blocks on).

@@ -8,30 +8,30 @@ import {
   agentTextDelta,
   agentToolStart,
   agentTurnDone,
-  approveClioTool,
-  sendClioMessage,
-  startClioSession,
-} from "../api/clioAgentApi";
-import { useClioAgentStore } from "../stores/clioAgentStore";
+  approveAbbyTool,
+  sendAbbyMessage,
+  startAbbySession,
+} from "../api/abbyAgentApi";
+import { useAbbyAgentStore } from "../stores/abbyAgentStore";
 
 interface Params {
   slug: string | null;
 }
 
 /**
- * Drives a Clio orchestrator agent session for a study (ADR-0020 Phase 5b):
+ * Drives a Abby orchestrator agent session for a study (ADR-0020 Phase 5b):
  * starts the session, subscribes to its private Reverb channel, and relays
  * user messages + tool approvals. When a turn completes it refreshes the gate
  * timeline (the agent may have evaluated gates).
  */
-export function useClioAgent({ slug }: Params) {
+export function useAbbyAgent({ slug }: Params) {
   const qc = useQueryClient();
-  const channelName = useClioAgentStore((s) => s.channelName);
-  const setSession = useClioAgentStore((s) => s.setSession);
+  const channelName = useAbbyAgentStore((s) => s.channelName);
+  const setSession = useAbbyAgentStore((s) => s.setSession);
   const subscribedRef = useRef<string | null>(null);
 
   const startMutation = useMutation({
-    mutationFn: () => startClioSession(slug!),
+    mutationFn: () => startAbbySession(slug!),
     onSuccess: (data) => setSession(data.agent_session_id, data.channel_name),
   });
 
@@ -44,7 +44,7 @@ export function useClioAgent({ slug }: Params) {
     if (subscribedRef.current === name) return;
     if (subscribedRef.current) echo.leave(subscribedRef.current);
 
-    const { applyEvent } = useClioAgentStore.getState();
+    const { applyEvent } = useAbbyAgentStore.getState();
     echo
       .private(name)
       .listen(".agent.text.delta", (e: unknown) =>
@@ -79,19 +79,19 @@ export function useClioAgent({ slug }: Params) {
 
   const send = useCallback(
     async (text: string) => {
-      const { agentSessionId, pushUserMessage } = useClioAgentStore.getState();
+      const { agentSessionId, pushUserMessage } = useAbbyAgentStore.getState();
       if (!slug || agentSessionId == null) return;
       pushUserMessage(text);
-      await sendClioMessage(slug, agentSessionId, text);
+      await sendAbbyMessage(slug, agentSessionId, text);
     },
     [slug],
   );
 
   const approve = useCallback(
     async (toolUseId: string, approved: boolean) => {
-      const { agentSessionId } = useClioAgentStore.getState();
+      const { agentSessionId } = useAbbyAgentStore.getState();
       if (!slug || agentSessionId == null) return;
-      await approveClioTool(slug, agentSessionId, toolUseId, approved);
+      await approveAbbyTool(slug, agentSessionId, toolUseId, approved);
     },
     [slug],
   );

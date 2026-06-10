@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1).
+ * Abby provenance spine (ADR-0020, Phase 1).
  *
  * Content-addressable hash of the canonicalized definition expression. Lets a
  * cohort / study record exactly which version of a concept set or cohort

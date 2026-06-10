@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { AgentEvent } from "../api/clioAgentApi";
+import type { AgentEvent } from "../api/abbyAgentApi";
 
 export interface ToolCall {
   name: string;
@@ -18,7 +18,7 @@ export interface PendingApproval {
   input: unknown;
 }
 
-interface ClioAgentState {
+interface AbbyAgentState {
   agentSessionId: number | null;
   channelName: string | null;
   transcript: TranscriptTurn[];
@@ -40,7 +40,7 @@ function ensureAssistantTurn(transcript: TranscriptTurn[]): TranscriptTurn[] {
   return [...transcript, { role: "assistant", text: "", tools: [] }];
 }
 
-export const useClioAgentStore = create<ClioAgentState>((set) => ({
+export const useAbbyAgentStore = create<AbbyAgentState>((set) => ({
   agentSessionId: null,
   channelName: null,
   transcript: [],

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1).
+ * Abby provenance spine (ADR-0020, Phase 1).
  *
  * Capture the exact compiled SQL and the vocabulary / CDM release a cohort was
  * generated against, plus the definition hash at generation time. This is what

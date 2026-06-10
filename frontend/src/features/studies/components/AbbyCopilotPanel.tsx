@@ -1,33 +1,33 @@
 import { useState } from "react";
 import { Sparkles, Loader2, Send } from "lucide-react";
-import { useClioAgent } from "../hooks/useClioAgent";
-import { useClioAgentStore } from "../stores/clioAgentStore";
+import { useAbbyAgent } from "../hooks/useAbbyAgent";
+import { useAbbyAgentStore } from "../stores/abbyAgentStore";
 
-interface ClioCopilotPanelProps {
+interface AbbyCopilotPanelProps {
   slug: string;
 }
 
 /**
- * The Clio orchestrator surface (ADR-0020 Phase 5b). Lets a study collaborator
- * start a Clio session, chat with it, and approve/reject its approval-gated
+ * The Abby orchestrator surface (ADR-0020 Phase 5b). Lets a study collaborator
+ * start a Abby session, chat with it, and approve/reject its approval-gated
  * actions. Started explicitly (not on mount) since each session consumes LLM
- * budget. Clio proposes; gate approvals/overrides stay in the Gates timeline.
+ * budget. Abby proposes; gate approvals/overrides stay in the Gates timeline.
  */
-export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
-  const { start, starting, send, approve } = useClioAgent({ slug });
+export function AbbyCopilotPanel({ slug }: AbbyCopilotPanelProps) {
+  const { start, starting, send, approve } = useAbbyAgent({ slug });
   const { transcript, isStreaming, agentSessionId, errorMessage, pendingApprovals, lastCostUsd } =
-    useClioAgentStore();
+    useAbbyAgentStore();
   const [draft, setDraft] = useState("");
 
   return (
     <div
-      data-testid="clio-copilot-panel"
+      data-testid="abby-copilot-panel"
       className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-accent" />
-          <h3 className="text-sm font-semibold text-text-primary">Clio Orchestrator</h3>
+          <h3 className="text-sm font-semibold text-text-primary">Abby Orchestrator</h3>
         </div>
         {agentSessionId == null ? (
           <button
@@ -37,7 +37,7 @@ export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
             className="inline-flex items-center gap-1.5 rounded-md bg-accent/15 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/25 disabled:opacity-40"
           >
             {starting ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-            Start Clio
+            Start Abby
           </button>
         ) : (
           lastCostUsd != null && (
@@ -50,7 +50,7 @@ export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
 
       {agentSessionId == null ? (
         <p className="text-xs text-text-muted">
-          Clio reads this study's gates, evaluates them from the latest diagnostics, and explains
+          Abby reads this study's gates, evaluates them from the latest diagnostics, and explains
           what is blocking progress — proposing concrete remediations. It never decides validity:
           gate approvals and overrides stay yours in the timeline above.
         </p>
@@ -65,7 +65,7 @@ export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
               {pendingApprovals.map((a) => (
                 <div
                   key={a.toolUseId}
-                  data-testid="clio-approval-card"
+                  data-testid="abby-approval-card"
                   className="rounded border border-accent/30 bg-accent/5 p-2 text-xs"
                 >
                   <p className="font-semibold text-accent">{a.tool}</p>
@@ -97,7 +97,7 @@ export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
             {transcript.map((turn, i) => (
               <div key={i}>
                 <span className="text-[10px] uppercase tracking-wider text-text-ghost">
-                  {turn.role === "user" ? "You" : "Clio"}
+                  {turn.role === "user" ? "You" : "Abby"}
                 </span>
                 <p
                   className={
@@ -128,11 +128,11 @@ export function ClioCopilotPanel({ slug }: ClioCopilotPanelProps) {
             }}
           >
             <input
-              aria-label="Message Clio"
+              aria-label="Message Abby"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               disabled={isStreaming}
-              placeholder="Ask Clio what's blocking this study…"
+              placeholder="Ask Abby what's blocking this study…"
               className="flex-1 rounded-md border border-border-default bg-surface-base px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-accent"
             />
             <button

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────────
-# Empirical calibration helpers (Clio / ADR-0020 Phase 2)
+# Empirical calibration helpers (Abby / ADR-0020 Phase 2)
 #
 # Wraps OHDSI EmpiricalCalibration to turn a study's negative-control
 # estimates into a systematic-error model, then calibrates each outcome
