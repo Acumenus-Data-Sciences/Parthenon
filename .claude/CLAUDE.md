@@ -286,7 +286,7 @@ Services: php, nginx, postgres, redis, python-ai, r-runtime, solr, chromadb, qdr
 
 - App: http://localhost:8082
 - Vite dev server: http://localhost:5175
-- API health: http://localhost:8082/api/v1/health
+- API health: http://localhost:8082/api/health
 - AI service: http://localhost:8002
 - Solr admin: http://localhost:8983
 - Horizon dashboard: http://localhost:8082/horizon
