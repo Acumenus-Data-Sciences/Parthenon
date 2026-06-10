@@ -11,15 +11,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Launches and drives a Clio orchestrator agent session for a study
+ * Launches and drives a Abby orchestrator agent session for a study
  * (ADR-0020 Phase 5b). Mirrors the publish/study-design agent controllers:
  * mints a scoped Sanctum token, registers a session with the generic python-ai
- * harness under the `clio` profile, and relays turns / approvals.
+ * harness under the `abby` profile, and relays turns / approvals.
  *
- * The scoped token only needs the abilities the clio tool pack uses: reading
+ * The scoped token only needs the abilities the abby tool pack uses: reading
  * study + gate state, evaluating gates, and building a study package.
  */
-class ClioAgentController extends Controller
+class AbbyAgentController extends Controller
 {
     /** @var list<string> */
     private const AGENT_ABILITIES = ['studies.view', 'studies.execute', 'studies.create'];
@@ -49,7 +49,7 @@ class ClioAgentController extends Controller
     private function assertSessionBelongs(Study $study, AgentSession $agentSession): void
     {
         abort_unless(
-            (int) $agentSession->subject_id === (int) $study->id && $agentSession->profile === 'clio',
+            (int) $agentSession->subject_id === (int) $study->id && $agentSession->profile === 'abby',
             404,
         );
     }
@@ -65,7 +65,7 @@ class ClioAgentController extends Controller
         $user = $request->user();
 
         $agentSession = AgentSession::create([
-            'profile' => 'clio',
+            'profile' => 'abby',
             'subject_type' => 'study',
             'subject_id' => $study->id,
             'user_id' => $user->id,
@@ -77,13 +77,13 @@ class ClioAgentController extends Controller
             'last_active_at' => now(),
         ]);
 
-        $newToken = $user->createToken('clio-agent', self::AGENT_ABILITIES);
+        $newToken = $user->createToken('abby-agent', self::AGENT_ABILITIES);
         $agentSession->update(['token_id' => $newToken->accessToken->id]);
 
-        $channel = "private-clio.study.{$study->id}";
+        $channel = "private-abby.study.{$study->id}";
 
         $resp = Http::acceptJson()->post($this->aiBaseUrl().'/agent/sessions', [
-            'profile' => 'clio',
+            'profile' => 'abby',
             'agent_session_id' => $agentSession->id,
             'subject_id' => $study->id,
             'channel' => $channel,
@@ -176,7 +176,7 @@ class ClioAgentController extends Controller
             'cost_usd' => $agentSession->cost_usd,
             'tokens_in' => $agentSession->tokens_in,
             'tokens_out' => $agentSession->tokens_out,
-            'channel_name' => "private-clio.study.{$study->id}",
+            'channel_name' => "private-abby.study.{$study->id}",
         ]]);
     }
 

@@ -1,12 +1,12 @@
 <?php
 
-// Clio golden regression case (ADR-0020): study 114 (Hypertension v3) shipped a
+// Abby golden regression case (ADR-0020): study 114 (Hypertension v3) shipped a
 // hand-written report full of caveats because nothing gated its failures. Each
-// test below asserts that a future Clio gate CATCHES one of those exact failures.
+// test below asserts that a future Abby gate CATCHES one of those exact failures.
 // They are skipped until the gate that resolves them lands, and each one loads
 // the captured fixture so the skeleton is self-validating against real evidence.
 
-function clioFixture(string $name): mixed
+function abbyFixture(string $name): mixed
 {
     $path = base_path("tests/Fixtures/Studies/hypertension-v3/{$name}");
 
@@ -14,8 +14,8 @@ function clioFixture(string $name): mixed
 }
 
 it('fixtures capture the load-bearing study-114 evidence', function () {
-    $pathway = clioFixture('design_pathway_20.json');
-    $estimation = clioFixture('design_estimation_63.json');
+    $pathway = abbyFixture('design_pathway_20.json');
+    $estimation = abbyFixture('design_estimation_63.json');
 
     // Pathway eventCohortIds point at the comparator pool + outcome, NOT treatment cohorts.
     expect($pathway['eventCohortIds'])->toBe([5425, 5426]);

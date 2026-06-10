@@ -5,7 +5,7 @@ namespace App\Services\Analysis\Calibration;
 use App\Services\RService;
 
 /**
- * Empirical calibration via the darkstar R sidecar (Clio / ADR-0020 Phase 2).
+ * Empirical calibration via the darkstar R sidecar (Abby / ADR-0020 Phase 2).
  *
  * Turns a study's negative-control estimates into a systematic-error model and
  * returns calibrated confidence intervals, calibrated p-values, and the EASE

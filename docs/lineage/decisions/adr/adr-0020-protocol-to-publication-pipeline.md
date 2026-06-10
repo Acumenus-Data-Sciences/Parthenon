@@ -21,29 +21,26 @@ related_code:
   - ai/app/routing/claude_client.py
 related_prs: []
 ---
-# ADR 0020 — Clio: a gated protocol-to-publication study pipeline
+# ADR 0020 — Abby: a gated protocol-to-publication study pipeline
 
-**Status:** Proposed (2026-06-09)
-**Service name:** Clio (Muse of history and the written record).
+**Status:** Accepted (2026-06-09)
+**Assistant:** Abby (Parthenon's default assistant).
 **Deciders:** Dr. S. Udoshi (CMIO) + design session 2026-06-09.
 **Validates against:** Hypertension Study v3 (`app.studies.id = 114`) as the golden regression case.
 
 ## Naming
 
-The orchestrator is named **Clio** — the Muse of history, whose name derives
-from *kleos* ("to make renowned"). She records what happened and proclaims it.
-A pipeline that ingests a study protocol, conducts a methodologically rigorous
-observational analysis, and emits a publication-ready manuscript is doing
-exactly Clio's work: turning events (a clinical question + a CDM) into a
-faithful, citable written account.
+The orchestrator is **Abby** — Parthenon's default assistant. Rather than
+introduce a separate agent identity, the protocol-to-publication orchestrator is
+surfaced as a mode of the platform's existing assistant, so clinicians meet a
+single AI brand across the product. An earlier draft of this ADR proposed a
+distinct Greek-pantheon name for the orchestrator; that was retired (stakeholder
+decision, 2026-06-10) in favour of one universal Abby identity.
 
-Clio joins the existing pantheon — **Hecate** searches the crossroads,
-**Harmonia** harmonizes mappings, **Ariadne** records the thread, **Phoebe**
-recommends concepts, **Morpheus** works the inpatient corpus, **Poseidon**
-moves the data. Clio **writes the history**. We avoided `Strategus`, `Theseus`,
-`Athena`, and `Themis` — all already claimed in the OHDSI namespace. Per
-convention, module/table names stay descriptive (`ai/app/orchestrator/`,
-`app.study_gates`); the Greek name lives in this ADR, the UI, and the manual.
+Internally the orchestrator is a profile (`abby`) in the existing Claude Agent
+SDK harness that already hosts the study-design and publish agents. Per
+convention, module and table names stay descriptive
+(`ai/app/agents/abby_tools.py`, `app.study_gates`).
 
 ## Context
 
@@ -98,7 +95,7 @@ The gap is **orchestration, gating, and provenance binding** — not capability.
 
 ## Decision
 
-Build **Clio**, a gated state-machine pipeline with seven stages, each ending
+Build **Abby**, a gated state-machine pipeline with seven stages, each ending
 in a human-in-the-loop gate. A Claude Agent SDK orchestrator drives the
 *interpretive* steps; deterministic Laravel + darkstar services own every
 *computational* step. **The orchestrator never computes a statistic or judges
@@ -128,7 +125,7 @@ Protocol (.docx/.pdf)
 
 ### D2 — Orchestrator lives in the Python AI service
 
-Clio is a new module `ai/app/orchestrator/` in the existing FastAPI service. It
+Abby is a new module `ai/app/orchestrator/` in the existing FastAPI service. It
 reuses `claude_client.py` (Claude SDK, cost tracking, `AGENT_MAX_BUDGET_USD`)
 and the StudyAgent MCP transport. It holds **no domain authority**: every
 deterministic action is an authenticated call back into the Laravel API, which
@@ -208,9 +205,9 @@ to write the methods + limitations sections.
 ## Validation — Hypertension v3 as the golden regression case
 
 Acceptance is defined as **the gates catching the exact failures study 114
-shipped.** Re-running study 114 through Clio must produce:
+shipped.** Re-running study 114 through Abby must produce:
 
-| Study-114 failure | Required Clio behavior |
+| Study-114 failure | Required Abby behavior |
 |---|---|
 | PS complete separation (exec 258) | **S5 gate FAILS** on separation / AUC ≈ 1 / equipoise ≈ 0; estimates stay blinded; remediation suggests an active-comparator design. |
 | Degenerate pathway, `eventCohortIds=[5425,5426]` | **S3/Design lint FLAGS** event cohorts that are outcomes/pools, not treatment cohorts, before execution. |
@@ -220,7 +217,7 @@ shipped.** Re-running study 114 through Clio must produce:
 | Infrastructure connection error (exec 262) | Distinguished from a *result*: the run is retried (darkstar `connect_with_retry`, this session's tree) and never recorded as a completed analysis. |
 
 A study that, under the old system, produced a hand-written report full of
-caveats must, under Clio, either (a) be **blocked at the right gate with a
+caveats must, under Abby, either (a) be **blocked at the right gate with a
 precise reason**, or (b) proceed only via a **logged PI/statistician override**
 that appears in the manuscript's limitations. That difference is the whole
 point of this ADR.
@@ -237,7 +234,7 @@ intentional, but the UX must make each gate fast and legible or researchers will
 route around it. The orchestrator adds LLM cost per study (bounded by
 `AGENT_MAX_BUDGET_USD`). Estimate blinding requires careful serializer changes
 to avoid leaking fields. A prior agentic plan-execution UI was deliberately
-removed (commit 93fc212a9) — Clio must not repeat its mistake of orchestration
+removed (commit 93fc212a9) — Abby must not repeat its mistake of orchestration
 without an underlying rigor substrate, which is why the gates and deterministic
 services (Phases 1–4) land **before** the orchestrator (Phase 5).
 

@@ -10,14 +10,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-if (! function_exists('clioMakeStudyWithCohort')) {
+if (! function_exists('abbyMakeStudyWithCohort')) {
     /**
      * @return array{0: Study, 1: CohortDefinition}
      */
-    function clioMakeStudyWithCohort(User $user): array
+    function abbyMakeStudyWithCohort(User $user): array
     {
         $study = Study::create([
-            'title' => 'Clio package test study',
+            'title' => 'Abby package test study',
             'created_by' => $user->id,
             'status' => 'draft',
         ]);
@@ -43,7 +43,7 @@ if (! function_exists('clioMakeStudyWithCohort')) {
 
 it('builds a study package capturing cohort definition hashes', function () {
     $user = User::factory()->create();
-    [$study] = clioMakeStudyWithCohort($user);
+    [$study] = abbyMakeStudyWithCohort($user);
 
     $package = app(StudyPackageService::class)->build($study, $user->id);
 
@@ -62,7 +62,7 @@ it('builds a study package capturing cohort definition hashes', function () {
 
 it('is reproducible: rebuilding an unchanged study yields the same bundle hash but a new version', function () {
     $user = User::factory()->create();
-    [$study] = clioMakeStudyWithCohort($user);
+    [$study] = abbyMakeStudyWithCohort($user);
     $service = app(StudyPackageService::class);
 
     $first = $service->build($study, $user->id);
@@ -74,7 +74,7 @@ it('is reproducible: rebuilding an unchanged study yields the same bundle hash b
 
 it('changes the bundle hash when the cohort definition expression changes', function () {
     $user = User::factory()->create();
-    [$study, $cohort] = clioMakeStudyWithCohort($user);
+    [$study, $cohort] = abbyMakeStudyWithCohort($user);
     $service = app(StudyPackageService::class);
 
     $first = $service->build($study, $user->id);

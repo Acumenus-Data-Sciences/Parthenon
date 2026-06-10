@@ -12,8 +12,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-if (! function_exists('clioGateStudy')) {
-    function clioGateStudy(User $user): Study
+if (! function_exists('abbyGateStudy')) {
+    function abbyGateStudy(User $user): Study
     {
         return Study::create(['title' => 'Gate test study', 'created_by' => $user->id, 'status' => 'draft']);
     }
@@ -22,7 +22,7 @@ if (! function_exists('clioGateStudy')) {
 it('evaluates and persists a failed study-diagnostics gate with reasons', function () {
     config(['studies.gating_enabled' => true]);
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
 
     $gate = app(StudyGateService::class)
         ->evaluate($study, GateStage::StudyDiagnostics, ['ps_auc' => 0.99, 'equipoise' => 0.01]);
@@ -40,7 +40,7 @@ it('evaluates and persists a failed study-diagnostics gate with reasons', functi
 it('blocks work behind a failed gate and clears it on a justified override', function () {
     config(['studies.gating_enabled' => true]);
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
     $svc = app(StudyGateService::class);
 
     $gate = $svc->evaluate($study, GateStage::StudyDiagnostics, ['ps_auc' => 0.99, 'equipoise' => 0.01]);
@@ -61,7 +61,7 @@ it('blocks work behind a failed gate and clears it on a justified override', fun
 
 it('requires a non-empty rationale to override', function () {
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
     $svc = app(StudyGateService::class);
     $gate = $svc->evaluate($study, GateStage::DataQuality, ['severe_failed_checks' => 2]);
 
@@ -71,7 +71,7 @@ it('requires a non-empty rationale to override', function () {
 it('is inert when gating is disabled', function () {
     config(['studies.gating_enabled' => false]);
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
     $svc = app(StudyGateService::class);
 
     $svc->evaluate($study, GateStage::StudyDiagnostics, ['ps_auc' => 0.99, 'equipoise' => 0.01]);
@@ -82,7 +82,7 @@ it('is inert when gating is disabled', function () {
 it('evaluates S5 and S6 from a study-114-like estimation result', function () {
     config(['studies.gating_enabled' => true]);
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
 
     $gates = app(StudyGateService::class)->evaluateEstimationGates($study, [
         'propensity_score' => ['auc' => 0.99, 'max_smd_after' => 0.45, 'equipoise' => 0.01],
@@ -97,7 +97,7 @@ it('evaluates S5 and S6 from a study-114-like estimation result', function () {
 it('blinds estimation results for a gated study whose S5 gate has not cleared', function () {
     config(['studies.gating_enabled' => true]);
     $user = User::factory()->create();
-    $study = clioGateStudy($user);
+    $study = abbyGateStudy($user);
     $svc = app(StudyGateService::class);
 
     $analysis = EstimationAnalysis::create(['name' => 'Est', 'author_id' => $user->id, 'design_json' => []]);

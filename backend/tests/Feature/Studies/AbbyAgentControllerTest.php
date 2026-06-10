@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
-it('starts a clio agent session for a study collaborator and calls the AI harness', function () {
+it('starts a abby agent session for a study collaborator and calls the AI harness', function () {
     Http::fake(['*/agent/sessions' => Http::response(['ok' => true], 200)]);
 
     $user = User::factory()->create();
@@ -17,17 +17,17 @@ it('starts a clio agent session for a study collaborator and calls the AI harnes
     $resp = $this->actingAs($user)->postJson("/api/v1/studies/{$study->slug}/agent/sessions");
 
     $resp->assertStatus(201)
-        ->assertJsonPath('data.channel_name', "private-clio.study.{$study->id}");
+        ->assertJsonPath('data.channel_name', "private-abby.study.{$study->id}");
 
     $this->assertDatabaseHas('agent_sessions', [
-        'profile' => 'clio',
+        'profile' => 'abby',
         'subject_id' => $study->id,
         'user_id' => $user->id,
         'status' => 'active',
     ]);
 
     Http::assertSent(fn ($req) => str_contains($req->url(), '/agent/sessions')
-        && $req['profile'] === 'clio'
+        && $req['profile'] === 'abby'
         && $req['context']['study_slug'] === $study->slug);
 });
 
@@ -71,7 +71,7 @@ it('forwards a message to the agent turn endpoint', function () {
     $user = User::factory()->create();
     $study = Study::create(['title' => 'HTN study', 'created_by' => $user->id, 'status' => 'draft']);
     $session = AgentSession::create([
-        'profile' => 'clio',
+        'profile' => 'abby',
         'subject_type' => 'study',
         'subject_id' => $study->id,
         'user_id' => $user->id,

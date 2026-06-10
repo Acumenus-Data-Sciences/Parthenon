@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Clio gated pipeline (ADR-0020)
+    | Abby gated pipeline (ADR-0020)
     |--------------------------------------------------------------------------
     |
     | Master switch for the scientific gate layer. When false, no gate is

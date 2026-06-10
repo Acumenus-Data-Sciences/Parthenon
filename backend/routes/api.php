@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AbbyAgentController;
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AbbyProfileController;
@@ -33,7 +34,6 @@ use App\Http\Controllers\Api\V1\CharacterizationController;
 use App\Http\Controllers\Api\V1\CirceController;
 use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
-use App\Http\Controllers\Api\V1\ClioAgentController;
 use App\Http\Controllers\Api\V1\CohortAuthoringArtifactController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
@@ -860,7 +860,7 @@ Route::prefix('v1')->group(function () {
             Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
             Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
 
-            // Reproducible study packages (Clio provenance spine, ADR-0020)
+            // Reproducible study packages (Abby provenance spine, ADR-0020)
             Route::get('packages', [StudyPackageController::class, 'index'])
                 ->middleware('permission:studies.view');
             Route::post('package', [StudyPackageController::class, 'store'])
@@ -875,7 +875,7 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:studies.view');
             Route::put('results/{result}', [StudyResultController::class, 'update']);
 
-            // Scientific gate ledger (Clio / ADR-0020 Phase 3)
+            // Scientific gate ledger (Abby / ADR-0020 Phase 3)
             Route::get('gates', [StudyGateController::class, 'index'])
                 ->middleware('permission:studies.view');
             Route::post('gates/evaluate', [StudyGateController::class, 'evaluate'])
@@ -885,18 +885,18 @@ Route::prefix('v1')->group(function () {
             Route::post('gates/{studyGate}/override', [StudyGateController::class, 'override'])
                 ->middleware('permission:studies.edit');
 
-            // Clio orchestrator agent (ADR-0020 Phase 5b)
-            Route::post('agent/sessions', [ClioAgentController::class, 'start'])
+            // Abby orchestrator agent (ADR-0020 Phase 5b)
+            Route::post('agent/sessions', [AbbyAgentController::class, 'start'])
                 ->middleware('throttle:20,1');
-            Route::post('agent/sessions/{agentSession}/messages', [ClioAgentController::class, 'message'])
+            Route::post('agent/sessions/{agentSession}/messages', [AbbyAgentController::class, 'message'])
                 ->middleware('throttle:30,1');
-            Route::post('agent/sessions/{agentSession}/approve', [ClioAgentController::class, 'approve'])
+            Route::post('agent/sessions/{agentSession}/approve', [AbbyAgentController::class, 'approve'])
                 ->middleware('throttle:60,1');
-            Route::get('agent/sessions/{agentSession}/snapshot', [ClioAgentController::class, 'snapshot']);
-            Route::post('agent/sessions/{agentSession}/ingest', [ClioAgentController::class, 'ingest'])
+            Route::get('agent/sessions/{agentSession}/snapshot', [AbbyAgentController::class, 'snapshot']);
+            Route::post('agent/sessions/{agentSession}/ingest', [AbbyAgentController::class, 'ingest'])
                 ->middleware('throttle:120,1');
 
-            // Manuscript synthesis (Clio / ADR-0020 Phase 6)
+            // Manuscript synthesis (Abby / ADR-0020 Phase 6)
             Route::get('manuscript', [StudyManuscriptController::class, 'compose'])
                 ->middleware('permission:studies.view');
             Route::post('manuscript/export', [StudyManuscriptController::class, 'export'])

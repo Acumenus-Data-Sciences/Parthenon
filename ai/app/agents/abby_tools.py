@@ -1,4 +1,4 @@
-"""Custom Claude Agent SDK tools for the Clio study orchestrator (ADR-0020 Phase 5).
+"""Custom Claude Agent SDK tools for the Abby study orchestrator (ADR-0020 Phase 5).
 
 Each tool is a thin authenticated client over an existing Laravel route built in
 Phases 1-4 (gate ledger, empirical calibration, cohort diagnostics, study
@@ -25,7 +25,7 @@ def _require_study(ctx: AgentToolContext) -> dict[str, Any] | None:
     """Guard for study-scoped tools: a clear error if no study is selected."""
     if not ctx.context.get("study_slug"):
         return error_result(
-            "No study is selected. A study_slug is required before using the Clio tools."
+            "No study is selected. A study_slug is required before using the Abby tools."
         )
     return None
 
@@ -35,7 +35,7 @@ def _slug(ctx: AgentToolContext) -> str:
 
 
 def build_tool_pack(ctx: AgentToolContext) -> list:
-    """Read tools (auto-approved) + execute tools (approval-gated) for Clio."""
+    """Read tools (auto-approved) + execute tools (approval-gated) for Abby."""
 
     @tool(
         "get_study_overview",

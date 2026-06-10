@@ -1,7 +1,7 @@
 import apiClient from "@/lib/api-client";
 
 // ---------------------------------------------------------------------------
-// Clio gate ledger API (ADR-0020 Phase 3)
+// Abby gate ledger API (ADR-0020 Phase 3)
 // ---------------------------------------------------------------------------
 
 export type GateStage =

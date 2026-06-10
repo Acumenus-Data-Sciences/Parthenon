@@ -4,7 +4,7 @@ namespace App\Support\Cohort;
 
 /**
  * Extracts the concept IDs referenced by a Circe cohort expression's concept
- * sets (Clio / ADR-0020). Shared by cohort diagnostics (orphan-concept checks)
+ * sets (Abby / ADR-0020). Shared by cohort diagnostics (orphan-concept checks)
  * and the study gate evaluators. Tolerates Atlas (`CONCEPT_ID`) and lower-case
  * (`concept_id`) casings on both the items and concept keys.
  */

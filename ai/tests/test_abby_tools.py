@@ -1,4 +1,4 @@
-"""Tests for the Clio orchestrator tool pack (ADR-0020 Phase 5).
+"""Tests for the Abby orchestrator tool pack (ADR-0020 Phase 5).
 
 respx mocks the Laravel API at http://nginx:80/api/v1. The execute tools
 (evaluate_gates, build_study_package) are declared as approval-gated writes so
@@ -10,7 +10,7 @@ from __future__ import annotations
 import httpx
 import respx
 
-from app.agents.clio_tools import build_tool_pack
+from app.agents.abby_tools import build_tool_pack
 from app.agents.profiles import get_profile
 from app.agents.tool_base import AgentToolContext
 from app.agents.tool_packs import build_tool_pack as registry_build
@@ -27,10 +27,10 @@ def _ctx_no_study() -> AgentToolContext:
     return AgentToolContext(auth_token="tok", context={})
 
 
-def test_clio_profile_and_registry_are_wired() -> None:
-    assert get_profile("clio").name == "clio"
+def test_abby_profile_and_registry_are_wired() -> None:
+    assert get_profile("abby").name == "abby"
 
-    names = {t.name for t in registry_build("clio", _ctx())}
+    names = {t.name for t in registry_build("abby", _ctx())}
     assert names == {
         "get_study_overview",
         "get_study_progress",
@@ -41,7 +41,7 @@ def test_clio_profile_and_registry_are_wired() -> None:
 
     # The execute tools are approval-gated writes (the human-in-the-loop gates);
     # the agent proposes but a human approves.
-    assert write_tools("clio") == {"evaluate_gates", "build_study_package"}
+    assert write_tools("abby") == {"evaluate_gates", "build_study_package"}
 
 
 @respx.mock

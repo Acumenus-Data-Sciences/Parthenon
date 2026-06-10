@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1) — one-time, idempotent backfill.
+ * Abby provenance spine (ADR-0020, Phase 1) — one-time, idempotent backfill.
  *
  * Fills `expression_sha256` for concept sets and cohort definitions where it is
  * NULL (legacy rows created before the provenance saving-hook existed).

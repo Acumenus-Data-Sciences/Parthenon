@@ -70,7 +70,7 @@ class CohortDiagnosticsService
     /**
      * Index-event composition by CDM domain: how many cohort members had an
      * entry event in each domain on the index date. Surfaces degenerate or
-     * single-domain cohorts (Clio / ADR-0020 Phase 4, S3 gate input).
+     * single-domain cohorts (Abby / ADR-0020 Phase 4, S3 gate input).
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -121,7 +121,7 @@ class CohortDiagnosticsService
     /**
      * Orphan concepts: members of the cohort's concept sets with zero records
      * in this source's CDM. Flags over-broad or vocabulary-mismatched concept
-     * sets (Clio / ADR-0020 Phase 4, S3 gate input).
+     * sets (Abby / ADR-0020 Phase 4, S3 gate input).
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>

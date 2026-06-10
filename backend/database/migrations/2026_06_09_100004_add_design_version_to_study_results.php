@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1).
+ * Abby provenance spine (ADR-0020, Phase 1).
  *
  * Bind a study result to the study-design version that produced it — the
  * weakest provenance link today. Additive + nullable; FK nulls on delete so it

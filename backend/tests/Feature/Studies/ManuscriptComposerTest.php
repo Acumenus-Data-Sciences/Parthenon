@@ -12,8 +12,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-if (! function_exists('clioManuscriptStudy')) {
-    function clioManuscriptStudy(User $user, string $gateStatus): Study
+if (! function_exists('abbyManuscriptStudy')) {
+    function abbyManuscriptStudy(User $user, string $gateStatus): Study
     {
         $study = Study::create([
             'title' => 'Hypertension MACE study',
@@ -71,7 +71,7 @@ if (! function_exists('clioManuscriptStudy')) {
 
 it('composes a gate-aware manuscript with calibrated results and an override limitation', function () {
     $user = User::factory()->create();
-    $study = clioManuscriptStudy($user, GateStatus::Overridden->value);
+    $study = abbyManuscriptStudy($user, GateStatus::Overridden->value);
 
     $doc = app(ManuscriptComposer::class)->compose($study);
     $byKey = collect($doc['sections'])->keyBy('key');
@@ -87,7 +87,7 @@ it('composes a gate-aware manuscript with calibrated results and an override lim
 
 it('withholds effect estimates when the study-diagnostics gate has not cleared', function () {
     $user = User::factory()->create();
-    $study = clioManuscriptStudy($user, GateStatus::Failed->value);
+    $study = abbyManuscriptStudy($user, GateStatus::Failed->value);
 
     $doc = app(ManuscriptComposer::class)->compose($study);
     $results = collect($doc['sections'])->firstWhere('key', 'results')['content'];

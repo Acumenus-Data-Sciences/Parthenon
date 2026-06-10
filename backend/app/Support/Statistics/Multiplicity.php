@@ -3,7 +3,7 @@
 namespace App\Support\Statistics;
 
 /**
- * Multiple-comparison corrections (Clio / ADR-0020 Phase 2).
+ * Multiple-comparison corrections (Abby / ADR-0020 Phase 2).
  *
  * A comparative study that tests several outcomes against the same exposure
  * inflates the family-wise false-positive rate. Benjamini-Hochberg controls

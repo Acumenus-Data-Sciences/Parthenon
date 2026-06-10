@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Clio provenance spine (ADR-0020, Phase 1).
+ * Abby provenance spine (ADR-0020, Phase 1).
  *
  * Pin each analysis execution to the hash of the design it ran and the
  * vocabulary / CDM release of its source. Additive + nullable.

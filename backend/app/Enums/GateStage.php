@@ -3,7 +3,7 @@
 namespace App\Enums;
 
 /**
- * The seven scientific gates of the Clio protocol-to-publication pipeline
+ * The seven scientific gates of the Abby protocol-to-publication pipeline
  * (ADR-0020). Each stage ends in a human-in-the-loop decision recorded in
  * `study_gates`.
  */

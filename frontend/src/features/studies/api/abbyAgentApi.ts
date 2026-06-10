@@ -2,23 +2,23 @@ import { z } from "zod";
 import apiClient from "@/lib/api-client";
 
 // ---------------------------------------------------------------------------
-// Clio orchestrator agent client (ADR-0020 Phase 5b)
+// Abby orchestrator agent client (ADR-0020 Phase 5b)
 // ---------------------------------------------------------------------------
 
 const base = (slug: string): string => `/studies/${slug}/agent/sessions`;
 
-export const startClioSessionResponse = z.object({
+export const startAbbySessionResponse = z.object({
   agent_session_id: z.number(),
   channel_name: z.string(),
 });
-export type StartClioSessionResponse = z.infer<typeof startClioSessionResponse>;
+export type StartAbbySessionResponse = z.infer<typeof startAbbySessionResponse>;
 
-export async function startClioSession(slug: string): Promise<StartClioSessionResponse> {
+export async function startAbbySession(slug: string): Promise<StartAbbySessionResponse> {
   const { data } = await apiClient.post(base(slug), {});
-  return startClioSessionResponse.parse(data.data ?? data);
+  return startAbbySessionResponse.parse(data.data ?? data);
 }
 
-export async function sendClioMessage(
+export async function sendAbbyMessage(
   slug: string,
   sessionId: number,
   text: string,
@@ -29,7 +29,7 @@ export async function sendClioMessage(
   });
 }
 
-export async function approveClioTool(
+export async function approveAbbyTool(
   slug: string,
   sessionId: number,
   toolUseId: string,
