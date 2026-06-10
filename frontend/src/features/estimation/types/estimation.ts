@@ -115,6 +115,7 @@ export interface EstimationResult {
   attrition?: AttritionStep[];
   mdrr?: Record<string, number>;
   negative_controls?: NegativeControlOutcome[];
+  calibration?: CalibrationResult | null;
   power_analysis?: PowerEntry[];
   diagnostics?: {
     equipoise: number;
@@ -154,8 +155,49 @@ export interface EstimateEntry {
   ci_95_lower: number;
   ci_95_upper: number;
   p_value: number;
+  adjusted_p?: number | null;
   log_hr: number;
   se_log_hr: number;
   target_outcomes: number;
   comparator_outcomes: number;
+}
+
+// ---------------------------------------------------------------------------
+// Empirical calibration (Clio / ADR-0020 Phase 2)
+// ---------------------------------------------------------------------------
+
+export interface CalibratedEstimateEntry {
+  outcome_id: number;
+  outcome_name: string;
+  calibrated: boolean;
+  calibrated_log_rr?: number;
+  calibrated_hr?: number;
+  cal_ci_lower?: number;
+  cal_ci_upper?: number;
+  calibrated_p?: number;
+  calibrated_adjusted_p?: number | null;
+}
+
+export interface CalibrationNegativeControlPoint {
+  log_rr: number;
+  se_log_rr: number;
+}
+
+export interface CalibrationSystematicErrorModel {
+  null_mean?: number;
+  null_sd?: number;
+  model?: Record<string, number>;
+}
+
+export interface CalibrationResult {
+  status: "completed" | "insufficient_controls" | "unknown";
+  min_negative_controls: number;
+  informative_negative_controls: number;
+  message?: string | null;
+  ease?: number | null;
+  systematic_error_model?: CalibrationSystematicErrorModel;
+  calibrated_estimates: CalibratedEstimateEntry[];
+  calibration_plot?: {
+    negative_controls?: CalibrationNegativeControlPoint[];
+  };
 }

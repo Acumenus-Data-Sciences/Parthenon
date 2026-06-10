@@ -12,6 +12,7 @@ pa <- api(
   "/app/api/health.R",
   "/app/api/stubs.R",
   "/app/api/estimation.R",
+  "/app/api/calibration.R",
   "/app/api/prediction.R",
   "/app/api/sccs.R",
   "/app/api/self_controlled_cohort.R",
