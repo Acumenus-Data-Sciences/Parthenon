@@ -41,6 +41,23 @@ class RService
     }
 
     /**
+     * Empirically calibrate effect estimates against negative controls.
+     *
+     * @param  array<string, mixed>  $spec
+     * @return array<string, mixed>
+     */
+    public function runCalibration(array $spec): array
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->baseUrl}/analysis/calibrate", $spec);
+
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'Darkstar returned empty response (HTTP '.$response->status().')',
+        ];
+    }
+
+    /**
      * Run PatientLevelPrediction via the R sidecar.
      *
      * @param  array<string, mixed>  $spec

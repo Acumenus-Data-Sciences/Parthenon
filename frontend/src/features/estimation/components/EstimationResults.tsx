@@ -6,6 +6,7 @@ import { AttritionDiagram } from "./AttritionDiagram";
 import { PropensityScorePlot } from "./PropensityScorePlot";
 import { LovePlot } from "./LovePlot";
 import { SystematicErrorPlot } from "./SystematicErrorPlot";
+import { CalibrationPanel } from "./CalibrationPanel";
 import { PowerTable } from "./PowerTable";
 import { EstimationVerdictDashboard } from "./EstimationVerdictDashboard";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
@@ -525,8 +526,11 @@ export function EstimationResults({
         </div>
       )}
 
-      {/* Negative Control / Systematic Error Plot */}
-      {negControls && negControls.length > 0 && (
+      {/* Empirical Calibration (Clio / ADR-0020 Phase 2) */}
+      {result.calibration && <CalibrationPanel result={result} />}
+
+      {/* Legacy Negative Control / Systematic Error Plot (pre-calibration runs) */}
+      {!result.calibration && negControls && negControls.length > 0 && (
         <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <h3 className="text-sm font-semibold text-text-primary mb-4">
             {t("analyses.auto.empiricalCalibrationSystematicError_61fcf2")}

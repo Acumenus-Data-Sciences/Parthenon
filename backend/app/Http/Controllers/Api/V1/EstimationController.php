@@ -10,6 +10,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\Source;
 use App\Scopes\LibraryDefaultScope;
+use App\Services\Studies\Gates\StudyGateService;
 use App\Support\EstimationResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,7 +51,9 @@ class EstimationController extends Controller
                     ->first(['id', 'status', 'source_id', 'started_at', 'completed_at', 'result_json']);
 
                 if ($latestExecution && is_array($latestExecution->result_json)) {
-                    $latestExecution->result_json = EstimationResultNormalizer::normalize($latestExecution->result_json);
+                    $normalized = EstimationResultNormalizer::normalize($latestExecution->result_json);
+                    $latestExecution->result_json = app(StudyGateService::class)
+                        ->blindEstimationIfGated($normalized, EstimationAnalysis::class, $analysis->id);
                 }
 
                 $analysis->setAttribute('latest_execution', $latestExecution);
@@ -301,7 +304,9 @@ class EstimationController extends Controller
             ]);
 
             if (is_array($execution->result_json)) {
-                $execution->result_json = EstimationResultNormalizer::normalize($execution->result_json);
+                $normalized = EstimationResultNormalizer::normalize($execution->result_json);
+                $execution->result_json = app(StudyGateService::class)
+                    ->blindEstimationIfGated($normalized, EstimationAnalysis::class, $estimation->id);
             }
 
             return response()->json([

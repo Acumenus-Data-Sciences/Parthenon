@@ -1,0 +1,19 @@
+{
+    "topN": 100,
+    "featureTypes": [
+        "demographics",
+        "conditions",
+        "drugs",
+        "measurements",
+        "procedures"
+    ],
+    "minCellCount": 5,
+    "stratifyByAge": true,
+    "targetCohortIds": [
+        5424
+    ],
+    "stratifyByGender": true,
+    "comparatorCohortIds": [
+        5425
+    ]
+}

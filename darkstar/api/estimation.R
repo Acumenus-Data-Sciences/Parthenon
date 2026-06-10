@@ -10,6 +10,7 @@ source("/app/R/connection.R")
 source("/app/R/covariates.R")
 source("/app/R/progress.R")
 source("/app/R/results.R")
+source("/app/R/calibration.R")
 
 #* Run population-level estimation via CohortMethod
 #* @post /analysis/estimation/run
@@ -323,6 +324,21 @@ function(body, response) {
       nc_data <- list(estimates = nc_estimates)
     }
 
+    # ── Empirical calibration (ADR-0020 Phase 2) ────────────
+    # Fold calibration into the result so a single estimation run returns
+    # calibrated estimates + EASE. Best-effort: a calibration failure must
+    # not fail the estimation run (uncalibrated estimates still return).
+    calibration_data <- NULL
+    if (!is.null(nc_data) && length(nc_data$estimates) > 0) {
+      calibration_data <- tryCatch(
+        compute_calibration(estimates_list, nc_data$estimates),
+        error = function(e) {
+          logger$warn(paste("Calibration failed:", e$message))
+          NULL
+        }
+      )
+    }
+
     # ── Compile balance summary ─────────────────────────────
     balance_summary <- extract_balance_summary(balance_all, n = 50)
 
@@ -393,6 +409,7 @@ function(body, response) {
       attrition          = attrition_data,
       mdrr               = mdrr_map,
       negative_controls  = nc_data,
+      calibration        = calibration_data,
       logs               = logger$entries(),
       elapsed_seconds    = logger$elapsed()
     )

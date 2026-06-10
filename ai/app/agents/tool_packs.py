@@ -16,11 +16,12 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from app.agents.tool_base import AgentToolContext
-from app.agents import publish_tools, study_design_tools
+from app.agents import clio_tools, publish_tools, study_design_tools
 
 _BUILDERS: dict[str, Callable[[AgentToolContext], list]] = {
     "study_design": study_design_tools.build_tool_pack,
     "publish": publish_tools.build_tool_pack,
+    "clio": clio_tools.build_tool_pack,
 }
 
 # Per-profile set of tool names that require explicit human approval before
@@ -28,6 +29,7 @@ _BUILDERS: dict[str, Callable[[AgentToolContext], list]] = {
 _WRITE_TOOLS: dict[str, set[str]] = {
     "study_design": set(),
     "publish": {"update_draft", "create_snapshot"},
+    "clio": {"evaluate_gates", "build_study_package"},
 }
 
 

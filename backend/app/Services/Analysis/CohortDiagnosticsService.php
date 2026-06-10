@@ -6,6 +6,7 @@ use App\Enums\DaimonType;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Support\Cohort\ConceptIdExtractor;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -61,7 +62,129 @@ class CohortDiagnosticsService
             'visit_context' => $this->getVisitContext($cohortId, $cohortTable, $cdmSchema, $vocabSchema, $params, $dialect, $connectionName),
             'time_distributions' => $this->getTimeDistributions($cohortId, $cohortTable, $cdmSchema, $params, $dialect, $connectionName),
             'age_at_index' => $this->getAgeAtIndex($cohortId, $cohortTable, $cdmSchema, $params, $dialect, $connectionName),
+            'index_event_breakdown' => $this->getIndexEventBreakdown($cohortId, $cohortTable, $cdmSchema, $params, $dialect, $connectionName),
+            'orphan_concepts' => $this->getOrphanConcepts($cohortDef, $cdmSchema, $vocabSchema, $params, $dialect, $connectionName),
         ];
+    }
+
+    /**
+     * Index-event composition by CDM domain: how many cohort members had an
+     * entry event in each domain on the index date. Surfaces degenerate or
+     * single-domain cohorts (Clio / ADR-0020 Phase 4, S3 gate input).
+     *
+     * @param  array<string, string>  $params
+     * @return list<array<string, mixed>>
+     */
+    private function getIndexEventBreakdown(
+        int $cohortId,
+        string $cohortTable,
+        string $cdmSchema,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $domains = [
+            ['Condition', 'condition_occurrence', 'condition_start_date'],
+            ['Drug', 'drug_exposure', 'drug_exposure_start_date'],
+            ['Procedure', 'procedure_occurrence', 'procedure_date'],
+            ['Measurement', 'measurement', 'measurement_date'],
+            ['Observation', 'observation', 'observation_date'],
+            ['Visit', 'visit_occurrence', 'visit_start_date'],
+        ];
+
+        $unions = [];
+        foreach ($domains as [$label, $table, $dateCol]) {
+            $unions[] = "SELECT '{$label}' AS domain, c.subject_id
+                FROM {$cohortTable} c
+                INNER JOIN {$cdmSchema}.{$table} d
+                    ON d.person_id = c.subject_id
+                    AND d.{$dateCol} = c.cohort_start_date
+                WHERE c.cohort_definition_id = {$cohortId}";
+        }
+
+        $inner = implode("\n            UNION ALL\n            ", $unions);
+        $sql = "
+            SELECT domain, COUNT(DISTINCT subject_id) AS person_count
+            FROM (
+                {$inner}
+            ) t
+            GROUP BY domain
+            ORDER BY person_count DESC
+        ";
+
+        $rendered = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($rendered);
+
+        return array_map(fn ($r) => (array) $r, $rows);
+    }
+
+    /**
+     * Orphan concepts: members of the cohort's concept sets with zero records
+     * in this source's CDM. Flags over-broad or vocabulary-mismatched concept
+     * sets (Clio / ADR-0020 Phase 4, S3 gate input).
+     *
+     * @param  array<string, string>  $params
+     * @return list<array<string, mixed>>
+     */
+    private function getOrphanConcepts(
+        CohortDefinition $cohortDef,
+        string $cdmSchema,
+        string $vocabSchema,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $conceptIds = ConceptIdExtractor::fromExpression(
+            is_array($cohortDef->expression_json) ? $cohortDef->expression_json : []
+        );
+
+        if ($conceptIds === []) {
+            return [];
+        }
+
+        // Bound the diagnostic so an over-broad set cannot run an unbounded query.
+        $conceptIds = array_slice($conceptIds, 0, 500);
+        $idList = implode(',', $conceptIds);
+        $valuesList = implode(',', array_map(static fn (int $id): string => "({$id})", $conceptIds));
+
+        $domainCols = [
+            'condition_occurrence' => 'condition_concept_id',
+            'drug_exposure' => 'drug_concept_id',
+            'procedure_occurrence' => 'procedure_concept_id',
+            'measurement' => 'measurement_concept_id',
+            'observation' => 'observation_concept_id',
+            'visit_occurrence' => 'visit_concept_id',
+        ];
+
+        $perDomain = [];
+        foreach ($domainCols as $table => $col) {
+            $perDomain[] = "SELECT {$col} AS concept_id, COUNT(*) AS cnt
+                FROM {$cdmSchema}.{$table}
+                WHERE {$col} IN ({$idList})
+                GROUP BY {$col}";
+        }
+        $occ = implode("\n                UNION ALL\n                ", $perDomain);
+
+        $sql = "
+            SELECT sc.concept_id,
+                   COALESCE(cc.concept_name, 'Unknown') AS concept_name,
+                   COALESCE(o.occurrence_count, 0) AS occurrence_count
+            FROM (VALUES {$valuesList}) AS sc(concept_id)
+            LEFT JOIN {$vocabSchema}.concept cc ON cc.concept_id = sc.concept_id
+            LEFT JOIN (
+                SELECT concept_id, SUM(cnt) AS occurrence_count
+                FROM (
+                    {$occ}
+                ) per_domain
+                GROUP BY concept_id
+            ) o ON o.concept_id = sc.concept_id
+            ORDER BY occurrence_count ASC, sc.concept_id
+        ";
+
+        $rendered = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($rendered);
+
+        return array_map(fn ($r) => (array) $r, $rows);
     }
 
     /**

@@ -140,7 +140,9 @@ use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyDesignAgentController;
 use App\Http\Controllers\Api\V1\StudyDesignController;
+use App\Http\Controllers\Api\V1\StudyGateController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
+use App\Http\Controllers\Api\V1\StudyPackageController;
 use App\Http\Controllers\Api\V1\StudyResultController;
 use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
@@ -856,12 +858,30 @@ Route::prefix('v1')->group(function () {
             Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
             Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
 
+            // Reproducible study packages (Clio provenance spine, ADR-0020)
+            Route::get('packages', [StudyPackageController::class, 'index'])
+                ->middleware('permission:studies.view');
+            Route::post('package', [StudyPackageController::class, 'store'])
+                ->middleware('permission:studies.create');
+            Route::get('packages/{studyPackage}/export', [StudyPackageController::class, 'export'])
+                ->middleware('permission:studies.view');
+
             // Results
             Route::get('results', [StudyResultController::class, 'index']);
             Route::get('results/{result}', [StudyResultController::class, 'show']);
             Route::post('results/{result}/shiny-launch', [StudyResultController::class, 'launchShiny'])
                 ->middleware('permission:studies.view');
             Route::put('results/{result}', [StudyResultController::class, 'update']);
+
+            // Scientific gate ledger (Clio / ADR-0020 Phase 3)
+            Route::get('gates', [StudyGateController::class, 'index'])
+                ->middleware('permission:studies.view');
+            Route::post('gates/evaluate', [StudyGateController::class, 'evaluate'])
+                ->middleware('permission:studies.execute');
+            Route::post('gates/{studyGate}/approve', [StudyGateController::class, 'approve'])
+                ->middleware('permission:studies.edit');
+            Route::post('gates/{studyGate}/override', [StudyGateController::class, 'override'])
+                ->middleware('permission:studies.edit');
 
             // Synthesis
             Route::get('synthesis', [StudySynthesisController::class, 'index']);

@@ -5,6 +5,7 @@ namespace App\Models\App;
 use App\Concerns\HasLibraryLifecycle;
 use App\Enums\CohortDomain;
 use App\Models\User;
+use App\Support\Hashing\DefinitionHasher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,18 @@ class CohortDefinition extends Model
             'deprecated_at' => 'datetime',
             'domain' => CohortDomain::class,
         ];
+    }
+
+    /**
+     * Stamp a content-addressable provenance hash on every write so the cohort
+     * logic is fingerprinted regardless of how it was saved.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $cohortDefinition): void {
+            $cohortDefinition->expression_sha256 = app(DefinitionHasher::class)
+                ->hashExpression($cohortDefinition->expression_json ?? []);
+        });
     }
 
     /**
