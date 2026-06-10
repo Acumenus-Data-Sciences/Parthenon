@@ -648,6 +648,7 @@
     "archived_at": null,
     "archived_by": null,
     "promoted_at": null,
+    "expression_sha256": null,
     "items": [
         {
             "id": 4336,
