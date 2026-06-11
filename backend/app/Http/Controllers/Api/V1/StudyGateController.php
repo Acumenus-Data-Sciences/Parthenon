@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\App\EstimationAnalysis;
 use App\Models\App\Study;
-use App\Models\App\StudyAnalysis;
 use App\Models\App\StudyGate;
 use App\Models\User;
 use App\Services\Studies\Gates\StudyGateService;
-use App\Support\EstimationResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,37 +44,15 @@ class StudyGateController extends Controller
     /**
      * POST /v1/studies/{study}/gates/evaluate
      *
-     * Evaluate the S5 (study diagnostics) and S6 (calibration) gates from each
-     * linked estimation analysis's latest completed execution.
+     * Evaluate the S5 (study diagnostics) and S6 (calibration) gates across the
+     * study's estimation contrasts. The S5 gate clears when at least one
+     * contrast meets the diagnostic thresholds; contrasts that do not clear are
+     * blinded individually downstream.
      */
     public function evaluate(Study $study): JsonResponse
     {
         try {
-            $study->load('analyses');
-            $evaluated = [];
-
-            foreach ($study->analyses as $studyAnalysis) {
-                if (! $studyAnalysis instanceof StudyAnalysis
-                    || $studyAnalysis->analysis_type !== EstimationAnalysis::class) {
-                    continue;
-                }
-
-                /** @var EstimationAnalysis|null $analysis */
-                $analysis = $studyAnalysis->analysis;
-                $execution = $analysis?->executions()
-                    ->where('status', 'completed')
-                    ->orderByDesc('created_at')
-                    ->first();
-
-                if ($execution === null || ! is_array($execution->result_json)) {
-                    continue;
-                }
-
-                $normalized = EstimationResultNormalizer::normalize($execution->result_json);
-                foreach ($this->gates->evaluateEstimationGates($study, $normalized) as $gate) {
-                    $evaluated[] = $gate;
-                }
-            }
+            $evaluated = $this->gates->evaluateStudyEstimationGates($study);
 
             return response()->json([
                 'data' => $evaluated,

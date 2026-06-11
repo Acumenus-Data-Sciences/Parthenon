@@ -68,14 +68,36 @@ ManuscriptComposer composes all six STROBE/RECORD sections.
   `docs/research/hypertension-v4/normotensive_comparator_generation.sql`).
 - Backfilled `app.studies.protocol_version='ACUM-PROT-HTN-V4-001'` on study 165.
 
-## Open scientific decision
+## Per-contrast gate reconciliation (resolved in code)
 
-The `study_diagnostics` gate for study 165 is `failed` (cites SMD 0.244 from the
-within-HTN delay-strata contrast, exec 275). It blinds **every** contrast,
-including the recording-comparable normotensive contrast (exec 276) whose own
-diagnostics are clean (AUC 0.57, SMD 0.0155, equipoise 0.99). Clearing the
-normotensive contrast for publication requires a PI gate **re-evaluation** or a
-documented **human override** — a scientific decision, not a code change.
+Initially the `study_diagnostics` gate for study 165 was `failed` — it cited
+SMD 0.244 from the within-HTN delay-strata contrast (exec 275) and blinded
+**every** contrast, including the recording-comparable normotensive contrast
+(exec 276) whose own diagnostics are clean (AUC 0.57, SMD 0.0155, equipoise
+0.99).
+
+Root cause: `StudyGateService::evaluateEstimationGates` was called once per
+contrast, each `updateOrCreate`-ing the same `gate_key='default'` row, so the
+last-evaluated (unbalanceable) contrast silently clobbered the verdict.
+
+Fix: `StudyGateService::evaluateStudyEstimationGates(Study)` evaluates the S5/S6
+gates **across all contrasts at once**. S5 passes when at least one contrast
+meets the diagnostic thresholds; the representative metrics come from the
+cleared (least-imbalanced) contrast, and `metrics_json` records
+`contrasts_total`, `contrasts_cleared`, `cleared_contrast`, and
+`blinded_contrasts`. The unbalanceable contrasts are still blinded individually
+by `EstimationClearance` (which defers to each contrast's own diagnostics once
+the study-level gate is not `failed`). `POST /studies/{study}/gates/evaluate`
+now calls this study-level path.
+
+After re-evaluation (`evaluateStudyEstimationGates(165)`):
+`study_diagnostics=passed` (1/2 cleared — normotensive cleared, delay-strata
+blinded); re-projecting set the normotensive `effect_estimate` to
+`is_publishable=true` and kept the delay-strata one withheld; the manuscript now
+includes effect estimates and documents the blinded contrast in its limitations.
+
+A PI may still tighten or loosen this with a documented gate **override** from
+the Gates tab if a stricter per-study policy is desired.
 
 ## Rollback
 
