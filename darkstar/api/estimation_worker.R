@@ -14,6 +14,10 @@ source("/app/R/connection.R")
 source("/app/R/covariates.R")
 source("/app/R/progress.R")
 source("/app/R/results.R")
+# Async worker must source calibration.R itself — jobs.R worker_func does not,
+# so without this compute_calibration() is undefined and the async path returns
+# calibration = null even when negative controls are present.
+source("/app/R/calibration.R")
 
 run_estimation_pipeline <- function(spec, connectionDetails, logger) {
 
@@ -32,6 +36,14 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
     outcomeIds   <- as.integer(spec$cohorts$outcome_cohort_ids)
     outcomeNames <- spec$cohorts$outcome_names %||% list()
 
+    # Negative-control outcomes must be extracted into cmData alongside the
+    # primary outcomes. Otherwise createStudyPopulation(outcomeId = nc_id) below
+    # returns an empty population and the Cox fit throws "non-numeric argument
+    # to mathematical function". The primary-outcome loop still iterates the
+    # original `outcomeIds`; only the data extraction sees the union.
+    ncOutcomeIds      <- as.integer(spec$negative_control_outcomes %||% spec$negativeControlOutcomes %||% list())
+    extractOutcomeIds <- unique(c(outcomeIds, ncOutcomeIds))
+
     logger$info(sprintf("CDM=%s, Vocab=%s, Results=%s", cdmSchema, vocabSchema, resultsSchema))
 
     # ── Step 2: Build covariate settings ──────────────────────
@@ -48,7 +60,7 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
       cdmDatabaseSchema        = cdmSchema,
       targetId                 = targetId,
       comparatorId             = comparatorId,
-      outcomeIds               = outcomeIds,
+      outcomeIds               = extractOutcomeIds,
       exposureDatabaseSchema   = resultsSchema,
       exposureTable            = "cohort",
       outcomeDatabaseSchema    = resultsSchema,
@@ -293,7 +305,18 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
             fitOutcomeModelArgs = nc_fitArgs
           )
           nc_lr <- tryCatch(coef(nc_model), error = function(e) NA_real_)
-          nc_se <- tryCatch(summary(nc_model)$seLogRr, error = function(e) NA_real_)
+          # Derive the SE from the log-scale CI exactly as the primary-outcome
+          # loop does. summary(model)$seLogRr is not populated by CohortMethod's
+          # outcome model, which left every NC with a null SE and made empirical
+          # calibration impossible. confint() returns log-scale bounds; a
+          # diverged fit (complete separation) yields non-finite bounds -> NA SE,
+          # so degenerate controls are naturally dropped as uninformative.
+          nc_ci <- tryCatch(confint(nc_model), error = function(e) c(NA_real_, NA_real_))
+          nc_se <- tryCatch({
+            if (length(nc_ci) >= 2 && all(is.finite(nc_ci[1:2]))) {
+              (nc_ci[2] - nc_ci[1]) / (2 * 1.96)
+            } else NA_real_
+          }, error = function(e) NA_real_)
           nc_estimates[[length(nc_estimates) + 1]] <- list(
             outcome_id = nc_id,
             log_rr     = round(nc_lr, 4),
@@ -304,6 +327,21 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
         })
       }
       nc_data <- list(estimates = nc_estimates)
+    }
+
+    # ── Empirical calibration (ADR-0020 Phase 2) ────────────
+    # Mirror the sync estimation.R path: fold calibration into the result so the
+    # gate ledger (S6) can read informative_negative_controls + calibrated
+    # estimates. Best-effort — a calibration failure must not fail the run.
+    calibration_data <- NULL
+    if (!is.null(nc_data) && length(nc_data$estimates) > 0) {
+      calibration_data <- tryCatch(
+        compute_calibration(estimates_list, nc_data$estimates),
+        error = function(e) {
+          logger$warn(paste("Calibration failed:", e$message))
+          NULL
+        }
+      )
     }
 
     # ── Compile balance summary ─────────────────────────────
@@ -376,6 +414,7 @@ run_estimation_pipeline <- function(spec, connectionDetails, logger) {
       attrition          = attrition_data,
       mdrr               = mdrr_map,
       negative_controls  = nc_data,
+      calibration        = calibration_data,
       logs               = logger$entries(),
       elapsed_seconds    = logger$elapsed()
     )
