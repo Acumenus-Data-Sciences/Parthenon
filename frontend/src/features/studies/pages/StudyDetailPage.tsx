@@ -445,7 +445,7 @@ export default function StudyDetailPage() {
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "gates" && <StudyGatesTab slug={study.slug} canDecide />}
-      {activeTab === "manuscript" && <StudyManuscriptTab slug={study.slug} studyId={study.id} />}
+      {activeTab === "manuscript" && <StudyManuscriptTab slug={study.slug} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}
       {activeTab === "team" && <StudyTeamTab slug={study.slug} />}

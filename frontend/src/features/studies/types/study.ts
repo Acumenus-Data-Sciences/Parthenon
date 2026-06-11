@@ -789,27 +789,14 @@ export interface StudySynthesis {
 
 // ---------------------------------------------------------------------------
 // Composed manuscript (ADR-0020 Phase 6 — ManuscriptComposer)
+// Canonical shape lives in @/components/manuscript and is shared with /publish.
 // ---------------------------------------------------------------------------
 
-export interface ManuscriptSection {
-  key: string;
-  title: string;
-  content: string;
-  type: string;
-  included: boolean;
-}
-
-export interface ManuscriptDocument {
-  title: string;
-  authors: string[];
-  template: string;
-  sections: ManuscriptSection[];
-  manuscript_meta: {
-    effect_estimates_included: boolean;
-    estimation_contrasts: number;
-    gating_enabled: boolean;
-  };
-}
+export type {
+  ManuscriptSection,
+  ManuscriptMeta,
+  ManuscriptDocument,
+} from "@/components/manuscript/types";
 
 // ---------------------------------------------------------------------------
 // Arachne Federated Execution Types

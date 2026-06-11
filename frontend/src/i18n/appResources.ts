@@ -304,6 +304,7 @@ const enApp: MessageTree = {
       },
       manuscript: {
         exportFailed: "Manuscript export failed.",
+        openPublisherFailed: "Could not open the publisher.",
         empty: {
           title: "No manuscript yet",
           message:
@@ -4710,6 +4711,7 @@ const esApp: MessageTree = {
       },
       manuscript: {
         exportFailed: "La exportación del manuscrito falló.",
+        openPublisherFailed: "No se pudo abrir el editor.",
         empty: {
           title: "Aún no hay manuscrito",
           message:
@@ -9154,6 +9156,7 @@ const koApp: MessageTree = {
       },
       manuscript: {
         exportFailed: "원고 내보내기에 실패했습니다.",
+        openPublisherFailed: "퍼블리셔를 열 수 없습니다.",
         empty: {
           title: "아직 원고가 없습니다",
           message:

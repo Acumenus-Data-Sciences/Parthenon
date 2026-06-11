@@ -749,6 +749,16 @@ export default function PublishPage() {
               onChange={handleVisibilityChange}
             />
           )}
+          {draftQuery.data?.study_slug && (
+            <button
+              type="button"
+              onClick={() => navigate(`/studies/${draftQuery.data?.study_slug}?tab=manuscript`)}
+              className="text-xs text-accent hover:text-accent-light transition-colors"
+              title={draftQuery.data?.study_title ?? undefined}
+            >
+              ← Back to study
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate("/publish/library")}

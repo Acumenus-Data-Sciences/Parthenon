@@ -77,6 +77,23 @@
   box-shadow: 0 4px 16px var(--critical-glow);
 }
 
+/* Publish — the gold "publishing" accent. Marks the action that produces or
+   exports a publication document (manuscript compose/export, open-in-publisher,
+   draft export). Distinct from the crimson app-wide primary so publishing
+   surfaces read as one recognizable gold-accented family across Studies and
+   the /publish workspace. */
+.btn-publish {
+  background: var(--gradient-gold);
+  background-color: var(--accent);
+  color: #1A1408;
+  border-color: var(--accent-light);
+  font-weight: 600;
+}
+.btn-publish:hover:not(:disabled) {
+  background-color: var(--accent-light);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
 /* Button sizes */
 .btn-sm {
   padding: var(--space-1) var(--space-3);

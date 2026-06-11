@@ -907,6 +907,9 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:studies.view');
             Route::post('manuscript/export', [StudyManuscriptController::class, 'export'])
                 ->middleware('permission:studies.view');
+            // Seed a /publish editorial draft from the composed manuscript ("Open in Publisher").
+            Route::post('manuscript/draft', [StudyManuscriptController::class, 'draft'])
+                ->middleware('permission:studies.view');
 
             // Synthesis
             Route::get('synthesis', [StudySynthesisController::class, 'index']);

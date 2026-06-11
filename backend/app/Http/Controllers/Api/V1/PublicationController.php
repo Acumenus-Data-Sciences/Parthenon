@@ -110,6 +110,7 @@ class PublicationController extends Controller
             ->pluck('id');
 
         $drafts = PublicationDraft::query()
+            ->with('study:id,slug,title')
             ->where(function ($q) use ($userId, $accessibleStudyIds) {
                 $q->where('user_id', $userId)
                     ->orWhere(function ($qq) use ($accessibleStudyIds) {
@@ -472,8 +473,11 @@ class PublicationController extends Controller
             'id' => $draft->id,
             'user_id' => $draft->user_id,
             'study_id' => $draft->study_id,
+            'study_slug' => $draft->study?->slug,
+            'study_title' => $draft->study?->title,
             'title' => $draft->title,
             'template' => $draft->template,
+            'source' => $draft->source,
             'document_json' => $draft->document_json,
             'status' => $draft->status,
             'visibility' => $draft->visibility,

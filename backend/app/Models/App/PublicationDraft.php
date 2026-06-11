@@ -14,6 +14,7 @@ class PublicationDraft extends Model
         'study_id',
         'title',
         'template',
+        'source',
         'document_json',
         'status',
         'visibility',
@@ -40,6 +41,14 @@ class PublicationDraft extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<Study, $this>
+     */
+    public function study(): BelongsTo
+    {
+        return $this->belongsTo(Study::class);
     }
 
     /**

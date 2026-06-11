@@ -1,4 +1,5 @@
 import apiClient, { toLaravelPaginated } from "@/lib/api-client";
+import { downloadBlob, type ManuscriptExportFormat } from "@/components/manuscript";
 import type {
   Study,
   StudyAnalysisEntry,
@@ -761,25 +762,26 @@ export async function composeStudyManuscript(slug: string): Promise<ManuscriptDo
   return data.data ?? data;
 }
 
+/**
+ * Seed (or reopen) a /publish editorial draft from the study's composed
+ * manuscript — the "Open in Publisher" bridge. Returns the draft id to open.
+ */
+export async function createManuscriptDraft(
+  slug: string,
+): Promise<{ id: number; study_id: number | null; title: string }> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/manuscript/draft`);
+  return data.data ?? data;
+}
+
 /** Export the composed manuscript and trigger a browser download. */
-export async function exportStudyManuscript(slug: string, format: "docx" | "pdf"): Promise<void> {
+export async function exportStudyManuscript(slug: string, format: ManuscriptExportFormat): Promise<void> {
   const response = await apiClient.post(
     `${BASE}/${slug}/manuscript/export`,
     { format },
     { responseType: "blob" },
   );
 
-  const blob = new Blob([response.data], {
-    type: format === "pdf"
-      ? "application/pdf"
-      : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${slug}-manuscript.${format}`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(response.data, `${slug}-manuscript.${format}`);
 }
 
 // ---------------------------------------------------------------------------

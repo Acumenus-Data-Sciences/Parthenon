@@ -155,6 +155,9 @@ export interface PublicationDraft {
   id: number;
   user_id: number;
   study_id: number | null;
+  study_slug?: string | null;
+  study_title?: string | null;
+  source?: string | null;
   title: string;
   template: string;
   document_json: DocumentJson;

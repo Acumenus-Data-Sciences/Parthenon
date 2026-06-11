@@ -52,6 +52,7 @@ import {
   deleteStudySynthesis,
   composeStudyManuscript,
   exportStudyManuscript,
+  createManuscriptDraft,
   listStudyDesignSessions,
   createStudyDesignSession,
   listStudyDesignVersions,
@@ -1079,6 +1080,12 @@ export function useExportStudyManuscript() {
   return useMutation({
     mutationFn: ({ slug, format }: { slug: string; format: "docx" | "pdf" }) =>
       exportStudyManuscript(slug, format),
+  });
+}
+
+export function useCreateManuscriptDraft() {
+  return useMutation({
+    mutationFn: (slug: string) => createManuscriptDraft(slug),
   });
 }
 
