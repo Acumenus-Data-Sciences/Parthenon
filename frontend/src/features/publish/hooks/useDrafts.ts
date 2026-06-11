@@ -3,16 +3,21 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { downloadBlob } from "@/components/manuscript";
 import {
   createPublicationDraft,
   deletePublicationDraft,
+  exportReportBundle,
   fetchPublicationDraft,
   fetchPublicationDrafts,
+  importReportBundle,
   updatePublicationDraft,
 } from "../api/publishApi";
 import type {
+  ImportPublicationReportBundlePayload,
   PublicationDraft,
   PublicationDraftInput,
+  PublicationReportBundleExportRequest,
 } from "../types/publish";
 
 const KEYS = {
@@ -79,6 +84,30 @@ export function useDeleteDraft() {
     onSuccess: (_void, id) => {
       qc.invalidateQueries({ queryKey: KEYS.list });
       qc.removeQueries({ queryKey: KEYS.detail(id) });
+    },
+  });
+}
+
+// ── OHDSI report bundles ─────────────────────────────────────────────────────
+
+/** Import an OHDSI report bundle artifact, creating a new draft from it. */
+export function useImportReportBundle() {
+  const qc = useQueryClient();
+  return useMutation<PublicationDraft, Error, ImportPublicationReportBundlePayload>({
+    mutationFn: async (payload) => (await importReportBundle(payload)).draft,
+    onSuccess: (draft) => {
+      qc.invalidateQueries({ queryKey: KEYS.list });
+      qc.setQueryData(KEYS.detail(draft.id), draft);
+    },
+  });
+}
+
+/** Export the current document as an OHDSI report bundle and download it. */
+export function useExportReportBundle() {
+  return useMutation<void, Error, { payload: PublicationReportBundleExportRequest; filename: string }>({
+    mutationFn: async ({ payload, filename }) => {
+      const blob = await exportReportBundle(payload);
+      downloadBlob(blob, filename, "application/json");
     },
   });
 }

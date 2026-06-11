@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
-import { FileOutput } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FileOutput, Upload, Loader2 } from "lucide-react";
 import { HelpButton } from "@/features/help";
 import {
   useDeleteDraft,
   useDraftList,
   useUpdateDraftById,
   useCreateDraft,
+  useImportReportBundle,
 } from "../hooks/useDrafts";
 import { DraftCardGrid } from "../components/library/DraftCardGrid";
 import { DraftFilters, type DraftSort } from "../components/library/DraftFilters";
@@ -28,14 +30,35 @@ function sortDrafts(drafts: PublicationDraft[], by: DraftSort): PublicationDraft
 }
 
 export default function PublicationLibraryPage() {
+  const navigate = useNavigate();
   const { data: drafts, isLoading } = useDraftList();
   const update = useUpdateDraftById();
   const deleteDraft = useDeleteDraft();
   const createDraft = useCreateDraft();
+  const importBundle = useImportReportBundle();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<PublicationDraftStatus | "all">("all");
   const [sort, setSort] = useState<DraftSort>("last_opened");
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportFile = async (file: File) => {
+    setImportError(null);
+    try {
+      const text = await file.text();
+      const artifact = JSON.parse(text) as { format?: string };
+      const format = typeof artifact.format === "string" ? artifact.format : "ohdsi_sharing_bundle";
+      const draft = await importBundle.mutateAsync({
+        format,
+        artifact,
+        title: file.name.replace(/\.json$/i, ""),
+      });
+      navigate(`/publish/library/${draft.id}`);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : "Could not import the report bundle.");
+    }
+  };
 
   const filtered = useMemo(() => {
     const list = drafts ?? [];
@@ -81,9 +104,40 @@ export default function PublicationLibraryPage() {
         </div>
         <div className="flex items-center gap-3">
           <HelpButton helpKey="publish" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImportFile(file);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importBundle.isPending}
+            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+            title="Import an OHDSI report bundle as a new draft"
+          >
+            {importBundle.isPending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Upload size={14} />
+            )}
+            Import bundle
+          </button>
           <NewDraftButton />
         </div>
       </div>
+
+      {importError && (
+        <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
+          {importError}
+        </div>
+      )}
 
       <SessionStorageMigrationBanner />
 

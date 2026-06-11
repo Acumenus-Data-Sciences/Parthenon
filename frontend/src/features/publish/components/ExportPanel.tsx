@@ -12,10 +12,17 @@ import {
   Loader2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { ReportSection, ExportFormat } from "../types/publish";
+import type { ReportSection, ExportFormat, PublicationReportBundleExportRequest } from "../types/publish";
 import { useExportDocument } from "../hooks/useDocumentExport";
+import { useExportReportBundle } from "../hooks/useDrafts";
 import type { ExportRequest } from "../api/publishApi";
 import { getDiagramSvgMarkup, svgMarkupToPngDataUrl } from "../lib/svgExport";
+
+const BUNDLE_FORMATS: { value: string; label: string }[] = [
+  { value: "ohdsi_sharing_bundle", label: "OHDSI Sharing Bundle" },
+  { value: "ohdsi_report_bundle", label: "OHDSI Report Bundle" },
+  { value: "ohdsi_report_generator_r", label: "Report Generator (R)" },
+];
 
 type ExportableFormat = "docx" | "pdf" | "figures-zip";
 
@@ -50,7 +57,9 @@ export default function ExportPanel({
 }: ExportPanelProps) {
   const { t } = useTranslation("app");
   const [selectedFormat, setSelectedFormat] = useState<ExportableFormat>("docx");
+  const [bundleFormat, setBundleFormat] = useState<string>("ohdsi_sharing_bundle");
   const exportMutation = useExportDocument();
+  const exportBundle = useExportReportBundle();
   const formatOptions: Array<{
     format: ExportableFormat;
     icon: typeof FileText;
@@ -117,13 +126,33 @@ export default function ExportPanel({
     });
   };
 
+  const handleExportBundle = () => {
+    const payload: PublicationReportBundleExportRequest = {
+      format: bundleFormat,
+      title,
+      authors,
+      template,
+      sections: includedSections.map((section) => ({
+        type: section.type,
+        title: section.title,
+        content: typeof section.content === "string"
+          ? section.content
+          : section.content
+            ? JSON.stringify(section.content)
+            : "",
+        included: true,
+      })),
+    };
+    exportBundle.mutate({ payload, filename: `${title || "publication"}-bundle.json` });
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Draft warning */}
       {hasDraftNarratives && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
-          <p className="text-sm text-amber-200">
+        <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
+          <p className="text-sm text-warning">
             {t("publish.exportPanel.draftWarning")}
           </p>
         </div>
@@ -182,7 +211,7 @@ export default function ExportPanel({
         type="button"
         onClick={handleExport}
         disabled={hasDraftNarratives || exportMutation.isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-surface-base transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+        className="btn btn-publish w-full justify-center"
       >
         {exportMutation.isPending ? (
           <>
@@ -198,12 +227,45 @@ export default function ExportPanel({
         )}
       </button>
 
+      {/* Reproducible OHDSI sharing bundle */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <h3 className="mb-1 text-sm font-medium text-text-primary">Reproducible sharing bundle</h3>
+        <p className="mb-3 text-xs text-text-ghost">
+          Export an OHDSI report bundle for reproducible sharing and re-import.
+        </p>
+        <div className="flex items-center gap-2">
+          <select
+            value={bundleFormat}
+            onChange={(e) => setBundleFormat(e.target.value)}
+            className="form-input w-auto text-xs py-1.5"
+          >
+            {BUNDLE_FORMATS.map((b) => (
+              <option key={b.value} value={b.value}>{b.label}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleExportBundle}
+            disabled={includedSections.length === 0 || exportBundle.isPending}
+            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+          >
+            {exportBundle.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+            Export bundle
+          </button>
+        </div>
+        {exportBundle.isError && (
+          <p className="mt-2 text-xs text-critical">
+            {exportBundle.error instanceof Error ? exportBundle.error.message : "Bundle export failed."}
+          </p>
+        )}
+      </div>
+
       {/* Back button */}
       <div>
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
+          className="btn btn-secondary btn-sm flex items-center gap-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
           {t("publish.exportPanel.backToPreview")}
