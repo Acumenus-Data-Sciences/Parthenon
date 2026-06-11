@@ -296,8 +296,8 @@ export function IncidenceRateDesigner({
   const [outcomeEntries, setOutcomeEntries] = useState<OutcomeEntry[]>([]);
 
   const { data: cohortData, isLoading: loadingCohorts } = useQuery({
-    queryKey: ["cohort-definitions", { page: 1, limit: 200 }],
-    queryFn: () => getCohortDefinitions({ page: 1, limit: 200 }),
+    queryKey: ["cohort-definitions", { page: 1, limit: 500 }],
+    queryFn: () => getCohortDefinitions({ page: 1, limit: 500 }),
   });
 
   // Phase 19 / D-08: detect PANCREAS source so we can warn the researcher

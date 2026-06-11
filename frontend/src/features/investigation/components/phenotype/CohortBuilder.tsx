@@ -81,7 +81,7 @@ export function CohortBuilder({
 
   // Resolved cohort objects (name + count) for display badges
   const { data: cohortListData } = useCohortDefinitions({
-    limit: 200,
+    limit: 500,
     with_generations: true,
   });
   const selectedCohorts = useMemo(() => {

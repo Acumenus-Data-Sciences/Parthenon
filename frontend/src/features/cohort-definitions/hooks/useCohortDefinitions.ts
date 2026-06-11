@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getCohortDefinitions,
@@ -34,6 +35,24 @@ export function useCohortDefinitions(params?: CohortDefinitionListParams & { ena
     queryFn: () => getCohortDefinitions(queryParams),
     enabled: enabled ?? true,
   });
+}
+
+/**
+ * Shared, complete cohort id→name resolver. Fetches the full (slim) cohort list
+ * once (deduplicated across all consumers via TanStack Query) and returns a stable
+ * lookup function. Use at any render site that would otherwise fall back to a bare
+ * numeric id, so a human-readable label is shown wherever a cohort is referenced.
+ */
+export function useCohortNameLookup(): (id: number | null | undefined) => string | undefined {
+  const { data } = useCohortDefinitions({ limit: 500 });
+  return useMemo(() => {
+    const map = new Map<number, string>();
+    for (const c of data?.items ?? []) {
+      if (c?.id != null && c?.name) map.set(c.id, c.name);
+    }
+    return (id: number | null | undefined): string | undefined =>
+      id == null ? undefined : map.get(id);
+  }, [data]);
 }
 
 export function useCohortDomains() {

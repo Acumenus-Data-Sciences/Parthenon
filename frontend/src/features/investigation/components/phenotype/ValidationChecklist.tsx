@@ -1,6 +1,7 @@
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Investigation } from "../../types";
+import { useCohortNameLookup } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 
 interface ValidationChecklistProps {
   investigation: Investigation;
@@ -8,6 +9,7 @@ interface ValidationChecklistProps {
 
 export function ValidationChecklist({ investigation }: ValidationChecklistProps) {
   const { t } = useTranslation("app");
+  const cohortName = useCohortNameLookup();
   const state = investigation.phenotype_state;
 
   const checks = [
@@ -37,7 +39,8 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
       detail:
         state.primary_cohort_id === null
           ? t("investigation.phenotype.validation.setPrimaryCohort")
-          : `Cohort #${state.primary_cohort_id}`,
+          : cohortName(state.primary_cohort_id) ??
+            `Cohort #${state.primary_cohort_id}`,
     },
     {
       label: t("investigation.phenotype.validation.noEmptyConceptSets"),

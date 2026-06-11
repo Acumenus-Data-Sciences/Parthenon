@@ -33,8 +33,8 @@ export function PathwayDesigner({
   const [design, setDesign] = useState<PathwayDesign>(defaultDesign);
 
   const { data: cohortData, isLoading: loadingCohorts } = useQuery({
-    queryKey: ["cohort-definitions", { page: 1, limit: 200 }],
-    queryFn: () => getCohortDefinitions({ page: 1, limit: 200 }),
+    queryKey: ["cohort-definitions", { page: 1, limit: 500 }],
+    queryFn: () => getCohortDefinitions({ page: 1, limit: 500 }),
   });
 
   const createMutation = useCreatePathway();

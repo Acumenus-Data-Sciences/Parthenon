@@ -5,6 +5,7 @@ import { fmt } from "@/lib/formatters";
 import { FeatureComparisonTable } from "./FeatureComparisonTable";
 import { CharacterizationVerdictDashboard } from "./CharacterizationVerdictDashboard";
 import { LovePlot } from "@/features/estimation/components/LovePlot";
+import { useCohortNameLookup } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import type { CovariateBalanceEntry } from "@/features/estimation/types/estimation";
 import { useTranslation } from "react-i18next";
 import type {
@@ -589,6 +590,7 @@ function CohortCountCards({
 }: {
   counts: NonNullable<DirectRunResult["cohort_counts"]>;
 }) {
+  const cohortName = useCohortNameLookup();
   if (counts.length === 0) return null;
 
   return (
@@ -602,7 +604,7 @@ function CohortCountCards({
           <Users size={16} style={{ color: "var(--primary)" }} />
           <div>
             <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-              {c.cohort_name ?? `Cohort #${c.cohort_id}`}
+              {c.cohort_name ?? cohortName(c.cohort_id) ?? `Cohort #${c.cohort_id}`}
             </p>
             <p
               className="text-xl font-bold font-['IBM_Plex_Mono',monospace]"

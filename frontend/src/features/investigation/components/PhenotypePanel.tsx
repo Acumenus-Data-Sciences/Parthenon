@@ -16,6 +16,7 @@ import {
 } from "./phenotype/SchemaDensityHeatmap";
 import { buildDomainCounts } from "./phenotype/schemaDensity";
 import { useCreatePin } from "../hooks/useEvidencePins";
+import { useCohortNameLookup } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 
 type SubTab = "explore" | "build" | "validate";
 
@@ -37,6 +38,7 @@ function makeDefaultSet(defaultName: string): [string, ConceptSetData] {
 
 export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
   const { t } = useTranslation("app");
+  const cohortName = useCohortNameLookup();
   const [searchParams, setSearchParams] = useSearchParams();
   const subTabs: { id: SubTab; label: string; disabled?: boolean }[] = [
     { id: "explore", label: t("investigation.common.tabs.explore") },
@@ -372,7 +374,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             <CohortOverlapMatrix
               cohorts={(investigation.phenotype_state.selected_cohort_ids ?? []).map((id) => ({
                 id,
-                name: `Cohort #${id}`,
+                name: cohortName(id) ?? `Cohort #${id}`,
                 count: 0,
               }))}
             />
