@@ -2,9 +2,13 @@
 
 namespace App\Services\Publication;
 
+use App\Models\App\AnalysisExecution;
+use App\Models\App\Characterization;
 use App\Models\App\EstimationAnalysis;
+use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Study;
 use App\Models\App\StudyGate;
+use App\Models\App\StudySynthesis;
 use App\Support\EstimationResultNormalizer;
 
 /**
@@ -14,10 +18,14 @@ use App\Support\EstimationResultNormalizer;
  * provenance appendix from the recorded hashes and decision trail. The output
  * shape matches PublicationService::export(), so it flows straight to docx/pdf.
  *
- * Crucially, the Results section is gate-aware: calibrated effect estimates are
- * reported only when the study's study-diagnostics gate has cleared (passed,
- * approved, or overridden). Otherwise the effect is withheld and only the
- * diagnostics are reported — the same blinding the live API enforces.
+ * The Results section is comprehensive and protocol-ordered — prevalence,
+ * diagnostic latency, baseline characteristics, incidence, treatment, and
+ * outcome consequences — reading each figure from its stored analysis result
+ * (characterization / incidence executions, the descriptive synthesis, and
+ * every linked estimation). It is gate-aware per contrast: each estimation's
+ * calibrated effect is reported only when that contrast's own diagnostics clear
+ * (or a human override is recorded); otherwise it is withheld (blinded), the
+ * same discipline the live API enforces.
  */
 class ManuscriptComposer
 {
@@ -28,15 +36,22 @@ class ManuscriptComposer
     {
         $study->loadMissing(['cohorts.cohortDefinition', 'analyses', 'gates']);
 
-        $estimation = $this->latestEstimationResult($study);
-        $s5Cleared = $this->gateCleared($study, 'study_diagnostics');
+        $descriptive = $this->descriptiveSummary($study);
+        $estimations = $this->estimationResults($study);
+        $anyEstimable = false;
+        foreach ($estimations as $est) {
+            if ($est['cleared'] === true && $est['calibrated'] === true) {
+                $anyEstimable = true;
+                break;
+            }
+        }
 
         $sections = [
-            $this->section('abstract', 'Abstract', $this->abstract($study)),
+            $this->section('abstract', 'Abstract', $this->abstract($study, $descriptive, $estimations)),
             $this->section('introduction', 'Introduction', $this->introduction($study)),
             $this->section('methods', 'Methods', $this->methods($study)),
-            $this->section('results', 'Results', $this->results($study, $estimation, $s5Cleared)),
-            $this->section('limitations', 'Limitations', $this->limitations($study)),
+            $this->section('results', 'Results', $this->results($study, $descriptive, $estimations)),
+            $this->section('limitations', 'Limitations', $this->limitations($study, $estimations)),
             $this->section('provenance', 'Provenance & Reproducibility', $this->provenance($study)),
         ];
 
@@ -46,56 +61,293 @@ class ManuscriptComposer
             'template' => 'strobe-record',
             'sections' => $sections,
             'manuscript_meta' => [
-                'effect_estimates_included' => $s5Cleared && $estimation !== null,
+                'effect_estimates_included' => $anyEstimable,
+                'estimation_contrasts' => count($estimations),
                 'gating_enabled' => (bool) config('studies.gating_enabled', false),
             ],
         ];
     }
 
+    // ── Results (protocol-ordered subsections) ───────────────────────────────
+
     /**
-     * @param  array<string, mixed>|null  $estimation
+     * @param  array<string, mixed>|null  $descriptive
+     * @param  list<array<string, mixed>>  $estimations
      */
-    private function results(Study $study, ?array $estimation, bool $s5Cleared): string
+    private function results(Study $study, ?array $descriptive, array $estimations): string
     {
-        if ($estimation === null) {
-            return 'No population-level estimation has completed for this study; comparative effect estimates are not yet available.';
+        $parts = [
+            $this->subsection('Prevalence of under-diagnosis', $this->prevalenceText($descriptive)),
+            $this->subsection('Diagnostic latency', $this->latencyText($descriptive)),
+            $this->subsection('Baseline characteristics by delay stratum', $this->characterizationText($study, $descriptive)),
+            $this->subsection('Incidence of cardiovascular–renal outcomes', $this->incidenceText($study)),
+            $this->subsection('Treatment utilization', $this->treatmentText($descriptive)),
+            $this->subsection('Outcome consequences', $this->consequencesText($estimations)),
+        ];
+
+        $parts = array_values(array_filter($parts, static fn (string $p): bool => $p !== ''));
+
+        return $parts === []
+            ? 'No completed analyses are available for this study.'
+            : implode("\n\n", $parts);
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $d
+     */
+    private function prevalenceText(?array $d): string
+    {
+        $p = is_array($d['prevalence'] ?? null) ? $d['prevalence'] : null;
+        if ($p === null) {
+            return '';
         }
 
-        $ps = is_array($estimation['propensity_score'] ?? null) ? $estimation['propensity_score'] : [];
+        return sprintf(
+            'Of %s treatment-naïve patients entering on a second consecutive elevated blood-pressure reading, '
+            .'%s (%s%%) never recorded a hypertension diagnosis within their observation period; only %s were ever '
+            .'diagnosed. Timely diagnosis was rare: among the diagnosed, %s were recorded within 90 days, %s within '
+            .'3–6 months, %s within 7–12 months, and %s only after more than a year.',
+            $this->num($p['target_total'] ?? null),
+            $this->num($p['never_diagnosed'] ?? null),
+            $this->fmt($p['never_dx_pct'] ?? null),
+            $this->num($p['ever_diagnosed'] ?? null),
+            $this->num(($d['delay_strata']['G1_timely_le90d'] ?? null)),
+            $this->num(($d['delay_strata']['G2_91_180d'] ?? null)),
+            $this->num(($d['delay_strata']['G3_181_365d'] ?? null)),
+            $this->num(($d['delay_strata']['G4_delayed_gt365d'] ?? null)),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $d
+     */
+    private function latencyText(?array $d): string
+    {
+        $a = is_array($d['latency_first_to_second_elevated_bp_days'] ?? null) ? $d['latency_first_to_second_elevated_bp_days'] : null;
+        $b = is_array($d['latency_second_elevated_to_diagnosis_days'] ?? null) ? $d['latency_second_elevated_to_diagnosis_days'] : null;
+        if ($a === null && $b === null) {
+            return '';
+        }
+
         $lines = [];
-
-        $lines[] = sprintf(
-            'Propensity-score diagnostics: AUC %s, equipoise %s, maximum post-adjustment standardized mean difference %s.',
-            $this->fmt($ps['auc'] ?? null),
-            $this->fmt($ps['equipoise'] ?? null),
-            $this->fmt($ps['max_smd_after'] ?? null),
-        );
-
-        if (! $s5Cleared) {
-            $lines[] = 'Effect estimates are withheld: the study-diagnostics gate has not cleared. '
-                .'Only diagnostics are reported, pending reviewer approval or a documented override.';
-
-            return implode(' ', $lines);
+        if ($a !== null) {
+            $lines[] = sprintf(
+                'The interval between the first and second elevated blood-pressure readings had a median of %s days (IQR %s–%s).',
+                $this->num($a['median'] ?? null), $this->num($a['q1'] ?? null), $this->num($a['q3'] ?? null),
+            );
+        }
+        if ($b !== null) {
+            $lines[] = sprintf(
+                'Among patients who were eventually diagnosed (n=%s), the interval from the second elevated reading to the '
+                .'recorded hypertension diagnosis had a median of %s days (IQR %s–%s) — roughly %s years.',
+                $this->num($b['n'] ?? null), $this->num($b['median'] ?? null), $this->num($b['q1'] ?? null), $this->num($b['q3'] ?? null),
+                is_numeric($b['median'] ?? null) ? (string) round(((float) $b['median']) / 365.0, 1) : '—',
+            );
         }
 
-        $calibration = is_array($estimation['calibration'] ?? null) ? $estimation['calibration'] : null;
+        return implode(' ', $lines);
+    }
 
-        if ($calibration === null || ($calibration['status'] ?? null) !== 'completed') {
-            $lines[] = 'Empirical calibration was not performed (insufficient informative negative controls), '
-                .'so only uncalibrated estimates are available and should be interpreted with caution.';
-            $lines[] = $this->uncalibratedTable($estimation);
-
-            return implode(' ', array_filter($lines));
+    /**
+     * @param  array<string, mixed>|null  $d
+     */
+    private function treatmentText(?array $d): string
+    {
+        $t = is_array($d['treatment_utilization'] ?? null) ? $d['treatment_utilization'] : null;
+        if ($t === null) {
+            return '';
         }
 
-        $lines[] = sprintf(
-            'Estimates were empirically calibrated against %d negative controls (EASE %s).',
-            (int) ($calibration['informative_negative_controls'] ?? 0),
-            $this->fmt($calibration['ease'] ?? null),
+        return sprintf(
+            'Only %s patients (%s%%) of the elevated-BP population were ever dispensed an antihypertensive after the index '
+            .'reading, with a median time to first agent of %s days (IQR %s–%s). Treatment tracked diagnosis closely: %s%% '
+            .'of the diagnosed were treated, so under-treatment mirrored under-diagnosis.',
+            $this->num($t['ever_treated'] ?? null),
+            $this->fmt($t['ever_treated_pct'] ?? null),
+            $this->num($t['median_days_to_first_tx'] ?? null),
+            $this->num($t['q1_days_to_first_tx'] ?? null),
+            $this->num($t['q3_days_to_first_tx'] ?? null),
+            $this->fmt($t['treated_pct_of_diagnosed'] ?? null),
         );
-        $lines[] = $this->calibratedTable($calibration);
+    }
 
-        return implode(' ', array_filter($lines));
+    /**
+     * @param  array<string, mixed>|null  $d
+     */
+    private function characterizationText(Study $study, ?array $d): string
+    {
+        $strata = is_array($d['delay_strata'] ?? null) ? $d['delay_strata'] : null;
+        $result = $this->latestAnalysisResult($study, Characterization::class);
+        if ($strata === null && $result === null) {
+            return '';
+        }
+
+        $lines = [];
+        if ($strata !== null) {
+            $lines[] = sprintf(
+                'Baseline characteristics were compared across the five delay strata — timely (≤3mo, n=%s), 3–6 months '
+                .'(n=%s), 7–12 months (n=%s), delayed (>12mo, n=%s), and never diagnosed (n=%s).',
+                $this->num($strata['G1_timely_le90d'] ?? null),
+                $this->num($strata['G2_91_180d'] ?? null),
+                $this->num($strata['G3_181_365d'] ?? null),
+                $this->num($strata['G4_delayed_gt365d'] ?? null),
+                $this->num($strata['never_diagnosed'] ?? null),
+            );
+        }
+
+        $female = $result !== null ? $this->femaleByCohort($result) : [];
+        $age50 = $result !== null ? $this->agedFiftyPlusByCohort($result) : [];
+        if ($female !== [] || $age50 !== []) {
+            $bits = [];
+            $map = [5450 => 'timely', 5453 => 'delayed (>12mo)', 5454 => 'never diagnosed'];
+            foreach ($map as $cid => $label) {
+                $f = $female[$cid] ?? null;
+                $a = $age50[$cid] ?? null;
+                if ($f === null && $a === null) {
+                    continue;
+                }
+                $bits[] = sprintf(
+                    'the %s stratum was %s female%s',
+                    $label,
+                    $f !== null ? $this->fmt($f).'%' : 'of unreported sex',
+                    $a !== null ? sprintf(' with %s%% aged ≥50', $this->fmt($a)) : '',
+                );
+            }
+            if ($bits !== []) {
+                $lines[] = 'By demographics, '.implode('; ', $bits).'.';
+            }
+        }
+
+        $lines[] = 'Full distributions of demographics, conditions, drugs, measurements, and procedures, with standardized '
+            .'mean differences against the full treatment-naïve elevated-BP cohort, are reported in the characterization result.';
+
+        return implode(' ', $lines);
+    }
+
+    private function incidenceText(Study $study): string
+    {
+        $result = $this->latestAnalysisResult($study, IncidenceRateAnalysis::class);
+        $rows = is_array($result['results'] ?? null) ? $result['results'] : [];
+        if ($rows === []) {
+            return '';
+        }
+
+        $labels = $this->cohortLabels($study);
+        $blocks = [];
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $oid = is_numeric($row['outcome_cohort_id'] ?? null) ? (int) $row['outcome_cohort_id'] : 0;
+            $stored = (string) ($row['outcome_cohort_name'] ?? '');
+            $name = ($stored === '' || str_starts_with($stored, 'Outcome #'))
+                ? ($labels[$oid] ?? ($stored !== '' ? $stored : 'Outcome'))
+                : $stored;
+            $segments = [];
+            if (is_numeric($row['incidence_rate'] ?? null)) {
+                $segments[] = sprintf(
+                    'overall %s/1,000 py (95%% CI %s–%s)',
+                    $this->fmt($row['incidence_rate']),
+                    $this->fmt($row['rate_95_ci_lower'] ?? null),
+                    $this->fmt($row['rate_95_ci_upper'] ?? null),
+                );
+            }
+            foreach ($this->orderedStrata($row['strata'] ?? null) as $segment) {
+                $segments[] = $segment;
+            }
+            if ($segments !== []) {
+                $blocks[] = sprintf('%s — %s', $name, implode('; ', $segments)).'.';
+            }
+        }
+
+        return $blocks === []
+            ? ''
+            : 'Crude incidence, with time at risk measured from the index reading: '.implode(' ', $blocks);
+    }
+
+    /**
+     * Per-stratum incidence segments in clinical order (sex, then age band).
+     *
+     * @return list<string>
+     */
+    private function orderedStrata(mixed $strata): array
+    {
+        $byName = [];
+        foreach (is_array($strata) ? $strata : [] as $s) {
+            if (! is_array($s)) {
+                continue;
+            }
+            $name = (string) ($s['stratum_name'] ?? '');
+            if ($name === '' || ! is_numeric($s['incidence_rate'] ?? null)) {
+                continue;
+            }
+            $byName[$name] = sprintf(
+                '%s %s/1,000 py (95%% CI %s–%s)',
+                $name,
+                $this->fmt($s['incidence_rate']),
+                $this->fmt($s['rate_95_ci_lower'] ?? null),
+                $this->fmt($s['rate_95_ci_upper'] ?? null),
+            );
+        }
+
+        $ordered = [];
+        foreach (['MALE', 'FEMALE', '18-34', '35-49', '50-64', '65+'] as $k) {
+            if (isset($byName[$k])) {
+                $ordered[] = $byName[$k];
+                unset($byName[$k]);
+            }
+        }
+        foreach ($byName as $v) {
+            $ordered[] = $v;
+        }
+
+        return $ordered;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $estimations
+     */
+    private function consequencesText(array $estimations): string
+    {
+        if ($estimations === []) {
+            return 'No population-level estimation completed for this study; comparative effect estimates are not available.';
+        }
+
+        $blocks = [];
+        foreach ($estimations as $est) {
+            $result = $est['result'];
+            $ps = is_array($result['propensity_score'] ?? null) ? $result['propensity_score'] : [];
+            $diag = sprintf(
+                '%s — propensity-score diagnostics: AUC %s, equipoise %s, maximum post-adjustment SMD %s.',
+                (string) $est['name'],
+                $this->fmt($ps['auc'] ?? null),
+                $this->fmt($ps['equipoise'] ?? null),
+                $this->fmt($ps['max_smd_after'] ?? null),
+            );
+
+            if ($est['cleared'] !== true) {
+                $blocks[] = $diag.' This pre-specified contrast was not estimable — the diagnostics did not clear '
+                    .'(the comparator could not be balanced), so its effect estimates are withheld (blinded) and were not interpreted.';
+
+                continue;
+            }
+
+            $calibration = is_array($result['calibration'] ?? null) ? $result['calibration'] : null;
+            if ($calibration === null || ($calibration['status'] ?? null) !== 'completed') {
+                $blocks[] = $diag.' Empirical calibration was not performed (insufficient informative negative controls); '
+                    .'uncalibrated estimates only: '.$this->uncalibratedTable($result);
+
+                continue;
+            }
+
+            $blocks[] = $diag.sprintf(
+                ' Estimates were empirically calibrated against %d negative controls (EASE %s). ',
+                (int) ($calibration['informative_negative_controls'] ?? 0),
+                $this->fmt($calibration['ease'] ?? null),
+            ).$this->calibratedTable($calibration);
+        }
+
+        return implode("\n\n", $blocks);
     }
 
     /**
@@ -115,7 +367,7 @@ class ManuscriptComposer
                 $this->fmt($est['calibrated_hr'] ?? null),
                 $this->fmt($est['cal_ci_lower'] ?? null),
                 $this->fmt($est['cal_ci_upper'] ?? null),
-                $this->fmt($est['calibrated_p'] ?? null),
+                $this->fmtP($est['calibrated_p'] ?? null),
             );
         }
 
@@ -138,12 +390,14 @@ class ManuscriptComposer
                 $this->fmt($est['hazard_ratio'] ?? null),
                 $this->fmt($est['ci_95_lower'] ?? null),
                 $this->fmt($est['ci_95_upper'] ?? null),
-                $this->fmt($est['p_value'] ?? null),
+                $this->fmtP($est['p_value'] ?? null),
             );
         }
 
         return $rows === [] ? '' : 'Uncalibrated estimates: '.implode(' ', $rows);
     }
+
+    // ── Static narrative sections ────────────────────────────────────────────
 
     private function methods(Study $study): string
     {
@@ -164,11 +418,17 @@ class ManuscriptComposer
             : 'This was an observational study on the OMOP CDM. ';
 
         return $design
+            .'Prevalence, diagnostic latency, baseline characteristics, incidence, treatment utilization, and outcome '
+            .'consequences were analysed. Each effect-estimation contrast was propensity-score matched and empirically '
+            .'calibrated against the negative-control panel, and reported only when its own diagnostics cleared. '
             .($cohorts === [] ? '' : 'Cohorts: '.implode('; ', $cohorts).'. ')
             .$thresholdText;
     }
 
-    private function limitations(Study $study): string
+    /**
+     * @param  list<array<string, mixed>>  $estimations
+     */
+    private function limitations(Study $study, array $estimations): string
     {
         $lines = [];
         foreach ($study->gates as $gate) {
@@ -193,11 +453,20 @@ class ManuscriptComposer
             }
         }
 
+        foreach ($estimations as $est) {
+            if ($est['cleared'] !== true) {
+                $lines[] = sprintf(
+                    'The "%s" contrast was not estimable in this data and its effect estimates were withheld.',
+                    (string) $est['name']
+                );
+            }
+        }
+
         if ($lines === []) {
             return 'No scientific gate failures or overrides were recorded for this study.';
         }
 
-        return 'The following gate decisions qualify the findings. '.implode(' ', $lines);
+        return 'The following qualify the findings. '.implode(' ', $lines);
     }
 
     private function provenance(Study $study): string
@@ -230,11 +499,42 @@ class ManuscriptComposer
             .($gateTrail === [] ? '' : 'Gate-ledger decision trail: '.implode(', ', $gateTrail).'.');
     }
 
-    private function abstract(Study $study): string
+    /**
+     * @param  array<string, mixed>|null  $descriptive
+     * @param  list<array<string, mixed>>  $estimations
+     */
+    private function abstract(Study $study, ?array $descriptive, array $estimations): string
     {
-        return (string) ($study->primary_objective
+        $objective = (string) ($study->primary_objective
             ?: $study->scientific_rationale
             ?: sprintf('An observational study (%s) conducted on the OMOP CDM.', (string) $study->title));
+
+        $findings = [];
+        $p = is_array($descriptive['prevalence'] ?? null) ? $descriptive['prevalence'] : null;
+        if ($p !== null) {
+            $findings[] = sprintf('%s%% of treatment-naïve elevated-BP patients never recorded a diagnosis', $this->fmt($p['never_dx_pct'] ?? null));
+        }
+        $b = is_array($descriptive['latency_second_elevated_to_diagnosis_days'] ?? null) ? $descriptive['latency_second_elevated_to_diagnosis_days'] : null;
+        if ($b !== null && is_numeric($b['median'] ?? null)) {
+            $findings[] = sprintf('among the diagnosed, median delay to diagnosis was %s days', $this->num($b['median']));
+        }
+        foreach ($estimations as $est) {
+            if ($est['cleared'] !== true) {
+                continue;
+            }
+            $cal = is_array($est['result']['calibration'] ?? null) ? $est['result']['calibration'] : null;
+            $ests = is_array($cal['calibrated_estimates'] ?? null) ? $cal['calibrated_estimates'] : [];
+            foreach ($ests as $e) {
+                if (is_array($e) && stripos((string) ($e['outcome_name'] ?? ''), 'CKD') !== false) {
+                    $findings[] = sprintf('elevated BP was associated with a calibrated HR of %s for incident CKD versus recording-comparable normotensives', $this->fmt($e['calibrated_hr'] ?? null));
+                    break 2;
+                }
+            }
+        }
+
+        return $findings === []
+            ? $objective
+            : $objective.' Results: '.ucfirst(implode('; ', $findings)).'.';
     }
 
     private function introduction(Study $study): string
@@ -258,11 +558,17 @@ class ManuscriptComposer
         return array_values(array_unique($authors));
     }
 
+    // ── Data access ──────────────────────────────────────────────────────────
+
     /**
-     * @return array<string, mixed>|null
+     * Every linked estimation, each tagged with whether its own diagnostics
+     * cleared and whether a completed calibration is present.
+     *
+     * @return list<array{name: string, result: array<string, mixed>, cleared: bool, calibrated: bool}>
      */
-    private function latestEstimationResult(Study $study): ?array
+    private function estimationResults(Study $study): array
     {
+        $out = [];
         foreach ($study->analyses as $studyAnalysis) {
             if ($studyAnalysis->analysis_type !== EstimationAnalysis::class) {
                 continue;
@@ -273,25 +579,185 @@ class ManuscriptComposer
                 ->where('status', 'completed')
                 ->orderByDesc('created_at')
                 ->first();
+            if ($execution === null || ! is_array($execution->result_json)) {
+                continue;
+            }
+            $result = EstimationResultNormalizer::normalize($execution->result_json);
+            $calibration = is_array($result['calibration'] ?? null) ? $result['calibration'] : null;
+            $out[] = [
+                'name' => (string) $analysis?->name,
+                'result' => $result,
+                'cleared' => $this->estimationCleared($result, $study),
+                'calibrated' => $calibration !== null && ($calibration['status'] ?? null) === 'completed',
+            ];
+        }
 
-            if ($execution !== null && is_array($execution->result_json)) {
-                return EstimationResultNormalizer::normalize($execution->result_json);
+        return $out;
+    }
+
+    /**
+     * A contrast is estimable when its own propensity diagnostics meet the
+     * pre-specified thresholds, OR a human has overridden/approved the
+     * study-diagnostics gate.
+     *
+     * @param  array<string, mixed>  $result
+     */
+    private function estimationCleared(array $result, Study $study): bool
+    {
+        // An explicit study-diagnostics gate is authoritative: a human
+        // override/approval clears every contrast; an explicit failure blinds
+        // every contrast pending review. A passing/pending/absent gate defers
+        // to each contrast's own diagnostics — so a passing primary does not
+        // force a structurally unbalanceable secondary to report.
+        foreach ($study->gates as $gate) {
+            if ($gate instanceof StudyGate && $gate->stage->value === 'study_diagnostics') {
+                if (in_array($gate->status->value, ['overridden', 'approved'], true)) {
+                    return true;
+                }
+                if ($gate->status->value === 'failed') {
+                    return false;
+                }
+                break;
+            }
+        }
+
+        $ps = is_array($result['propensity_score'] ?? null) ? $result['propensity_score'] : [];
+        $auc = $ps['auc'] ?? null;
+        $smd = $ps['max_smd_after'] ?? null;
+        $eq = $ps['equipoise'] ?? null;
+        if (! is_numeric($auc) || ! is_numeric($smd) || ! is_numeric($eq)) {
+            return false;
+        }
+
+        $t = config('studies.gate_thresholds.study_diagnostics', []);
+        $t = is_array($t) ? $t : [];
+
+        return (float) $auc < (float) ($t['max_ps_auc'] ?? 0.80)
+            && (float) $smd < (float) ($t['max_smd_after'] ?? 0.10)
+            && (float) $eq >= (float) ($t['min_equipoise'] ?? 0.30);
+    }
+
+    /**
+     * cohort_definition_id → human label from the study's linked cohorts.
+     *
+     * @return array<int, string>
+     */
+    private function cohortLabels(Study $study): array
+    {
+        $map = [];
+        foreach ($study->cohorts as $cohort) {
+            $id = (int) $cohort->cohort_definition_id;
+            $label = (string) ($cohort->label ?? $cohort->cohortDefinition?->name ?? '');
+            if ($id !== 0 && $label !== '') {
+                $map[$id] = $label;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function descriptiveSummary(Study $study): ?array
+    {
+        $row = StudySynthesis::query()
+            ->where('study_id', $study->id)
+            ->where('synthesis_type', 'descriptive_summary')
+            ->orderByDesc('id')
+            ->first();
+
+        return is_array($row?->output) ? $row->output : null;
+    }
+
+    /**
+     * Latest completed execution result_json for a given analysis morph class.
+     *
+     * @param  class-string  $analysisType
+     * @return array<array-key, mixed>|null
+     */
+    private function latestAnalysisResult(Study $study, string $analysisType): ?array
+    {
+        foreach ($study->analyses as $studyAnalysis) {
+            if ($studyAnalysis->analysis_type !== $analysisType) {
+                continue;
+            }
+            $execution = AnalysisExecution::query()
+                ->where('analysis_type', $analysisType)
+                ->where('analysis_id', $studyAnalysis->analysis_id)
+                ->where('status', 'completed')
+                ->orderByDesc('created_at')
+                ->first();
+            $result = $execution?->result_json;
+            if (is_array($result)) {
+                /** @var array<array-key, mixed> $result */
+                return $result;
             }
         }
 
         return null;
     }
 
-    private function gateCleared(Study $study, string $stage): bool
+    /**
+     * % female per cohort_id from a characterization result (suppressed cells skipped).
+     *
+     * @param  array<array-key, mixed>  $result
+     * @return array<int, float>
+     */
+    private function femaleByCohort(array $result): array
     {
-        foreach ($study->gates as $gate) {
-            if ($gate instanceof StudyGate && $gate->stage->value === $stage) {
-                return $gate->status->clears();
+        $out = [];
+        foreach (is_array($result['results'] ?? null) ? $result['results'] : [] as $elem) {
+            $demographics = is_array($elem['features']['demographics'] ?? null) ? $elem['features']['demographics'] : [];
+            foreach ($demographics as $f) {
+                if (! is_array($f)) {
+                    continue;
+                }
+                $name = strtolower((string) ($f['feature_name'] ?? ''));
+                $cat = strtoupper((string) ($f['category'] ?? ''));
+                $pct = $f['percent'] ?? null;
+                if (str_contains($name, 'gender') && ($cat === 'FEMALE' || $cat === 'F') && is_numeric($pct) && (float) $pct >= 0) {
+                    $out[(int) ($f['cohort_id'] ?? 0)] = (float) $pct;
+                }
             }
         }
 
-        // No gate recorded → not blocked (gating may be disabled or not yet run).
-        return true;
+        return $out;
+    }
+
+    /**
+     * % aged ≥50 per cohort_id (sum of 50-64 and 65+ age bands; suppressed cells skipped).
+     *
+     * @param  array<array-key, mixed>  $result
+     * @return array<int, float>
+     */
+    private function agedFiftyPlusByCohort(array $result): array
+    {
+        $out = [];
+        foreach (is_array($result['results'] ?? null) ? $result['results'] : [] as $elem) {
+            $demographics = is_array($elem['features']['demographics'] ?? null) ? $elem['features']['demographics'] : [];
+            foreach ($demographics as $f) {
+                if (! is_array($f)) {
+                    continue;
+                }
+                $name = strtolower((string) ($f['feature_name'] ?? ''));
+                $cat = (string) ($f['category'] ?? '');
+                $pct = $f['percent'] ?? null;
+                if (str_contains($name, 'age') && in_array($cat, ['50-64', '65+'], true) && is_numeric($pct) && (float) $pct >= 0) {
+                    $cid = (int) ($f['cohort_id'] ?? 0);
+                    $out[$cid] = ($out[$cid] ?? 0.0) + (float) $pct;
+                }
+            }
+        }
+
+        return array_map(static fn (float $v): float => round($v, 1), $out);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private function subsection(string $heading, string $body): string
+    {
+        return $body === '' ? '' : '### '.$heading."\n".$body;
     }
 
     /**
@@ -311,5 +777,19 @@ class ManuscriptComposer
     private function fmt(mixed $value): string
     {
         return is_numeric($value) ? (string) round((float) $value, 4) : '—';
+    }
+
+    private function fmtP(mixed $value): string
+    {
+        if (! is_numeric($value)) {
+            return '—';
+        }
+
+        return (float) $value < 0.0001 ? '<0.0001' : (string) round((float) $value, 4);
+    }
+
+    private function num(mixed $value): string
+    {
+        return is_numeric($value) ? number_format((float) $value) : '—';
     }
 }

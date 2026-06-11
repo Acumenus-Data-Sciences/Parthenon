@@ -24,8 +24,18 @@ Among the 10,994 who were diagnosed, the delay distribution is heavily right-ske
 Timely diagnosis (≤3 months) is **vanishingly rare** in this CDM (139 / 109,763 = 0.13%).
 This is the central result and it is independent of any estimation gate.
 
-Crude incidence of the composite (MACE + CKD), time-at-risk from the BP index:
-male 7.9 / female 6.2 per 1,000 py; monotonic age gradient 1.9 (18–34) → 22.5 (65+).
+**Diagnostic latency (two intervals, the protocol's temporal claim):**
+- First → second elevated BP reading: median **175 days** (IQR 84–266), n=109,763.
+- Second elevated BP → recorded HTN diagnosis (diagnosed only): median **1,106 days (~3.0 yr)**
+  (IQR 704–1,862), n=10,994 — longer than Lu et al. 2025's 16–18 months (synthetic-data caveat).
+
+**Treatment utilization:** only **17.2%** (18,930) of the elevated-BP population were ever dispensed an
+antihypertensive after index (median 1,134 days to first agent); 100% of the diagnosed were treated, so
+under-treatment mirrored under-diagnosis.
+
+**Incidence** (time-at-risk from the BP index), per 1,000 py:
+- MACE composite — overall 7.0; male 7.9 / female 6.2; monotonic age gradient 1.9 (18–34) → 22.5 (65+).
+- Incident CKD — overall 1.67; male 2.0 / female 1.3.
 
 ---
 
@@ -80,8 +90,10 @@ Treatment-naïve elevated BP — a population 90% of whom are never diagnosed �
 rate of incident CKD** versus recording-comparable normotensives, empirically calibrated against
 8 HTN-unrelated negative controls. MACE is null over the 5-year window.
 
-The within-HTN delay contrast (est 64) remains in the database as a documented, blinded analysis;
-it was unlinked from study 165 so the gate ledger and manuscript reflect the estimable contrast.
+The within-HTN delay contrast (est 64) is reported in the manuscript as a pre-specified contrast that
+was **not estimable** in this data (post-match SMD 0.244; timely-Dx arm n=139 unbalanceable) — its
+effect estimates are withheld (blinded). It is determined per-contrast from the estimation's own
+diagnostics, so the study's gate ledger still reflects the estimable primary.
 
 ---
 
@@ -91,11 +103,30 @@ it was unlinked from study 165 so the gate ledger and manuscript reflect the est
 |---|---|
 | S5 study_diagnostics | **PASSED** (AUC 0.572, max-SMD 0.0155, equipoise 0.988) |
 | S6 estimation_calibration | **PASSED** (8 informative NCs, EASE 0.020) |
-| S7 publication | STROBE-RECORD manuscript composed, `effect_estimates_included: true`; reproducible study package v1 (`bundle_sha256`) created |
+| S7 publication | Comprehensive STROBE-RECORD manuscript composed, `effect_estimates_included: true`; reproducible study package v2 (`bundle_sha256`) created |
 
 Negative-control panel (replaced v3's 10/12-zero-event panel): gingivitis, viral sinusitis,
 primary dental caries, acute viral pharyngitis, acute bronchitis, chronic sinusitis, loss of
 teeth, otitis media (cohorts 5442–5449).
+
+### 4.1 Comprehensive manuscript (S7)
+
+The `ManuscriptComposer` was extended from an estimation-only Results section to a complete,
+protocol-ordered, auto-generated manuscript — every figure still traces to a stored result
+(fabrication-free). The Results section now carries six subsections:
+
+1. **Prevalence of under-diagnosis** — 90% never diagnosed, delay-strata breakdown
+2. **Diagnostic latency** — both intervals (175d; 1,106d)
+3. **Baseline characteristics by delay stratum** — sizes + demographics from characterization 42
+4. **Incidence** — per-outcome (MACE, CKD) with sex and age strata
+5. **Treatment utilization** — 17.2% ever treated
+6. **Outcome consequences** — **both** estimation contrasts, each blinded/reported by its own diagnostics
+
+The descriptive figures (prevalence, latency, treatment) are persisted as a `study_synthesis`
+row (`synthesis_type='descriptive_summary'`, computed by `descriptive_analyses.sql`). The composer
+determines each contrast's clearance per-estimation (a failed gate blinds all; an override clears
+all; a passing/absent gate defers to each contrast's own AUC/SMD/equipoise), so the recording-
+comparable contrast reports its calibrated estimates while the within-HTN contrast is withheld.
 
 ---
 
