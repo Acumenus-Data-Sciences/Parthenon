@@ -302,6 +302,12 @@ const enApp: MessageTree = {
         activity: "Activity",
         federated: "Federated",
       },
+      tabGroups: {
+        design: "Design",
+        execute: "Execute",
+        evidence: "Evidence",
+        manage: "Manage",
+      },
       manuscript: {
         exportFailed: "Manuscript export failed.",
         openPublisherFailed: "Could not open the publisher.",
@@ -4708,6 +4714,12 @@ const esApp: MessageTree = {
         artifacts: "Artefactos",
         activity: "Actividad",
         federated: "Federado",
+      },
+      tabGroups: {
+        design: "Diseño",
+        execute: "Ejecución",
+        evidence: "Evidencia",
+        manage: "Gestión",
       },
       manuscript: {
         exportFailed: "La exportación del manuscrito falló.",
@@ -9153,6 +9165,12 @@ const koApp: MessageTree = {
         artifacts: "아티팩트",
         activity: "활동",
         federated: "연합",
+      },
+      tabGroups: {
+        design: "설계",
+        execute: "실행",
+        evidence: "근거",
+        manage: "관리",
       },
       manuscript: {
         exportFailed: "원고 내보내기에 실패했습니다.",

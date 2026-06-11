@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Loader2,
   Trash2,
-  Play,
   Settings,
   BarChart3,
   MapPin,
@@ -35,7 +34,6 @@ import { cn } from "@/lib/utils";
 import { StudyDesignWorkbench } from "../components/StudyDesignWorkbench";
 import { CompilerWorkbench } from "../components/v2/CompilerWorkbench";
 import { useStudiesWorkbenchV2 } from "../hooks/useStudiesWorkbenchV2";
-import { StudyDashboard } from "../components/StudyDashboard";
 import { StudyAnalysesTab } from "../components/StudyAnalysesTab";
 import { StudySitesTab } from "../components/StudySitesTab";
 import { StudyTeamTab } from "../components/StudyTeamTab";
@@ -82,31 +80,67 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string; dot: string }> = {
   withdrawn: { bg: "#E85A6B15", fg: "var(--critical)", dot: "var(--critical)" },
 };
 
-type TabKey = "overview" | "design" | "analyses" | "results" | "gates" | "manuscript" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
+type TabKey = "overview" | "design" | "analyses" | "results" | "gates" | "manuscript" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
 
-const TABS: { key: TabKey; icon: typeof Settings }[] = [
-  { key: "overview", icon: Settings },
-  { key: "design", icon: Edit3 },
-  { key: "analyses", icon: BarChart3 },
-  { key: "results", icon: Layers },
-  { key: "gates", icon: ShieldCheck },
-  { key: "manuscript", icon: FileOutput },
-  { key: "progress", icon: Play },
-  { key: "sites", icon: MapPin },
-  { key: "team", icon: Users },
-  { key: "cohorts", icon: Target },
-  { key: "milestones", icon: Milestone },
-  { key: "artifacts", icon: FileText },
-  { key: "activity", icon: Activity },
-  { key: "federated", icon: Globe2 },
+interface TabDef {
+  key: TabKey;
+  icon: typeof Settings;
+}
+
+interface TabGroup {
+  id: "design" | "execute" | "evidence" | "manage";
+  tabs: TabDef[];
+}
+
+// Tabs grouped by the OHDSI study lifecycle: Design the study (PICO, cohorts) →
+// Execute it (run analyses, distribute) → review the Evidence (results, gates,
+// manuscript) → Manage operations. Grouping keeps the surfaces legible and tells
+// the lifecycle story; `progress` is folded into the Analyses tab (which already
+// surfaces execution status).
+const TAB_GROUPS: TabGroup[] = [
+  {
+    id: "design",
+    tabs: [
+      { key: "overview", icon: Settings },
+      { key: "design", icon: Edit3 },
+      { key: "cohorts", icon: Target },
+    ],
+  },
+  {
+    id: "execute",
+    tabs: [
+      { key: "analyses", icon: BarChart3 },
+      { key: "federated", icon: Globe2 },
+    ],
+  },
+  {
+    id: "evidence",
+    tabs: [
+      { key: "results", icon: Layers },
+      { key: "gates", icon: ShieldCheck },
+      { key: "manuscript", icon: FileOutput },
+    ],
+  },
+  {
+    id: "manage",
+    tabs: [
+      { key: "sites", icon: MapPin },
+      { key: "team", icon: Users },
+      { key: "milestones", icon: Milestone },
+      { key: "artifacts", icon: FileText },
+      { key: "activity", icon: Activity },
+    ],
+  },
 ];
+
+const ALL_TABS: TabDef[] = TAB_GROUPS.flatMap((group) => group.tabs);
 
 function humanizeToken(value: string): string {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function tabKeyFromParam(value: string | null): TabKey {
-  return TABS.some((tab) => tab.key === value) ? (value as TabKey) : "overview";
+  return ALL_TABS.some((tab) => tab.key === value) ? (value as TabKey) : "overview";
 }
 
 export default function StudyDetailPage() {
@@ -407,28 +441,38 @@ export default function StudyDetailPage() {
         </div>
       </div>
 
-      {/* Tab navigation */}
+      {/* Tab navigation — grouped by study lifecycle phase */}
       <div className="tab-bar overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const count = tabCounts[tab.key];
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", activeTab === tab.key && "active")}
-            >
-              <Icon size={14} />
-              {t(`studies.detail.tabs.${tab.key}`)}
-              {count != null && (
-                <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
-                  ({count})
-                </span>
-              )}
-            </button>
-          );
-        })}
+        {TAB_GROUPS.map((group, groupIndex) => (
+          <div key={group.id} className="flex items-center">
+            {groupIndex > 0 && (
+              <span className="mx-1.5 h-4 w-px shrink-0 bg-border-default" aria-hidden />
+            )}
+            <span className="shrink-0 select-none px-1.5 text-[9px] font-semibold uppercase tracking-wider text-text-ghost">
+              {t(`studies.detail.tabGroups.${group.id}`)}
+            </span>
+            {group.tabs.map((tab) => {
+              const Icon = tab.icon;
+              const count = tabCounts[tab.key];
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", activeTab === tab.key && "active")}
+                >
+                  <Icon size={14} />
+                  {t(`studies.detail.tabs.${tab.key}`)}
+                  {count != null && (
+                    <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
+                      ({count})
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {/* Tab content */}
@@ -436,17 +480,20 @@ export default function StudyDetailPage() {
         <StudyOverview study={study} analyses={analyses} progress={progress} />
       )}
       {activeTab === "design" && (
-        v2Enabled ? (
-          <CompilerWorkbench study={study} />
-        ) : (
-          <StudyDesignWorkbench study={study} />
-        )
+        // The v2 wizard assumes a full-height host; give the tab body a bounded
+        // height context so its internal scroll region resolves correctly.
+        <div className="flex min-h-[75vh] flex-col">
+          {v2Enabled ? (
+            <CompilerWorkbench study={study} />
+          ) : (
+            <StudyDesignWorkbench study={study} />
+          )}
+        </div>
       )}
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "gates" && <StudyGatesTab slug={study.slug} canDecide />}
       {activeTab === "manuscript" && <StudyManuscriptTab slug={study.slug} />}
-      {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}
       {activeTab === "team" && <StudyTeamTab slug={study.slug} />}
       {activeTab === "cohorts" && <StudyCohortsTab slug={study.slug} />}
