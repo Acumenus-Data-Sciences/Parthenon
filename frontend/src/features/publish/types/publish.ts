@@ -27,6 +27,12 @@ export interface ReportSection {
   tableIncluded?: boolean;
   narrativeIncluded?: boolean;
   diagramIncluded?: boolean;
+  /**
+   * Raw analysis result for the section's primary execution, used to render the
+   * typed headline-metric summary in the editor's "Structured" view. Runtime
+   * only — derived from the selected execution, not persisted in the draft.
+   */
+  resultSummary?: Record<string, unknown> | null;
 }
 
 export interface SelectedExecution {

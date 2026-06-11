@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import type { ReportSection, NarrativeState } from "../types/publish";
 import AiNarrativeBlock from "./narrative/AiNarrativeBlock";
 import StructuredDataBlock from "./narrative/StructuredDataBlock";
+import { ResultsSummarySection } from "./ResultsSummarySection";
 import type { TableData } from "../types/publish";
 
 type ViewMode = "ai" | "structured";
@@ -302,10 +303,12 @@ export default function SectionEditor({
             onAccept={() => onNarrativeStateChange(section.id, "accepted")}
             isGenerating={isGenerating}
           />
-        ) : (
-          <StructuredDataBlock
-            data={section.diagramData ?? {}}
+        ) : section.type === "results" ? (
+          <ResultsSummarySection
+            section={{ ...section, content: section.resultSummary ?? null }}
           />
+        ) : (
+          <StructuredDataBlock data={section.diagramData ?? {}} />
         )}
       </div>
     </div>

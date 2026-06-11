@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ChevronRight, ChevronDown, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, ChevronRight, ChevronDown, Check, Briefcase, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAllAnalyses } from "../hooks/useAnalysisPicker";
 import { useStudiesForPublish } from "../api/publishApi";
@@ -13,6 +14,11 @@ interface UnifiedAnalysisPickerProps {
   onSelectionsChange: (selections: SelectedExecution[]) => void;
   onNext: () => void;
   initialStudyId?: number;
+}
+
+/** Title-case a snake/kebab token for display (e.g. comparative_effectiveness). */
+function humanizeToken(value: string): string {
+  return value.replace(/[_-]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function isSelected(
@@ -46,6 +52,7 @@ export default function UnifiedAnalysisPicker({
   initialStudyId,
 }: UnifiedAnalysisPickerProps) {
   const { t } = useTranslation("app");
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"all" | "studies">(initialStudyId ? "studies" : "all");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -360,45 +367,59 @@ export default function UnifiedAnalysisPicker({
                     key={study.id}
                     className="bg-surface-raised border border-border-default rounded-lg"
                   >
-                    <button
-                      type="button"
-                      onClick={() => toggleStudy(study.id)}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
-                    >
-                      {expanded ? (
-                        <ChevronDown className="w-4 h-4 text-text-ghost" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-text-ghost" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-text-primary truncate">
-                          {study.title}
-                        </p>
-                      </div>
-                    </button>
-                    {studyAnalyses.length > 0 && (
-                      <div className="flex items-center justify-between px-3 py-1.5 border-t border-border-default">
-                        <span className="text-xs text-text-ghost">
-                          {t("publish.analysisPicker.completedAnalyses", {
-                            count: studyAnalyses.length,
-                          })}
-                        </span>
+                    <div className="flex items-center gap-2 px-3 py-2.5">
+                      <button
+                        type="button"
+                        onClick={() => toggleStudy(study.id)}
+                        className="flex flex-1 min-w-0 items-center gap-2 text-left"
+                      >
+                        {expanded ? (
+                          <ChevronDown className="w-4 h-4 text-text-ghost shrink-0" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-text-ghost shrink-0" />
+                        )}
+                        <Briefcase className="w-4 h-4 text-text-ghost shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-sm text-text-primary">
+                              {study.title}
+                            </p>
+                            {study.status && (
+                              <span className="shrink-0 rounded bg-surface-elevated px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-text-muted">
+                                {humanizeToken(study.status)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="truncate text-xs text-text-ghost">
+                            {study.study_type ? `${humanizeToken(study.study_type)} · ` : ""}
+                            {t("publish.analysisPicker.completedAnalyses", {
+                              count: studyAnalyses.length,
+                            })}
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectAllFromStudy(study)}
+                        className="shrink-0 text-xs font-medium text-accent transition-colors hover:text-accent-light"
+                      >
+                        {studyAnalyses.every((sa) =>
+                          isSelected(selections, sa.analysis!.latest_execution!.id)
+                        )
+                          ? t("publish.analysisPicker.actions.deselectAll")
+                          : t("publish.analysisPicker.actions.selectAll")}
+                      </button>
+                      {study.slug && (
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectAllFromStudy(study);
-                          }}
-                          className="text-xs font-medium text-accent hover:text-accent transition-colors"
+                          onClick={() => navigate(`/studies/${study.slug}`)}
+                          title="Open study"
+                          className="shrink-0 p-1 text-text-ghost transition-colors hover:text-accent"
                         >
-                          {studyAnalyses.every((sa) =>
-                            isSelected(selections, sa.analysis!.latest_execution!.id)
-                          )
-                            ? t("publish.analysisPicker.actions.deselectAll")
-                            : t("publish.analysisPicker.actions.selectAll")}
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                     {expanded && studyAnalyses.length > 0 && (
                       <div className="border-t border-border-default px-3 py-2 space-y-1">
                         {studyAnalyses.map((sa) => {
@@ -482,7 +503,7 @@ export default function UnifiedAnalysisPicker({
             <button
               type="button"
               onClick={onNext}
-              className="w-full px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
+              className="btn btn-publish w-full justify-center"
             >
               {t("publish.common.actions.configureDocument")}
             </button>

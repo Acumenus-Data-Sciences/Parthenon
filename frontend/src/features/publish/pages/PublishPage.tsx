@@ -231,6 +231,7 @@ function buildResultsSections(
       diagramData: config.diagramType
         ? buildDiagramData(config.diagramType, groupExecs)
         : undefined,
+      resultSummary: groupExecs[0]?.resultJson ?? null,
     });
   }
 
@@ -263,6 +264,7 @@ function buildResultsSections(
       diagramData: config.diagramType
         ? buildDiagramData(config.diagramType, groupExecs)
         : undefined,
+      resultSummary: groupExecs[0]?.resultJson ?? null,
     });
   }
 
