@@ -696,7 +696,7 @@ export default function PublishPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <FileOutput size={22} className="text-success" />
+          <FileOutput size={22} className="text-accent" />
           <div>
             <h1 className="text-xl font-bold text-text-primary">
               {t("publish.page.title")}
@@ -722,7 +722,7 @@ export default function PublishPage() {
                   void handleDuplicateToMyDrafts();
                 }}
                 disabled={createDraft.isPending}
-                className="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-accent/90 disabled:opacity-60"
+                className="btn btn-publish btn-sm"
                 data-testid="publish-duplicate-button"
               >
                 {createDraft.isPending ? "Duplicating…" : "Duplicate to my drafts"}

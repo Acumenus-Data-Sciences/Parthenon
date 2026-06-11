@@ -96,7 +96,7 @@ export default function PublicationLibraryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <FileOutput size={22} className="text-success" />
+          <FileOutput size={22} className="text-accent" />
           <div>
             <h1 className="text-xl font-bold text-text-primary">Pre-Publication Library</h1>
             <p className="text-sm text-text-primary/50">Your saved manuscript drafts.</p>

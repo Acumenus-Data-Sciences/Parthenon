@@ -240,7 +240,7 @@ export default function DocumentConfigurator({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm text-text-primary border border-border-default rounded-lg hover:bg-surface-elevated transition-colors"
+          className="btn btn-secondary btn-sm flex items-center gap-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("publish.common.actions.back")}
@@ -248,7 +248,7 @@ export default function DocumentConfigurator({
         <button
           type="button"
           onClick={onNext}
-          className="px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
+          className="btn btn-publish"
         >
           {t("publish.common.actions.previewDocument")}
         </button>
