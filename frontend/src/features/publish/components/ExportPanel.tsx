@@ -7,11 +7,13 @@ import {
   FileText,
   FileDown,
   ImageIcon,
+  Code,
   ArrowLeft,
   AlertTriangle,
   Loader2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { downloadBlob } from "@/components/manuscript";
 import type { ReportSection, ExportFormat, PublicationReportBundleExportRequest } from "../types/publish";
 import { useExportDocument } from "../hooks/useDocumentExport";
 import { useExportReportBundle } from "../hooks/useDrafts";
@@ -58,6 +60,7 @@ export default function ExportPanel({
   const { t } = useTranslation("app");
   const [selectedFormat, setSelectedFormat] = useState<ExportableFormat>("docx");
   const [bundleFormat, setBundleFormat] = useState<string>("ohdsi_sharing_bundle");
+  const [figuresMessage, setFiguresMessage] = useState<string | null>(null);
   const exportMutation = useExportDocument();
   const exportBundle = useExportReportBundle();
   const formatOptions: Array<{
@@ -146,6 +149,32 @@ export default function ExportPanel({
     exportBundle.mutate({ payload, filename: `${title || "publication"}-bundle.json` });
   };
 
+  // Client-side figure export (the backend renders only docx/pdf/figures-zip).
+  const handleExportFigures = async (format: "png" | "svg") => {
+    setFiguresMessage(null);
+    let count = 0;
+    for (const section of includedSections) {
+      const markup =
+        section.svgMarkup ?? (section.diagramType ? getDiagramSvgMarkup(section.id) : undefined);
+      if (!markup) continue;
+      const safe = (section.title || section.id).replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      if (format === "svg") {
+        downloadBlob(markup, `${safe}.svg`, "image/svg+xml");
+      } else {
+        const dataUrl = await svgMarkupToPngDataUrl(markup);
+        if (!dataUrl) continue;
+        const anchor = document.createElement("a");
+        anchor.href = dataUrl;
+        anchor.download = `${safe}.png`;
+        anchor.click();
+      }
+      count += 1;
+    }
+    setFiguresMessage(
+      count === 0 ? "No figures found in the included sections." : `Exported ${count} figure(s).`,
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Draft warning */}
@@ -226,6 +255,31 @@ export default function ExportPanel({
           </>
         )}
       </button>
+
+      {/* Figure export (client-side vector/raster of the diagrams) */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <h3 className="mb-1 text-sm font-medium text-text-primary">Export figures</h3>
+        <p className="mb-3 text-xs text-text-ghost">
+          Download each chart in the included sections individually.
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void handleExportFigures("png")}
+            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+          >
+            <ImageIcon className="h-3.5 w-3.5" /> PNG
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleExportFigures("svg")}
+            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+          >
+            <Code className="h-3.5 w-3.5" /> SVG
+          </button>
+          {figuresMessage && <span className="text-xs text-text-ghost">{figuresMessage}</span>}
+        </div>
+      </div>
 
       {/* Reproducible OHDSI sharing bundle */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
