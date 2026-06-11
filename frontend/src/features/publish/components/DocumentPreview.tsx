@@ -76,6 +76,35 @@ function renderDiagram(
   }
 }
 
+/**
+ * Renders section prose on the white "paper": blank-line-separated blocks, with
+ * `### ` lines becoming bold subheadings. This makes composer-seeded drafts
+ * (from the Studies "Open in Publisher" bridge, whose content carries `### `
+ * subsections) render correctly instead of showing literal `### ` text.
+ */
+function PaperContent({ content }: { content: string }) {
+  const blocks = content.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+
+  return (
+    <div className="text-gray-800" style={{ fontSize: "11pt", lineHeight: 1.7 }}>
+      {blocks.map((block, i) => {
+        if (block.startsWith("### ")) {
+          const [heading, ...rest] = block.split("\n");
+          return (
+            <div key={i} className={i > 0 ? "mt-4" : ""}>
+              <h3 className="font-semibold text-gray-900" style={{ fontSize: "12pt" }}>
+                {heading.replace(/^###\s+/, "")}
+              </h3>
+              {rest.length > 0 && <p className="mt-1 whitespace-pre-line">{rest.join("\n")}</p>}
+            </div>
+          );
+        }
+        return <p key={i} className={`whitespace-pre-line ${i > 0 ? "mt-3" : ""}`}>{block}</p>;
+      })}
+    </div>
+  );
+}
+
 export default function DocumentPreview({
   sections,
   title,
@@ -126,9 +155,9 @@ export default function DocumentPreview({
     <div className="flex flex-col gap-6">
       {/* AI draft warning */}
       {hasDraftNarratives && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
-          <p className="text-sm text-amber-200">
+        <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
+          <p className="text-sm text-warning">
             {t("publish.preview.reviewWarning")}
           </p>
         </div>
@@ -216,21 +245,9 @@ export default function DocumentPreview({
 
                   {/* Narrative */}
                   {hasNarrative && (
-                    <div
-                      className="text-sm leading-relaxed text-gray-800"
-                      style={{ fontSize: "11pt", lineHeight: 1.7 }}
-                    >
-                      {(typeof section.content === "string"
-                        ? section.content
-                        : JSON.stringify(section.content)
-                      )
-                        .split("\n")
-                        .map((paragraph: string, i: number) => (
-                          <p key={i} className={i > 0 ? "mt-3" : ""}>
-                            {paragraph}
-                          </p>
-                        ))}
-                    </div>
+                    <PaperContent
+                      content={typeof section.content === "string" ? section.content : JSON.stringify(section.content)}
+                    />
                   )}
 
                   {/* Diagram */}
@@ -270,21 +287,9 @@ export default function DocumentPreview({
                   {section.title}
                 </h2>
                 {section.content ? (
-                  <div
-                    className="text-sm leading-relaxed text-gray-800"
-                    style={{ fontSize: "11pt", lineHeight: 1.7 }}
-                  >
-                    {(typeof section.content === "string"
-                      ? section.content
-                      : JSON.stringify(section.content)
-                    )
-                      .split("\n")
-                      .map((paragraph: string, i: number) => (
-                        <p key={i} className={i > 0 ? "mt-3" : ""}>
-                          {paragraph}
-                        </p>
-                      ))}
-                  </div>
+                  <PaperContent
+                    content={typeof section.content === "string" ? section.content : JSON.stringify(section.content)}
+                  />
                 ) : (
                   <p className="text-sm italic text-text-muted">
                     {t("publish.preview.noSectionContent")}
@@ -307,7 +312,7 @@ export default function DocumentPreview({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
+          className="btn btn-secondary btn-sm flex items-center gap-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
           {t("publish.preview.backToConfigure")}
@@ -315,7 +320,7 @@ export default function DocumentPreview({
         <button
           type="button"
           onClick={onNext}
-          className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-accent"
+          className="btn btn-publish flex items-center gap-2"
         >
           {t("publish.preview.export")}
           <ArrowRight className="h-4 w-4" />
