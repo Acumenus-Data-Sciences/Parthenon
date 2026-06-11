@@ -1,0 +1,43 @@
+{
+  "protocol": "ACUM-PROT-HTN-V4-001",
+  "study_slug": "hypertension-study-v4",
+  "locked_at": "2026-06-10",
+  "locked_by": "S. Udoshi (consolidation editor)",
+  "pi_confirmation_pending": ["OQ-11", "OQ-4", "OQ-13"],
+  "data_source": { "schema": "omop", "connection": "omop", "source_id": 47, "key": "ACUMENUS", "cdm_version": "5.4" },
+  "platform": { "pipeline": "abby-protocol-to-publication", "adr": "ADR-0020", "stages": ["S1","S2","S3","S4","S5","S6","S7"], "first_production_run": true },
+  "scope": { "part_1_retrospective": true, "part_2_prospective": false, "part_2_placeholder": "htn-pilot-bp-capture-2026" },
+  "decisions": {
+    "OQ-11_index_rule": "index = date of 2nd of two consecutive qualifying elevated BPs (SBP>=130 OR DBP>=80)",
+    "OQ-1_max_gap_days": 365,
+    "OQ-4_antihypertensive_scope": { "primary": "JNC-8 first-line (thiazide, ACEi, ARB, CCB)", "sensitivity": "ATC C02-C09 broad" },
+    "OQ-13_kidney_exclusion": "eGFR < 60 most recent pre-index",
+    "OQ-5_estimation_design": { "primary": "within-HTN delay-group contrast: delayed (>12mo, G4) vs timely (<=3mo, G1)", "time_at_risk_start": "diagnosis_date (avoid immortal-time bias)", "sensitivity": "recording-comparable normotensive comparator" },
+    "OQ-6_followup": "all-available"
+  },
+  "v3_defect_corrected": "v3 target (5424) indexed on First ConditionOccurrence of HTN diagnosis, not the 2nd elevated BP; latency was unmeasurable. v4 indexes the target on the 2nd consecutive elevated BP Measurement.",
+  "descoped_zero_data_goals": ["drug_dose","care_site_typology","bp_source_office_home_abpm","serum_aldosterone","renal_denervation","family_history","cost"],
+  "cohorts": {
+    "target": "Incident essential HTN, treatment-naive; entry=2nd consecutive elevated BP Measurement; excl prior CVD, eGFR<60, thyroid abnl, JNC-8 first-line drug",
+    "delay_strata": { "G1": "<=3mo", "G2": "3-6mo", "G3": "7-12mo", "G4": ">12mo" },
+    "outcomes": { "O1": "MACE composite (MI+stroke+inpatient HF+death)", "O2": "incident CKD" },
+    "comparator_sensitivity": "recording-comparable always-normotensive"
+  },
+  "negative_controls": [
+    { "concept_id": 4281516, "name": "Gingivitis" },
+    { "concept_id": 40481087, "name": "Viral sinusitis" },
+    { "concept_id": 40274283, "name": "Primary dental caries" },
+    { "concept_id": 4112343, "name": "Acute viral pharyngitis" },
+    { "concept_id": 260139, "name": "Acute bronchitis" },
+    { "concept_id": 257012, "name": "Chronic sinusitis" },
+    { "concept_id": 434073, "name": "Loss of teeth" },
+    { "concept_id": 372328, "name": "Otitis media" }
+  ],
+  "gate_thresholds": {
+    "S4_data_quality": "DQD severe failures = 0",
+    "S5_study_diagnostics": "PS AUC < 0.80 OR max-SMD-after < 0.10 OR equipoise >= 0.30",
+    "S6_calibration": ">= 5 informative negative controls"
+  },
+  "governance": { "preregister_to": "study_artifacts", "highsec": true, "no_omop_writes": true, "migrations": "additive-nullable only, never --force", "db_access": "claude_dev on host PG17" },
+  "provenance": { "hasher": "DefinitionHasher.expression_sha256", "pinned": ["compiled_sql","vocabulary_version","cdm_source_release"], "result_binding": "study_results.study_design_version_id" }
+}

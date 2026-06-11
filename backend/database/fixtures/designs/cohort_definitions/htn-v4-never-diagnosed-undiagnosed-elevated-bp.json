@@ -1,0 +1,109 @@
+{
+    "id": 5454,
+    "name": "HTN v4 - Never-diagnosed (undiagnosed elevated BP)",
+    "description": "Target 5441 members with NO essential-HTN diagnosis on record (90% of the target). cohort_start = BP index. Descriptive\/prevalence arm; not in the diagnosis-anchored estimation.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Essential hypertension",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 320128,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4293591,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4300923,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "CONCEPT_ID": 4300924,
+                                "CONCEPT_NAME": null,
+                                "INVALID_REASON": null,
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-06-11T02:59:36.000000Z",
+    "updated_at": "2026-06-11T02:59:36.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null,
+    "tenant_id": 1,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "expression_sha256": "3a734c2f74bd9f80cfe9851ba91bdece40a34d4105ead3da0473764b6643d4e3"
+}
