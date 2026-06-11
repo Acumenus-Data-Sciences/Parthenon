@@ -19,7 +19,7 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
-import { formatDate, formatNumber } from "@/i18n/format";
+import { formatDate } from "@/i18n/format";
 import {
   useStudyResults,
   useUpdateStudyResult,
@@ -29,6 +29,7 @@ import {
   useLaunchStudyResultShinyApp,
 } from "../hooks/useStudies";
 import type { ManagedShinyLaunch, StudyResult, StudySynthesis } from "../types/study";
+import { StudyResultSummary } from "./StudyResultSummary";
 
 const RESULT_TYPE_LABELS: Record<string, string> = {
   cohort_count: "Cohort Count",
@@ -340,39 +341,8 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-border-default p-4 space-y-3">
-                        {r.summary_data && Object.keys(r.summary_data).length > 0 ? (
-                          <div>
-                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
-                              {t("studies.results.labels.summary")}
-                            </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                              {Object.entries(r.summary_data).map(([key, val]) => (
-                                <div key={key} className="bg-surface-darkest rounded p-2">
-                                  <p className="text-[9px] text-text-ghost uppercase">{key.replace(/_/g, " ")}</p>
-                                  <p className="text-sm text-text-primary font-mono">
-                                    {typeof val === "number" ? formatNumber(val) : String(val)}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-text-ghost italic">
-                            {t("studies.results.empty.noSummaryData")}
-                          </p>
-                        )}
-
-                        {r.diagnostics && Object.keys(r.diagnostics).length > 0 && (
-                          <div>
-                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">
-                              {t("studies.results.labels.diagnostics")}
-                            </h4>
-                            <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
-                              {JSON.stringify(r.diagnostics, null, 2)}
-                            </pre>
-                          </div>
-                        )}
+                      <div className="border-t border-border-default p-4">
+                        <StudyResultSummary result={r} />
                       </div>
                     )}
                   </div>

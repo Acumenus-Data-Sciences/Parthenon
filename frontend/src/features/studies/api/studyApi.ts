@@ -24,6 +24,7 @@ import type {
   StudyDesignProtocolImportResult,
   StudyProtocolImportResult,
   ManagedShinyLaunch,
+  ManuscriptDocument,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
@@ -749,6 +750,36 @@ export async function getStudySynthesis(slug: string, synthesisId: number): Prom
 
 export async function deleteStudySynthesis(slug: string, synthesisId: number): Promise<void> {
   await apiClient.delete(`${BASE}/${slug}/synthesis/${synthesisId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Manuscript (ADR-0020 Phase 6 — protocol-ordered ManuscriptComposer)
+// ---------------------------------------------------------------------------
+
+export async function composeStudyManuscript(slug: string): Promise<ManuscriptDocument> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/manuscript`);
+  return data.data ?? data;
+}
+
+/** Export the composed manuscript and trigger a browser download. */
+export async function exportStudyManuscript(slug: string, format: "docx" | "pdf"): Promise<void> {
+  const response = await apiClient.post(
+    `${BASE}/${slug}/manuscript/export`,
+    { format },
+    { responseType: "blob" },
+  );
+
+  const blob = new Blob([response.data], {
+    type: format === "pdf"
+      ? "application/pdf"
+      : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}-manuscript.${format}`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ---------------------------------------------------------------------------

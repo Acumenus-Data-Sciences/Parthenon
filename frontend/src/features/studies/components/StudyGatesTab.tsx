@@ -64,9 +64,10 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
   const [overrideFor, setOverrideFor] = useState<number | null>(null);
   const [rationale, setRationale] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["study-gates", slug],
     queryFn: () => listStudyGates(slug),
+    enabled: slug != null && slug !== "",
   });
 
   const invalidate = () =>
@@ -94,6 +95,15 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 size={20} className="animate-spin text-text-muted" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-lg border border-critical/30 bg-critical/10 p-4 text-sm text-critical">
+        Failed to load the gate ledger. You may not have permission to view this study's gates,
+        or the gating service is unavailable.
       </div>
     );
   }

@@ -11,6 +11,7 @@ use App\Listeners\AssociateDqdWithRelease;
 use App\Listeners\ComputeDqDeltas;
 use App\Listeners\CreateAutoAnnotation;
 use App\Listeners\CreateAutoRelease;
+use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
@@ -40,6 +41,7 @@ use App\Models\App\StudySynthesis;
 use App\Models\App\StudyTeamMember;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
+use App\Observers\AnalysisExecutionObserver;
 use App\Observers\CohortDefinitionObserver;
 use App\Observers\DesignProtection\CharacterizationProtectionObserver;
 use App\Observers\DesignProtection\CohortDefinitionProtectionObserver;
@@ -337,6 +339,11 @@ class AppServiceProvider extends ServiceProvider
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
         Study::observe(StudyObserver::class);
+
+        // Project completed analysis executions into curated study_results so the
+        // study Results tab and package builder have data to read. Savepoint-
+        // guarded; a projection failure never aborts the analysis run.
+        AnalysisExecution::observe(AnalysisExecutionObserver::class);
 
         $subResourceModels = [
             StudySite::class,

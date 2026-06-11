@@ -50,6 +50,8 @@ import {
   listStudySyntheses,
   createStudySynthesis,
   deleteStudySynthesis,
+  composeStudyManuscript,
+  exportStudyManuscript,
   listStudyDesignSessions,
   createStudyDesignSession,
   listStudyDesignVersions,
@@ -1058,6 +1060,25 @@ export function useDeleteStudySynthesis() {
     onSuccess: (_d, v) => {
       queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "syntheses"] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Manuscript (composed STROBE/RECORD document)
+// ---------------------------------------------------------------------------
+
+export function useStudyManuscript(slug: string | null) {
+  return useQuery({
+    queryKey: ["studies", slug, "manuscript"],
+    queryFn: () => composeStudyManuscript(slug!),
+    enabled: slug != null && slug !== "",
+  });
+}
+
+export function useExportStudyManuscript() {
+  return useMutation({
+    mutationFn: ({ slug, format }: { slug: string; format: "docx" | "pdf" }) =>
+      exportStudyManuscript(slug, format),
   });
 }
 

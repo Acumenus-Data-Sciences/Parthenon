@@ -291,6 +291,8 @@ const enApp: MessageTree = {
         design: "Design",
         analyses: "Analyses",
         results: "Results",
+        gates: "Gates",
+        manuscript: "Manuscript",
         progress: "Progress",
         sites: "Sites",
         team: "Team",
@@ -299,6 +301,27 @@ const enApp: MessageTree = {
         artifacts: "Artifacts",
         activity: "Activity",
         federated: "Federated",
+      },
+      manuscript: {
+        exportFailed: "Manuscript export failed.",
+        empty: {
+          title: "No manuscript yet",
+          message:
+            "The manuscript is composed from this study's completed analyses, gate decisions, and provenance. Run the analyses, then return here.",
+        },
+        meta: {
+          effectsIncluded: "Effect estimates included",
+          effectsWithheld: "Effect estimates withheld",
+          contrasts: "{{count}} estimation contrast(s)",
+          gatingOn: "Gating enabled",
+          gatingOff: "Gating advisory",
+        },
+        actions: {
+          docx: "DOCX",
+          pdf: "PDF",
+          openPublisher: "Open in Publisher",
+          openPublisherTitle: "Open this study in the publication workspace",
+        },
       },
       statuses: {
         draft: "Draft",
@@ -441,9 +464,29 @@ const enApp: MessageTree = {
         noSynthesesMessage:
           "Combine results from multiple sites using meta-analysis",
       },
+      detail: {
+        notCleared:
+          "Diagnostics did not clear — these estimates are withheld from publication (blinded) pending review.",
+        targetCount: "Target",
+        comparatorCount: "Comparator",
+        maxSmd: "Max SMD",
+        outcome: "Outcome",
+        calibratedEstimates: "Calibrated effect estimates",
+        uncalibratedEstimates: "Uncalibrated effect estimates",
+        calibrationNote:
+          "Empirically calibrated against {{count}} negative controls (EASE {{ease}}).",
+        ratePer1000: "Rate / 1,000 py",
+        atRisk: "At risk",
+        personYears: "Person-years",
+        cohort: "Cohort",
+        persons: "Persons",
+        characterizationNote:
+          "Full demographic, condition, drug, and measurement distributions are available in the characterization analysis.",
+      },
       resultTypes: {
         cohort_count: "Cohort Count",
         characterization: "Characterization",
+        baseline_characteristics: "Baseline Characteristics",
         incidence_rate: "Incidence Rate",
         effect_estimate: "Effect Estimate",
         prediction_performance: "Prediction Performance",
@@ -4654,6 +4697,8 @@ const esApp: MessageTree = {
         design: "Diseño",
         analyses: "Análisis",
         results: "Resultados",
+        gates: "Compuertas",
+        manuscript: "Manuscrito",
         progress: "Progreso",
         sites: "Sitios",
         team: "Equipo",
@@ -4662,6 +4707,27 @@ const esApp: MessageTree = {
         artifacts: "Artefactos",
         activity: "Actividad",
         federated: "Federado",
+      },
+      manuscript: {
+        exportFailed: "La exportación del manuscrito falló.",
+        empty: {
+          title: "Aún no hay manuscrito",
+          message:
+            "El manuscrito se compone a partir de los análisis completados, las decisiones de las compuertas y la procedencia de este estudio. Ejecuta los análisis y vuelve aquí.",
+        },
+        meta: {
+          effectsIncluded: "Estimaciones de efecto incluidas",
+          effectsWithheld: "Estimaciones de efecto retenidas",
+          contrasts: "{{count}} contraste(s) de estimación",
+          gatingOn: "Compuertas habilitadas",
+          gatingOff: "Compuertas consultivas",
+        },
+        actions: {
+          docx: "DOCX",
+          pdf: "PDF",
+          openPublisher: "Abrir en el editor",
+          openPublisherTitle: "Abrir este estudio en el espacio de publicación",
+        },
       },
       statuses: {
         draft: "Borrador",
@@ -4805,9 +4871,29 @@ const esApp: MessageTree = {
         noSynthesesMessage:
           "Combina resultados de múltiples sitios mediante metaanálisis",
       },
+      detail: {
+        notCleared:
+          "Los diagnósticos no se aprobaron — estas estimaciones se retienen de la publicación (cegadas) pendientes de revisión.",
+        targetCount: "Objetivo",
+        comparatorCount: "Comparador",
+        maxSmd: "DME máx.",
+        outcome: "Desenlace",
+        calibratedEstimates: "Estimaciones de efecto calibradas",
+        uncalibratedEstimates: "Estimaciones de efecto sin calibrar",
+        calibrationNote:
+          "Calibrado empíricamente con {{count}} controles negativos (EASE {{ease}}).",
+        ratePer1000: "Tasa / 1.000 ap",
+        atRisk: "En riesgo",
+        personYears: "Años-persona",
+        cohort: "Cohorte",
+        persons: "Personas",
+        characterizationNote:
+          "Las distribuciones completas de demografía, condiciones, fármacos y mediciones están disponibles en el análisis de caracterización.",
+      },
       resultTypes: {
         cohort_count: "Conteo de cohorte",
         characterization: "Caracterización",
+        baseline_characteristics: "Características basales",
         incidence_rate: "Tasa de incidencia",
         effect_estimate: "Estimación de efecto",
         prediction_performance: "Rendimiento de predicción",
@@ -9055,6 +9141,8 @@ const koApp: MessageTree = {
         design: "설계",
         analyses: "분석",
         results: "결과",
+        gates: "게이트",
+        manuscript: "원고",
         progress: "진행 상황",
         sites: "사이트",
         team: "팀",
@@ -9063,6 +9151,27 @@ const koApp: MessageTree = {
         artifacts: "아티팩트",
         activity: "활동",
         federated: "연합",
+      },
+      manuscript: {
+        exportFailed: "원고 내보내기에 실패했습니다.",
+        empty: {
+          title: "아직 원고가 없습니다",
+          message:
+            "원고는 이 연구의 완료된 분석, 게이트 결정 및 출처를 바탕으로 구성됩니다. 분석을 실행한 후 여기로 돌아오세요.",
+        },
+        meta: {
+          effectsIncluded: "효과 추정치 포함",
+          effectsWithheld: "효과 추정치 보류",
+          contrasts: "추정 대조 {{count}}개",
+          gatingOn: "게이트 활성화됨",
+          gatingOff: "게이트 권고 전용",
+        },
+        actions: {
+          docx: "DOCX",
+          pdf: "PDF",
+          openPublisher: "퍼블리셔에서 열기",
+          openPublisherTitle: "출판 작업 공간에서 이 연구 열기",
+        },
       },
       statuses: {
         draft: "초안",
@@ -9203,9 +9312,29 @@ const koApp: MessageTree = {
         noSynthesesTitle: "합성이 없습니다",
         noSynthesesMessage: "메타분석으로 여러 사이트의 결과를 결합하세요",
       },
+      detail: {
+        notCleared:
+          "진단이 통과되지 않았습니다 — 이 추정치는 검토 전까지 게시에서 보류(블라인드)됩니다.",
+        targetCount: "대상",
+        comparatorCount: "비교군",
+        maxSmd: "최대 SMD",
+        outcome: "결과",
+        calibratedEstimates: "보정된 효과 추정치",
+        uncalibratedEstimates: "보정되지 않은 효과 추정치",
+        calibrationNote:
+          "{{count}}개의 음성 대조군으로 경험적으로 보정됨 (EASE {{ease}}).",
+        ratePer1000: "비율 / 1,000 인년",
+        atRisk: "위험 대상",
+        personYears: "인년",
+        cohort: "코호트",
+        persons: "인원",
+        characterizationNote:
+          "인구통계, 상태, 약물 및 측정의 전체 분포는 특성화 분석에서 확인할 수 있습니다.",
+      },
       resultTypes: {
         cohort_count: "코호트 수",
         characterization: "특성화",
+        baseline_characteristics: "기준 특성",
         incidence_rate: "발생률",
         effect_estimate: "효과 추정치",
         prediction_performance: "예측 성능",

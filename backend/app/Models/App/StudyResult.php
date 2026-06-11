@@ -10,6 +10,7 @@ class StudyResult extends Model
 {
     protected $fillable = [
         'execution_id',
+        'analysis_execution_id',
         'study_id',
         'study_analysis_id',
         'site_id',
@@ -36,6 +37,17 @@ class StudyResult extends Model
     public function execution(): BelongsTo
     {
         return $this->belongsTo(StudyExecution::class, 'execution_id');
+    }
+
+    /**
+     * The single-site analysis execution this result was projected from
+     * (null for federated results recorded against a study_execution).
+     *
+     * @return BelongsTo<AnalysisExecution, $this>
+     */
+    public function analysisExecution(): BelongsTo
+    {
+        return $this->belongsTo(AnalysisExecution::class, 'analysis_execution_id');
     }
 
     /**

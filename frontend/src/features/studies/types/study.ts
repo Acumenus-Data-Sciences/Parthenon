@@ -788,6 +788,30 @@ export interface StudySynthesis {
 }
 
 // ---------------------------------------------------------------------------
+// Composed manuscript (ADR-0020 Phase 6 — ManuscriptComposer)
+// ---------------------------------------------------------------------------
+
+export interface ManuscriptSection {
+  key: string;
+  title: string;
+  content: string;
+  type: string;
+  included: boolean;
+}
+
+export interface ManuscriptDocument {
+  title: string;
+  authors: string[];
+  template: string;
+  sections: ManuscriptSection[];
+  manuscript_meta: {
+    effect_estimates_included: boolean;
+    estimation_contrasts: number;
+    gating_enabled: boolean;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Arachne Federated Execution Types
 // ---------------------------------------------------------------------------
 

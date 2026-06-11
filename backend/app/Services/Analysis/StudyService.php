@@ -23,25 +23,17 @@ use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
 use App\Scopes\LibraryDefaultScope;
+use App\Support\AnalysisTypeMap;
+use App\Support\CharacterizationResultNormalizer;
+use App\Support\EstimationResultNormalizer;
+use App\Support\EvidenceSynthesisResultNormalizer;
+use App\Support\IncidenceRateResultNormalizer;
+use App\Support\PredictionResultNormalizer;
+use App\Support\SccsResultNormalizer;
 use Illuminate\Support\Facades\Log;
 
 class StudyService
 {
-    /**
-     * Execution order for analysis types.
-     * Lower number = executed first.
-     *
-     * @var array<string, int>
-     */
-    private const EXECUTION_ORDER = [
-        Characterization::class => 1,
-        IncidenceRateAnalysis::class => 2,
-        PathwayAnalysis::class => 3,
-        EstimationAnalysis::class => 4,
-        PredictionAnalysis::class => 5,
-        SccsAnalysis::class => 6,
-    ];
-
     /**
      * Execute all analyses within a study.
      */
@@ -56,8 +48,9 @@ class StudyService
         }
 
         // Group by type and build execution order
-        $grouped = $studyAnalyses->sortBy(function (StudyAnalysis $sa) {
-            return self::EXECUTION_ORDER[$sa->analysis_type] ?? 99;
+        $executionOrder = AnalysisTypeMap::executionOrder();
+        $grouped = $studyAnalyses->sortBy(function (StudyAnalysis $sa) use ($executionOrder) {
+            return $executionOrder[$sa->analysis_type] ?? 99;
         });
 
         // Dispatch jobs for each analysis
@@ -194,17 +187,8 @@ class StudyService
      */
     public function addAnalysis(Study $study, string $analysisType, int $analysisId): StudyAnalysis
     {
-        // Validate the analysis type is known
-        $validTypes = [
-            'characterization' => Characterization::class,
-            'incidence_rate' => IncidenceRateAnalysis::class,
-            'pathway' => PathwayAnalysis::class,
-            'estimation' => EstimationAnalysis::class,
-            'prediction' => PredictionAnalysis::class,
-            'sccs' => SccsAnalysis::class,
-        ];
-
-        $modelClass = $validTypes[$analysisType] ?? null;
+        // Validate the analysis type is known (canonical slug => FQCN map)
+        $modelClass = AnalysisTypeMap::class($analysisType);
 
         if ($modelClass === null) {
             throw new \InvalidArgumentException("Unknown analysis type: {$analysisType}");
@@ -269,5 +253,60 @@ class StudyService
     {
         $studyAnalysis = $study->analyses()->findOrFail($studyAnalysisId);
         $studyAnalysis->delete();
+    }
+
+    /**
+     * Attach the latest execution (with normalized result_json) to each of the
+     * study's analyses as a synthetic `latest_execution` attribute. This is what
+     * the Analyses tab, dashboard, and the Manuscript-button gate read — the
+     * detail endpoints previously omitted it, so every analysis appeared
+     * "Not executed" even when its executions had completed.
+     */
+    public function attachLatestExecutions(Study $study): void
+    {
+        $study->loadMissing('analyses.analysis');
+
+        foreach ($study->analyses as $studyAnalysis) {
+            $analysis = $studyAnalysis->analysis;
+            if ($analysis === null) {
+                continue;
+            }
+
+            $latest = AnalysisExecution::query()
+                ->where('analysis_type', $studyAnalysis->analysis_type)
+                ->where('analysis_id', $studyAnalysis->analysis_id)
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($latest !== null && is_array($latest->result_json)) {
+                $latest->setAttribute(
+                    'result_json',
+                    $this->normalizeExecutionResult($studyAnalysis->analysis_type, $latest->result_json),
+                );
+            }
+
+            $analysis->setAttribute('latest_execution', $latest);
+        }
+    }
+
+    /**
+     * Normalize an execution's result_json for the given analysis type. Accepts
+     * either the stored FQCN or a short slug (older callers passed the FQCN into
+     * a slug-keyed match, which silently skipped normalization).
+     *
+     * @param  array<string, mixed>  $resultJson
+     * @return array<string, mixed>
+     */
+    public function normalizeExecutionResult(string $analysisType, array $resultJson): array
+    {
+        return match (AnalysisTypeMap::slug($analysisType)) {
+            'characterization' => CharacterizationResultNormalizer::normalize($resultJson),
+            'estimation' => EstimationResultNormalizer::normalize($resultJson),
+            'prediction' => PredictionResultNormalizer::normalize($resultJson),
+            'incidence_rate' => IncidenceRateResultNormalizer::normalize($resultJson),
+            'sccs' => SccsResultNormalizer::normalize($resultJson),
+            'evidence_synthesis' => EvidenceSynthesisResultNormalizer::normalize($resultJson),
+            default => $resultJson,
+        };
     }
 }

@@ -33,10 +33,14 @@ class StudySynthesisController extends Controller
     {
         $validated = $request->validate([
             'study_analysis_id' => 'nullable|integer',
-            'synthesis_type' => 'required|string|in:fixed_effects_meta,random_effects_meta,bayesian_meta,forest_plot,heterogeneity_analysis,funnel_plot,evidence_synthesis,custom',
-            'input_result_ids' => 'required|array|min:1',
+            'synthesis_type' => 'required|string|in:fixed_effects_meta,random_effects_meta,bayesian_meta,forest_plot,heterogeneity_analysis,funnel_plot,evidence_synthesis,descriptive_summary,custom',
+            // A descriptive summary is a computed artifact (prevalence, latency,
+            // treatment utilization) with no upstream result inputs; meta-analyses
+            // require at least one input result.
+            'input_result_ids' => 'required_unless:synthesis_type,descriptive_summary|array',
             'input_result_ids.*' => 'integer',
             'method_settings' => 'nullable|array',
+            'output' => 'nullable|array',
         ]);
 
         $synthesis = $study->syntheses()->create([

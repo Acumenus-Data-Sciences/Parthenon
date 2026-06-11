@@ -44,6 +44,7 @@ import { StudyMilestonesTab } from "../components/StudyMilestonesTab";
 import { StudyArtifactsTab } from "../components/StudyArtifactsTab";
 import { StudyActivityTab } from "../components/StudyActivityTab";
 import { StudyResultsTab } from "../components/StudyResultsTab";
+import { StudyManuscriptTab } from "../components/StudyManuscriptTab";
 import { FederatedExecutionTab } from "../components/FederatedExecutionTab";
 import { StudyGatesTab } from "../components/StudyGatesTab";
 import {
@@ -81,7 +82,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string; dot: string }> = {
   withdrawn: { bg: "#E85A6B15", fg: "var(--critical)", dot: "var(--critical)" },
 };
 
-type TabKey = "overview" | "design" | "analyses" | "results" | "gates" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
+type TabKey = "overview" | "design" | "analyses" | "results" | "gates" | "manuscript" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
 
 const TABS: { key: TabKey; icon: typeof Settings }[] = [
   { key: "overview", icon: Settings },
@@ -89,6 +90,7 @@ const TABS: { key: TabKey; icon: typeof Settings }[] = [
   { key: "analyses", icon: BarChart3 },
   { key: "results", icon: Layers },
   { key: "gates", icon: ShieldCheck },
+  { key: "manuscript", icon: FileOutput },
   { key: "progress", icon: Play },
   { key: "sites", icon: MapPin },
   { key: "team", icon: Users },
@@ -356,7 +358,7 @@ export default function StudyDetailPage() {
             ) && (
               <button
                 type="button"
-                onClick={() => navigate(`/publish?studyId=${study.id}`)}
+                onClick={() => setActiveTab("manuscript")}
                 className="btn btn-ghost btn-sm flex items-center gap-1"
                 title={t("studies.detail.actions.generateManuscriptTitle")}
               >
@@ -443,6 +445,7 @@ export default function StudyDetailPage() {
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "gates" && <StudyGatesTab slug={study.slug} canDecide />}
+      {activeTab === "manuscript" && <StudyManuscriptTab slug={study.slug} studyId={study.id} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}
       {activeTab === "team" && <StudyTeamTab slug={study.slug} />}

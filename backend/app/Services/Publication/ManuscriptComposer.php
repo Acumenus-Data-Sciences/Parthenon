@@ -10,6 +10,7 @@ use App\Models\App\Study;
 use App\Models\App\StudyGate;
 use App\Models\App\StudySynthesis;
 use App\Support\EstimationResultNormalizer;
+use App\Support\Studies\EstimationClearance;
 
 /**
  * Assembles a STROBE/RECORD-structured manuscript from a study's ACTUAL data
@@ -604,37 +605,9 @@ class ManuscriptComposer
      */
     private function estimationCleared(array $result, Study $study): bool
     {
-        // An explicit study-diagnostics gate is authoritative: a human
-        // override/approval clears every contrast; an explicit failure blinds
-        // every contrast pending review. A passing/pending/absent gate defers
-        // to each contrast's own diagnostics — so a passing primary does not
-        // force a structurally unbalanceable secondary to report.
-        foreach ($study->gates as $gate) {
-            if ($gate instanceof StudyGate && $gate->stage->value === 'study_diagnostics') {
-                if (in_array($gate->status->value, ['overridden', 'approved'], true)) {
-                    return true;
-                }
-                if ($gate->status->value === 'failed') {
-                    return false;
-                }
-                break;
-            }
-        }
-
-        $ps = is_array($result['propensity_score'] ?? null) ? $result['propensity_score'] : [];
-        $auc = $ps['auc'] ?? null;
-        $smd = $ps['max_smd_after'] ?? null;
-        $eq = $ps['equipoise'] ?? null;
-        if (! is_numeric($auc) || ! is_numeric($smd) || ! is_numeric($eq)) {
-            return false;
-        }
-
-        $t = config('studies.gate_thresholds.study_diagnostics', []);
-        $t = is_array($t) ? $t : [];
-
-        return (float) $auc < (float) ($t['max_ps_auc'] ?? 0.80)
-            && (float) $smd < (float) ($t['max_smd_after'] ?? 0.10)
-            && (float) $eq >= (float) ($t['min_equipoise'] ?? 0.30);
+        // Authoritative gate logic lives in EstimationClearance so the projector
+        // (is_publishable), the Results tab, and this manuscript never disagree.
+        return EstimationClearance::isCleared($result, $study);
     }
 
     /**
