@@ -1,0 +1,33 @@
+{
+    "id": 59,
+    "name": "Hypertension Study (V4): Incidence Rates (MACE \/ CKD)",
+    "description": "Crude incidence of MACE and incident CKD in the treatment-naive elevated-BP cohort (BP-indexed). Time-at-risk anchored from cohort start (+1 to +1825 days). Byar exact CIs. Supporting descriptive (non-gated).",
+    "design_json": {
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "StartDate"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "StartDate"
+            }
+        },
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortId": 5441,
+        "outcomeCohortIds": [
+            5426,
+            5427
+        ],
+        "stratifyByGender": true
+    },
+    "author_id": 117,
+    "created_at": "2026-06-11T14:33:17.000000Z",
+    "updated_at": "2026-06-11T14:33:17.000000Z",
+    "deleted_at": null,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null
+}

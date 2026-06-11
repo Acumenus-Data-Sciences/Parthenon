@@ -1,0 +1,71 @@
+{
+    "id": 64,
+    "name": "Hypertension Study (V4): Delayed vs Timely Diagnosis (G4 vs G1)",
+    "description": "Primary causal contrast: delayed-diagnosis (G4, >12mo from first elevated BP) vs timely-diagnosis (G1, <=3mo), both incident-HTN treatment-naive (recording-comparable by construction). Time-at-risk anchored from the diagnosis date (cohort_start of the diagnosis-anchored strata) to avoid immortal-time bias. Cox PH, 1:1 PS matching. Empirically calibrated against 8 HTN-unrelated negative controls.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "endAnchor": "cohort_start",
+            "timeAtRiskEnd": 1825,
+            "timeAtRiskStart": 1
+        },
+        "targetCohortId": 5453,
+        "propensityScore": {
+            "method": "matching",
+            "enabled": true,
+            "matching": {
+                "ratio": 1,
+                "caliper": 0.2,
+                "caliperScale": "standardized_logit"
+            }
+        },
+        "outcomeCohortIds": [
+            5426,
+            5427
+        ],
+        "covariateSettings": {
+            "useDemographicsAge": true,
+            "useDemographicsGender": true,
+            "excludedCovariateConceptIds": [
+                312648,
+                317898,
+                320128,
+                4034031,
+                4058987,
+                4083723,
+                4148205,
+                4159755,
+                4180283,
+                4215640,
+                4217486,
+                4263067,
+                4269358,
+                4302591,
+                4321603,
+                45757787,
+                3012888,
+                3004249
+            ],
+            "useConditionOccurrenceLongTerm": true
+        },
+        "comparatorCohortId": 5450,
+        "negativeControlOutcomes": [
+            5442,
+            5443,
+            5444,
+            5445,
+            5446,
+            5447,
+            5448,
+            5449
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-06-11T14:33:30.000000Z",
+    "updated_at": "2026-06-11T14:33:30.000000Z",
+    "deleted_at": null,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null
+}

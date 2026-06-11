@@ -1,0 +1,71 @@
+{
+    "id": 65,
+    "name": "Hypertension Study (V4): Treatment-naive elevated BP vs recording-comparable normotensive (sensitivity)",
+    "description": "Recording-comparable sensitivity contrast for OQ-5. Exposed = treatment-naive elevated-BP target (5441; 90% never diagnosed). Comparator = always-normotensive, treatment-naive, matched BP-screening footprint (5455). Both BP-reading-anchored (2nd reading index) -> symmetric time-zero, no immortal-time bias. Cox PH, 1:1 PS matching on demographics + condition history. Empirically calibrated vs 8 HTN-unrelated negative controls. Built to dissolve the G4-vs-G1 PS-overlap failure (G1 n=139).",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "endAnchor": "cohort_start",
+            "timeAtRiskEnd": 1825,
+            "timeAtRiskStart": 1
+        },
+        "targetCohortId": 5441,
+        "propensityScore": {
+            "method": "matching",
+            "enabled": true,
+            "matching": {
+                "ratio": 1,
+                "caliper": 0.2,
+                "caliperScale": "standardized_logit"
+            }
+        },
+        "outcomeCohortIds": [
+            5426,
+            5427
+        ],
+        "covariateSettings": {
+            "useDemographicsAge": true,
+            "useDemographicsGender": true,
+            "excludedCovariateConceptIds": [
+                312648,
+                317898,
+                320128,
+                4034031,
+                4058987,
+                4083723,
+                4148205,
+                4159755,
+                4180283,
+                4215640,
+                4217486,
+                4263067,
+                4269358,
+                4302591,
+                4321603,
+                45757787,
+                3012888,
+                3004249
+            ],
+            "useConditionOccurrenceLongTerm": true
+        },
+        "comparatorCohortId": 5455,
+        "negativeControlOutcomes": [
+            5442,
+            5443,
+            5444,
+            5445,
+            5446,
+            5447,
+            5448,
+            5449
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-06-11T16:25:57.000000Z",
+    "updated_at": "2026-06-11T16:25:57.000000Z",
+    "deleted_at": null,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null
+}
