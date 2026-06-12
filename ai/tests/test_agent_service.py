@@ -169,6 +169,111 @@ async def test_run_turn_calls_persister_with_error_status_on_exception(monkeypat
 
 
 # ---------------------------------------------------------------------------
+# Loud-failure tests: a failed/empty turn must surface agent.error, not a
+# silent turn.done (regression: exhausted Anthropic credit looked like success).
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _FakeErrorResultMessage:
+    total_cost_usd: float
+    session_id: str
+    usage: dict
+    is_error: bool
+    result: str = ""
+    subtype: str = ""
+    errors: list | None = None
+    api_error_status: int | None = None
+
+
+class _FakeErrorClient:
+    """Yields only a failed ResultMessage (e.g. exhausted credit)."""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc):
+        return False
+
+    async def query(self, prompt):
+        pass
+
+    async def receive_response(self):
+        yield _FakeErrorResultMessage(
+            total_cost_usd=0.0,
+            session_id="sess-err",
+            usage={},
+            is_error=True,
+            result="Credit balance is too low",
+            api_error_status=400,
+        )
+
+
+class _FakeEmptyClient:
+    """Yields a zero-cost, output-less, non-error result (defensive backstop)."""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc):
+        return False
+
+    async def query(self, prompt):
+        pass
+
+    async def receive_response(self):
+        yield _FakeErrorResultMessage(
+            total_cost_usd=0.0, session_id="sess-empty", usage={}, is_error=False
+        )
+
+
+async def test_run_turn_emits_error_on_failed_result(monkeypatch):
+    publisher = MagicMock()
+    persister = AsyncMock()
+    import app.agents.service as svc
+    monkeypatch.setattr(svc, "ClaudeSDKClient", _FakeErrorClient)
+    monkeypatch.setattr(svc, "AssistantMessage", _FakeAssistantMessage)
+    monkeypatch.setattr(svc, "TextBlock", _FakeTextBlock)
+    monkeypatch.setattr(svc, "ResultMessage", _FakeErrorResultMessage)
+
+    service = ParthenonAgentService(publisher=publisher, persister=persister)
+    await service.run_turn(_state(), "summarize the gates")
+
+    events = [c.kwargs["event"] for c in publisher.publish.call_args_list]
+    assert "agent.error" in events
+    assert "agent.turn.done" not in events
+    err = next(c for c in publisher.publish.call_args_list if c.kwargs["event"] == "agent.error")
+    assert "Credit balance is too low" in err.kwargs["data"]["message"]
+    assert "400" in err.kwargs["data"]["message"]
+    persister.persist.assert_awaited_once()
+    assert persister.persist.call_args.kwargs["status"] == "error"
+
+
+async def test_run_turn_emits_error_on_empty_zero_cost_result(monkeypatch):
+    publisher = MagicMock()
+    persister = AsyncMock()
+    import app.agents.service as svc
+    monkeypatch.setattr(svc, "ClaudeSDKClient", _FakeEmptyClient)
+    monkeypatch.setattr(svc, "AssistantMessage", _FakeAssistantMessage)
+    monkeypatch.setattr(svc, "TextBlock", _FakeTextBlock)
+    monkeypatch.setattr(svc, "ResultMessage", _FakeErrorResultMessage)
+
+    service = ParthenonAgentService(publisher=publisher, persister=persister)
+    await service.run_turn(_state(), "summarize")
+
+    events = [c.kwargs["event"] for c in publisher.publish.call_args_list]
+    assert "agent.error" in events
+    assert "agent.turn.done" not in events
+    assert persister.persist.call_args.kwargs["status"] == "error"
+
+
+# ---------------------------------------------------------------------------
 # Approval-gate tests (Phase C/2)
 # ---------------------------------------------------------------------------
 

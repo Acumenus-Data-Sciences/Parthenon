@@ -222,11 +222,32 @@ class ParthenonAgentService:
 
         return ClaudeAgentOptions(**kwargs)
 
+    @staticmethod
+    def _failure_message(message: Any) -> str:
+        """Human-readable reason for a failed/empty ResultMessage.
+
+        Prefers the model's own error text, then any structured errors, then the
+        result subtype, falling back to a generic availability message. The
+        api_error_status (e.g. 400/429) is appended when present.
+        """
+        detail = (
+            str(getattr(message, "result", "") or "").strip()
+            or "; ".join(str(e) for e in (getattr(message, "errors", None) or []))
+            or str(getattr(message, "subtype", "") or "").strip()
+            or "the assistant returned no output and may be temporarily unavailable"
+        )
+        emsg = f"The assistant could not complete this turn: {detail}"
+        api_status = getattr(message, "api_error_status", None)
+        if api_status:
+            emsg += f" (API status {api_status})"
+        return emsg[:500]
+
     async def run_turn(self, state: AgentSessionState, text: str) -> None:
         def emit(event: str, data: dict) -> None:
             self._publisher.publish(channel=state.channel, event=event, data=data)
 
         emit("agent.turn.start", {"agent_session_id": state.agent_session_id})
+        produced_output = False
         try:
             async with ClaudeSDKClient(options=self._options(state)) as client:
                 await client.query(text)
@@ -234,8 +255,10 @@ class ParthenonAgentService:
                     if isinstance(message, AssistantMessage):
                         for block in message.content:
                             if isinstance(block, TextBlock):
+                                produced_output = True
                                 emit("agent.text.delta", {"text": block.text})
                             elif isinstance(block, ToolUseBlock):
+                                produced_output = True
                                 emit("agent.tool.start", {"name": block.name, "input": block.input})
                     elif isinstance(message, ResultMessage):
                         state.anthropic_session_id = getattr(message, "session_id", state.anthropic_session_id)
@@ -243,22 +266,39 @@ class ParthenonAgentService:
                         usage = getattr(message, "usage", {}) or {}
                         tokens_in = int(usage.get("input_tokens", 0) or 0)
                         tokens_out = int(usage.get("output_tokens", 0) or 0)
-                        # Laravel's agent_sessions row is the authoritative running total
-                        # (ingest increments). We send PER-TURN deltas only; do not also
-                        # accumulate in memory (would invite a double-count).
-                        emit("agent.turn.done", {
-                            "cost_usd": cost,
-                            "tokens_in": tokens_in,
-                            "tokens_out": tokens_out,
-                            "anthropic_session_id": state.anthropic_session_id,
-                        })
-                        await self._persister.persist(
-                            state,
-                            status="active",
-                            cost_usd=cost,
-                            tokens_in=tokens_in,
-                            tokens_out=tokens_out,
-                        )
+
+                        # Surface a failed/empty turn instead of a silent no-op. A
+                        # model/availability error (exhausted credit, rate limit,
+                        # overload) comes back as is_error — or, defensively, as an
+                        # output-less zero-cost result — which would otherwise look
+                        # like a turn that "completed" with no answer, leaving the
+                        # copilot stuck on a spinner. Fail loudly so the user sees why.
+                        if bool(getattr(message, "is_error", False)) or (not produced_output and cost == 0.0):
+                            emit("agent.error", {"message": self._failure_message(message)})
+                            await self._persister.persist(
+                                state,
+                                status="error",
+                                cost_usd=cost,
+                                tokens_in=tokens_in,
+                                tokens_out=tokens_out,
+                            )
+                        else:
+                            # Laravel's agent_sessions row is the authoritative running total
+                            # (ingest increments). We send PER-TURN deltas only; do not also
+                            # accumulate in memory (would invite a double-count).
+                            emit("agent.turn.done", {
+                                "cost_usd": cost,
+                                "tokens_in": tokens_in,
+                                "tokens_out": tokens_out,
+                                "anthropic_session_id": state.anthropic_session_id,
+                            })
+                            await self._persister.persist(
+                                state,
+                                status="active",
+                                cost_usd=cost,
+                                tokens_in=tokens_in,
+                                tokens_out=tokens_out,
+                            )
         except Exception as exc:  # noqa: BLE001
             logger.exception("agent turn failed")
             emit("agent.error", {"message": str(exc)[:500]})
