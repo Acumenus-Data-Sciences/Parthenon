@@ -239,7 +239,17 @@ export default function StudyDetailPage() {
 
   const handleExportJson = () => {
     if (!study) return;
-    const blob = new Blob([JSON.stringify(study, null, 2)], { type: "application/json" });
+    // Project a safe DTO: replace nested user objects (which carry emails) with
+    // display names only, so the export never leaks PII.
+    const { author, principal_investigator, lead_data_scientist, lead_statistician, ...rest } = study;
+    const safe = {
+      ...rest,
+      author: author?.name ?? null,
+      principal_investigator: principal_investigator?.name ?? null,
+      lead_data_scientist: lead_data_scientist?.name ?? null,
+      lead_statistician: lead_statistician?.name ?? null,
+    };
+    const blob = new Blob([JSON.stringify(safe, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
