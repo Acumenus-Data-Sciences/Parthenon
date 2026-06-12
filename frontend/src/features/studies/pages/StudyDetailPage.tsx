@@ -45,6 +45,7 @@ import { StudyResultsTab } from "../components/StudyResultsTab";
 import { StudyManuscriptTab } from "../components/StudyManuscriptTab";
 import { FederatedExecutionTab } from "../components/FederatedExecutionTab";
 import { StudyGatesTab } from "../components/StudyGatesTab";
+import { AbbyCopilotPanel } from "../components/AbbyCopilotPanel";
 import {
   useStudy,
   useUpdateStudy,
@@ -511,6 +512,9 @@ export default function StudyDetailPage() {
       {activeTab === "artifacts" && <StudyArtifactsTab slug={study.slug} />}
       {activeTab === "activity" && <StudyActivityTab slug={study.slug} />}
       {activeTab === "federated" && <FederatedExecutionTab studySlug={study.slug} />}
+
+      {/* Omnipresent Abby copilot — a fixed dock available on every study tab. */}
+      <AbbyCopilotPanel slug={study.slug} />
     </div>
   );
 }

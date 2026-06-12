@@ -13,6 +13,8 @@ related_code:
   - backend/app/Services/Studies/StudyResultProjector.php
   - backend/app/Observers/AnalysisExecutionObserver.php
   - backend/app/Console/Commands/Studies/BackfillStudyResultsCommand.php
+  - backend/app/Http/Controllers/Api/V1/StudyResultController.php
+  - ai/app/agents/abby_tools.py
 related_prs: []
 related_adr: docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md
 ---
@@ -117,6 +119,43 @@ duplicate). Code fixes:
   so `study_results.is_publishable` stays in sync with the gate ledger after an
   S5 approval/override — previously the row stayed stale while the live
   manuscript reflected the decision.
+
+## Copilot reach: action-taking Abby (same day)
+
+The projector now backs an approval-gated action on the omnipresent Abby
+copilot. New route:
+
+```
+POST /api/v1/studies/{study}/results/reproject   (permission:studies.execute)
+  → StudyResultController::reproject → StudyResultProjector::projectStudy
+```
+
+Idempotent and non-destructive (preserves `is_primary`; only effect-estimate
+publishability moves with the gate state), so it is safe to expose. It exists so
+Abby can refresh the Results tab + manuscript after an `evaluate_gates` —
+previously only a gate approve/override or a fresh execution re-projected.
+
+The Abby Claude Agent SDK profile (`ai/app/agents/abby_tools.py`) gained four
+tools so the copilot can both **see** and **act on** the full study lifecycle:
+
+| Tool | Kind | Wraps |
+|---|---|---|
+| `get_study_results` | read (auto) | `GET studies/{slug}/results` |
+| `get_manuscript` | read (auto) | `GET studies/{slug}/manuscript` |
+| `reproject_results` | write (**approval-gated**) | `POST studies/{slug}/results/reproject` |
+| `open_in_publisher` | write (**approval-gated**) | `POST studies/{slug}/manuscript/draft` |
+
+Writes route through the harness `can_use_tool` gate (`tool_packs._WRITE_TOOLS`),
+so every mutation streams an `agent.approval.request` card the PI/author must
+accept. Abby still never decides scientific validity — `reproject_results` and
+`open_in_publisher` only reflect the existing gate state; gate approve/override
+stays human-only in the Gates tab.
+
+Frontend: `AbbyCopilotPanel` is now a fixed dock mounted once on `StudyDetailPage`
+(present on every tab, collapsed launcher ↔ docked chat). Inline `AskAbbyButton`
+affordances (gate cards "Why blocked?", the Results and Manuscript headers) hand
+Abby a context-specific question via `abbyDockStore`, which auto-starts a session
+and sends it.
 
 ## Rollback
 

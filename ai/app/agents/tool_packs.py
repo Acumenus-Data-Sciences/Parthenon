@@ -29,7 +29,7 @@ _BUILDERS: dict[str, Callable[[AgentToolContext], list]] = {
 _WRITE_TOOLS: dict[str, set[str]] = {
     "study_design": set(),
     "publish": {"update_draft", "create_snapshot"},
-    "abby": {"evaluate_gates", "build_study_package"},
+    "abby": {"evaluate_gates", "reproject_results", "build_study_package", "open_in_publisher"},
 }
 
 

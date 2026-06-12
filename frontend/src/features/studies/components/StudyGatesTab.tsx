@@ -17,7 +17,7 @@ import {
   type GateStatus,
   type StudyGate,
 } from "../api/gatesApi";
-import { AbbyCopilotPanel } from "./AbbyCopilotPanel";
+import { AskAbbyButton } from "./AskAbbyButton";
 
 const STAGES: { stage: GateStage; label: string }[] = [
   { stage: "design", label: "1 · Design (PICO)" },
@@ -122,19 +122,25 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
               : "Gating is disabled for this environment (advisory only)."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => evaluate.mutate()}
-          disabled={evaluate.isPending}
-          className="inline-flex items-center gap-1.5 rounded-md bg-surface-overlay px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-elevated transition-colors"
-        >
-          {evaluate.isPending ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : (
-            <Play size={12} />
-          )}
-          Evaluate gates
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <AskAbbyButton
+            label="Ask Abby"
+            prompt="Walk me through this study's scientific gates: which are passing, which are blocked, what the metrics show, and what's needed to move the study toward publication."
+          />
+          <button
+            type="button"
+            onClick={() => evaluate.mutate()}
+            disabled={evaluate.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md bg-surface-overlay px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-elevated transition-colors"
+          >
+            {evaluate.isPending ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Play size={12} />
+            )}
+            Evaluate gates
+          </button>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -189,6 +195,15 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
                 </ul>
               )}
 
+              {isBlocked && (
+                <div className="mt-2 pl-6">
+                  <AskAbbyButton
+                    label="Why blocked?"
+                    prompt={`The "${label}" gate is blocked for this study. Explain the specific reason from its metrics and propose a concrete remediation, then tell me who can approve or override it.`}
+                  />
+                </div>
+              )}
+
               {gate?.status === "overridden" && gate.override_rationale && (
                 <p className="mt-2 pl-6 text-xs text-text-muted">
                   <span className="text-accent font-medium">Override:</span>{" "}
@@ -239,8 +254,6 @@ export function StudyGatesTab({ slug, canDecide = false }: StudyGatesTabProps) {
           );
         })}
       </div>
-
-      <AbbyCopilotPanel slug={slug} />
     </div>
   );
 }

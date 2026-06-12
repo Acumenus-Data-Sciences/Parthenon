@@ -35,13 +35,22 @@ def test_abby_profile_and_registry_are_wired() -> None:
         "get_study_overview",
         "get_study_progress",
         "get_gate_status",
+        "get_study_results",
+        "get_manuscript",
         "evaluate_gates",
+        "reproject_results",
         "build_study_package",
+        "open_in_publisher",
     }
 
     # The execute tools are approval-gated writes (the human-in-the-loop gates);
-    # the agent proposes but a human approves.
-    assert write_tools("abby") == {"evaluate_gates", "build_study_package"}
+    # the agent proposes but a human approves. Reads (get_*) stay auto-approved.
+    assert write_tools("abby") == {
+        "evaluate_gates",
+        "reproject_results",
+        "build_study_package",
+        "open_in_publisher",
+    }
 
 
 @respx.mock
@@ -88,6 +97,60 @@ async def test_build_study_package_posts_to_package_endpoint() -> None:
 
     assert route.called
     assert result.get("is_error") is not True
+
+
+@respx.mock
+async def test_get_study_results_reads_results_endpoint() -> None:
+    route = respx.get(f"{BASE}/studies/htn-v3/results").mock(
+        return_value=httpx.Response(
+            200,
+            json={"data": [{"result_type": "effect_estimate", "is_publishable": False}]},
+        )
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["get_study_results"].handler({"publishable_only": True})
+
+    assert route.called
+    assert route.calls.last.request.url.params["publishable_only"] == "true"
+    assert "effect_estimate" in result["content"][0]["text"]
+
+
+@respx.mock
+async def test_get_manuscript_reads_manuscript_endpoint() -> None:
+    route = respx.get(f"{BASE}/studies/htn-v3/manuscript").mock(
+        return_value=httpx.Response(200, json={"data": {"title": "HTN v4", "sections": []}})
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["get_manuscript"].handler({})
+
+    assert route.called
+    assert result.get("is_error") is not True
+    assert "HTN v4" in result["content"][0]["text"]
+
+
+@respx.mock
+async def test_reproject_results_posts_to_reproject_endpoint() -> None:
+    route = respx.post(f"{BASE}/studies/htn-v3/results/reproject").mock(
+        return_value=httpx.Response(200, json={"data": {"reprojected": 4}, "message": "ok"})
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["reproject_results"].handler({})
+
+    assert route.called
+    assert result.get("is_error") is not True
+
+
+@respx.mock
+async def test_open_in_publisher_posts_to_manuscript_draft_endpoint() -> None:
+    route = respx.post(f"{BASE}/studies/htn-v3/manuscript/draft").mock(
+        return_value=httpx.Response(201, json={"data": {"id": 77, "study_id": 165, "title": "HTN v4"}})
+    )
+    tools = {t.name: t for t in build_tool_pack(_ctx())}
+    result = await tools["open_in_publisher"].handler({})
+
+    assert route.called
+    assert result.get("is_error") is not True
+    assert "77" in result["content"][0]["text"]
 
 
 @respx.mock

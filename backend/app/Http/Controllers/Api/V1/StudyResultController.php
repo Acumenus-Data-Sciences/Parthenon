@@ -8,6 +8,7 @@ use App\Models\App\StudyResult;
 use App\Models\User;
 use App\Services\Shiny\ManagedShinyAppRegistry;
 use App\Services\Shiny\ManagedShinyLaunchService;
+use App\Services\Studies\StudyResultProjector;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -122,6 +123,26 @@ class StudyResultController extends Controller
                 $validated['app_key'] ?? null,
                 $validated['mode'] ?? 'embedded',
             ),
+        ]);
+    }
+
+    /**
+     * POST /v1/studies/{study}/results/reproject
+     *
+     * Re-project the study's curated `study_results` from the latest completed
+     * analysis executions and the current gate ledger. Idempotent and
+     * non-destructive: reviewer curation (is_primary) is preserved and only the
+     * publishability of comparative effect estimates moves with the gate state.
+     * Exposed so the Abby copilot can refresh results after a gate evaluation
+     * (an approval-gated action) — and a reviewer can force a manual refresh.
+     */
+    public function reproject(Study $study, StudyResultProjector $projector): JsonResponse
+    {
+        $count = $projector->projectStudy($study);
+
+        return response()->json([
+            'data' => ['reprojected' => $count],
+            'message' => "Re-projected {$count} result row(s) from the latest completed executions.",
         ]);
     }
 

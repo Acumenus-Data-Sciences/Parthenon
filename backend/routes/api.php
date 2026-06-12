@@ -876,6 +876,8 @@ Route::prefix('v1')->group(function () {
 
             // Results
             Route::get('results', [StudyResultController::class, 'index']);
+            Route::post('results/reproject', [StudyResultController::class, 'reproject'])
+                ->middleware('permission:studies.execute');
             Route::get('results/{result}', [StudyResultController::class, 'show']);
             Route::post('results/{result}/shiny-launch', [StudyResultController::class, 'launchShiny'])
                 ->middleware('permission:studies.view');

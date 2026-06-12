@@ -30,6 +30,7 @@ import {
 } from "../hooks/useStudies";
 import type { ManagedShinyLaunch, StudyResult, StudySynthesis } from "../types/study";
 import { StudyResultSummary } from "./StudyResultSummary";
+import { AskAbbyButton } from "./AskAbbyButton";
 
 const RESULT_TYPE_LABELS: Record<string, string> = {
   cohort_count: "Cohort Count",
@@ -150,6 +151,10 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
             {t("studies.results.sections.results", { count: totalResults })}
           </h3>
           <div className="flex items-center gap-2">
+            <AskAbbyButton
+              label="Ask Abby"
+              prompt="Summarize this study's results: which results are cleared for publication and which are withheld, what the key effect estimates and diagnostics show, and what the findings mean."
+            />
             <button
               type="button"
               onClick={() => setShowSynthesisPanel(!showSynthesisPanel)}

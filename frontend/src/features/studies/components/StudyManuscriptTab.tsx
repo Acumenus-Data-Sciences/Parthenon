@@ -11,6 +11,7 @@ import {
   type ManuscriptExportFormat,
 } from "@/components/manuscript";
 import { useStudyManuscript, useExportStudyManuscript, useCreateManuscriptDraft } from "../hooks/useStudies";
+import { AskAbbyButton } from "./AskAbbyButton";
 
 interface StudyManuscriptTabProps {
   slug: string;
@@ -100,6 +101,12 @@ export function StudyManuscriptTab({ slug }: StudyManuscriptTabProps) {
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
+          <AskAbbyButton
+            label="Ask Abby"
+            variant="ghost"
+            className="mr-1"
+            prompt="Review this study's composed manuscript: summarize what it reports, whether effect estimates are included or withheld and why, and tell me whether it's ready to open in the Publisher."
+          />
           <ExportMenu
             onExport={handleExport}
             isExporting={exportMutation.isPending}
