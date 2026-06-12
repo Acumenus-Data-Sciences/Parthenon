@@ -9,6 +9,7 @@ supersedes: []
 superseded_by: null
 related_code:
   - backend/database/migrations/2026_06_11_130000_relax_study_results_execution_and_link_analysis_execution.php
+  - backend/database/migrations/2026_06_11_150000_add_study_results_projection_unique_index.php
   - backend/app/Services/Studies/StudyResultProjector.php
   - backend/app/Observers/AnalysisExecutionObserver.php
   - backend/app/Console/Commands/Studies/BackfillStudyResultsCommand.php
@@ -98,6 +99,24 @@ includes effect estimates and documents the blinded contrast in its limitations.
 
 A PI may still tighten or loosen this with a documented gate **override** from
 the Gates tab if a stricter per-study policy is desired.
+
+## Hardening (debug pass, same day)
+
+Migration `2026_06_11_150000` adds a partial unique index
+`study_results_projection_unique (study_id, study_analysis_id, result_type)
+WHERE site_id IS NULL` so the projector's read-then-write idempotency is backed
+by a real constraint (concurrent observer + backfill can no longer race to
+duplicate). Code fixes:
+
+- **Project the latest completed execution, not the firing one.** The observer
+  used to project the specific execution whose `saved` event fired; a late
+  retry of an *older* execution could overwrite the row with stale results. Both
+  the observer and the backfill now resolve `latestCompletedExecution($sa)`.
+- **Re-project on human gate decisions.** `StudyGateController::approve/override`
+  now re-runs `StudyResultProjector::projectStudy()` (non-critical, try/catch),
+  so `study_results.is_publishable` stays in sync with the gate ledger after an
+  S5 approval/override — previously the row stayed stale while the live
+  manuscript reflected the decision.
 
 ## Rollback
 

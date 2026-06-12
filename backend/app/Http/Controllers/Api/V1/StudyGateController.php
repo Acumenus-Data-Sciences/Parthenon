@@ -7,8 +7,10 @@ use App\Models\App\Study;
 use App\Models\App\StudyGate;
 use App\Models\User;
 use App\Services\Studies\Gates\StudyGateService;
+use App\Services\Studies\StudyResultProjector;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Study gate ledger API (ADR-0020 Phase 3). Read the gate timeline, evaluate
@@ -22,7 +24,25 @@ class StudyGateController extends Controller
 {
     public function __construct(
         private readonly StudyGateService $gates,
+        private readonly StudyResultProjector $projector,
     ) {}
+
+    /**
+     * Keep curated study_results in sync with a human gate decision: a S5
+     * approval/override changes which estimation contrasts are publishable, so
+     * re-project the study's results. Non-critical — never breaks the request.
+     */
+    private function reprojectAfterDecision(Study $study): void
+    {
+        try {
+            $this->projector->projectStudy($study);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to re-project study results after gate decision', [
+                'study_id' => $study->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 
     /**
      * GET /v1/studies/{study}/gates
@@ -81,8 +101,11 @@ class StudyGateController extends Controller
         }
 
         try {
+            $gate = $this->gates->approve($studyGate, $user);
+            $this->reprojectAfterDecision($study);
+
             return response()->json([
-                'data' => $this->gates->approve($studyGate, $user),
+                'data' => $gate,
                 'message' => 'Gate approved.',
             ]);
         } catch (\Throwable $e) {
@@ -110,8 +133,11 @@ class StudyGateController extends Controller
         }
 
         try {
+            $gate = $this->gates->override($studyGate, $user, $validated['rationale']);
+            $this->reprojectAfterDecision($study);
+
             return response()->json([
-                'data' => $this->gates->override($studyGate, $user, $validated['rationale']),
+                'data' => $gate,
                 'message' => 'Gate overridden with rationale.',
             ]);
         } catch (\InvalidArgumentException $e) {

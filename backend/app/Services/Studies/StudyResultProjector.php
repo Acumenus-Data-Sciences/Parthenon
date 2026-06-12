@@ -44,7 +44,14 @@ class StudyResultProjector
 
         $count = 0;
         foreach ($studyAnalyses as $studyAnalysis) {
-            $count += $this->projectForStudyAnalysis($studyAnalysis, $execution);
+            // Always project the latest completed execution for the analysis, not
+            // necessarily the one that just fired — a later-completing retry of an
+            // older execution must not clobber the row with stale results.
+            $latest = $this->latestCompletedExecution($studyAnalysis);
+            if ($latest === null) {
+                continue;
+            }
+            $count += $this->projectForStudyAnalysis($studyAnalysis, $latest);
         }
 
         return $count;
@@ -60,13 +67,7 @@ class StudyResultProjector
 
         $count = 0;
         foreach ($study->analyses as $studyAnalysis) {
-            $execution = AnalysisExecution::query()
-                ->where('analysis_type', $studyAnalysis->analysis_type)
-                ->where('analysis_id', $studyAnalysis->analysis_id)
-                ->where('status', ExecutionStatus::Completed)
-                ->orderByDesc('created_at')
-                ->first();
-
+            $execution = $this->latestCompletedExecution($studyAnalysis);
             if ($execution === null) {
                 continue;
             }
@@ -77,6 +78,16 @@ class StudyResultProjector
         }
 
         return $count;
+    }
+
+    private function latestCompletedExecution(StudyAnalysis $studyAnalysis): ?AnalysisExecution
+    {
+        return AnalysisExecution::query()
+            ->where('analysis_type', $studyAnalysis->analysis_type)
+            ->where('analysis_id', $studyAnalysis->analysis_id)
+            ->where('status', ExecutionStatus::Completed)
+            ->orderByDesc('created_at')
+            ->first();
     }
 
     private function projectForStudyAnalysis(StudyAnalysis $studyAnalysis, AnalysisExecution $execution): int

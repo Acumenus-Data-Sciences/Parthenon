@@ -194,3 +194,29 @@ it('backfills results via the studies:backfill-results command', function () {
 
     expect(StudyResult::where('study_id', $study->id)->where('result_type', 'effect_estimate')->count())->toBe(1);
 });
+
+it('projects the latest completed execution, not the firing one (retry safety)', function () {
+    $user = User::factory()->create();
+    $study = projectorStudy($user);
+    $source = Source::create(['source_name' => 'Test CDM', 'source_key' => 'TEST']);
+
+    $analysis = EstimationAnalysis::create(['name' => 'PLE', 'author_id' => $user->id, 'design_json' => []]);
+    StudyAnalysis::create(['study_id' => $study->id, 'analysis_type' => EstimationAnalysis::class, 'analysis_id' => $analysis->id]);
+    StudyGate::create([
+        'study_id' => $study->id, 'stage' => 'study_diagnostics', 'gate_key' => 'default',
+        'status' => GateStatus::Passed->value, 'metrics_json' => ['reasons' => []], 'decision' => 'auto',
+    ]);
+
+    // An older execution, backdated, then a newer one.
+    $older = projectorExecution($analysis, $source, projectorEstimationJson(0.02));
+    $older->forceFill(['created_at' => now()->subHour()])->save();
+    $newer = projectorExecution($analysis, $source, projectorEstimationJson(0.02));
+
+    // The older execution's observer firing late (e.g. a retry) must not pin the
+    // stale result — projection always resolves the latest completed execution.
+    app(StudyResultProjector::class)->projectExecution($older);
+
+    $result = StudyResult::where('study_id', $study->id)->where('result_type', 'effect_estimate')->firstOrFail();
+    expect($result->analysis_execution_id)->toBe($newer->id)
+        ->and(StudyResult::where('study_id', $study->id)->where('result_type', 'effect_estimate')->count())->toBe(1);
+});

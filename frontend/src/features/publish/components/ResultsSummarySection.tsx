@@ -11,6 +11,25 @@ interface ResultsSummarySectionProps {
   section: ReportSection;
 }
 
+// Sections carry the analysisType in two forms: plural group keys from the
+// analysis picker (`estimations`, `incidence_rates`, …) and singular slugs from
+// study analyses (`estimation`, …). Normalize to singular so the typed summary
+// renders instead of falling through to the generic dump.
+const SINGULAR_ANALYSIS_TYPE: Record<string, string> = {
+  estimations: "estimation",
+  predictions: "prediction",
+  incidence_rates: "incidence_rate",
+  characterizations: "characterization",
+  pathways: "pathway",
+  sccs: "sccs",
+  evidence_synthesis: "evidence_synthesis",
+};
+
+function toSingularAnalysisType(type: string | undefined): string {
+  if (!type) return "unknown";
+  return SINGULAR_ANALYSIS_TYPE[type] ?? type;
+}
+
 /**
  * Renders a condensed summary of analysis results for the publish report.
  * Adapts display based on analysis type (estimation, prediction, etc.).
@@ -27,7 +46,7 @@ export function ResultsSummarySection({ section }: ResultsSummarySectionProps) {
     );
   }
 
-  const analysisType = section.analysisType ?? "unknown";
+  const analysisType = toSingularAnalysisType(section.analysisType);
 
   return (
     <div data-testid="results-summary-section" className="space-y-3">
@@ -145,7 +164,16 @@ function PathwaySummary({ content }: { content: Record<string, unknown> }) {
 }
 
 function GenericSummary({ content }: { content: Record<string, unknown> }) {
-  const keys = Object.keys(content).slice(0, 6);
+  // Only scalar values render cleanly as metric tiles; skip nested
+  // objects/arrays so we never print "[object Object]".
+  const keys = Object.keys(content)
+    .filter((key) => typeof content[key] !== "object" || content[key] === null)
+    .slice(0, 6);
+
+  if (keys.length === 0) {
+    return null;
+  }
+
   return (
     <div className="grid grid-cols-2 gap-3 text-sm">
       {keys.map((key) => (
