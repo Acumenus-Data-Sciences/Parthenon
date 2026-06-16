@@ -11,7 +11,7 @@ full transformation pipeline.
 
 ```bash
 # Start Poseidon services
-docker compose up -d poseidon-server poseidon-daemon
+docker compose up -d poseidon-webserver poseidon-daemon
 
 # Dagit UI
 open http://localhost:3100
@@ -32,7 +32,7 @@ make -f poseidon/Makefile dbt-build    # Run + test
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| poseidon-server | 3100 | Dagit UI + GraphQL API |
+| poseidon-webserver | 3100 | Dagit UI + GraphQL API |
 | poseidon-daemon | — | Schedules, sensors, run launcher |
 
 ## Database Connection
