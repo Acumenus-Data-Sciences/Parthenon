@@ -87,8 +87,6 @@ const ROUTES = [
   { path: "/gis", label: "GIS Explorer" },
   // Commons
   { path: "/commons", label: "Commons Workspace" },
-  // Schema Mapping
-  { path: "/schema-mapping", label: "Schema Mapping" },
 ];
 
 // Collect console errors and 5xx responses per page

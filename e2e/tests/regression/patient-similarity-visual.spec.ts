@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -29,7 +29,7 @@ interface CohortMember {
   subject_id: number;
 }
 
-async function apiJson(page: Parameters<typeof test>[0]["page"], endpoint: string) {
+async function apiJson(page: Page, endpoint: string) {
   const resp = await page.request.get(`${BASE}${endpoint}`, {
     headers: authHeaders(),
   });
@@ -47,7 +47,7 @@ function unwrapItems(payload: any): any[] {
   return [];
 }
 
-async function discoverSweepData(page: Parameters<typeof test>[0]["page"]) {
+async function discoverSweepData(page: Page) {
   const sourcesResp = await apiJson(page, "/api/v1/sources");
   const sources: SourceItem[] = unwrapItems(sourcesResp);
   if (!Array.isArray(sources) || sources.length === 0) {
@@ -100,7 +100,7 @@ async function discoverSweepData(page: Parameters<typeof test>[0]["page"]) {
 }
 
 async function selectOptionByText(
-  select: ReturnType<Parameters<typeof test>[0]["page"]["locator"]>,
+  select: Locator,
   text: string,
 ) {
   const options = await select.locator("option").allTextContents();
@@ -112,7 +112,7 @@ async function selectOptionByText(
 }
 
 function selectForLabel(
-  page: Parameters<typeof test>[0]["page"],
+  page: Page,
   labelText: string,
 ) {
   return page.locator(
