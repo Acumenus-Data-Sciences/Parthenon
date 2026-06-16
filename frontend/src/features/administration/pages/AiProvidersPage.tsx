@@ -8,11 +8,13 @@ import {
   useActivateAiProvider,
   useAgentSettings,
   useAiProviders,
+  useSetAgentProviderMode,
   useSetAgentSettings,
   useTestAiProvider,
   useToggleAiProvider,
   useUpdateAiProvider,
 } from "../hooks/useAiProviders";
+import type { AgentProviderMode } from "../api/adminApi";
 
 // ── Provider metadata ─────────────────────────────────────────────────────────
 
@@ -89,9 +91,30 @@ function AgentsToggleCard() {
   const { t } = useTranslation("app");
   const { data, isLoading } = useAgentSettings();
   const setAgents = useSetAgentSettings();
+  const setProviderMode = useSetAgentProviderMode();
 
   const enabled = data?.enabled ?? false;
   const anthropicReady = data?.anthropic_ready ?? false;
+  const providerMode: AgentProviderMode = data?.provider_mode ?? "cloud";
+  const localReady = data?.local_ready ?? false;
+
+  const modeOptions: Array<{ value: AgentProviderMode; label: string; hint: string }> = [
+    {
+      value: "cloud",
+      label: t("admin.agents.mode.cloud", "Cloud (Claude)"),
+      hint: t("admin.agents.mode.cloudHint", "Copilots run on the Anthropic API."),
+    },
+    {
+      value: "local",
+      label: t("admin.agents.mode.local", "Local model"),
+      hint: t("admin.agents.mode.localHint", "Copilots run on the local model via the claude-router proxy."),
+    },
+    {
+      value: "auto",
+      label: t("admin.agents.mode.auto", "Auto"),
+      hint: t("admin.agents.mode.autoHint", "Local when a local provider is active, otherwise Cloud."),
+    },
+  ];
 
   return (
     <Panel>
@@ -145,6 +168,55 @@ function AgentsToggleCard() {
 
         {setAgents.isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
+
+      {/* Copilot provider mode — which backend the action-taking copilots use. */}
+      {enabled && (
+        <div className="mt-4 border-t border-border pt-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {t("admin.agents.mode.title", "Copilot provider")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {modeOptions.find((m) => m.value === providerMode)?.hint}
+              </p>
+            </div>
+            <div
+              className="inline-flex rounded-md border border-border bg-muted p-0.5"
+              role="group"
+              aria-label={t("admin.agents.mode.title", "Copilot provider")}
+            >
+              {modeOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  data-testid={`copilot-mode-${opt.value}`}
+                  disabled={isLoading || setProviderMode.isPending || providerMode === opt.value}
+                  onClick={() => setProviderMode.mutate(opt.value)}
+                  className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
+                    providerMode === opt.value
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {(providerMode === "local" || providerMode === "auto") && !localReady && (
+            <p className="mt-2 text-xs text-amber-500">
+              {t(
+                "admin.agents.mode.localNotReady",
+                "No local provider is active — set an Ollama provider as Active below, and ensure the claude-router sidecar is running.",
+              )}
+            </p>
+          )}
+          {setProviderMode.isPending && (
+            <Loader2 className="mt-2 h-4 w-4 animate-spin text-muted-foreground" />
+          )}
+        </div>
+      )}
     </Panel>
   );
 }

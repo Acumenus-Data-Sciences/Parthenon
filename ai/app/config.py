@@ -170,16 +170,23 @@ class Settings(BaseSettings):
     def phenotype_llm_base_url(self) -> str:
         return self.phenotype_interpreter_base_url or self.ollama_base_url
 
-    def resolve_agent_provider(self, profile_provider: str | None = None) -> ResolvedAgentProvider:
+    def resolve_agent_provider(
+        self,
+        profile_provider: str | None = None,
+        request_provider: str | None = None,
+    ) -> ResolvedAgentProvider:
         """Resolve the effective provider for an agent turn.
 
-        ``profile_provider`` lets a profile force a provider; ``None`` inherits
-        the global ``agent_provider``. For the local provider, returns the local
-        model/effort and the proxy transport, and whether write tools are enabled.
-        Anthropic returns the cloud model with no transport override (the CLI uses
-        its built-in endpoint + ANTHROPIC_API_KEY).
+        Precedence: ``request_provider`` (Laravel's runtime agents.provider_mode
+        decision, authoritative) > ``profile_provider`` (a profile forcing one) >
+        the global ``agent_provider`` env default. For the local provider, returns
+        the local model/effort and the proxy transport, and whether write tools are
+        enabled. Anthropic returns the cloud model with no transport override (the
+        CLI uses its built-in endpoint + ANTHROPIC_API_KEY).
         """
-        provider = (profile_provider or self.agent_provider or "anthropic").lower()
+        provider = (
+            request_provider or profile_provider or self.agent_provider or "anthropic"
+        ).lower()
         if provider == "local":
             return ResolvedAgentProvider(
                 provider="local",

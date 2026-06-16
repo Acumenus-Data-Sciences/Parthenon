@@ -10,12 +10,14 @@ import {
   fetchLiveKitConfig,
   fetchServiceDetail,
   fetchSystemHealth,
+  setAgentProviderMode,
   setAgentSettings,
   testAiProvider,
   testLiveKitConnection,
   updateAiProvider,
   updateLiveKitConfig,
 } from "../api/adminApi";
+import type { AgentProviderMode } from "../api/adminApi";
 
 // Feature-flags query key — must match the key used in useFeatureFlagsQuery
 // (frontend/src/features/system/api.ts) so invalidation refreshes useFlag().
@@ -140,6 +142,17 @@ export function useSetAgentSettings() {
       // app-wide. FlagsLoader calls useFeatureFlagsQuery which uses this key;
       // the refetch re-runs setFlags() on the store, updating every subscriber.
       void qc.invalidateQueries({ queryKey: [...FEATURE_FLAGS_KEY] });
+    },
+  });
+}
+
+export function useSetAgentProviderMode() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (mode: AgentProviderMode) => setAgentProviderMode(mode),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [AGENT_SETTINGS_KEY] });
     },
   });
 }

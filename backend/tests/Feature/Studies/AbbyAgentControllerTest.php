@@ -31,6 +31,7 @@ it('starts a abby agent session for a study collaborator and calls the AI harnes
 
     Http::assertSent(fn ($req) => str_contains($req->url(), '/agent/sessions')
         && $req['profile'] === 'abby'
+        && $req['provider'] === 'anthropic'  // default provider_mode=cloud
         && $req['context']['study_slug'] === $study->slug);
 });
 

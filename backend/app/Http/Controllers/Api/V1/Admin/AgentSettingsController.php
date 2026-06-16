@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\AiProviderSetting;
 use App\Models\App\SystemSetting;
+use App\Services\Agents\AgentProviderResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,15 +40,33 @@ class AgentSettingsController extends Controller
      */
     public function update(Request $request): JsonResponse
     {
-        $request->validate([
-            'enabled' => ['required', 'boolean'],
+        $validated = $request->validate([
+            'enabled' => ['required_without:provider_mode', 'boolean'],
+            'provider_mode' => [
+                'required_without:enabled',
+                'in:'.implode(',', [
+                    AgentProviderResolver::MODE_CLOUD,
+                    AgentProviderResolver::MODE_LOCAL,
+                    AgentProviderResolver::MODE_AUTO,
+                ]),
+            ],
         ]);
 
-        SystemSetting::setValue(
-            'agents.enabled',
-            $request->boolean('enabled') ? '1' : '0',
-            'agents',
-        );
+        if (array_key_exists('enabled', $validated)) {
+            SystemSetting::setValue(
+                'agents.enabled',
+                $request->boolean('enabled') ? '1' : '0',
+                'agents',
+            );
+        }
+
+        if (array_key_exists('provider_mode', $validated)) {
+            SystemSetting::setValue(
+                'agents.provider_mode',
+                $validated['provider_mode'],
+                'agents',
+            );
+        }
 
         return response()->json($this->payload());
     }
@@ -62,7 +81,12 @@ class AgentSettingsController extends Controller
      * fresh installs that set the key in .env before seeding still report
      * ready=true.
      *
-     * @return array{enabled: bool, anthropic_ready: bool}
+     * `provider_mode` is which provider the action-taking copilots use
+     * (cloud=Anthropic / local=claude-router proxy / auto=follow active).
+     * `local_ready` is true when a proxy-frontable local provider (ollama) is
+     * the active, enabled one — the prerequisite for local/auto to run locally.
+     *
+     * @return array{enabled: bool, anthropic_ready: bool, provider_mode: string, local_ready: bool}
      */
     private function payload(): array
     {
@@ -77,9 +101,13 @@ class AgentSettingsController extends Controller
             $anthropicReady = (bool) env('ANTHROPIC_API_KEY');
         }
 
+        $resolver = new AgentProviderResolver;
+
         return [
             'enabled' => $enabled,
             'anthropic_ready' => $anthropicReady,
+            'provider_mode' => $resolver->mode(),
+            'local_ready' => $resolver->activeProviderIsLocal(),
         ];
     }
 }

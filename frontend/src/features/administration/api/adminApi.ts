@@ -131,9 +131,17 @@ export const testAiProvider = (type: string) =>
 
 // ── AI Agents Feature Flag ────────────────────────────────────────────────────
 
+export type AgentProviderMode = "cloud" | "local" | "auto";
+
 export interface AgentSettings {
   enabled: boolean;
   anthropic_ready: boolean;
+  // Which provider the action-taking copilots use: cloud=Anthropic,
+  // local=claude-router proxy, auto=follow the active AI provider.
+  provider_mode: AgentProviderMode;
+  // True when a proxy-frontable local provider (ollama) is the active, enabled
+  // one — the prerequisite for local/auto to actually run locally.
+  local_ready: boolean;
 }
 
 export const fetchAgentSettings = (): Promise<AgentSettings> =>
@@ -141,6 +149,9 @@ export const fetchAgentSettings = (): Promise<AgentSettings> =>
 
 export const setAgentSettings = (enabled: boolean): Promise<AgentSettings> =>
   apiClient.put<AgentSettings>("/admin/ai-agents", { enabled }).then((r) => r.data);
+
+export const setAgentProviderMode = (provider_mode: AgentProviderMode): Promise<AgentSettings> =>
+  apiClient.put<AgentSettings>("/admin/ai-agents", { provider_mode }).then((r) => r.data);
 
 // ── System Health ─────────────────────────────────────────────────────────────
 

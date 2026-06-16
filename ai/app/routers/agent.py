@@ -38,6 +38,9 @@ class CreateSessionRequest(BaseModel):
     ingest_path: str
     scoped_token: str
     context: dict = Field(default_factory=dict)
+    # Runtime provider override from Laravel (agents.provider_mode): "anthropic"
+    # or "local". None = use python-ai's AGENT_PROVIDER env default.
+    provider: str | None = None
 
 
 class TurnRequest(BaseModel):
@@ -55,12 +58,14 @@ async def create_session(body: CreateSessionRequest) -> dict:
         channel=body.channel,
         ingest_path=body.ingest_path,
         tool_context=ctx,
+        provider_override=body.provider,
     )
     registry.put(state)
     # Surface the effective provider + whether approval-gated WRITE actions are
     # available, so the UI can hide action affordances on a reads-only CE
-    # deployment (local provider with actions disabled).
-    resolved = settings.resolve_agent_provider(get_profile(body.profile).provider)
+    # deployment (local provider with actions disabled). body.provider (Laravel's
+    # agents.provider_mode) is authoritative over the env default.
+    resolved = settings.resolve_agent_provider(get_profile(body.profile).provider, body.provider)
     return {
         "agent_session_id": body.agent_session_id,
         "channel": body.channel,
