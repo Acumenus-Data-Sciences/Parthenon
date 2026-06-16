@@ -26,7 +26,13 @@ interface AbbyAgentState {
   lastCostUsd: number | null;
   errorMessage: string | null;
   pendingApprovals: PendingApproval[];
-  setSession: (id: number, channel: string) => void;
+  // Effective provider + whether approval-gated WRITE actions are available.
+  // On a reads-only CE deployment actionsEnabled is false and the dock hides
+  // action affordances (writes are also withdrawn server-side). Defaults
+  // preserve EE behavior.
+  provider: string;
+  actionsEnabled: boolean;
+  setSession: (id: number, channel: string, actionsEnabled?: boolean, provider?: string) => void;
   pushUserMessage: (text: string) => void;
   applyEvent: (event: AgentEvent) => void;
   reset: () => void;
@@ -48,8 +54,11 @@ export const useAbbyAgentStore = create<AbbyAgentState>((set) => ({
   lastCostUsd: null,
   errorMessage: null,
   pendingApprovals: [],
+  provider: "anthropic",
+  actionsEnabled: true,
 
-  setSession: (id, channel) => set({ agentSessionId: id, channelName: channel }),
+  setSession: (id, channel, actionsEnabled = true, provider = "anthropic") =>
+    set({ agentSessionId: id, channelName: channel, actionsEnabled, provider }),
 
   pushUserMessage: (text) =>
     set((s) => ({
@@ -105,5 +114,7 @@ export const useAbbyAgentStore = create<AbbyAgentState>((set) => ({
       lastCostUsd: null,
       errorMessage: null,
       pendingApprovals: [],
+      provider: "anthropic",
+      actionsEnabled: true,
     }),
 }));

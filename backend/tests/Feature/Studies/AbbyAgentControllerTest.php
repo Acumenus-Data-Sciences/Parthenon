@@ -17,7 +17,10 @@ it('starts a abby agent session for a study collaborator and calls the AI harnes
     $resp = $this->actingAs($user)->postJson("/api/v1/studies/{$study->slug}/agent/sessions");
 
     $resp->assertStatus(201)
-        ->assertJsonPath('data.channel_name', "private-abby.study.{$study->id}");
+        ->assertJsonPath('data.channel_name', "private-abby.study.{$study->id}")
+        // Defaults preserve EE behavior when python-ai omits the fields.
+        ->assertJsonPath('data.provider', 'anthropic')
+        ->assertJsonPath('data.actions_enabled', true);
 
     $this->assertDatabaseHas('agent_sessions', [
         'profile' => 'abby',
@@ -29,6 +32,22 @@ it('starts a abby agent session for a study collaborator and calls the AI harnes
     Http::assertSent(fn ($req) => str_contains($req->url(), '/agent/sessions')
         && $req['profile'] === 'abby'
         && $req['context']['study_slug'] === $study->slug);
+});
+
+it('passes through a reads-only CE deployment provider + actions flag', function () {
+    Http::fake(['*/agent/sessions' => Http::response([
+        'provider' => 'local',
+        'actions_enabled' => false,
+    ], 200)]);
+
+    $user = User::factory()->create();
+    $study = Study::create(['title' => 'CE study', 'created_by' => $user->id, 'status' => 'draft']);
+
+    $resp = $this->actingAs($user)->postJson("/api/v1/studies/{$study->slug}/agent/sessions");
+
+    $resp->assertStatus(201)
+        ->assertJsonPath('data.provider', 'local')
+        ->assertJsonPath('data.actions_enabled', false);
 });
 
 it('rejects a non-collaborator with 404 and never calls the agent service', function () {

@@ -1,4 +1,18 @@
+from typing import NamedTuple
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class ResolvedAgentProvider(NamedTuple):
+    """The effective model/transport for one agent turn after resolving the
+    global ``agent_provider`` against an optional per-profile override."""
+
+    provider: str          # "anthropic" | "local"
+    model: str
+    effort: str
+    base_url: str | None   # None for anthropic (CLI uses its built-in endpoint)
+    auth_token: str | None  # None for anthropic (CLI uses ANTHROPIC_API_KEY)
+    actions_enabled: bool  # whether approval-gated WRITE tools are available
 
 
 class Settings(BaseSettings):
@@ -93,6 +107,26 @@ class Settings(BaseSettings):
     agent_max_concurrent_turns: int = 4
     agent_approval_timeout_seconds: int = 600
 
+    # Agent provider switch (EE = Anthropic cloud; CE = local model via proxy).
+    # The agent loop (MCP tools, approval gating, streaming) is model-agnostic;
+    # only the CLI's request target and the auto-enabled tool set change.
+    # Defaults preserve EE behavior — overriding nothing keeps Anthropic/Opus.
+    agent_provider: str = "anthropic"  # "anthropic" | "local"
+    # Anthropic-compatible proxy (claude-code-router / LiteLLM) that translates
+    # the Messages API to a local Ollama backend. Internal network only.
+    agent_local_base_url: str = "http://claude-router:8787"
+    # Tool-calling-capable local model. NOT MedGemma (a RAG model with weak
+    # function-calling); use Qwen2.5-Coder-32B / Llama-3.3-70B / Hermes-3.
+    agent_local_model: str = "qwen2.5-coder:32b"
+    # Dummy bearer the proxy accepts in place of a real Anthropic key.
+    agent_local_auth_token: str = "local"
+    # Gate the approval-gated WRITE tools on the local provider. Off by default:
+    # CE ships omnipresent Abby (reads/chat) on day one; operators opt in to
+    # actions per-deployment once their local model proves reliable tool-calling.
+    agent_local_actions_enabled: bool = False
+    # Local models ignore or break on high thinking budgets; cap effort.
+    agent_local_effort: str = "medium"
+
     # Reverb (Pusher-protocol) — python-ai publishes agent events
     reverb_app_id: str = ""
     reverb_app_key: str = ""
@@ -135,6 +169,34 @@ class Settings(BaseSettings):
     @property
     def phenotype_llm_base_url(self) -> str:
         return self.phenotype_interpreter_base_url or self.ollama_base_url
+
+    def resolve_agent_provider(self, profile_provider: str | None = None) -> ResolvedAgentProvider:
+        """Resolve the effective provider for an agent turn.
+
+        ``profile_provider`` lets a profile force a provider; ``None`` inherits
+        the global ``agent_provider``. For the local provider, returns the local
+        model/effort and the proxy transport, and whether write tools are enabled.
+        Anthropic returns the cloud model with no transport override (the CLI uses
+        its built-in endpoint + ANTHROPIC_API_KEY).
+        """
+        provider = (profile_provider or self.agent_provider or "anthropic").lower()
+        if provider == "local":
+            return ResolvedAgentProvider(
+                provider="local",
+                model=self.agent_local_model,
+                effort=self.agent_local_effort,
+                base_url=self.agent_local_base_url,
+                auth_token=self.agent_local_auth_token,
+                actions_enabled=self.agent_local_actions_enabled,
+            )
+        return ResolvedAgentProvider(
+            provider="anthropic",
+            model=self.agent_model,
+            effort=self.agent_effort,
+            base_url=None,
+            auth_token=None,
+            actions_enabled=True,
+        )
 
 
 settings = Settings()

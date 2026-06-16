@@ -240,6 +240,15 @@ services:
       - AGENT_MODEL=${AGENT_MODEL:-claude-opus-4-7}
       - AGENT_EFFORT=${AGENT_EFFORT:-xhigh}
       - AGENT_MAX_BUDGET_USD=${AGENT_MAX_BUDGET_USD:-5}
+      # Agent provider switch (EE=anthropic cloud / CE=local model via proxy).
+      # Defaults keep EE behavior; CE sets AGENT_PROVIDER=local and runs the
+      # claude-router sidecar (docker compose --profile ce up -d claude-router).
+      - AGENT_PROVIDER=${AGENT_PROVIDER:-anthropic}
+      - AGENT_LOCAL_BASE_URL=${AGENT_LOCAL_BASE_URL:-http://claude-router:8787}
+      - AGENT_LOCAL_MODEL=${AGENT_LOCAL_MODEL:-qwen2.5-coder:32b}
+      - AGENT_LOCAL_AUTH_TOKEN=${AGENT_LOCAL_AUTH_TOKEN:-local}
+      - AGENT_LOCAL_ACTIONS_ENABLED=${AGENT_LOCAL_ACTIONS_ENABLED:-false}
+      - AGENT_LOCAL_EFFORT=${AGENT_LOCAL_EFFORT:-medium}
       - KNOWLEDGE_CDM_SCHEMA=omop
       - KNOWLEDGE_VOCAB_SCHEMA=vocab
     extra_hosts:
@@ -263,6 +272,36 @@ services:
       resources:
         limits:
           memory: 4G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  # CE-only: Anthropic-compatible proxy that lets the Claude Agent SDK / CLI
+  # target a LOCAL Ollama model instead of the Anthropic cloud API. Inert in the
+  # default (EE) stack — only starts with: docker compose --profile ce up -d.
+  # python-ai redirects the CLI here via ClaudeAgentOptions.env when
+  # AGENT_PROVIDER=local. Requires the operator's Ollama to have AGENT_LOCAL_MODEL
+  # pulled (e.g. `ollama pull qwen2.5-coder:32b`). NOT a clinical-grade tool
+  # caller by default — verify on your hardware before enabling agent actions.
+  claude-router:
+    container_name: parthenon-claude-router
+    profiles: ["ce"]
+    build:
+      context: .
+      dockerfile: docker/claude-router/Dockerfile
+    environment:
+      - ROUTER_PORT=8787
+      - ROUTER_API_KEY=${AGENT_LOCAL_AUTH_TOKEN:-local}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - LOCAL_MODEL=${AGENT_LOCAL_MODEL:-qwen2.5-coder:32b}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "wget -qO- http://127.0.0.1:8787/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     networks:
       - parthenon
     restart: unless-stopped

@@ -106,6 +106,11 @@ class AbbyAgentController extends Controller
             'data' => [
                 'agent_session_id' => $agentSession->id,
                 'channel_name' => $channel,
+                // Effective provider + whether approval-gated WRITE actions are
+                // available, so the dock hides action affordances on a reads-only
+                // CE deployment. Defaults preserve EE behavior if absent.
+                'provider' => $resp->json('provider', 'anthropic'),
+                'actions_enabled' => $resp->json('actions_enabled', true),
             ],
         ], 201);
     }

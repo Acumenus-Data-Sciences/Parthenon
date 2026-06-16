@@ -45,6 +45,30 @@ def test_create_session_registers_state_and_returns_channel(monkeypatch):
     assert calls.get("ingest_path") == "/api/v1/studies/t2dm/design-sessions/7/agent/sessions/11/ingest"
 
 
+def test_create_session_reports_anthropic_provider_by_default():
+    """The create response surfaces provider/actions so the UI can gate action
+    affordances. Default (EE) is anthropic with actions enabled."""
+    create = client.post("/agent/sessions", json={**_CREATE_BODY, "agent_session_id": 311})
+    assert create.status_code == 200
+    body = create.json()
+    assert body["provider"] == "anthropic"
+    assert body["actions_enabled"] is True
+
+
+def test_create_session_reports_local_reads_only(monkeypatch):
+    """A reads-only CE deployment (local provider, actions disabled) reports
+    actions_enabled=false so the dock hides action affordances."""
+    import app.config as cfg
+    monkeypatch.setattr(cfg.settings, "agent_provider", "local")
+    monkeypatch.setattr(cfg.settings, "agent_local_actions_enabled", False)
+
+    create = client.post("/agent/sessions", json={**_CREATE_BODY, "agent_session_id": 312})
+    assert create.status_code == 200
+    body = create.json()
+    assert body["provider"] == "local"
+    assert body["actions_enabled"] is False
+
+
 def test_create_session_stores_context_on_tool_context(monkeypatch):
     from app.agents import registry as reg
 

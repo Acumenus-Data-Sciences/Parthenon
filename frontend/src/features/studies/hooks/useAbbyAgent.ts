@@ -32,7 +32,8 @@ export function useAbbyAgent({ slug }: Params) {
 
   const startMutation = useMutation({
     mutationFn: () => startAbbySession(slug!),
-    onSuccess: (data) => setSession(data.agent_session_id, data.channel_name),
+    onSuccess: (data) =>
+      setSession(data.agent_session_id, data.channel_name, data.actions_enabled, data.provider),
   });
 
   useEffect(() => {
