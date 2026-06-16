@@ -458,3 +458,62 @@ async def test_resolve_approval_returns_false_for_unknown_tool_use_id():
     service = ParthenonAgentService(publisher=MagicMock())
     result = service.resolve_approval("nonexistent-tool-use-id", True)
     assert result is False
+
+
+# --- Provider switch (EE anthropic / CE local) ---------------------------------
+
+async def test_options_anthropic_default_uses_cloud_model():
+    """Default provider is anthropic: cloud model/effort, no env override,
+    write tools still approval-gated. Guards against CE work regressing EE."""
+    from app.config import settings as cfg_settings
+    service = ParthenonAgentService(publisher=MagicMock())
+    opts = service._options(_publish_state())  # publish has write tools
+
+    assert opts.model == cfg_settings.agent_model
+    assert opts.effort == cfg_settings.agent_effort
+    assert not (opts.env or {}).get("ANTHROPIC_BASE_URL")
+    assert opts.permission_mode == "default"
+    assert opts.can_use_tool is not None
+
+
+async def test_options_local_injects_env_and_model(monkeypatch):
+    """local provider redirects the CLI to the proxy and swaps in the local
+    model/effort; with actions enabled the write-tool gating is preserved."""
+    import app.config as cfg
+    monkeypatch.setattr(cfg.settings, "agent_provider", "local")
+    monkeypatch.setattr(cfg.settings, "agent_local_actions_enabled", True)
+
+    service = ParthenonAgentService(publisher=MagicMock())
+    opts = service._options(_publish_state())
+
+    assert opts.model == cfg.settings.agent_local_model
+    assert opts.effort == cfg.settings.agent_local_effort
+    assert opts.env["ANTHROPIC_BASE_URL"] == cfg.settings.agent_local_base_url
+    assert opts.env["ANTHROPIC_AUTH_TOKEN"] == cfg.settings.agent_local_auth_token
+    # actions enabled → write tools remain gated through can_use_tool
+    assert opts.permission_mode == "default"
+    assert opts.can_use_tool is not None
+
+
+async def test_options_local_actions_disabled_withdraws_writes(monkeypatch):
+    """local provider with actions disabled (CE default) withdraws all write
+    tools: they move into allowed_tools (auto-approved reads only), no approval
+    callback fires, and the env redirect is still applied."""
+    from app.agents.tool_packs import write_tools as wt
+    import app.config as cfg
+    monkeypatch.setattr(cfg.settings, "agent_provider", "local")
+    monkeypatch.setattr(cfg.settings, "agent_local_actions_enabled", False)
+
+    service = ParthenonAgentService(publisher=MagicMock())
+    opts = service._options(_publish_state())
+
+    allowed = set(opts.allowed_tools or [])
+    # every former write tool is now auto-approved (no human-in-the-loop on CE)
+    for write_name in wt("publish"):
+        assert f"mcp__parthenon__{write_name}" in allowed, (
+            f"write tool '{write_name}' should be withdrawn into allowed_tools when "
+            "local actions are disabled"
+        )
+    assert opts.permission_mode == "dontAsk"
+    assert opts.can_use_tool is None
+    assert opts.env["ANTHROPIC_BASE_URL"] == cfg.settings.agent_local_base_url

@@ -186,6 +186,16 @@ class ParthenonAgentService:
         writes = write_tools(state.profile_name)
         server = create_sdk_mcp_server(name="parthenon", version="1.0.0", tools=tools)
 
+        # Resolve the effective provider (EE=anthropic cloud / CE=local model).
+        # The agent loop is model-agnostic; only the model/effort and the CLI's
+        # request target change. On the local provider with actions disabled, the
+        # approval-gated WRITE tools are withdrawn entirely so CE runs reads/chat
+        # only — operators opt into actions once their local model proves it can
+        # drive the tool-use + approval loop reliably.
+        resolved = settings.resolve_agent_provider(profile.provider)
+        if resolved.provider == "local" and not resolved.actions_enabled:
+            writes = set()
+
         # Write tools are intentionally EXCLUDED from allowed_tools so that the
         # CLI routes them through the can_use_tool callback (which gates on human
         # approval). Read tools go into allowed_tools for auto-approval.
@@ -202,8 +212,8 @@ class ParthenonAgentService:
 
         kwargs: dict = dict(
             system_prompt=profile.system_prompt,
-            model=profile.model,
-            effort=cast(EffortLevel, profile.effort),
+            model=resolved.model,
+            effort=cast(EffortLevel, resolved.effort),
             mcp_servers={"parthenon": server},
             tools=[],
             allowed_tools=allowed,
@@ -213,6 +223,16 @@ class ParthenonAgentService:
             max_budget_usd=settings.agent_max_budget_usd,
             resume=state.anthropic_session_id,
         )
+
+        # Redirect the CLI subprocess to the local Anthropic-compatible proxy.
+        # ClaudeAgentOptions.env is merged into the CLI's process environment, so
+        # this overrides ANTHROPIC_BASE_URL/ANTHROPIC_AUTH_TOKEN without touching
+        # python-ai's own env or the tool/streaming logic.
+        if resolved.provider == "local" and resolved.base_url:
+            kwargs["env"] = {
+                "ANTHROPIC_BASE_URL": resolved.base_url,
+                "ANTHROPIC_AUTH_TOKEN": resolved.auth_token or "local",
+            }
 
         if has_writes:
             kwargs["permission_mode"] = "default"

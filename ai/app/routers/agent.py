@@ -12,8 +12,10 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
 from app.agents import registry
+from app.agents.profiles import get_profile
 from app.agents.service import AgentSessionState, ParthenonAgentService
 from app.agents.tool_base import AgentToolContext
+from app.config import settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -55,7 +57,16 @@ async def create_session(body: CreateSessionRequest) -> dict:
         tool_context=ctx,
     )
     registry.put(state)
-    return {"agent_session_id": body.agent_session_id, "channel": body.channel}
+    # Surface the effective provider + whether approval-gated WRITE actions are
+    # available, so the UI can hide action affordances on a reads-only CE
+    # deployment (local provider with actions disabled).
+    resolved = settings.resolve_agent_provider(get_profile(body.profile).provider)
+    return {
+        "agent_session_id": body.agent_session_id,
+        "channel": body.channel,
+        "provider": resolved.provider,
+        "actions_enabled": resolved.actions_enabled,
+    }
 
 
 async def _run(agent_session_id: int, text: str, idempotency_key: str) -> None:

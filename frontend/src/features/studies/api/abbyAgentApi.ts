@@ -10,6 +10,12 @@ const base = (slug: string): string => `/studies/${slug}/agent/sessions`;
 export const startAbbySessionResponse = z.object({
   agent_session_id: z.number(),
   channel_name: z.string(),
+  // Provider + whether approval-gated WRITE actions are available. Defaults
+  // preserve EE behavior (cloud Anthropic, actions on) when the field is absent;
+  // a reads-only CE deployment returns actions_enabled=false so the dock hides
+  // action affordances.
+  provider: z.string().optional().default("anthropic"),
+  actions_enabled: z.boolean().optional().default(true),
 });
 export type StartAbbySessionResponse = z.infer<typeof startAbbySessionResponse>;
 

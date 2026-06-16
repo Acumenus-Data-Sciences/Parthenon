@@ -61,6 +61,11 @@ class AgentProfile:
     system_prompt: str
     model: str
     effort: str
+    # Optional provider override. None inherits the global ``agent_provider``
+    # (EE=anthropic, CE=local). The service resolves model/effort/transport from
+    # settings.resolve_agent_provider() at option-build time; the model/effort
+    # fields above are the anthropic-path values and are overridden for local.
+    provider: str | None = None
 
 
 STUDY_DESIGN = AgentProfile(

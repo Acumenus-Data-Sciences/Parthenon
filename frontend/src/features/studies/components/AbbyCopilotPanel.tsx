@@ -22,7 +22,7 @@ interface AbbyCopilotPanelProps {
  */
 export function AbbyCopilotPanel({ slug }: AbbyCopilotPanelProps) {
   const { start, starting, send, approve } = useAbbyAgent({ slug });
-  const { transcript, isStreaming, agentSessionId, errorMessage, pendingApprovals, lastCostUsd } =
+  const { transcript, isStreaming, agentSessionId, errorMessage, pendingApprovals, lastCostUsd, actionsEnabled } =
     useAbbyAgentStore();
   const isOpen = useAbbyDockStore((s) => s.isOpen);
   const queuedPrompt = useAbbyDockStore((s) => s.queuedPrompt);
@@ -108,12 +108,20 @@ export function AbbyCopilotPanel({ slug }: AbbyCopilotPanelProps) {
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3" ref={scrollRef}>
         {agentSessionId == null ? (
           <div className="space-y-3">
-            <p className="text-xs text-text-muted">
-              Abby reads this study's design, gates, results, and manuscript, and can — on your
-              one-click approval — re-evaluate gates, refresh results, build a study package, and
-              open the manuscript in the Publisher. It never decides scientific validity: gate
-              approvals and overrides stay yours in the Gates timeline.
-            </p>
+            {actionsEnabled ? (
+              <p className="text-xs text-text-muted">
+                Abby reads this study's design, gates, results, and manuscript, and can — on your
+                one-click approval — re-evaluate gates, refresh results, build a study package, and
+                open the manuscript in the Publisher. It never decides scientific validity: gate
+                approvals and overrides stay yours in the Gates timeline.
+              </p>
+            ) : (
+              <p data-testid="abby-readonly-note" className="text-xs text-text-muted">
+                Abby reads this study's design, gates, results, and manuscript and answers your
+                questions. Action-taking is disabled on this deployment — gate evaluations, result
+                refreshes, and publishing run from the controls in each tab.
+              </p>
+            )}
             <button
               type="button"
               onClick={() => start()}
