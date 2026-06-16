@@ -1,0 +1,153 @@
+{
+    "id": 5457,
+    "name": "Jess cohort",
+    "description": "this is my cohort trial",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Entry: Diabetes with neurological manifestations + 5 more",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44827615,
+                                "CONCEPT_CODE": "250.6",
+                                "CONCEPT_NAME": "Diabetes with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44825262,
+                                "CONCEPT_CODE": "249.6",
+                                "CONCEPT_NAME": "Secondary diabetes mellitus with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44827615,
+                                "CONCEPT_CODE": "250.6",
+                                "CONCEPT_NAME": "Diabetes with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44827615,
+                                "CONCEPT_CODE": "250.6",
+                                "CONCEPT_NAME": "Diabetes with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44827615,
+                                "CONCEPT_CODE": "250.6",
+                                "CONCEPT_NAME": "Diabetes with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 44827615,
+                                "CONCEPT_CODE": "250.6",
+                                "CONCEPT_NAME": "Diabetes with neurological manifestations",
+                                "VOCABULARY_ID": "ICD9CM",
+                                "CONCEPT_CLASS_ID": "4-dig nonbill code"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "All"
+        },
+        "ExpressionLimit": {
+            "Type": "All"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 100
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "DemographicCriteria": [
+            {
+                "Age": {
+                    "Op": "bt",
+                    "Value": 0,
+                    "Extent": 100
+                },
+                "Race": [
+                    8527
+                ],
+                "Gender": [
+                    8532,
+                    8507
+                ]
+            }
+        ]
+    },
+    "author_id": 524,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-06-16T01:43:01.000000Z",
+    "updated_at": "2026-06-16T01:43:01.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null,
+    "tenant_id": 1,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "expression_sha256": "77bc993c1838d1c2903adccae7b11c437b574622e6f88735bcd695732adc24f5"
+}
