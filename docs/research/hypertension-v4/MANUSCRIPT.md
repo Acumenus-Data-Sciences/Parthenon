@@ -1,3 +1,16 @@
+---
+doc_type: research
+status: active
+date: 2026-06-11
+owner: acumenus
+module: hypertension-v4
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Hypertension Study (V4)
 **Authors:** Sanjay Udoshi
 **Template:** strobe-record  

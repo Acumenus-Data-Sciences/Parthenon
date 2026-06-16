@@ -1,6 +1,19 @@
+---
+doc_type: plan
+status: shipped
+date: 2026-06-15
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: [365]
+---
+
 # Plan: Local-model agent backend for Parthenon-CE
 
-**Status:** OPEN — Phase 1 in progress
+**Status:** SHIPPED — merged via #365 and deployed 2026-06-16
 **Date:** 2026-06-15
 **Owner:** Studies / Abby-AI
 **Related:** `project_parthenon_agent_copilots` (Claude Agent SDK copilots), `2026-06-11-study-results-projection`

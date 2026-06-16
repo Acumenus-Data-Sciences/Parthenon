@@ -1,3 +1,16 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-06-15
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: [366]
+---
+
 # Admin-switchable copilot provider (cloud ↔ local)
 
 **Date:** 2026-06-15
