@@ -1,3 +1,16 @@
+---
+doc_type: lineage
+status: shipped
+date: 2026-06-15
+owner: acumenus
+module: abby-ai
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: [365]
+---
+
 # Local-model agent backend (EE / CE provider switch)
 
 **Date:** 2026-06-15
