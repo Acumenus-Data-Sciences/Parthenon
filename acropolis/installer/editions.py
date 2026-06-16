@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -17,9 +18,19 @@ _PARTHENON_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PARTHENON_ROOT) not in sys.path:
     sys.path.insert(0, str(_PARTHENON_ROOT))
 
-from installer.license import validate_format as _validate_license_format  # noqa: E402
-from installer.license import validate_against_db as _validate_license_db  # noqa: E402
-from installer.license import LICENSE_PATTERN  # noqa: E402
+_LICENSE_MODULE_PATH = _PARTHENON_ROOT / "installer" / "license.py"
+_LICENSE_SPEC = importlib.util.spec_from_file_location(
+    "parthenon_installer_license",
+    _LICENSE_MODULE_PATH,
+)
+if _LICENSE_SPEC is None or _LICENSE_SPEC.loader is None:
+    raise ImportError(f"Cannot load Parthenon license module at {_LICENSE_MODULE_PATH}")
+_license_module = importlib.util.module_from_spec(_LICENSE_SPEC)
+_LICENSE_SPEC.loader.exec_module(_license_module)
+
+_validate_license_format = _license_module.validate_format
+_validate_license_db = _license_module.validate_against_db
+LICENSE_PATTERN = _license_module.LICENSE_PATTERN
 
 
 @dataclass
