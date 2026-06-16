@@ -1,6 +1,6 @@
 ---
 doc_type: research
-status: locked
+status: accepted
 date: 2026-06-10
 owner: acumenus
 module: hypertension-v4

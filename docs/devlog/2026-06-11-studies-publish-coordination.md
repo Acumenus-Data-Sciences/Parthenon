@@ -1,3 +1,16 @@
+---
+doc_type: lineage
+status: archived
+date: 2026-06-11
+owner: acumenus
+module: studies
+lineage_anchor: true
+supersedes: []
+superseded_by: null
+related_code: []
+related_prs: []
+---
+
 # Studies + Publish coordination (2026-06-11)
 
 A coordinated pass that (1) fixed the Studies detail page so every tab populates
