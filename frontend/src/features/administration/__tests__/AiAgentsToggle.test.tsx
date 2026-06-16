@@ -221,4 +221,59 @@ describe("AI Agents toggle card", () => {
     const body = JSON.parse(putHistory[0]?.data as string) as { enabled: boolean };
     expect(body.enabled).toBe(false);
   });
+
+  it("renders the copilot provider-mode selector and PUTs provider_mode on click", async () => {
+    mock.onGet("/api/v1/admin/ai-agents").reply(200, {
+      enabled: true,
+      anthropic_ready: true,
+      provider_mode: "cloud",
+      local_ready: false,
+    });
+    mock.onPut("/api/v1/admin/ai-agents").reply(200, {
+      enabled: true,
+      anthropic_ready: true,
+      provider_mode: "local",
+      local_ready: false,
+    });
+
+    const client = makeClient();
+    render(
+      <Wrapper client={client}>
+        <AiProvidersPage />
+      </Wrapper>,
+    );
+
+    // Selector only renders when agents are enabled.
+    const localBtn = await waitFor(() => screen.getByTestId("copilot-mode-local"));
+    fireEvent.click(localBtn);
+
+    await waitFor(() => {
+      const putHistory = mock.history["put"] ?? [];
+      expect(putHistory.length).toBeGreaterThan(0);
+    });
+
+    const putHistory = mock.history["put"] ?? [];
+    const body = JSON.parse(putHistory[0]?.data as string) as { provider_mode: string };
+    expect(body.provider_mode).toBe("local");
+  });
+
+  it("warns when local/auto mode is selected but no local provider is ready", async () => {
+    mock.onGet("/api/v1/admin/ai-agents").reply(200, {
+      enabled: true,
+      anthropic_ready: true,
+      provider_mode: "local",
+      local_ready: false,
+    });
+
+    const client = makeClient();
+    render(
+      <Wrapper client={client}>
+        <AiProvidersPage />
+      </Wrapper>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/No local provider is active/i)).toBeInTheDocument(),
+    );
+  });
 });

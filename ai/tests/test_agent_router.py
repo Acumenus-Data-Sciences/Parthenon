@@ -69,6 +69,23 @@ def test_create_session_reports_local_reads_only(monkeypatch):
     assert body["actions_enabled"] is False
 
 
+def test_create_session_request_provider_overrides_env():
+    """Laravel's agents.provider_mode (body.provider) is authoritative over the
+    AGENT_PROVIDER env default — env stays anthropic but the request forces local."""
+    from app.agents import registry as reg
+    create = client.post(
+        "/agent/sessions",
+        json={**_CREATE_BODY, "agent_session_id": 313, "provider": "local"},
+    )
+    assert create.status_code == 200
+    body = create.json()
+    assert body["provider"] == "local"
+    # The override is recorded on the session state for the turn's _options().
+    state = reg.get(313)
+    assert state is not None
+    assert state.provider_override == "local"
+
+
 def test_create_session_stores_context_on_tool_context(monkeypatch):
     from app.agents import registry as reg
 

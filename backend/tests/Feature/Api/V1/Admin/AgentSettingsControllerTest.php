@@ -113,4 +113,46 @@ class AgentSettingsControllerTest extends TestCase
 
         $this->putJson('/api/v1/admin/ai-agents', [])->assertUnprocessable();
     }
+
+    // ── Copilot provider mode ─────────────────────────────────────────────────
+
+    public function test_get_reports_provider_mode_default_cloud(): void
+    {
+        $super = User::factory()->create();
+        $super->assignRole('super-admin');
+        Sanctum::actingAs($super);
+
+        $this->getJson('/api/v1/admin/ai-agents')
+            ->assertOk()
+            ->assertJsonStructure(['enabled', 'anthropic_ready', 'provider_mode', 'local_ready'])
+            ->assertJsonPath('provider_mode', 'cloud')
+            ->assertJsonPath('local_ready', false);
+    }
+
+    public function test_put_provider_mode_persists_without_enabled(): void
+    {
+        $super = User::factory()->create();
+        $super->assignRole('super-admin');
+        Sanctum::actingAs($super);
+
+        $this->putJson('/api/v1/admin/ai-agents', ['provider_mode' => 'local'])
+            ->assertOk()
+            ->assertJsonPath('provider_mode', 'local');
+
+        $this->assertSame('local', SystemSetting::getValue('agents.provider_mode'));
+
+        $this->getJson('/api/v1/admin/ai-agents')
+            ->assertOk()
+            ->assertJsonPath('provider_mode', 'local');
+    }
+
+    public function test_put_invalid_provider_mode_returns_422(): void
+    {
+        $super = User::factory()->create();
+        $super->assignRole('super-admin');
+        Sanctum::actingAs($super);
+
+        $this->putJson('/api/v1/admin/ai-agents', ['provider_mode' => 'gpt'])
+            ->assertUnprocessable();
+    }
 }

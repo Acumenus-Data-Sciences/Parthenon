@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\App\AgentSession;
 use App\Models\App\Study;
 use App\Models\User;
+use App\Services\Agents\AgentProviderResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -89,6 +90,10 @@ class AbbyAgentController extends Controller
             'channel' => $channel,
             'ingest_path' => "/api/v1/studies/{$study->slug}/agent/sessions/{$agentSession->id}/ingest",
             'scoped_token' => $newToken->plainTextToken,
+            // Runtime provider override from the super-admin's agents.provider_mode
+            // (cloud=Anthropic / local=claude-router proxy). python-ai treats this
+            // as authoritative over its AGENT_PROVIDER env default.
+            'provider' => (new AgentProviderResolver)->resolveProvider(),
             'context' => [
                 'study_slug' => $study->slug,
                 'study_id' => $study->id,

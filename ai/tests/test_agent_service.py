@@ -517,3 +517,19 @@ async def test_options_local_actions_disabled_withdraws_writes(monkeypatch):
     assert opts.permission_mode == "dontAsk"
     assert opts.can_use_tool is None
     assert opts.env["ANTHROPIC_BASE_URL"] == cfg.settings.agent_local_base_url
+
+
+async def test_options_request_provider_override_beats_env(monkeypatch):
+    """A per-session provider override (Laravel's agents.provider_mode) wins over
+    the AGENT_PROVIDER env: env stays anthropic but the session forces local."""
+    import app.config as cfg
+    # env default stays anthropic (do NOT touch cfg.settings.agent_provider)
+    assert cfg.settings.agent_provider == "anthropic"
+
+    state = _publish_state()
+    state.provider_override = "local"
+
+    opts = ParthenonAgentService(publisher=MagicMock())._options(state)
+
+    assert opts.model == cfg.settings.agent_local_model
+    assert opts.env["ANTHROPIC_BASE_URL"] == cfg.settings.agent_local_base_url

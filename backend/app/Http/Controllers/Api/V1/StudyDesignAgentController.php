@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\App\AgentSession;
 use App\Models\App\Study;
 use App\Models\App\StudyDesignSession;
+use App\Services\Agents\AgentProviderResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -70,6 +71,8 @@ class StudyDesignAgentController extends Controller
             'channel' => $channel,
             'ingest_path' => "/api/v1/studies/{$study->slug}/design-sessions/{$session->id}/agent/sessions/{$agentSession->id}/ingest",
             'scoped_token' => $newToken->plainTextToken,
+            // Runtime provider override from agents.provider_mode (cloud/local/auto).
+            'provider' => (new AgentProviderResolver)->resolveProvider(),
             'context' => [
                 'study_slug' => $study->slug,
                 'design_session_id' => $session->id,

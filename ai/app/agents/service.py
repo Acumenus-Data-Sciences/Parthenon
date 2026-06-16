@@ -59,6 +59,9 @@ class AgentSessionState:
     tool_context: AgentToolContext
     anthropic_session_id: Optional[str] = None
     last_idempotency_key: Optional[str] = None
+    # Runtime provider override from Laravel (agents.provider_mode): authoritative
+    # over the AGENT_PROVIDER env default. None = use env/profile default.
+    provider_override: Optional[str] = None
     # pending approval futures: keyed by tool_use_id, set by resolve_approval()
     _pending: dict = field(default_factory=dict, repr=False)
 
@@ -192,7 +195,7 @@ class ParthenonAgentService:
         # approval-gated WRITE tools are withdrawn entirely so CE runs reads/chat
         # only — operators opt into actions once their local model proves it can
         # drive the tool-use + approval loop reliably.
-        resolved = settings.resolve_agent_provider(profile.provider)
+        resolved = settings.resolve_agent_provider(profile.provider, state.provider_override)
         if resolved.provider == "local" and not resolved.actions_enabled:
             writes = set()
 

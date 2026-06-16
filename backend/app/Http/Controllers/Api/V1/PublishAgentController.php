@@ -7,6 +7,7 @@ use App\Models\App\AgentSession;
 use App\Models\App\PublicationDraft;
 use App\Models\User;
 use App\Policies\PublicationDraftPolicy;
+use App\Services\Agents\AgentProviderResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -76,6 +77,8 @@ class PublishAgentController extends Controller
             'channel' => $channel,
             'ingest_path' => "/api/v1/publish/drafts/{$draft->id}/agent/sessions/{$agentSession->id}/ingest",
             'scoped_token' => $newToken->plainTextToken,
+            // Runtime provider override from agents.provider_mode (cloud/local/auto).
+            'provider' => (new AgentProviderResolver)->resolveProvider(),
             'context' => [
                 'draft_id' => $draft->id,
                 'study_id' => $draft->study_id,
