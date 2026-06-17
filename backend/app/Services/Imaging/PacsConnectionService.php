@@ -179,7 +179,7 @@ class PacsConnectionService
         $client = Http::timeout(15)
             ->accept('application/dicom+json');
 
-        $credentials = $conn->credentials ?? [];
+        $credentials = $this->credentialsForConnection($conn);
 
         return match ($conn->auth_type) {
             'basic' => $client->withBasicAuth(
@@ -302,7 +302,7 @@ class PacsConnectionService
     private function resolveOrthancRestClient(PacsConnection $conn): PendingRequest
     {
         $client = Http::timeout(30);
-        $credentials = $conn->credentials ?? [];
+        $credentials = $this->credentialsForConnection($conn);
 
         return match ($conn->auth_type) {
             'basic' => $client->withBasicAuth(
@@ -312,6 +312,24 @@ class PacsConnectionService
             'bearer' => $client->withToken($credentials['token'] ?? ''),
             default => $client,
         };
+    }
+
+    /**
+     * Resolve connection credentials, using the runtime Orthanc secret for the
+     * built-in Orthanc service so encrypted DB rows do not drift after rotation.
+     *
+     * @return array<string, mixed>
+     */
+    private function credentialsForConnection(PacsConnection $conn): array
+    {
+        $credentials = $conn->credentials ?? [];
+
+        if ($conn->type === 'orthanc') {
+            $credentials['username'] = env('ORTHANC_USER', $credentials['username'] ?? '');
+            $credentials['password'] = env('ORTHANC_PASSWORD', $credentials['password'] ?? '');
+        }
+
+        return $credentials;
     }
 
     /**
