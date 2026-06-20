@@ -150,10 +150,10 @@ jobs:
         run: |
           # Robust, explicit floor: parse the clover report's project-level
           # aggregate metrics rather than relying on Pest's exit code / log text.
-          # Conservative initial floor; ratchet up toward 80% as coverage grows.
-          # NEVER lower this value — it is a one-way ratchet.
+          # Floor ratchets up toward 80% as coverage grows; measured 33.59% on
+          # 2026-06-20 (25693/76492 statements). NEVER lower this value.
           php -r '
-            $floor = 25.0;
+            $floor = 32.0;
             $f = "coverage.xml";
             if (!is_file($f)) { fwrite(STDERR, "coverage.xml not found — coverage was not collected\n"); exit(1); }
             $xml = simplexml_load_file($f);
