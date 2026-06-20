@@ -37,7 +37,10 @@ class RService
         $response = Http::timeout($this->timeout)
             ->post("{$this->baseUrl}/analysis/estimation/run", $spec);
 
-        return $response->json();
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'Darkstar returned a non-JSON or empty response for estimation (HTTP '.$response->status().'). Check the Darkstar/R sidecar logs and HADES CohortMethod availability.',
+        ];
     }
 
     /**
@@ -85,7 +88,10 @@ class RService
         $response = Http::timeout($this->timeout)
             ->post("{$this->baseUrl}/analysis/sccs/run", $spec);
 
-        return $response->json();
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'Darkstar returned a non-JSON or empty response for SCCS (HTTP '.$response->status().'). Check the Darkstar/R sidecar logs and HADES SelfControlledCaseSeries availability.',
+        ];
     }
 
     /**
@@ -133,7 +139,10 @@ class RService
         $response = Http::timeout($this->timeout)
             ->post("{$this->baseUrl}/analysis/evidence-synthesis/run", $spec);
 
-        return $response->json();
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'Darkstar returned a non-JSON or empty response for evidence synthesis (HTTP '.$response->status().'). Check the Darkstar/R sidecar logs and HADES EvidenceSynthesis availability.',
+        ];
     }
 
     /**
