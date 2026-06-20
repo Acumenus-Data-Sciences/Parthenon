@@ -1,0 +1,60 @@
+{
+    "id": 209,
+    "name": "Concept set trial- Jessica",
+    "description": null,
+    "expression_json": null,
+    "author_id": 524,
+    "is_public": false,
+    "tags": null,
+    "created_at": "2026-06-18T02:48:47.000000Z",
+    "updated_at": "2026-06-18T09:52:31.000000Z",
+    "deleted_at": null,
+    "tenant_id": 1,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "expression_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "items": [
+        {
+            "id": 5173,
+            "concept_set_id": 209,
+            "concept_id": 44438214,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-06-18T02:49:19.000000Z",
+            "updated_at": "2026-06-18T02:49:19.000000Z"
+        },
+        {
+            "id": 5170,
+            "concept_set_id": 209,
+            "concept_id": 40183953,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-06-18T02:49:16.000000Z",
+            "updated_at": "2026-06-18T02:49:49.000000Z"
+        },
+        {
+            "id": 5171,
+            "concept_set_id": 209,
+            "concept_id": 36869438,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-06-18T02:49:17.000000Z",
+            "updated_at": "2026-06-18T02:49:51.000000Z"
+        },
+        {
+            "id": 5172,
+            "concept_set_id": 209,
+            "concept_id": 42664292,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-06-18T02:49:18.000000Z",
+            "updated_at": "2026-06-18T02:50:22.000000Z"
+        }
+    ]
+}

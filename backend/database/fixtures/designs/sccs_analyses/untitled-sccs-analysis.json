@@ -1,0 +1,33 @@
+{
+    "id": 13,
+    "name": "Untitled SCCS Analysis",
+    "description": null,
+    "design_json": {
+        "model": {
+            "type": "simple"
+        },
+        "riskWindows": [
+            {
+                "end": 30,
+                "label": "Risk window 1",
+                "start": 1,
+                "endAnchor": "era_start",
+                "startAnchor": "era_start"
+            }
+        ],
+        "outcomeCohortId": 0,
+        "studyPopulation": {
+            "naivePeriod": 180,
+            "firstOutcomeOnly": true
+        },
+        "exposureCohortId": 0
+    },
+    "author_id": 524,
+    "created_at": "2026-06-18T02:51:34.000000Z",
+    "updated_at": "2026-06-18T02:51:34.000000Z",
+    "deleted_at": null,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null
+}
