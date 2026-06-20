@@ -5,10 +5,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement } from 'react';
 import AskAbbyChannel from '../AskAbbyChannel';
 import { useAbbyStore } from '@/stores/abbyStore';
+import { useSourceStore } from '@/stores/sourceStore';
 import * as abbyService from '../../../services/abbyService';
+import * as dataInterrogationService from '../../../services/dataInterrogationService';
 import type { AbbyConversationMessage, AbbyConversationSummary } from '../../../types/abby';
 
 vi.mock('../../../services/abbyService');
+vi.mock('../../../services/dataInterrogationService');
 vi.mock('@/stores/abbyStore', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@/stores/abbyStore')>();
   return mod; // use real store so state persists across renders in tests
@@ -22,6 +25,7 @@ function makeWrapper() {
 
 beforeEach(() => {
   useAbbyStore.setState({ conversationId: null, messages: [], conversationList: [] });
+  useSourceStore.setState({ activeSourceId: null, defaultSourceId: null, sources: [] });
   vi.clearAllMocks();
   localStorage.clear();
   // jsdom does not implement scrollTo — mock it to avoid unhandled exceptions
@@ -133,5 +137,40 @@ describe('AskAbbyChannel', () => {
     await waitFor(() =>
       expect(screen.getByText(/I'm Abby/)).toBeInTheDocument()
     );
+  });
+
+  it('uses the active source for /data questions', async () => {
+    vi.mocked(dataInterrogationService.askDataQuestion).mockResolvedValue({
+      answer: 'There are 128 patients.',
+      tables: [],
+      queries: ['select count(*) from person'],
+      iterations: 1,
+    });
+    useSourceStore.setState({ activeSourceId: 17, defaultSourceId: 9 });
+
+    render(<AskAbbyChannel />, { wrapper: makeWrapper() });
+
+    await userEvent.type(screen.getByRole('textbox'), '/data count patients');
+    await userEvent.click(screen.getByRole('button', { name: 'Ask' }));
+
+    await waitFor(() =>
+      expect(dataInterrogationService.askDataQuestion).toHaveBeenCalledWith({
+        question: 'count patients',
+        source_id: 17,
+      }),
+    );
+    expect(await screen.findByText('There are 128 patients.')).toBeInTheDocument();
+  });
+
+  it('does not submit /data questions without a selected or default source', async () => {
+    render(<AskAbbyChannel />, { wrapper: makeWrapper() });
+
+    await userEvent.type(screen.getByRole('textbox'), '/data count patients');
+    await userEvent.click(screen.getByRole('button', { name: 'Ask' }));
+
+    expect(dataInterrogationService.askDataQuestion).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText('Select a data source before asking a data question.'),
+    ).toBeInTheDocument();
   });
 });

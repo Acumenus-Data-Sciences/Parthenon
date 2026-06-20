@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import type { AbbySourceAttributionProps, AbbySource } from "../../types/abby";
 
 const COLLECTION_LABEL_KEYS: Record<string, string> = {
@@ -62,6 +63,88 @@ function getSourceSubline(source: AbbySource): string {
   return [source.section, getSourcePath(source)]
     .filter((value): value is string => Boolean(value && value.trim()))
     .join(" · ");
+}
+
+type AbbySourceNavigationTarget =
+  | { type: "internal"; to: string }
+  | { type: "external"; href: string };
+
+function clean(value?: string | null): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function metadataValue(source: AbbySource, keys: string[]): string | null {
+  for (const key of keys) {
+    const value = clean(source.metadata?.[key]);
+    if (value) return value;
+  }
+
+  return null;
+}
+
+function positiveInteger(value?: string | null): string | null {
+  const trimmed = clean(value);
+  if (!trimmed || !/^\d+$/.test(trimmed)) return null;
+  return Number(trimmed) > 0 ? trimmed : null;
+}
+
+function artifactId(source: AbbySource, metadataKeys: string[]): string | null {
+  return (
+    positiveInteger(metadataValue(source, metadataKeys)) ??
+    positiveInteger(source.document_id)
+  );
+}
+
+function routeTarget(to: string): AbbySourceNavigationTarget {
+  return { type: "internal", to };
+}
+
+function resolveAbbySourceNavigation(
+  source: AbbySource,
+): AbbySourceNavigationTarget | null {
+  const url = clean(source.url);
+  if (url) {
+    if (url.startsWith("/")) return { type: "internal", to: url };
+    if (/^https?:\/\//i.test(url)) return { type: "external", href: url };
+  }
+
+  const collection = source.collection.toLowerCase();
+  const sourceId = artifactId(source, ["source_id", "data_source_id"]);
+  const cohortId = artifactId(source, ["cohort_id", "cohort_definition_id"]);
+  const conceptSetId = artifactId(source, ["concept_set_id"]);
+  const studyId = artifactId(source, ["study_id"]);
+
+  if (["data_source", "data_sources", "sources"].includes(collection) && sourceId) {
+    return routeTarget(`/data-explorer/${sourceId}`);
+  }
+
+  if (
+    ["cohort_definition", "cohort_definitions"].includes(collection) &&
+    cohortId
+  ) {
+    return routeTarget(`/cohort-definitions/${cohortId}`);
+  }
+
+  if (["concept_set", "concept_sets"].includes(collection) && conceptSetId) {
+    return routeTarget(`/concept-sets/${conceptSetId}`);
+  }
+
+  if (["study", "study_design", "study_designs"].includes(collection) && studyId) {
+    return routeTarget(`/studies/${studyId}`);
+  }
+
+  const channelSlug = metadataValue(source, ["channel_slug"]);
+  const messageId = positiveInteger(metadataValue(source, ["message_id"]));
+  if (
+    ["commons_messages", "conv", "object_discussions"].includes(collection) &&
+    channelSlug
+  ) {
+    const highlight = messageId ? `?highlight=${messageId}` : "";
+    return routeTarget(`/commons/${encodeURIComponent(channelSlug)}${highlight}`);
+  }
+
+  return null;
 }
 
 function SourceScore({ score }: { score?: number }) {
@@ -164,9 +247,27 @@ export default function AbbySourceAttribution({
   onSourceClick,
 }: AbbySourceAttributionProps) {
   const { t } = useTranslation("commons");
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (!sources.length) return null;
+
+  function handleSourceClick(source: AbbySource) {
+    if (onSourceClick) {
+      onSourceClick(source);
+      return;
+    }
+
+    const target = resolveAbbySourceNavigation(source);
+    if (!target) return;
+
+    if (target.type === "internal") {
+      navigate(target.to);
+      return;
+    }
+
+    window.open(target.href, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <div className="mt-2.5 border-t border-border pt-2.5">
@@ -198,7 +299,11 @@ export default function AbbySourceAttribution({
               ].join("|")}
               source={source}
               rank={index + 1}
-              onClick={() => onSourceClick?.(source)}
+              onClick={
+                onSourceClick || resolveAbbySourceNavigation(source)
+                  ? () => handleSourceClick(source)
+                  : undefined
+              }
             />
           ))}
         </div>

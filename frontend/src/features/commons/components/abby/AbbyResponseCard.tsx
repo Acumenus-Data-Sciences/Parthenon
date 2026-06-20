@@ -123,9 +123,6 @@ export default function AbbyResponseCard({
           <AbbySourceAttribution
             sources={sources}
             defaultExpanded={false}
-            onSourceClick={() => {
-              // TODO: navigate to source document
-            }}
           />
 
           {/* Feedback */}

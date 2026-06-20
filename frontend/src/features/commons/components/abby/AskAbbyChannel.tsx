@@ -25,6 +25,7 @@ import { askDataQuestion } from "../../services/dataInterrogationService";
 import { DataInterrogationResult } from "./DataInterrogationResult";
 import { useAuthStore } from "@/stores/authStore";
 import { useAbbyStore } from "@/stores/abbyStore";
+import { useSourceStore } from "@/stores/sourceStore";
 import { useAbbyConversations } from "../../api";
 import type {
   AbbyConversationMessage,
@@ -245,6 +246,9 @@ export default function AskAbbyChannel() {
   const queryClient = useQueryClient();
 
   const user = useAuthStore((s) => s.user);
+  const dataQuestionSourceId = useSourceStore(
+    (s) => s.activeSourceId ?? s.defaultSourceId,
+  );
   const userName = user?.name ?? t("abby.researcherFallback");
   const userInitials = userName
     .split(" ")
@@ -356,11 +360,34 @@ export default function AskAbbyChannel() {
         const question = query.slice(6).trim();
         if (!question) return;
 
+        if (!dataQuestionSourceId) {
+          setConversation((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "abby",
+              content: "",
+              timestamp: new Date().toISOString(),
+              dataResult: {
+                answer: "",
+                tables: [],
+                queries: [],
+                iterations: 0,
+                error: t("abby.dataQuestionSourceRequired", {
+                  defaultValue:
+                    "Select a data source before asking a data question.",
+                }),
+              },
+            },
+          ]);
+          return;
+        }
+
         setIsDataLoading(true);
         try {
           const result = await askDataQuestion({
             question,
-            source_id: 1, // TODO: wire to user's selected source
+            source_id: dataQuestionSourceId,
           });
           setConversation((prev) => [
             ...prev,
@@ -442,6 +469,7 @@ export default function AskAbbyChannel() {
       setConversationId,
       queryClient,
       t,
+      dataQuestionSourceId,
     ],
   );
 

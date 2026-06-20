@@ -274,6 +274,8 @@ const enCommons: MessageTree = {
     analyzingData: "Analyzing data...",
     errorTryAgain: "Something went wrong - please try again.",
     dataQuestionError: "An error occurred while analyzing your data question.",
+    dataQuestionSourceRequired:
+      "Select a data source before asking a data question.",
     askPlaceholder: "Ask Abby anything about your research network...",
     askButton: "Ask",
     avatarAlt: "Abby",
@@ -826,6 +828,8 @@ const esCommons: MessageTree = {
     errorTryAgain: "Algo salió mal - inténtalo de nuevo.",
     dataQuestionError:
       "Ocurrió un error al analizar tu pregunta sobre los datos.",
+    dataQuestionSourceRequired:
+      "Selecciona una fuente de datos antes de hacer una pregunta sobre los datos.",
     askPlaceholder:
       "Pregunta a Abby cualquier cosa sobre tu red de investigación...",
     askButton: "Preguntar",
@@ -1377,6 +1381,7 @@ const koCommons: MessageTree = {
     analyzingData: "데이터 분석 중...",
     errorTryAgain: "문제가 발생했습니다 - 다시 시도해 주세요.",
     dataQuestionError: "데이터 질문을 분석하는 중 오류가 발생했습니다.",
+    dataQuestionSourceRequired: "데이터 질문을 하기 전에 데이터 소스를 선택하세요.",
     askPlaceholder: "연구 네트워크에 대해 Abby에게 무엇이든 물어보세요...",
     askButton: "질문",
     avatarAlt: "Abby",
@@ -1931,6 +1936,8 @@ const frCommons: MessageTree = mergeMessageTrees(enCommons, {
     errorTryAgain: "Une erreur est survenue - veuillez réessayer.",
     dataQuestionError:
       "Une erreur s'est produite lors de l'analyse de votre question sur les données.",
+    dataQuestionSourceRequired:
+      "Sélectionnez une source de données avant de poser une question sur les données.",
     askPlaceholder:
       "Posez à Abby une question sur votre réseau de recherche...",
     askButton: "Demander",
@@ -2491,6 +2498,8 @@ const deCommons: MessageTree = mergeMessageTrees(enCommons, {
     errorTryAgain: "Etwas ist schiefgelaufen - bitte erneut versuchen.",
     dataQuestionError:
       "Beim Analysieren Ihrer Datenfrage ist ein Fehler aufgetreten.",
+    dataQuestionSourceRequired:
+      "Wählen Sie eine Datenquelle aus, bevor Sie eine Datenfrage stellen.",
     askPlaceholder: "Fragen Sie Abby alles über Ihr Forschungsnetzwerk...",
     askButton: "Fragen",
     avatarAlt: "Abby-Avatar",
@@ -3045,6 +3054,8 @@ const ptCommons: MessageTree = mergeMessageTrees(enCommons, {
     analyzingData: "Analisando dados...",
     errorTryAgain: "Algo deu errado - tente novamente.",
     dataQuestionError: "Ocorreu um erro ao analisar sua pergunta sobre dados.",
+    dataQuestionSourceRequired:
+      "Selecione uma fonte de dados antes de fazer uma pergunta sobre dados.",
     askPlaceholder:
       "Pergunte à Abby qualquer coisa sobre sua rede de pesquisa...",
     askButton: "Perguntar",
@@ -3592,6 +3603,8 @@ const fiCommons: MessageTree = mergeMessageTrees(enCommons, {
     analyzingData: "Analysoidaan dataa...",
     errorTryAgain: "Jokin meni pieleen - yritä uudelleen.",
     dataQuestionError: "Datakysymyksen analysoinnissa tapahtui virhe.",
+    dataQuestionSourceRequired:
+      "Valitse tietolähde ennen datakysymyksen esittämistä.",
     askPlaceholder: "Kysy Abbylta mitä tahansa tutkimusverkostostasi...",
     askButton: "Kysy",
     avatarOnline: "Abby on verkossa",
@@ -4135,6 +4148,7 @@ const jaCommons: MessageTree = mergeMessageTrees(enCommons, {
     analyzingData: "データを解析中...",
     errorTryAgain: "問題が発生しました - もう一度お試しください。",
     dataQuestionError: "データ質問の解析中にエラーが発生しました。",
+    dataQuestionSourceRequired: "データに関する質問をする前にデータソースを選択してください。",
     askPlaceholder: "研究ネットワークについて Abby に何でも質問...",
     askButton: "質問",
     avatarOnline: "Abby はオンラインです",
@@ -4667,6 +4681,7 @@ const zhCommons: MessageTree = mergeMessageTrees(enCommons, {
     analyzingData: "正在分析数据...",
     errorTryAgain: "出现问题 - 请重试。",
     dataQuestionError: "分析你的数据问题时发生错误。",
+    dataQuestionSourceRequired: "在提出数据问题之前，请选择一个数据源。",
     askPlaceholder: "向 Abby 询问有关研究网络的任何问题...",
     askButton: "询问",
     avatarOnline: "Abby 在线",
@@ -5210,6 +5225,8 @@ const hiCommons: MessageTree = mergeMessageTrees(enCommons, {
     errorTryAgain: "कुछ गड़बड़ हुई है। कृपया दोबारा प्रयास करें।",
     dataQuestionError:
       "आपके डेटा प्रश्न का विश्लेषण करते समय एक त्रुटि उत्पन्न हुई।",
+    dataQuestionSourceRequired:
+      "डेटा प्रश्न पूछने से पहले एक डेटा स्रोत चुनें।",
     askPlaceholder: "अपने शोध नेटवर्क के बारे में Abby से कुछ भी पूछें...",
     askButton: "पूछना",
     avatarAlt: "Abby",
@@ -5757,6 +5774,7 @@ const arCommons: MessageTree = mergeMessageTrees(enCommons, {
     analyzingData: "جارٍ تحليل البيانات...",
     errorTryAgain: "حدث خطأ ما - يرجى المحاولة مرة أخرى.",
     dataQuestionError: "حدث خطأ أثناء تحليل سؤالك عن البيانات.",
+    dataQuestionSourceRequired: "اختر مصدر بيانات قبل طرح سؤال عن البيانات.",
     askPlaceholder: "اسأل Abby أي شيء عن شبكتك البحثية...",
     askButton: "اسأل",
     avatarAlt: "Abby",
