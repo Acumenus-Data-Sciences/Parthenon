@@ -9,39 +9,31 @@ parameters:
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
+        # Generic-type strictness (style, not correctness): Laravel models and
+        # collections rarely declare value/generic types. Globally ignored to
+        # avoid thousands of cosmetic "specify generic types" findings.
         - '#uses generic trait .+HasFactory but does not specify its types#'
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        # larastan generic/template resolution limits — analyzer limitations on
+        # Eloquent/container magic, not user-fixable type bugs.
         - identifier: argument.templateType
-        - identifier: property.notFound
-        - identifier: isset.offset
         - identifier: argument.unresolvableType
         - identifier: method.unresolvableReturnType
+        - identifier: function.unresolvableReturnType
         - identifier: nullsafe.neverNull
+        # Eloquent dynamic attributes/casts: larastan cannot see DB-column
+        # properties, magic relations, or enum/date cast targets without
+        # per-model @property annotations, producing ~960 high-volume false
+        # positives. Kept global; the real-bug identifiers stay enforced.
+        - identifier: property.notFound
         - identifier: property.nonObject
         - identifier: method.nonObject
-        - identifier: nullCoalesce.offset
-        - identifier: empty.variable
-        - identifier: property.onlyWritten
-        - identifier: method.unused
-        - identifier: classConstant.unused
-        - identifier: identical.alwaysFalse
-        - identifier: identical.alwaysTrue
-        - identifier: ternary.alwaysTrue
-        - identifier: if.alwaysTrue
-        - identifier: booleanOr.alwaysTrue
-        - identifier: deadCode.unreachable
-        - identifier: foreach.nonIterable
-        - identifier: foreach.emptyArray
-        - identifier: assign.propertyType
-        - identifier: offsetAssign.dimType
-        - identifier: offsetAccess.notFound
-        - identifier: instanceof.alwaysFalse
-        - identifier: larastan.noEnvCallsOutsideOfConfig
-        - identifier: argument.type
-        - identifier: return.type
-        - identifier: function.unresolvableReturnType
-        - identifier: variable.undefined
+        # NOTE: bug-catching identifiers (argument.type, return.type,
+        # variable.undefined, dead-code, always-true/false, foreach.nonIterable,
+        # offset/env/unused, etc.) are NO LONGER blanket-ignored. Existing
+        # violations are frozen file-by-file in phpstan-baseline.neon; any NEW
+        # occurrence fails CI. The baseline is a shrink-list, not a license.
 
 services:
     -
