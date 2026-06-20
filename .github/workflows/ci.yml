@@ -19,7 +19,8 @@ jobs:
   backend:
     name: Backend (Laravel)
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # 45 (was 35): pcov coverage instrumentation adds overhead to the Pest run.
+    timeout-minutes: 45
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -74,7 +75,7 @@ jobs:
         with:
           php-version: "8.4"
           extensions: pdo_pgsql, pgsql, redis, bcmath, intl, mbstring, pcntl, zip
-          coverage: none
+          coverage: pcov
 
       - name: Install Composer dependencies
         working-directory: backend
@@ -118,6 +119,7 @@ jobs:
           php artisan migrate --force
           set +e
           ./vendor/bin/pest \
+            --coverage-clover=coverage.xml \
             --do-not-fail-on-skipped \
             --do-not-fail-on-warning \
             --do-not-fail-on-phpunit-warning \
@@ -142,6 +144,31 @@ jobs:
             fi
             exit "$pest_status"
           fi
+
+      - name: Enforce coverage floor
+        working-directory: backend
+        run: |
+          # Robust, explicit floor: parse the clover report's project-level
+          # aggregate metrics rather than relying on Pest's exit code / log text.
+          # Conservative initial floor; ratchet up toward 80% as coverage grows.
+          # NEVER lower this value — it is a one-way ratchet.
+          php -r '
+            $floor = 25.0;
+            $f = "coverage.xml";
+            if (!is_file($f)) { fwrite(STDERR, "coverage.xml not found — coverage was not collected\n"); exit(1); }
+            $xml = simplexml_load_file($f);
+            $nodes = $xml->xpath("/coverage/project/metrics");
+            if (!$nodes) { fwrite(STDERR, "no project metrics in clover report\n"); exit(1); }
+            $m = end($nodes);
+            $stmts = (int) $m["statements"];
+            $covered = (int) $m["coveredstatements"];
+            $pct = $stmts > 0 ? ($covered / $stmts) * 100.0 : 0.0;
+            printf("Line coverage: %.2f%% (%d/%d statements); floor %.1f%%\n", $pct, $covered, $stmts, $floor);
+            if ($pct + 1e-9 < $floor) {
+              fwrite(STDERR, sprintf("::error::Coverage %.2f%% is below the %.1f%% floor\n", $pct, $floor));
+              exit(1);
+            }
+          '
 
   frontend:
     name: Frontend (React)
