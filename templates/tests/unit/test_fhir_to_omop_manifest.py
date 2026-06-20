@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
+import sqlalchemy
 import yaml
 
 from runtime.registry.manifest import load_manifest
@@ -19,6 +21,161 @@ def test_manifest_loads() -> None:
     manifest = load_manifest(payload)
     assert manifest.metadata.id == "fhir_to_omop"
     assert manifest.metadata.category == "ingestion"
+
+
+def _manifest_node(node_id: str) -> dict[str, object]:
+    payload = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    return next(n for n in payload["spec"]["nodes"] if n["node_id"] == node_id)
+
+
+def _run_inline_python_node(node_id: str, artifact_root: Path) -> dict[str, object]:
+    node = _manifest_node(node_id)
+    namespace: dict[str, object] = {}
+    code = str(node["params"]["code"])
+    exec(compile(code, f"<{node_id}>", "exec"), namespace)
+    context = SimpleNamespace(
+        artifact_dir=artifact_root / node_id,
+        db_dsn="sqlite:///:memory:",
+    )
+    context.artifact_dir.mkdir(parents=True)
+    params = {
+        "vocab_schema": "vocab",
+        "permit_concept_id": "4055893",
+        "deny_concept_id": "4054745",
+    }
+    result = namespace["main"](context, params)
+    assert isinstance(result, dict)
+    return result
+
+
+def test_manifest_mappers_write_empty_artifacts_when_resources_absent(tmp_path: Path) -> None:
+    expected = {
+        "map_patients": ({"persons_mapped": 0}, ["patients.json"]),
+        "map_encounters": ({"visits_mapped": 0}, ["visits.json"]),
+        "map_conditions": ({"conditions_mapped": 0}, ["conditions.json"]),
+        "map_observations": (
+            {"measurements_mapped": 0, "observations_mapped": 0},
+            ["measurements.json", "observations.json"],
+        ),
+        "map_procedures": ({"procedures_mapped": 0}, ["procedures.json"]),
+        "map_medications": (
+            {"drug_exposures_meds_mapped": 0},
+            ["drug_exposures_meds.json"],
+        ),
+        "map_immunizations": (
+            {"drug_exposures_imm_mapped": 0},
+            ["drug_exposures_imm.json"],
+        ),
+        "map_diagnostic_reports": (
+            {"diagnostic_reports_mapped": 0},
+            ["diagnostic_reports.json"],
+        ),
+        "map_consents": (
+            {"consents_mapped": 0, "consent_decisions": 0},
+            ["consents.json", "consent_decisions.json"],
+        ),
+    }
+
+    for node_id, (outputs, artifact_names) in expected.items():
+        assert _run_inline_python_node(node_id, tmp_path) == outputs
+        for artifact_name in artifact_names:
+            artifact = tmp_path / node_id / artifact_name
+            assert artifact.exists(), f"{node_id} did not write {artifact_name}"
+            assert json.loads(artifact.read_text(encoding="utf-8")) == []
+
+
+def _write_json(path: Path, rows: list[dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(rows), encoding="utf-8")
+
+
+class _FakeConnection:
+    def __init__(self) -> None:
+        self.executions: list[tuple[str, dict[str, object]]] = []
+
+    def execute(self, statement: object, params: dict[str, object] | None = None) -> None:
+        self.executions.append((str(statement), params or {}))
+
+
+class _FakeBegin:
+    def __init__(self, conn: _FakeConnection) -> None:
+        self.conn = conn
+
+    def __enter__(self) -> _FakeConnection:
+        return self.conn
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> bool:
+        return False
+
+
+class _FakeEngine:
+    def __init__(self) -> None:
+        self.conn = _FakeConnection()
+
+    def begin(self) -> _FakeBegin:
+        return _FakeBegin(self.conn)
+
+
+def test_load_to_cdm_treats_missing_optional_mapper_outputs_as_empty(
+    tmp_path: Path, monkeypatch
+) -> None:
+    fake_engine = _FakeEngine()
+    monkeypatch.setattr(sqlalchemy, "create_engine", lambda *args, **kwargs: fake_engine)
+
+    run_dir = tmp_path / "run"
+    load_dir = run_dir / "load_to_cdm"
+    load_dir.mkdir(parents=True)
+    _write_json(
+        run_dir / "map_patients" / "patients.json",
+        [
+            {
+                "gender_concept_id": 8507,
+                "year_of_birth": 1970,
+                "month_of_birth": 6,
+                "day_of_birth": 15,
+                "birth_datetime": "1970-06-15T00:00:00",
+                "race_concept_id": 0,
+                "ethnicity_concept_id": 0,
+                "person_source_value": "p1",
+            }
+        ],
+    )
+    _write_json(
+        run_dir / "map_observations" / "measurements.json",
+        [
+            {
+                "person_source_value": "p1",
+                "visit_source_value": None,
+                "measurement_concept_id": 3004249,
+                "measurement_date": "2026-04-01",
+                "measurement_datetime": "2026-04-01T08:30:00",
+                "measurement_type_concept_id": 32817,
+                "value_as_number": 120.0,
+                "unit_concept_id": 0,
+                "measurement_source_value": "8480-6",
+                "measurement_source_concept_id": 3004249,
+            }
+        ],
+    )
+    _write_json(run_dir / "map_observations" / "observations.json", [])
+
+    node = _manifest_node("load_to_cdm")
+    namespace: dict[str, object] = {}
+    exec(compile(str(node["params"]["code"]), "<load_to_cdm>", "exec"), namespace)
+    context = SimpleNamespace(artifact_dir=load_dir, db_dsn="postgresql://unused")
+    result = namespace["main"](context, {"target_schema": "omop", "app_schema": "app"})
+
+    assert isinstance(result, dict)
+    assert result["persons"] == 1
+    assert result["measurements"] == 1
+    assert result["visits"] == 0
+    assert result["conditions"] == 0
+    assert result["procedures"] == 0
+    assert result["drug_exposures"] == 0
+    assert result["diagnostic_reports"] == 0
+    assert result["consent_observations"] == 0
+    assert result["consent_decisions"] == 0
+    assert len(fake_engine.conn.executions) == 2
 
 
 def test_manifest_imports_pra_mappers() -> None:

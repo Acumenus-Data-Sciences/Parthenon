@@ -65,6 +65,7 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "patient.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "patients.json").write_text("[]", encoding="utf-8")
                   return {"persons_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -91,6 +92,7 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "encounter.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "visits.json").write_text("[]", encoding="utf-8")
                   return {"visits_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -117,6 +119,7 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "condition.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "conditions.json").write_text("[]", encoding="utf-8")
                   return {"conditions_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -147,6 +150,8 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "observation.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "measurements.json").write_text("[]", encoding="utf-8")
+                  (context.artifact_dir / "observations.json").write_text("[]", encoding="utf-8")
                   return {"measurements_mapped": 0, "observations_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -184,6 +189,7 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "procedure.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "procedures.json").write_text("[]", encoding="utf-8")
                   return {"procedures_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -212,14 +218,20 @@ spec:
 
           def main(context, params):
               base = context.artifact_dir.parent / "ingest_fhir"
-              engine = create_engine(context.db_dsn, future=True)
-              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
-              rows = []
-              for fname, mapper in [
+              sources = [
                   ("medicationrequest.parquet", map_medication_request),
                   ("medicationstatement.parquet", map_medication_statement),
                   ("medicationadministration.parquet", map_medication_administration),
-              ]:
+              ]
+              if not any((base / fname).exists() for fname, _mapper in sources):
+                  (context.artifact_dir / "drug_exposures_meds.json").write_text(
+                      "[]", encoding="utf-8"
+                  )
+                  return {"drug_exposures_meds_mapped": 0}
+              engine = create_engine(context.db_dsn, future=True)
+              resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
+              rows = []
+              for fname, mapper in sources:
                   pq = base / fname
                   if not pq.exists():
                       continue
@@ -246,6 +258,9 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "immunization.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "drug_exposures_imm.json").write_text(
+                      "[]", encoding="utf-8"
+                  )
                   return {"drug_exposures_imm_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -275,6 +290,9 @@ spec:
                   context.artifact_dir.parent / "ingest_fhir" / "diagnosticreport.parquet"
               )
               if not upstream.exists():
+                  (context.artifact_dir / "diagnostic_reports.json").write_text(
+                      "[]", encoding="utf-8"
+                  )
                   return {"diagnostic_reports_mapped": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -302,6 +320,10 @@ spec:
           def main(context, params):
               upstream = context.artifact_dir.parent / "ingest_fhir" / "consent.parquet"
               if not upstream.exists():
+                  (context.artifact_dir / "consents.json").write_text("[]", encoding="utf-8")
+                  (context.artifact_dir / "consent_decisions.json").write_text(
+                      "[]", encoding="utf-8"
+                  )
                   return {"consents_mapped": 0, "consent_decisions": 0}
               engine = create_engine(context.db_dsn, future=True)
               resolver = ConceptResolver(engine=engine, vocab_schema=params["vocab_schema"])
@@ -355,51 +377,25 @@ spec:
               schema = params["target_schema"]
               app_schema = params["app_schema"]
               base = context.artifact_dir.parent
-              persons = json.loads(
-                  (base / "map_patients" / "patients.json").read_text(encoding="utf-8")
-              )
-              visits = json.loads(
-                  (base / "map_encounters" / "visits.json").read_text(encoding="utf-8")
-              )
-              conditions = json.loads(
-                  (base / "map_conditions" / "conditions.json").read_text(encoding="utf-8")
-              )
-              measurements = json.loads(
-                  (base / "map_observations" / "measurements.json").read_text(encoding="utf-8")
-              )
-              observations = json.loads(
-                  (base / "map_observations" / "observations.json").read_text(encoding="utf-8")
-              )
+              def read_rows(node_id, artifact, *, required=False):
+                  path = base / node_id / artifact
+                  if path.exists():
+                      return json.loads(path.read_text(encoding="utf-8"))
+                  if required:
+                      raise FileNotFoundError(f"required mapper artifact not found: {path}")
+                  return []
 
-              proc_path = base / "map_procedures" / "procedures.json"
-              procedures = (
-                  json.loads(proc_path.read_text(encoding="utf-8")) if proc_path.exists() else []
-              )
-              meds_path = base / "map_medications" / "drug_exposures_meds.json"
-              drug_meds = (
-                  json.loads(meds_path.read_text(encoding="utf-8")) if meds_path.exists() else []
-              )
-              imm_path = base / "map_immunizations" / "drug_exposures_imm.json"
-              drug_imm = (
-                  json.loads(imm_path.read_text(encoding="utf-8")) if imm_path.exists() else []
-              )
-
-              dr_path = base / "map_diagnostic_reports" / "diagnostic_reports.json"
-              diag_reports = (
-                  json.loads(dr_path.read_text(encoding="utf-8")) if dr_path.exists() else []
-              )
-              con_obs_path = base / "map_consents" / "consents.json"
-              consent_obs = (
-                  json.loads(con_obs_path.read_text(encoding="utf-8"))
-                  if con_obs_path.exists()
-                  else []
-              )
-              con_dec_path = base / "map_consents" / "consent_decisions.json"
-              consent_decisions = (
-                  json.loads(con_dec_path.read_text(encoding="utf-8"))
-                  if con_dec_path.exists()
-                  else []
-              )
+              persons = read_rows("map_patients", "patients.json", required=True)
+              visits = read_rows("map_encounters", "visits.json")
+              conditions = read_rows("map_conditions", "conditions.json")
+              measurements = read_rows("map_observations", "measurements.json")
+              observations = read_rows("map_observations", "observations.json")
+              procedures = read_rows("map_procedures", "procedures.json")
+              drug_meds = read_rows("map_medications", "drug_exposures_meds.json")
+              drug_imm = read_rows("map_immunizations", "drug_exposures_imm.json")
+              diag_reports = read_rows("map_diagnostic_reports", "diagnostic_reports.json")
+              consent_obs = read_rows("map_consents", "consents.json")
+              consent_decisions = read_rows("map_consents", "consent_decisions.json")
 
               n_persons = n_visits = n_conds = n_meas = n_obs = n_proc = n_drug = 0
               n_diag = n_consent_obs = n_consent_dec = 0

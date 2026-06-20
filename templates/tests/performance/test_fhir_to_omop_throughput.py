@@ -114,6 +114,20 @@ def test_1m_observations_under_10_minutes(tmp_path: Path, monkeypatch: pytest.Mo
                 )
                 """,
                 """
+                CREATE TABLE IF NOT EXISTS omop.condition_occurrence (
+                    condition_occurrence_id BIGSERIAL PRIMARY KEY,
+                    person_id BIGINT NOT NULL,
+                    condition_concept_id INTEGER NOT NULL,
+                    condition_start_date DATE NOT NULL,
+                    condition_start_datetime TIMESTAMP,
+                    condition_end_date DATE,
+                    condition_type_concept_id INTEGER,
+                    condition_source_value VARCHAR(50),
+                    condition_source_concept_id INTEGER,
+                    visit_occurrence_id BIGINT
+                )
+                """,
+                """
                 CREATE TABLE IF NOT EXISTS omop.observation (
                     observation_id BIGSERIAL PRIMARY KEY,
                     person_id BIGINT NOT NULL,
@@ -126,6 +140,34 @@ def test_1m_observations_under_10_minutes(tmp_path: Path, monkeypatch: pytest.Mo
                     value_as_concept_id INTEGER,
                     observation_source_value VARCHAR(50),
                     observation_source_concept_id INTEGER,
+                    visit_occurrence_id BIGINT
+                )
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS omop.procedure_occurrence (
+                    procedure_occurrence_id BIGSERIAL PRIMARY KEY,
+                    person_id BIGINT NOT NULL,
+                    procedure_concept_id INTEGER NOT NULL,
+                    procedure_date DATE NOT NULL,
+                    procedure_datetime TIMESTAMP,
+                    procedure_type_concept_id INTEGER,
+                    procedure_source_value VARCHAR(50),
+                    procedure_source_concept_id INTEGER,
+                    visit_occurrence_id BIGINT
+                )
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS omop.drug_exposure (
+                    drug_exposure_id BIGSERIAL PRIMARY KEY,
+                    person_id BIGINT NOT NULL,
+                    drug_concept_id INTEGER NOT NULL,
+                    drug_exposure_start_date DATE NOT NULL,
+                    drug_exposure_start_datetime TIMESTAMP,
+                    drug_exposure_end_date DATE,
+                    drug_exposure_end_datetime TIMESTAMP,
+                    drug_type_concept_id INTEGER,
+                    drug_source_value VARCHAR(50),
+                    drug_source_concept_id INTEGER,
                     visit_occurrence_id BIGINT
                 )
                 """,
