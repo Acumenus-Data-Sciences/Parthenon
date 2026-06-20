@@ -14,7 +14,7 @@ related_prs: [365]
 # Local-model agent backend (EE / CE provider switch)
 
 **Date:** 2026-06-15
-**Plan:** `docs/lineage/plans/open/2026-06-15-local-model-agent-backend-ce.md`
+**Plan:** `docs/lineage/plans/closed/2026-06-15-local-model-agent-backend-ce.md`
 **Related:** `project_parthenon_agent_copilots`, `2026-06-11-study-results-projection`
 
 ## Why

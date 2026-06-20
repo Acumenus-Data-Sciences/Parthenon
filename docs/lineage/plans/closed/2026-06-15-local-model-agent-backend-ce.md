@@ -7,7 +7,8 @@ module: abby-ai
 lineage_anchor: true
 supersedes: []
 superseded_by: null
-related_code: []
+related_code:
+  - docs/lineage/modules/abby-ai/local-model-agent-backend-ce.md
 related_prs: [365]
 ---
 

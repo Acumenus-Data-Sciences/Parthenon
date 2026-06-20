@@ -15,7 +15,7 @@ related_prs:
 # Abby — Protocol-to-Publication Pipeline: Implementation Plan
 
 **ADR:** `docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md`
-**Status:** Proposed — pending checkpoint review
+**Status:** Active — pending checkpoint review
 **Validation target:** Hypertension Study v3 (`app.studies.id = 114`) rerun as the golden regression case
 **Date:** 2026-06-09
 
