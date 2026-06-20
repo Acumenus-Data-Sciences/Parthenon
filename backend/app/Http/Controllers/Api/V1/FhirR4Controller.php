@@ -8,11 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FhirSearchRequest;
 use App\Jobs\Fhir\RunFhirExportJob;
 use App\Models\App\FhirExportJob;
+use App\Models\App\Source;
+use App\Models\User;
 use App\Services\Fhir\Export\FhirBundleAssembler;
 use App\Services\Fhir\Export\OmopToFhirService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -20,6 +23,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class FhirR4Controller extends Controller
 {
+    /** @var list<string> */
+    private const RESOURCE_TYPES = [
+        'Patient',
+        'Condition',
+        'Encounter',
+        'Observation',
+        'MedicationStatement',
+        'Procedure',
+        'Immunization',
+        'AllergyIntolerance',
+    ];
+
     public function __construct(
         private readonly OmopToFhirService $service,
     ) {}
@@ -118,22 +133,26 @@ class FhirR4Controller extends Controller
      */
     public function startExport(Request $request): JsonResponse
     {
-        $request->validate([
-            'source_id' => ['required', 'integer'],
-            'resource_types' => ['sometimes', 'array'],
-            'resource_types.*' => ['string'],
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', Rule::exists('sources', 'id')->whereNull('deleted_at')],
+            'resource_types' => ['sometimes', 'array', 'min:1'],
+            'resource_types.*' => ['string', 'distinct', Rule::in(self::RESOURCE_TYPES)],
             'patient_ids' => ['sometimes', 'array'],
-            'patient_ids.*' => ['integer'],
+            'patient_ids.*' => ['integer', 'min:1', 'distinct'],
         ]);
 
+        $user = $this->authenticatedUser($request);
+        $source = Source::query()
+            ->visibleToUser($user)
+            ->find($validated['source_id']);
+
+        abort_unless($source instanceof Source, 403, 'You do not have access to this source.');
+
         $job = FhirExportJob::create([
-            'source_id' => $request->input('source_id'),
-            'resource_types' => $request->input('resource_types', [
-                'Patient', 'Condition', 'Encounter', 'Observation',
-                'MedicationStatement', 'Procedure', 'Immunization', 'AllergyIntolerance',
-            ]),
-            'patient_ids' => $request->input('patient_ids'),
-            'user_id' => $request->user()->id,
+            'source_id' => $source->id,
+            'resource_types' => $validated['resource_types'] ?? self::RESOURCE_TYPES,
+            'patient_ids' => $validated['patient_ids'] ?? null,
+            'user_id' => $user->id,
         ]);
 
         RunFhirExportJob::dispatch($job->id);
@@ -149,9 +168,10 @@ class FhirR4Controller extends Controller
     /**
      * Check bulk export status.
      */
-    public function exportStatus(string $id): JsonResponse
+    public function exportStatus(Request $request, string $id): JsonResponse
     {
         $job = FhirExportJob::findOrFail($id);
+        $this->authorizeExportJob($request, $job);
 
         return response()->json([
             'id' => $job->id,
@@ -167,10 +187,17 @@ class FhirR4Controller extends Controller
     /**
      * Download an exported NDJSON file.
      */
-    public function downloadExportFile(string $id, string $file): StreamedResponse
+    public function downloadExportFile(Request $request, string $id, string $file): StreamedResponse
     {
         $job = FhirExportJob::findOrFail($id);
-        $path = "fhir-exports/{$id}/{$file}.ndjson";
+        $this->authorizeExportJob($request, $job);
+
+        $entry = $this->exportFileEntry($job, $file);
+        if ($entry === null) {
+            abort(404, 'Export file not found');
+        }
+
+        $path = $entry['url'];
 
         if (! Storage::disk('local')->exists($path)) {
             abort(404, 'Export file not found');
@@ -181,6 +208,48 @@ class FhirR4Controller extends Controller
             "{$file}.ndjson",
             ['Content-Type' => 'application/fhir+ndjson'],
         );
+    }
+
+    private function authenticatedUser(Request $request): User
+    {
+        $user = $request->user();
+        abort_unless($user instanceof User, 401);
+
+        return $user;
+    }
+
+    private function authorizeExportJob(Request $request, FhirExportJob $job): void
+    {
+        $user = $this->authenticatedUser($request);
+
+        abort_unless($job->user_id === $user->id || $user->hasRole('super-admin'), 403);
+    }
+
+    /**
+     * @return array{resource_type: string, url: string, count?: int}|null
+     */
+    private function exportFileEntry(FhirExportJob $job, string $file): ?array
+    {
+        if (! in_array($file, self::RESOURCE_TYPES, true)) {
+            return null;
+        }
+
+        $expectedPath = "fhir-exports/{$job->id}/{$file}.ndjson";
+
+        foreach ($job->files ?? [] as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            if (($entry['resource_type'] ?? null) !== $file || ($entry['url'] ?? null) !== $expectedPath) {
+                continue;
+            }
+
+            /** @var array{resource_type: string, url: string, count?: int} $entry */
+            return $entry;
+        }
+
+        return null;
     }
 
     /**

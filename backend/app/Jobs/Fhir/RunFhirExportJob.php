@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs\Fhir;
 
+use App\Context\SourceContext;
 use App\Models\App\FhirExportJob;
+use App\Models\App\Source;
 use App\Services\Fhir\Export\OmopToFhirService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,6 +31,10 @@ class RunFhirExportJob implements ShouldQueue
     public function handle(OmopToFhirService $service): void
     {
         $job = FhirExportJob::findOrFail($this->exportJobId);
+        $source = Source::with('daimons')->findOrFail($job->source_id);
+
+        SourceContext::forSource($source);
+
         $job->update(['status' => 'processing', 'started_at' => now()]);
 
         try {
@@ -36,18 +42,17 @@ class RunFhirExportJob implements ShouldQueue
             $resourceTypes = $job->resource_types ?? [];
 
             foreach ($resourceTypes as $type) {
-                $params = ['_count' => 1000];
                 if ($job->patient_ids) {
                     // Process per patient
                     $resources = [];
                     foreach ($job->patient_ids as $patientId) {
-                        $params['patient'] = $patientId;
-                        $result = $service->search($type, $params);
-                        $resources = [...$resources, ...$result['resources']];
+                        $resources = [
+                            ...$resources,
+                            ...$this->collectResources($service, $type, ['patient' => $patientId]),
+                        ];
                     }
                 } else {
-                    $result = $service->search($type, $params);
-                    $resources = $result['resources'];
+                    $resources = $this->collectResources($service, $type);
                 }
 
                 if (empty($resources)) {
@@ -94,5 +99,31 @@ class RunFhirExportJob implements ShouldQueue
 
             throw $e;
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $params
+     * @return list<array<string, mixed>>
+     */
+    private function collectResources(OmopToFhirService $service, string $type, array $params = []): array
+    {
+        $resources = [];
+        $offset = 0;
+        $pageSize = 100;
+
+        do {
+            $result = $service->search($type, [
+                ...$params,
+                '_count' => $pageSize,
+                '_offset' => $offset,
+            ]);
+
+            $page = $result['resources'];
+            $resources = [...$resources, ...$page];
+            $offset += count($page);
+            $total = (int) $result['total'];
+        } while ($page !== [] && $offset < $total);
+
+        return $resources;
     }
 }

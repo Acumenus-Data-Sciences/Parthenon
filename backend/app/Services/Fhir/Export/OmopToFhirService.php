@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Fhir\Export;
 
 use App\Concerns\SourceAware;
+use App\Context\SourceContext;
 use Illuminate\Database\Query\Builder;
 
 class OmopToFhirService
@@ -23,15 +24,10 @@ class OmopToFhirService
         'AllergyIntolerance' => 'observation',
     ];
 
-    private string $cdmSchema;
-
     public function __construct(
         private readonly FhirResourceBuilderFactory $factory,
         private readonly ReverseVocabularyService $vocab,
-    ) {
-        $this->cdmSchema = config('database.connections.cdm.search_path', 'omop') ?: 'omop';
-        $this->cdmSchema = explode(',', $this->cdmSchema)[0];
-    }
+    ) {}
 
     /**
      * Search OMOP CDM and return FHIR resources.
@@ -50,7 +46,7 @@ class OmopToFhirService
         $offset = (int) ($params['_offset'] ?? 0);
         $count = min($count, 100); // Cap at 100
 
-        $query = $this->cdm()->table("{$this->cdmSchema}.{$table}");
+        $query = $this->cdm()->table($this->cdmTable($table));
 
         // Apply resource-specific filters
         $this->applyFilters($query, $resourceType, $params);
@@ -83,7 +79,7 @@ class OmopToFhirService
 
         $pkColumn = $this->getPrimaryKey($table);
         $row = $this->cdm()
-            ->table("{$this->cdmSchema}.{$table}")
+            ->table($this->cdmTable($table))
             ->where($pkColumn, $id)
             ->first();
 
@@ -122,7 +118,7 @@ class OmopToFhirService
     private function buildPatient(object $person): array
     {
         $death = $this->cdm()
-            ->table("{$this->cdmSchema}.death")
+            ->table($this->cdmTable('death'))
             ->where('person_id', $person->person_id)
             ->first();
 
@@ -214,5 +210,28 @@ class OmopToFhirService
             'measurement' => 'measurement_id',
             default => 'id',
         };
+    }
+
+    private function cdmTable(string $table): string
+    {
+        return $this->cdmSchema().'.'.$table;
+    }
+
+    private function cdmSchema(): string
+    {
+        $schema = app(SourceContext::class)->cdmSchema;
+
+        if (is_string($schema) && trim($schema) !== '') {
+            return $this->normalizeSchema($schema);
+        }
+
+        $fallback = config('database.connections.cdm.search_path', 'omop') ?: 'omop';
+
+        return $this->normalizeSchema((string) $fallback);
+    }
+
+    private function normalizeSchema(string $schema): string
+    {
+        return trim(explode(',', $schema)[0], " \t\n\r\0\x0B\"");
     }
 }

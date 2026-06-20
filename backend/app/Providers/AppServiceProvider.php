@@ -392,6 +392,20 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute($perMinute)->by("shiny-launch-context:{$clientKey}");
         });
+
+        // FHIR R4 facade (routes/fhir.php) is authenticated; throttle per user
+        // with an IP fallback. Without this registration the throttle:fhir
+        // middleware throws MissingRateLimiterException and every authenticated
+        // FHIR request 500s.
+        RateLimiter::for('fhir', function (Request $request): Limit {
+            $perMinute = max(1, (int) config('services.fhir.rate_limit_per_minute', 60));
+            $user = $request->user();
+            $key = $user !== null
+                ? 'fhir:user:'.$user->getAuthIdentifier()
+                : 'fhir:ip:'.($request->ip() ?: 'unknown');
+
+            return Limit::perMinute($perMinute)->by($key);
+        });
     }
 
     private function configureTestingDatabaseConnection(): void
