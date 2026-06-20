@@ -21,6 +21,7 @@ class AgentSettingsControllerTest extends TestCase
         // Minimal role bootstrap — mirror LibraryControllerTest pattern.
         Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
         Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        SystemSetting::whereIn('key', ['agents.enabled', 'agents.provider_mode'])->delete();
     }
 
     // ── GET /api/v1/admin/ai-agents ───────────────────────────────────────────

@@ -15,20 +15,77 @@
  * local credentials (~/.pgpass).
  */
 
+use App\Context\SourceContext;
+use App\Enums\DaimonType;
+use App\Models\App\Source;
+use App\Models\App\SourceDaimon;
 use Illuminate\Support\Facades\DB;
 
 const LOCAL_CONN = 'local_parthenon';
 
-function localParthenonReachable(): bool
+/**
+ * @return array{host: string, port: string, database: string, username: string, password: ?string}
+ */
+function localParthenonTarget(): array
 {
-    ensureLocalConnection();
+    return [
+        'host' => (string) env('ACHILLES_ROUTING_DB_HOST', '127.0.0.1'),
+        'port' => (string) env('ACHILLES_ROUTING_DB_PORT', '5432'),
+        'database' => (string) env('ACHILLES_ROUTING_DB_DATABASE', 'parthenon'),
+        'username' => (string) env('ACHILLES_ROUTING_DB_USERNAME', 'parthenon'),
+        'password' => env('ACHILLES_ROUTING_DB_PASSWORD'),
+    ];
+}
+
+function localParthenonUnavailableReason(): ?string
+{
+    static $checked = false;
+    static $reason = null;
+
+    if ($checked) {
+        return $reason;
+    }
+
+    $checked = true;
+    $target = localParthenonTarget();
+
     try {
+        ensureLocalConnection();
         DB::connection(LOCAL_CONN)->getPdo();
 
-        return true;
+        foreach (['app.sources', 'app.source_daimons'] as $table) {
+            $exists = DB::connection(LOCAL_CONN)->selectOne(
+                'SELECT to_regclass(?) AS relation_name',
+                [$table],
+            );
+
+            if ($exists === null || $exists->relation_name === null) {
+                $reason = "Local parthenon database is reachable at {$target['host']}:{$target['port']}/{$target['database']} but {$table} is missing; set ACHILLES_ROUTING_DB_* to a migrated app catalog to run this live smoke.";
+
+                return $reason;
+            }
+        }
+
+        return null;
     } catch (Throwable $e) {
-        return false;
+        $reason = "Local parthenon database is not reachable at {$target['host']}:{$target['port']}/{$target['database']}: {$e->getMessage()}";
+
+        return $reason;
     }
+}
+
+function skipUnlessLocalParthenonCatalogAvailable(): void
+{
+    $reason = localParthenonUnavailableReason();
+
+    if ($reason !== null) {
+        test()->markTestSkipped($reason);
+    }
+}
+
+function quotePgIdentifier(string $identifier): string
+{
+    return '"'.str_replace('"', '""', $identifier).'"';
 }
 
 /**
@@ -42,14 +99,16 @@ function ensureLocalConnection(): void
         return;
     }
 
+    $target = localParthenonTarget();
+
     config([
         'database.connections.'.LOCAL_CONN => [
             'driver' => 'pgsql',
-            'host' => '127.0.0.1',
-            'port' => env('DB_PORT', '5432'),
-            'database' => 'parthenon',
-            'username' => env('DB_USERNAME', 'parthenon'),
-            'password' => env('DB_PASSWORD', ''),
+            'host' => $target['host'],
+            'port' => $target['port'],
+            'database' => $target['database'],
+            'username' => $target['username'],
+            'password' => $target['password'],
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
@@ -58,6 +117,52 @@ function ensureLocalConnection(): void
         ],
     ]);
 }
+
+it('registers distinct source-context connections from Achilles daimons', function () {
+    config([
+        'database.connections.achilles_routing_base' => array_merge(
+            config('database.connections.pgsql_testing'),
+            ['search_path' => 'app,php,public'],
+        ),
+    ]);
+
+    $source = new Source([
+        'source_name' => 'Achilles routing fixture',
+        'source_key' => 'ACHILLES_ROUTING_FIXTURE',
+        'source_dialect' => 'postgresql',
+        'source_connection' => 'achilles_routing_base',
+    ]);
+    $source->id = 42;
+    $source->setRelation('daimons', collect([
+        new SourceDaimon([
+            'daimon_type' => DaimonType::CDM->value,
+            'table_qualifier' => 'achilles_cdm',
+            'priority' => 1,
+        ]),
+        new SourceDaimon([
+            'daimon_type' => DaimonType::Results->value,
+            'table_qualifier' => 'achilles_results',
+            'priority' => 1,
+        ]),
+        new SourceDaimon([
+            'daimon_type' => DaimonType::Vocabulary->value,
+            'table_qualifier' => 'achilles_vocab',
+            'priority' => 1,
+        ]),
+    ]));
+
+    $ctx = SourceContext::forSource($source);
+
+    expect($ctx->cdmSchema)->toBe('achilles_cdm')
+        ->and($ctx->resultsSchema)->toBe('achilles_results')
+        ->and($ctx->vocabSchema)->toBe('achilles_vocab')
+        ->and($ctx->cdmConnection())->toBe('ctx_cdm')
+        ->and($ctx->resultsConnection())->toBe('ctx_results')
+        ->and($ctx->vocabConnection())->toBe('ctx_vocab')
+        ->and(config('database.connections.ctx_cdm.search_path'))->toBe('"achilles_cdm","achilles_vocab",public')
+        ->and(config('database.connections.ctx_results.search_path'))->toBe('"achilles_results","achilles_vocab",public')
+        ->and(config('database.connections.ctx_vocab.search_path'))->toBe('"achilles_vocab",public');
+});
 
 /**
  * Load sources with their daimons via the local connection.
@@ -90,9 +195,8 @@ function loadSourceDaimonMap(): array
 }
 
 it('every source with a results daimon resolves a distinct results schema', function () {
-    if (! localParthenonReachable()) {
-        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
-    }
+    skipUnlessLocalParthenonCatalogAvailable();
+
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);
@@ -122,9 +226,8 @@ it('every source with a results daimon resolves a distinct results schema', func
 });
 
 it('results schema != CDM schema for every source', function () {
-    if (! localParthenonReachable()) {
-        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
-    }
+    skipUnlessLocalParthenonCatalogAvailable();
+
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);
@@ -138,9 +241,8 @@ it('results schema != CDM schema for every source', function () {
 });
 
 it('every source has a vocabulary daimon', function () {
-    if (! localParthenonReachable()) {
-        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
-    }
+    skipUnlessLocalParthenonCatalogAvailable();
+
     $sources = loadSourceDaimonMap();
 
     expect($sources)->not->toBeEmpty('No sources found — seed data may be missing');
@@ -153,9 +255,8 @@ it('every source has a vocabulary daimon', function () {
 });
 
 it('results schema exists in PostgreSQL and accepts SET search_path', function () {
-    if (! localParthenonReachable()) {
-        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
-    }
+    skipUnlessLocalParthenonCatalogAvailable();
+
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);
@@ -178,7 +279,7 @@ it('results schema exists in PostgreSQL and accepts SET search_path', function (
 
         // Verify SET search_path succeeds without error.
         DB::connection(LOCAL_CONN)
-            ->statement("SET search_path TO \"{$resultsSchema}\",php");
+            ->statement('SET search_path TO '.quotePgIdentifier($resultsSchema).',php');
 
         // If we get here without an exception, the schema is valid.
         expect(true)->toBeTrue();

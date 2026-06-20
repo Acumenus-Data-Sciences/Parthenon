@@ -10,9 +10,8 @@ use Illuminate\Database\Seeder;
 /**
  * Seeds the finngen.prs.compute analysis module added in Phase 17 (GENOMICS-07).
  *
- * Kept separate from FinnGenAnalysisModuleSeeder so that the base seeder's
- * module count (11) remains stable for the registry unit test, while Phase 17
- * and later modules are additive via their own seeders.
+ * Kept separate from FinnGenAnalysisModuleSeeder so Phase 17 and later modules
+ * remain additive while the base seeder stays focused on the original catalog.
  *
  * Idempotent via updateOrCreate.
  */

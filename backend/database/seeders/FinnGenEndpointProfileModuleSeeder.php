@@ -10,9 +10,8 @@ use Illuminate\Database\Seeder;
 /**
  * Seeds the co2.endpoint_profile analysis module added in Phase 18 (GENOMICS-09/10/11).
  *
- * Kept separate from FinnGenAnalysisModuleSeeder so that the base seeder's
- * module count (11) remains stable for the registry unit test, while Phase 18
- * and later modules are additive via their own seeders.
+ * Kept separate from FinnGenAnalysisModuleSeeder so Phase 18 and later modules
+ * remain additive while the base seeder stays focused on the original catalog.
  *
  * Idempotent via updateOrCreate.
  */

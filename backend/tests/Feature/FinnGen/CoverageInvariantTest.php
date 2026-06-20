@@ -18,6 +18,11 @@ uses(RefreshDatabase::class);
 it('enforces D-07 invariant: zero rows with coverage_bucket=UNMAPPED AND coverage_profile=universal', function () {
     Artisan::call('finngen:import-endpoints', ['--release' => 'df14', '--limit' => 50, '--overwrite' => true, '--no-solr-reindex' => true]);
 
+    EndpointDefinition::query()
+        ->where('name', 'E4_UNMAPPED')
+        ->where('description', 'Phase 18 Plan 04 precondition-fail fixture')
+        ->delete();
+
     $violations = EndpointDefinition::query()
         ->where('coverage_bucket', 'UNMAPPED')
         ->where('coverage_profile', 'universal')

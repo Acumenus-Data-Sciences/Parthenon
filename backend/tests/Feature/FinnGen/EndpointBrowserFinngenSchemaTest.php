@@ -37,13 +37,18 @@ it('GET /api/v1/finngen/endpoints reads from finngen.endpoint_definitions', func
     $user = User::factory()->create();
     $user->assignRole('super-admin');
 
-    EndpointDefinition::factory()->count(3)->create();
+    $prefix = 'SCHEMA_TEST_'.bin2hex(random_bytes(4));
+    $created = collect(range(1, 3))->map(fn (int $index) => EndpointDefinition::factory()->create([
+        'name' => "{$prefix}_{$index}",
+    ]));
 
     actingAs($user, 'sanctum');
-    $response = getJson('/api/v1/finngen/endpoints?per_page=25');
+    $response = getJson('/api/v1/finngen/endpoints?per_page=25&q='.rawurlencode($prefix));
 
     $response->assertOk();
     expect($response->json('data'))->toHaveCount(3);
+    expect(collect($response->json('data'))->pluck('name')->all())
+        ->toEqualCanonicalizing($created->pluck('name')->all());
     foreach ($response->json('data') as $row) {
         expect($row)->toHaveKeys(['name', 'coverage_profile', 'coverage_bucket']);
     }

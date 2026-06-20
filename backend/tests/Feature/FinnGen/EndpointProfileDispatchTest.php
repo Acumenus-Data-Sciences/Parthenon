@@ -67,7 +67,7 @@ beforeEach(function (): void {
         'longname' => 'Unmapped endpoint',
         'description' => 'Phase 18 Plan 04 precondition-fail fixture',
         'release' => 'df14',
-        'coverage_profile' => CoverageProfile::UNIVERSAL,
+        'coverage_profile' => CoverageProfile::FINLAND_ONLY,
         'coverage_bucket' => CoverageBucket::UNMAPPED,
         'qualifying_event_spec' => [
             'resolved_concepts' => [

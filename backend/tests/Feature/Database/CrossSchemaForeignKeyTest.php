@@ -5,19 +5,40 @@ declare(strict_types=1);
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
+function liveOmopFkAuditEnabled(): bool
+{
+    return filter_var(getenv('PARTHENON_LIVE_OMOP_FK_AUDIT') ?: false, FILTER_VALIDATE_BOOLEAN);
+}
+
+function liveOmopFkAuditSetting(string $name, string $default): string
+{
+    $value = getenv($name);
+
+    return $value === false || $value === '' ? $default : $value;
+}
+
 beforeEach(function (): void {
+    if (! liveOmopFkAuditEnabled()) {
+        test()->markTestSkipped(
+            'Live OMOP foreign-key audit skipped. Set PARTHENON_LIVE_OMOP_FK_AUDIT=1 to scan the local parthenon database.'
+        );
+    }
+
     config(['database.connections.local_parthenon' => [
         'driver' => 'pgsql',
-        'host' => '127.0.0.1',
-        'port' => 5432,
-        'database' => 'parthenon',
-        'username' => 'claude_dev',
-        'password' => '',
-        'search_path' => 'omop,vocab,app,public',
+        'host' => liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_HOST', '127.0.0.1'),
+        'port' => (int) liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_PORT', '5432'),
+        'database' => liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_DATABASE', 'parthenon'),
+        'username' => liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_USERNAME', 'claude_dev'),
+        'password' => liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_PASSWORD', ''),
+        'search_path' => liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_DB_SEARCH_PATH', 'omop,vocab,app,public'),
     ]]);
 
     try {
-        DB::connection('local_parthenon')->getPdo();
+        $connection = DB::connection('local_parthenon');
+        $pdo = $connection->getPdo();
+        $timeout = $pdo->quote(liveOmopFkAuditSetting('PARTHENON_LIVE_OMOP_FK_STATEMENT_TIMEOUT', '120s'));
+        $connection->statement("SET statement_timeout = {$timeout}");
     } catch (Throwable $e) {
         test()->markTestSkipped('Local parthenon database not reachable (CI environment).');
     }
@@ -43,7 +64,7 @@ it('all person records have valid gender_concept_id in vocab', function (): void
             count($orphans) > 0,
             fn ($e) => $e->and('Orphan gender_concept_ids found: '.json_encode($orphans))->toBeEmpty()
         );
-});
+})->group('live-omop', 'environment-bound');
 
 it('all condition_occurrence records reference valid condition_concept_id', function (): void {
     $orphans = localDb()->select('
@@ -60,7 +81,7 @@ it('all condition_occurrence records reference valid condition_concept_id', func
             count($orphans) > 0,
             fn ($e) => $e->and('Orphan condition_concept_ids found: '.json_encode($orphans))->toBeEmpty()
         );
-});
+})->group('live-omop', 'environment-bound');
 
 it('all drug_exposure records reference valid drug_concept_id', function (): void {
     $orphans = localDb()->select('
@@ -86,7 +107,7 @@ it('all drug_exposure records reference valid drug_concept_id', function (): voi
     // Warn only — known vocab version mismatch in SynPUF drug_exposure data
     // TODO: resolve by re-indexing vocabulary or remapping orphan concept_ids
     expect(true)->toBeTrue();
-});
+})->group('live-omop', 'environment-bound');
 
 it('all measurement records reference valid measurement_concept_id', function (): void {
     $orphans = localDb()->select('
@@ -103,7 +124,7 @@ it('all measurement records reference valid measurement_concept_id', function ()
             count($orphans) > 0,
             fn ($e) => $e->and('Orphan measurement_concept_ids found: '.json_encode($orphans))->toBeEmpty()
         );
-});
+})->group('live-omop', 'environment-bound');
 
 it('all visit_occurrence records reference valid persons', function (): void {
     $orphans = localDb()->select('
@@ -119,7 +140,7 @@ it('all visit_occurrence records reference valid persons', function (): void {
             count($orphans) > 0,
             fn ($e) => $e->and('Orphan visit_occurrence person_ids found: '.json_encode($orphans))->toBeEmpty()
         );
-});
+})->group('live-omop', 'environment-bound');
 
 it('observation_period covers every person', function (): void {
     $uncovered = localDb()->select('
@@ -141,4 +162,4 @@ it('observation_period covers every person', function (): void {
 
     // Warn only — do not fail
     expect(true)->toBeTrue();
-});
+})->group('live-omop', 'environment-bound');

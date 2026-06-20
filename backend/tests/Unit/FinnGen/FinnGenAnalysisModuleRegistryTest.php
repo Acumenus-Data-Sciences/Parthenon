@@ -6,6 +6,8 @@ use App\Models\App\FinnGen\AnalysisModule;
 use App\Services\FinnGen\Exceptions\FinnGenUnknownAnalysisTypeException;
 use App\Services\FinnGen\FinnGenAnalysisModuleRegistry;
 use Database\Seeders\FinnGenAnalysisModuleSeeder;
+use Database\Seeders\FinnGenEndpointProfileModuleSeeder;
+use Database\Seeders\FinnGenPrsAnalysisModuleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -14,6 +16,8 @@ uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(FinnGenAnalysisModuleSeeder::class);
+    $this->seed(FinnGenPrsAnalysisModuleSeeder::class);
+    $this->seed(FinnGenEndpointProfileModuleSeeder::class);
     Cache::forget('finngen:analysis-modules:enabled');
     $this->registry = app(FinnGenAnalysisModuleRegistry::class);
 });
@@ -25,16 +29,19 @@ it('all() returns the seeded modules keyed by key', function () {
     // SP4 Phase D added cohort.match; Polish 2 added cohort.materialize.
     // Genomics #2 added endpoint.generate.
     // Phase 14 (GWAS) added gwas.regenie.step1 + gwas.regenie.step2.
+    // Phase 17 added finngen.prs.compute; Phase 18 added co2.endpoint_profile.
     expect(array_keys($modules))->toEqualCanonicalizing([
         'co2.codewas',
         'co2.time_codewas',
         'co2.overlaps',
         'co2.demographics',
+        'co2.endpoint_profile',
         'romopapi.report',
         'romopapi.setup',
         'cohort.match',
         'cohort.materialize',
         'endpoint.generate',
+        'finngen.prs.compute',
         'gwas.regenie.step1',
         'gwas.regenie.step2',
     ]);
@@ -83,15 +90,15 @@ it('all() cache is refreshed after flush()', function () {
         'min_role' => 'researcher',
     ]);
 
-    // Without flush, cache still shows 11 seeded modules
+    // Without flush, cache still shows the 13 seeded modules
     // (4 CO2 + 2 romopapi + cohort.match + cohort.materialize + endpoint.generate
-    // + gwas.regenie.step1 + gwas.regenie.step2).
-    expect($this->registry->all())->toHaveCount(11);
+    // + gwas.regenie.step1 + gwas.regenie.step2 + PRS compute + endpoint profile).
+    expect($this->registry->all())->toHaveCount(13);
 
     $this->registry->flush();
 
-    // After flush, new row is visible (11 + co2.test.extra = 12).
-    expect($this->registry->all())->toHaveCount(12);
+    // After flush, new row is visible (13 + co2.test.extra = 14).
+    expect($this->registry->all())->toHaveCount(14);
 });
 
 it('validateParams() passes for enabled module + arbitrary params (SP1 stub)', function () {

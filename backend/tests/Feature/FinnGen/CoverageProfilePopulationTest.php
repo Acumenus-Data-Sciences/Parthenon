@@ -21,14 +21,16 @@ uses(RefreshDatabase::class);
  *     instead of raw DB::table('app.cohort_definitions') + domain filter.
  */
 it('populates coverage_profile on every finngen endpoint row', function () {
-    EndpointDefinition::factory()->count(3)->create([
+    $created = EndpointDefinition::factory()->count(3)->create([
         'coverage_profile' => CoverageProfile::UNIVERSAL,
     ]);
+    $names = $created->pluck('name');
 
     $nullCount = EndpointDefinition::query()
+        ->whereIn('name', $names)
         ->whereNull('coverage_profile')
         ->count();
 
     expect($nullCount)->toBe(0);
-    expect(EndpointDefinition::count())->toBe(3);
+    expect(EndpointDefinition::query()->whereIn('name', $names)->count())->toBe(3);
 });

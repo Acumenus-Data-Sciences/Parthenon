@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Str;
 
+// Resolve the MySQL SSL-CA PDO attribute without evaluating an undefined
+// constant: the pdo_mysql extension is absent on this Postgres-only stack, so
+// neither the PHP 8.4 class-constant form nor the legacy form is defined and
+// constant() would fatal at config-load time (PHPStan bootstrap, artisan, any
+// uncached environment). Stay null when unavailable; it is only consumed inside
+// the extension_loaded('pdo_mysql') guard below.
+$mysqlSslCaAttribute = match (true) {
+    defined('Pdo\\Mysql::ATTR_SSL_CA') => constant('Pdo\\Mysql::ATTR_SSL_CA'),
+    defined('PDO::MYSQL_ATTR_SSL_CA') => constant('PDO::MYSQL_ATTR_SSL_CA'),
+    default => null,
+};
+
 return [
 
     /*
@@ -58,7 +70,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                $mysqlSslCaAttribute => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -78,7 +90,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                $mysqlSslCaAttribute => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 

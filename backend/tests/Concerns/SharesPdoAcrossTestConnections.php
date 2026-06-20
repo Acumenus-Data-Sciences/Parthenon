@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Concerns;
 
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
 
 /**
  * Force all *_testing Laravel connections to reuse the pgsql_testing PDO
@@ -98,6 +99,7 @@ trait SharesPdoAcrossTestConnections
         }
 
         $this->rebindTestConnectionPdos();
+        $this->markExistingTestSchemaAsMigrated();
         $this->pruneSiblingsFromTransactionList();
 
         $result = parent::setUpTraits();
@@ -186,6 +188,26 @@ trait SharesPdoAcrossTestConnections
         }
 
         $this->applySharedPdoSearchPath();
+    }
+
+    /**
+     * Parthenon's local PostgreSQL test database is usually pre-migrated and
+     * spans several schemas. Re-running Laravel's `migrate:fresh` against that
+     * multi-schema database is noisy and can collide with existing objects; if
+     * the canonical app.migrations table already exists, keep RefreshDatabase
+     * in transaction-only mode for this PHP process.
+     */
+    private function markExistingTestSchemaAsMigrated(): void
+    {
+        /** @var DatabaseManager $dbm */
+        $dbm = $this->app->make(DatabaseManager::class);
+
+        $migrationTable = $dbm->connection('pgsql_testing')
+            ->selectOne("SELECT to_regclass('app.migrations') AS relation");
+
+        if ($migrationTable?->relation !== null) {
+            RefreshDatabaseState::$migrated = true;
+        }
     }
 
     /**
