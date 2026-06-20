@@ -22,6 +22,20 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/2"
     model_cache_dir: str = "/tmp/parthenon-models"
 
+    # CORS: restrict browser cross-origin access to the Parthenon app origins.
+    # The service is normally reached server-to-server via Laravel (CORS does
+    # not apply there), so scoping this does not affect backend calls; it
+    # replaces a "*" wildcard that was also spec-invalid alongside
+    # allow_credentials=True. Comma-separated; override via CORS_ORIGINS.
+    cors_origins: str = (
+        "http://localhost:8082,http://localhost:5175,"
+        "https://parthenon.acumenus.net"
+    )
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
     # Ollama configuration (for medical LLMs)
     ollama_base_url: str = "http://host.docker.internal:11434"
     ollama_model: str = "puyangwang/medgemma-27b-it:q4_0"
