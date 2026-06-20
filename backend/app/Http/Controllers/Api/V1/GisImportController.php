@@ -47,7 +47,7 @@ class GisImportController extends Controller
         // Preview
         $filePath = storage_path("app/{$dir}/{$file->getClientOriginalName()}");
         $preview = [];
-        if (in_array($format, ['csv', 'tsv'])) {
+        if (in_array($format, ['csv', 'tsv', 'xlsx', 'xls'])) {
             $preview = $this->importService->previewFile($filePath, $format);
         }
 

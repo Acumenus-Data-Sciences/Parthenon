@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Services\GIS\GisImportService;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
 
 class GisImportTest extends TestCase
@@ -13,6 +16,37 @@ class GisImportTest extends TestCase
     {
         parent::setUp();
         $this->service = app(GisImportService::class);
+    }
+
+    /**
+     * @param  array<int, array{title: string, rows: array<int, array<int, mixed>>}>  $sheets
+     */
+    private function writeSpreadsheet(array $sheets, string $format = 'xlsx'): string
+    {
+        $spreadsheet = new Spreadsheet;
+
+        foreach ($sheets as $index => $sheetData) {
+            $sheet = $index === 0
+                ? $spreadsheet->getActiveSheet()
+                : $spreadsheet->createSheet();
+
+            $sheet->setTitle($sheetData['title']);
+            if ($sheetData['rows'] !== []) {
+                $sheet->fromArray($sheetData['rows'], null, 'A1');
+            }
+        }
+
+        $basePath = tempnam(sys_get_temp_dir(), 'gis_excel_');
+        $path = $basePath.'.'.$format;
+        @unlink($basePath);
+
+        $writer = $format === 'xls'
+            ? new Xls($spreadsheet)
+            : new Xlsx($spreadsheet);
+        $writer->save($path);
+        $spreadsheet->disconnectWorksheets();
+
+        return $path;
     }
 
     // -------------------------------------------------------------------------
@@ -80,11 +114,72 @@ class GisImportTest extends TestCase
         $this->assertEquals(2, $stats['name']['distinct_count']);
     }
 
-    public function test_excel_format_throws_helpful_error(): void
+    public function test_preview_xlsx_returns_first_non_empty_sheet_headers_and_sample_rows(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Excel support coming soon');
-        $this->service->previewFile('/tmp/test.xlsx', 'xlsx');
+        $path = $this->writeSpreadsheet([
+            ['title' => 'Blank', 'rows' => []],
+            ['title' => 'Counties', 'rows' => [
+                ['FIPS', 'County', 'SVI_Score'],
+                ['42001', 'Adams', 0.45],
+                ['', '', ''],
+                ['42003', 'Allegheny', 0.62],
+            ]],
+        ]);
+
+        $preview = $this->service->previewFile($path, 'xlsx');
+
+        $this->assertEquals('Counties', $preview['sheet_name']);
+        $this->assertEquals(['Blank', 'Counties'], $preview['sheets']);
+        $this->assertEquals(['FIPS', 'County', 'SVI_Score'], $preview['headers']);
+        $this->assertCount(2, $preview['rows']);
+        $this->assertEquals(2, $preview['row_count']);
+        $this->assertEquals('42001', $preview['rows'][0]['FIPS']);
+        $this->assertEquals('0.62', $preview['rows'][1]['SVI_Score']);
+
+        unlink($path);
+    }
+
+    public function test_preview_xls_returns_headers_and_sample_rows(): void
+    {
+        $path = $this->writeSpreadsheet([
+            ['title' => 'Legacy', 'rows' => [
+                ['FIPS', 'County', 'SVI_Score'],
+                ['42001', 'Adams', 0.45],
+                ['42003', 'Allegheny', 0.62],
+            ]],
+        ], 'xls');
+
+        $preview = $this->service->previewFile($path, 'xls', 1);
+
+        $this->assertEquals('Legacy', $preview['sheet_name']);
+        $this->assertEquals(['FIPS', 'County', 'SVI_Score'], $preview['headers']);
+        $this->assertCount(1, $preview['rows']);
+        $this->assertEquals('42001', $preview['rows'][0]['FIPS']);
+
+        unlink($path);
+    }
+
+    public function test_iterate_file_streams_xlsx_rows_and_skips_empty_rows(): void
+    {
+        $path = $this->writeSpreadsheet([
+            ['title' => 'Counties', 'rows' => [
+                ['FIPS', 'County', 'SVI_Score'],
+                ['42001', 'Adams', 0.45],
+                ['', '', ''],
+                ['42003', 'Allegheny', 0.62],
+            ]],
+        ]);
+
+        $rows = [];
+        foreach ($this->service->iterateFile($path, 'xlsx') as $row) {
+            $rows[] = $row;
+        }
+
+        $this->assertCount(2, $rows);
+        $this->assertEquals('42001', $rows[0]['FIPS']);
+        $this->assertEquals('42003', $rows[1]['FIPS']);
+
+        unlink($path);
     }
 
     // -------------------------------------------------------------------------
@@ -320,8 +415,9 @@ class GisImportTest extends TestCase
         // The service must not produce a fatal error or uncaught exception of unexpected type.
         try {
             $result = $this->service->previewFile($path, 'csv');
-            // If it returns, the result must at least be an array
-            $this->assertIsArray($result);
+            // If it returns, the result must at least include the preview contract.
+            $this->assertArrayHasKey('headers', $result);
+            $this->assertArrayHasKey('rows', $result);
         } catch (\RuntimeException $e) {
             // Expected — fgetcsv on binary content may fail to read headers
             $this->assertNotEmpty($e->getMessage());

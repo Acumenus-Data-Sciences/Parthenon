@@ -3,9 +3,17 @@
 namespace App\Services\GIS;
 
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\BaseReader;
+use PhpOffice\PhpSpreadsheet\Reader\IReader;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class GisImportService
 {
+    private const EXCEL_CHUNK_SIZE = 500;
+
     /**
      * Parse file and return headers + first N rows for preview.
      */
@@ -16,7 +24,7 @@ class GisImportService
         }
 
         if (in_array($format, ['xlsx', 'xls'])) {
-            throw new \InvalidArgumentException('Excel support coming soon. Please export as CSV.');
+            return $this->previewExcel($path, $maxRows);
         }
 
         throw new \InvalidArgumentException("Unsupported format for preview: {$format}");
@@ -30,8 +38,14 @@ class GisImportService
      */
     public function iterateFile(string $path, string $format): \Generator
     {
+        if (in_array($format, ['xlsx', 'xls'], true)) {
+            yield from $this->iterateExcel($path);
+
+            return;
+        }
+
         if ($format !== 'csv' && $format !== 'tsv') {
-            throw new \InvalidArgumentException("Streaming only supports CSV/TSV: {$format}");
+            throw new \InvalidArgumentException("Streaming only supports CSV/TSV/Excel: {$format}");
         }
 
         $delimiter = $format === 'tsv' ? "\t" : ',';
@@ -117,6 +131,196 @@ class GisImportService
             'row_count' => $count,
             'encoding' => $encoding ?: 'UTF-8',
         ];
+    }
+
+    private function previewExcel(string $path, int $maxRows): array
+    {
+        $meta = $this->excelSheetMetadata($path);
+        $rows = [];
+        $count = 0;
+
+        foreach ($this->iterateExcel($path, $meta) as $row) {
+            $rows[] = $row;
+            $count++;
+
+            if ($count >= $maxRows) {
+                break;
+            }
+        }
+
+        return [
+            'headers' => $meta['headers'],
+            'rows' => $rows,
+            'row_count' => $count,
+            'encoding' => 'UTF-8',
+            'sheet_name' => $meta['sheet_name'],
+            'sheets' => $meta['sheets'],
+        ];
+    }
+
+    /**
+     * @param  array{sheet_name: string, headers: array<int, string>, total_rows: int, total_columns: int, sheets: array<int, string>}|null  $meta
+     * @return \Generator<int, array<string, string>>
+     */
+    private function iterateExcel(string $path, ?array $meta = null): \Generator
+    {
+        $meta ??= $this->excelSheetMetadata($path);
+        $headers = $meta['headers'];
+        $lastColumn = Coordinate::stringFromColumnIndex(count($headers));
+        $rowNum = 0;
+
+        for ($startRow = 2; $startRow <= $meta['total_rows']; $startRow += self::EXCEL_CHUNK_SIZE) {
+            $endRow = min($meta['total_rows'], $startRow + self::EXCEL_CHUNK_SIZE - 1);
+            $reader = $this->excelReaderForRows($path, $meta['sheet_name'], $startRow, $endRow);
+            $spreadsheet = $reader->load($path);
+            $worksheet = $spreadsheet->getSheetByName($meta['sheet_name']) ?? $spreadsheet->getActiveSheet();
+
+            try {
+                for ($row = $startRow; $row <= $endRow; $row++) {
+                    $values = $worksheet->rangeToArray("A{$row}:{$lastColumn}{$row}", null, false, false)[0] ?? [];
+                    $values = $this->normalizeTabularRow($values, count($headers));
+
+                    if ($this->isEmptyTabularRow($values)) {
+                        continue;
+                    }
+
+                    yield $rowNum => array_combine($headers, $values);
+                    $rowNum++;
+                }
+            } finally {
+                $spreadsheet->disconnectWorksheets();
+            }
+        }
+    }
+
+    /**
+     * @return array{sheet_name: string, headers: array<int, string>, total_rows: int, total_columns: int, sheets: array<int, string>}
+     */
+    private function excelSheetMetadata(string $path): array
+    {
+        $reader = IOFactory::createReaderForFile($path);
+        $reader->setReadDataOnly(true);
+
+        if (! $reader instanceof BaseReader) {
+            throw new \RuntimeException('Cannot inspect Excel worksheets');
+        }
+
+        $sheets = $reader->listWorksheetInfo($path);
+        $sheetNames = array_values(array_map(
+            fn (array $sheet): string => (string) $sheet['worksheetName'],
+            $sheets
+        ));
+
+        foreach ($sheets as $sheet) {
+            $sheetName = (string) $sheet['worksheetName'];
+            $totalRows = (int) $sheet['totalRows'];
+            $totalColumns = (int) $sheet['totalColumns'];
+
+            if ($totalRows < 1 || $totalColumns < 1) {
+                continue;
+            }
+
+            $headerReader = $this->excelReaderForRows($path, $sheetName, 1, 1);
+            $spreadsheet = $headerReader->load($path);
+            $worksheet = $spreadsheet->getSheetByName($sheetName) ?? $spreadsheet->getActiveSheet();
+
+            try {
+                $headers = $this->readExcelHeaders($worksheet, $totalColumns);
+            } finally {
+                $spreadsheet->disconnectWorksheets();
+            }
+
+            if ($headers === []) {
+                continue;
+            }
+
+            return [
+                'sheet_name' => $sheetName,
+                'headers' => $headers,
+                'total_rows' => $totalRows,
+                'total_columns' => $totalColumns,
+                'sheets' => $sheetNames,
+            ];
+        }
+
+        throw new \RuntimeException('Cannot read Excel headers');
+    }
+
+    private function excelReaderForRows(string $path, string $sheetName, int $startRow, int $endRow): IReader
+    {
+        $reader = IOFactory::createReaderForFile($path);
+        $reader->setReadDataOnly(true);
+        $reader->setLoadSheetsOnly([$sheetName]);
+        $reader->setReadFilter(new class($startRow, $endRow) implements IReadFilter
+        {
+            public function __construct(
+                private readonly int $startRow,
+                private readonly int $endRow,
+            ) {}
+
+            public function readCell($columnAddress, $row, $worksheetName = ''): bool
+            {
+                return $row >= $this->startRow && $row <= $this->endRow;
+            }
+        });
+
+        return $reader;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function readExcelHeaders(Worksheet $worksheet, int $totalColumns): array
+    {
+        $lastColumn = Coordinate::stringFromColumnIndex($totalColumns);
+        $headers = $worksheet->rangeToArray("A1:{$lastColumn}1", null, false, false)[0] ?? [];
+        $headers = $this->normalizeTabularRow($headers, $totalColumns);
+
+        while ($headers !== [] && $headers[count($headers) - 1] === '') {
+            array_pop($headers);
+        }
+
+        if (! empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
+            $headers[0] = substr($headers[0], 3);
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @param  array<int, mixed>  $values
+     * @return array<int, string>
+     */
+    private function normalizeTabularRow(array $values, int $columnCount): array
+    {
+        $values = array_slice($values, 0, $columnCount);
+        $values = array_pad($values, $columnCount, null);
+
+        return array_map(function (mixed $value): string {
+            if ($value === null) {
+                return '';
+            }
+
+            if (is_bool($value)) {
+                return $value ? '1' : '0';
+            }
+
+            return trim((string) $value);
+        }, $values);
+    }
+
+    /**
+     * @param  array<int, string>  $values
+     */
+    private function isEmptyTabularRow(array $values): bool
+    {
+        foreach ($values as $value) {
+            if ($value !== '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -183,6 +183,44 @@ test('upload returns preview data', function () {
     expect($preview)->toHaveKey('rows');
 });
 
+test('upload xlsx returns preview data', function () {
+    Storage::fake('local');
+
+    $this->app->bind(GisImportService::class, function () {
+        $mock = Mockery::mock(GisImportService::class)->makePartial();
+        $mock->shouldReceive('previewFile')
+            ->once()
+            ->withArgs(fn (string $path, string $format) => str_ends_with($path, 'county-svi.xlsx') && $format === 'xlsx')
+            ->andReturn([
+                'headers' => ['FIPS', 'County', 'SVI_Score'],
+                'rows' => [
+                    ['FIPS' => '42001', 'County' => 'Adams', 'SVI_Score' => '0.45'],
+                ],
+                'row_count' => 1,
+                'sheet_name' => 'Counties',
+                'sheets' => ['Counties'],
+            ]);
+
+        return $mock;
+    });
+
+    $researcher = gisUser('researcher');
+    $file = UploadedFile::fake()->create(
+        'county-svi.xlsx',
+        12,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    $response = $this->actingAs($researcher)
+        ->postJson('/api/v1/gis/import/upload', ['file' => $file]);
+
+    $response
+        ->assertStatus(201)
+        ->assertJsonPath('data.filename', 'county-svi.xlsx')
+        ->assertJsonPath('data.import_mode', 'tabular_geocode')
+        ->assertJsonPath('data.preview.sheet_name', 'Counties');
+});
+
 test('upload empty file returns 422', function () {
     $researcher = gisUser('researcher');
     $emptyPath = base_path('tests/fixtures/imports/adversarial/empty.csv');

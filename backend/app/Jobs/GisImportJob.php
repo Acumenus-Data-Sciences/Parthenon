@@ -41,7 +41,11 @@ class GisImportJob implements ShouldQueue
             }
 
             $ext = strtolower(pathinfo($this->import->filename, PATHINFO_EXTENSION));
-            $format = in_array($ext, ['csv', 'tsv']) ? $ext : 'geojson';
+            $format = match ($ext) {
+                'csv', 'tsv', 'xlsx', 'xls' => $ext,
+                'txt' => 'csv',
+                default => 'geojson',
+            };
 
             // Find mapped columns
             $geoCodeCol = null;
