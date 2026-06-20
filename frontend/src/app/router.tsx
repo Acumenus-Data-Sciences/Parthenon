@@ -281,6 +281,16 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            path: "self-controlled-cohorts/:id",
+            errorElement: (
+              <AnalysisRouteError titleKey="analysis.titles.selfControlledCohort" />
+            ),
+            lazy: () =>
+              import(
+                "@/features/self-controlled-cohort/pages/SelfControlledCohortDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "evidence-synthesis/:id",
             errorElement: (
               <AnalysisRouteError titleKey="analysis.titles.evidenceSynthesis" />
