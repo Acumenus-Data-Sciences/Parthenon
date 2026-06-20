@@ -12,6 +12,7 @@ interface PsmPanelProps {
 export function PsmPanel({ result, onExportMatched, onContinue }: PsmPanelProps) {
   const { t } = useTranslation("app");
   const { model_metrics, matched_pairs, balance, preference_distribution } = result;
+  const hasMatchedPairs = matched_pairs.length > 0;
 
   const smdReduction = (() => {
     if (balance.before.length === 0) return null;
@@ -71,7 +72,8 @@ export function PsmPanel({ result, onExportMatched, onContinue }: PsmPanelProps)
         <button
           type="button"
           onClick={onExportMatched}
-          className="rounded-md border border-surface-highlight bg-surface-raised px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
+          disabled={!hasMatchedPairs}
+          className="rounded-md border border-surface-highlight bg-surface-raised px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t("patientSimilarity.psm.exportMatchedCohort")}
         </button>

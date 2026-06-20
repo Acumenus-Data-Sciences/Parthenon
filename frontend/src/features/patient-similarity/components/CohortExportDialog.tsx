@@ -3,21 +3,38 @@ import { X, Download, CheckCircle, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useExportCohort } from "../hooks/usePatientSimilarity";
-import type { SimilarPatient } from "../types/patientSimilarity";
+import type {
+  PropensityModelMetrics,
+  SimilarPatient,
+} from "../types/patientSimilarity";
 
-interface CohortExportDialogProps {
+interface BaseCohortExportDialogProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface CachedCohortExportDialogProps extends BaseCohortExportDialogProps {
+  mode?: "cache";
   cacheId: number;
   patients: SimilarPatient[];
 }
 
-export function CohortExportDialog({
-  isOpen,
-  onClose,
-  cacheId,
-  patients,
-}: CohortExportDialogProps) {
+interface MatchedCohortExportDialogProps extends BaseCohortExportDialogProps {
+  mode: "matched";
+  sourceId: number;
+  personIds: number[];
+  targetCohortId?: number;
+  comparatorCohortId?: number;
+  matchedPairCount?: number;
+  modelMetrics?: PropensityModelMetrics;
+}
+
+type CohortExportDialogProps =
+  | CachedCohortExportDialogProps
+  | MatchedCohortExportDialogProps;
+
+export function CohortExportDialog(props: CohortExportDialogProps) {
+  const { isOpen, onClose } = props;
   const { t } = useTranslation("app");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -26,17 +43,43 @@ export function CohortExportDialog({
 
   const exportMutation = useExportCohort();
 
-  const filteredCount = patients.filter((p) => p.overall_score >= minScore).length;
+  const isMatchedMode = props.mode === "matched";
+  const patients = isMatchedMode ? [] : props.patients;
+  const personIds = isMatchedMode ? props.personIds : [];
+  const filteredCount = isMatchedMode
+    ? personIds.length
+    : patients.filter((p) => p.overall_score >= minScore).length;
+  const totalCount = isMatchedMode ? personIds.length : patients.length;
+  const canExport =
+    name.trim().length > 0 &&
+    filteredCount > 0 &&
+    !exportMutation.isPending &&
+    (isMatchedMode ? props.sourceId > 0 : props.cacheId > 0);
 
   const handleExport = () => {
-    if (!name.trim()) return;
+    if (!canExport) return;
+
+    const cohortDescription = description.trim() || undefined;
+
     exportMutation.mutate(
-      {
-        cache_id: cacheId,
-        cohort_name: name.trim(),
-        cohort_description: description.trim() || undefined,
-        min_score: minScore,
-      },
+      isMatchedMode
+        ? {
+            mode: "matched",
+            source_id: props.sourceId,
+            person_ids: personIds,
+            cohort_name: name.trim(),
+            cohort_description: cohortDescription,
+            target_cohort_id: props.targetCohortId,
+            comparator_cohort_id: props.comparatorCohortId,
+            matched_pair_count: props.matchedPairCount,
+            model_metrics: props.modelMetrics,
+          }
+        : {
+            cache_id: props.cacheId,
+            cohort_name: name.trim(),
+            cohort_description: cohortDescription,
+            min_score: minScore,
+          },
       {
         onSuccess: (result) => {
           setSuccessId(result.cohort_definition_id);
@@ -98,7 +141,9 @@ export function CohortExportDialog({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={t("patientSimilarity.cohortExport.cohortNamePlaceholder")}
+                  placeholder={t(
+                    "patientSimilarity.cohortExport.cohortNamePlaceholder",
+                  )}
                   className={cn(
                     "w-full rounded-lg px-3 py-2 text-sm",
                     "bg-surface-base border border-border-default",
@@ -116,7 +161,9 @@ export function CohortExportDialog({
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder={t("patientSimilarity.cohortExport.descriptionPlaceholder")}
+                  placeholder={t(
+                    "patientSimilarity.cohortExport.descriptionPlaceholder",
+                  )}
                   rows={3}
                   className={cn(
                     "w-full rounded-lg px-3 py-2 text-sm resize-none",
@@ -127,34 +174,39 @@ export function CohortExportDialog({
                 />
               </div>
 
-              {/* Min Score Slider */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] text-text-ghost uppercase tracking-wider">
-                    {t("patientSimilarity.cohortExport.minimumScore")}
-                  </label>
-                  <span className="text-xs font-medium text-success tabular-nums">
-                    {minScore.toFixed(2)}
-                  </span>
+              {!isMatchedMode && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[10px] text-text-ghost uppercase tracking-wider">
+                      {t("patientSimilarity.cohortExport.minimumScore")}
+                    </label>
+                    <span className="text-xs font-medium text-success tabular-nums">
+                      {minScore.toFixed(2)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={minScore}
+                    onChange={(e) => setMinScore(parseFloat(e.target.value))}
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={minScore}
-                  onChange={(e) => setMinScore(parseFloat(e.target.value))}
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
-                />
-              </div>
+              )}
 
               {/* Patient Count Preview */}
               <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2">
                 <p className="text-xs text-text-muted">
-                  {t("patientSimilarity.cohortExport.thresholdPreview", {
-                    filtered: filteredCount,
-                    total: patients.length,
-                  })}
+                  {isMatchedMode
+                    ? t("patientSimilarity.diagnostics.patients", {
+                        count: filteredCount,
+                      })
+                    : t("patientSimilarity.cohortExport.thresholdPreview", {
+                        filtered: filteredCount,
+                        total: totalCount,
+                      })}
                 </p>
               </div>
 
@@ -193,11 +245,7 @@ export function CohortExportDialog({
               <button
                 type="button"
                 onClick={handleExport}
-                disabled={
-                  !name.trim() ||
-                  filteredCount === 0 ||
-                  exportMutation.isPending
-                }
+                disabled={!canExport}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                   "bg-primary text-primary-foreground hover:bg-primary-light",

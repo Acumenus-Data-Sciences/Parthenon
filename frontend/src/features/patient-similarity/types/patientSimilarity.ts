@@ -187,12 +187,28 @@ export interface CohortSimilaritySearchParams {
   filters?: SimilarityFilters;
 }
 
-export interface CohortExportParams {
-  cache_id: number;
+interface BaseCohortExportParams {
   cohort_name: string;
   cohort_description?: string;
+}
+
+export interface CachedCohortExportParams extends BaseCohortExportParams {
+  mode?: 'cache';
+  cache_id: number;
   min_score?: number;
 }
+
+export interface MatchedCohortExportParams extends BaseCohortExportParams {
+  mode: 'matched';
+  source_id: number;
+  person_ids: number[];
+  target_cohort_id?: number;
+  comparator_cohort_id?: number;
+  matched_pair_count?: number;
+  model_metrics?: PropensityModelMetrics;
+}
+
+export type CohortExportParams = CachedCohortExportParams | MatchedCohortExportParams;
 
 export interface CohortExportResult {
   cohort_definition_id: number;

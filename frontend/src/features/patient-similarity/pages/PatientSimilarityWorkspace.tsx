@@ -21,6 +21,7 @@ import { SettingsDrawer } from '../components/SettingsDrawer';
 import { ProfileComparisonPanel } from '../components/ProfileComparisonPanel';
 import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
 import { PsmPanel } from '../components/PsmPanel';
+import { CohortExportDialog } from '../components/CohortExportDialog';
 import { LandscapePanel } from '../components/LandscapePanel';
 import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
 import { SimilarityModeToggle } from '../components/SimilarityModeToggle';
@@ -149,6 +150,8 @@ export default function PatientSimilarityWorkspace() {
   const [comparatorCohortId, setComparatorCohortId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [h2hOpen, setH2hOpen] = useState(false);
+  const [matchedExportOpen, setMatchedExportOpen] = useState(false);
+  const [matchedExportPersonIds, setMatchedExportPersonIds] = useState<number[]>([]);
   const [h2hPersonA, _setH2hPersonA] = useState<number | null>(null);
   const [h2hPersonB, _setH2hPersonB] = useState<number | null>(null);
   // Settings drawer state
@@ -309,6 +312,21 @@ export default function PatientSimilarityWorkspace() {
     },
     [pipeline],
   );
+
+  const handleOpenMatchedExport = useCallback((psmResult: PropensityMatchResult) => {
+    setMatchedExportPersonIds(
+      uniquePatientIds([
+        ...psmResult.matched_pairs.map((p) => p.target_id),
+        ...psmResult.matched_pairs.map((p) => p.comparator_id),
+      ]),
+    );
+    setMatchedExportOpen(true);
+  }, []);
+
+  const handleCloseMatchedExport = useCallback(() => {
+    setMatchedExportOpen(false);
+    setMatchedExportPersonIds([]);
+  }, []);
 
   const handleCompare = useCallback(() => {
     if (sourceId == null || targetCohortId == null) return;
@@ -648,7 +666,7 @@ export default function PatientSimilarityWorkspace() {
           return (
             <PsmPanel
               result={psmData}
-              onExportMatched={() => { /* TODO: export matched cohort */ }}
+              onExportMatched={() => handleOpenMatchedExport(psmData)}
               onContinue={() => handleRunStep('landscape')}
             />
           );
@@ -690,13 +708,14 @@ export default function PatientSimilarityWorkspace() {
           );
       }
     },
-    [pipeline, sourceId, targetCohortId, comparatorCohortId, getCohortName, handleRunStep, t],
+    [pipeline, sourceId, targetCohortId, comparatorCohortId, getCohortName, handleRunStep, handleOpenMatchedExport, t],
   );
 
   // ── Render ────────────────────────────────────────────────────────
 
   // usePipeline returns steps alongside state+actions
   const steps = (pipeline as unknown as { steps: import('../types/pipeline').StepDefinition[] }).steps;
+  const matchedExportPsmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
 
   return (
     <div className="space-y-6">
@@ -809,6 +828,18 @@ export default function PatientSimilarityWorkspace() {
         personAId={h2hPersonA}
         personBId={h2hPersonB}
         sourceId={sourceId ?? 0}
+      />
+
+      <CohortExportDialog
+        isOpen={matchedExportOpen}
+        onClose={handleCloseMatchedExport}
+        mode="matched"
+        sourceId={sourceId ?? 0}
+        personIds={matchedExportPersonIds}
+        targetCohortId={targetCohortId ?? undefined}
+        comparatorCohortId={comparatorCohortId ?? undefined}
+        matchedPairCount={matchedExportPsmResult?.matched_pairs.length}
+        modelMetrics={matchedExportPsmResult?.model_metrics}
       />
     </div>
   );

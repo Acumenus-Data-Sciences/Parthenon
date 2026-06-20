@@ -44,9 +44,12 @@ describe("CohortExportDialog", () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText("e.g. Similar to Patient 12345"), {
-      target: { value: "High Similarity Cohort" },
-    });
+    fireEvent.change(
+      screen.getByPlaceholderText("e.g. Similar to Patient 12345"),
+      {
+        target: { value: "High Similarity Cohort" },
+      },
+    );
     fireEvent.change(screen.getByPlaceholderText("Optional description..."), {
       target: { value: "Exported from patient similarity." },
     });
@@ -61,5 +64,82 @@ describe("CohortExportDialog", () => {
       }),
       expect.any(Object),
     );
+  });
+
+  it("submits matched person ids in the export payload", () => {
+    renderWithProviders(
+      <CohortExportDialog
+        isOpen
+        onClose={vi.fn()}
+        mode="matched"
+        sourceId={7}
+        personIds={[101, 202, 303]}
+        targetCohortId={11}
+        comparatorCohortId={12}
+        matchedPairCount={2}
+        modelMetrics={{
+          auc: 0.78,
+          n_covariates: 24,
+          n_target: 100,
+          n_comparator: 120,
+          caliper: 0.2,
+        }}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText("e.g. Similar to Patient 12345"),
+      {
+        target: { value: "Matched PSM Cohort" },
+      },
+    );
+    fireEvent.change(screen.getByPlaceholderText("Optional description..."), {
+      target: { value: "Exported from propensity score matching." },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Export \(3\)/ }));
+
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: "matched",
+        source_id: 7,
+        person_ids: [101, 202, 303],
+        cohort_name: "Matched PSM Cohort",
+        cohort_description: "Exported from propensity score matching.",
+        target_cohort_id: 11,
+        comparator_cohort_id: 12,
+        matched_pair_count: 2,
+        model_metrics: expect.objectContaining({
+          auc: 0.78,
+          caliper: 0.2,
+        }),
+      }),
+      expect.any(Object),
+    );
+    expect(mutate.mock.calls[0][0]).not.toHaveProperty("cache_id");
+    expect(mutate.mock.calls[0][0]).not.toHaveProperty("min_score");
+    expect(screen.queryByText("Minimum Score")).not.toBeInTheDocument();
+  });
+
+  it("disables matched export when no person ids are available", () => {
+    renderWithProviders(
+      <CohortExportDialog
+        isOpen
+        onClose={vi.fn()}
+        mode="matched"
+        sourceId={7}
+        personIds={[]}
+      />,
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText("e.g. Similar to Patient 12345"),
+      {
+        target: { value: "Empty Matched Cohort" },
+      },
+    );
+
+    expect(screen.getByRole("button", { name: /Export \(0\)/ })).toBeDisabled();
+    expect(mutate).not.toHaveBeenCalled();
   });
 });

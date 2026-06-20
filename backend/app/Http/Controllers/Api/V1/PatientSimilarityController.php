@@ -407,71 +407,156 @@ class PatientSimilarityController extends Controller
         try {
             $validated = $request->validated();
 
-            $cache = PatientSimilarityCache::findOrFail($validated['cache_id']);
-            $results = $cache->results;
-            $minScore = $validated['min_score'] ?? 0.0;
-
-            // Filter similar_patients by min_score
-            $similarPatients = $results['similar_patients'] ?? [];
-            $filteredPatients = array_filter(
-                $similarPatients,
-                fn (array $p) => ($p['overall_score'] ?? 0) >= $minScore
-            );
-
-            $personIds = array_map(fn (array $p) => (int) $p['person_id'], $filteredPatients);
-
-            if (empty($personIds)) {
-                return response()->json([
-                    'error' => 'No patients meet the minimum score threshold.',
-                    'min_score' => $minScore,
-                ], 422);
+            if (isset($validated['person_ids'])) {
+                return $this->exportMatchedPersonIds($validated, $request);
             }
 
-            // Create cohort definition
-            $cohort = CohortDefinition::create([
-                'name' => $validated['cohort_name'],
-                'description' => $validated['cohort_description'] ?? 'Generated from patient similarity search results.',
-                'expression_json' => [
-                    'type' => 'patient_similarity_export',
-                    'cache_id' => $cache->id,
-                    'seed_person_id' => $cache->seed_person_id,
-                    'source_id' => $cache->source_id,
-                    'min_score' => $minScore,
-                    'query_hash' => $results['metadata']['query_hash'] ?? null,
-                    'weights' => $results['metadata']['weights'] ?? null,
-                    'filters_applied' => $results['metadata']['filters_applied'] ?? null,
-                    'temporal_window_days' => $results['metadata']['temporal_window_days'] ?? null,
-                    'feature_vector_version' => $results['metadata']['feature_vector_version'] ?? null,
-                    'diagnostics' => $results['metadata']['diagnostics'] ?? null,
-                ],
-                'author_id' => $request->user()->id,
-                'is_public' => false,
-            ]);
-
-            // Insert person_ids into results.cohort via source-aware connection
-            $source = Source::with('daimons')->findOrFail($cache->source_id);
-            SourceContext::forSource($source);
-
-            $today = now()->toDateString();
-            $rows = array_map(fn (int $personId) => [
-                'cohort_definition_id' => $cohort->id,
-                'subject_id' => $personId,
-                'cohort_start_date' => $today,
-                'cohort_end_date' => $today,
-            ], $personIds);
-
-            $this->results()->table('cohort')->insert($rows);
-
-            return response()->json([
-                'data' => [
-                    'cohort_definition_id' => $cohort->id,
-                    'patient_count' => count($personIds),
-                    'cohort_name' => $cohort->name,
-                ],
-            ], 201);
+            return $this->exportCachedSimilarityCohort($validated, $request);
         } catch (\Throwable $e) {
             return $this->errorResponse('Cohort export failed', $e);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function exportCachedSimilarityCohort(array $validated, Request $request): JsonResponse
+    {
+        $cache = PatientSimilarityCache::findOrFail($validated['cache_id']);
+        $results = $cache->results;
+        $minScore = $validated['min_score'] ?? 0.0;
+
+        $similarPatients = $results['similar_patients'] ?? [];
+        $filteredPatients = array_filter(
+            $similarPatients,
+            fn (array $patient) => ($patient['overall_score'] ?? 0) >= $minScore
+        );
+
+        $personIds = $this->normalizePersonIds(array_map(
+            fn (array $patient) => $patient['person_id'] ?? null,
+            $filteredPatients
+        ));
+
+        if (empty($personIds)) {
+            return response()->json([
+                'error' => 'No patients meet the minimum score threshold.',
+                'min_score' => $minScore,
+            ], 422);
+        }
+
+        $cohort = CohortDefinition::create([
+            'name' => $this->exportCohortName($validated),
+            'description' => $this->exportCohortDescription($validated, 'Generated from patient similarity search results.'),
+            'expression_json' => [
+                'type' => 'patient_similarity_export',
+                'cache_id' => $cache->id,
+                'seed_person_id' => $cache->seed_person_id,
+                'source_id' => $cache->source_id,
+                'min_score' => $minScore,
+                'query_hash' => $results['metadata']['query_hash'] ?? null,
+                'weights' => $results['metadata']['weights'] ?? null,
+                'filters_applied' => $results['metadata']['filters_applied'] ?? null,
+                'temporal_window_days' => $results['metadata']['temporal_window_days'] ?? null,
+                'feature_vector_version' => $results['metadata']['feature_vector_version'] ?? null,
+                'diagnostics' => $results['metadata']['diagnostics'] ?? null,
+            ],
+            'author_id' => $request->user()->id,
+            'is_public' => false,
+        ]);
+
+        $source = Source::with('daimons')->findOrFail($cache->source_id);
+        $this->materializeExportedCohort($source, $cohort, $personIds);
+
+        return $this->exportCohortResponse($cohort, count($personIds));
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function exportMatchedPersonIds(array $validated, Request $request): JsonResponse
+    {
+        $source = Source::with('daimons')->findOrFail((int) $validated['source_id']);
+        $requestedPersonIds = is_array($validated['person_ids']) ? $validated['person_ids'] : [];
+        $personIds = $this->normalizePersonIds($requestedPersonIds);
+
+        if (empty($personIds)) {
+            return response()->json([
+                'error' => 'No valid person IDs were provided.',
+            ], 422);
+        }
+
+        $hashedPersonIds = $personIds;
+        sort($hashedPersonIds, SORT_NUMERIC);
+
+        $cohort = CohortDefinition::create([
+            'name' => $this->exportCohortName($validated),
+            'description' => $this->exportCohortDescription($validated, 'Generated from matched patient similarity results.'),
+            'expression_json' => [
+                'type' => 'patient_similarity_matched_export',
+                'source_id' => $source->id,
+                'requested_person_count' => count($requestedPersonIds),
+                'patient_count' => count($personIds),
+                'duplicates_removed' => count($requestedPersonIds) - count($personIds),
+                'person_ids_sha256' => hash('sha256', implode(',', $hashedPersonIds)),
+                'target_cohort_id' => $validated['target_cohort_id'] ?? null,
+                'comparator_cohort_id' => $validated['comparator_cohort_id'] ?? null,
+                'matched_pair_count' => $validated['matched_pair_count'] ?? null,
+                'model_metrics' => $validated['model_metrics'] ?? null,
+            ],
+            'author_id' => $request->user()->id,
+            'is_public' => false,
+        ]);
+
+        $this->materializeExportedCohort($source, $cohort, $personIds);
+
+        return $this->exportCohortResponse($cohort, count($personIds));
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function exportCohortName(array $validated): string
+    {
+        return (string) ($validated['name'] ?? $validated['cohort_name']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function exportCohortDescription(array $validated, string $default): string
+    {
+        return (string) ($validated['description'] ?? $validated['cohort_description'] ?? $default);
+    }
+
+    /**
+     * @param  array<int, int>  $personIds
+     */
+    private function materializeExportedCohort(Source $source, CohortDefinition $cohort, array $personIds): void
+    {
+        SourceContext::forSource($source);
+
+        $today = now()->toDateString();
+        $rows = array_map(fn (int $personId) => [
+            'cohort_definition_id' => $cohort->id,
+            'subject_id' => $personId,
+            'cohort_start_date' => $today,
+            'cohort_end_date' => $today,
+        ], $personIds);
+
+        foreach (array_chunk($rows, 1000) as $chunk) {
+            $this->results()->table('cohort')->insert($chunk);
+        }
+    }
+
+    private function exportCohortResponse(CohortDefinition $cohort, int $patientCount): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'cohort_definition_id' => $cohort->id,
+                'patient_count' => $patientCount,
+                'cohort_name' => $cohort->name,
+            ],
+        ], 201);
     }
 
     /**
