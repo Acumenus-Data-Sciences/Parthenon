@@ -5,6 +5,7 @@ namespace App\Models\App;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CohortPhenotypeAdjudication extends Model
 {
@@ -19,7 +20,7 @@ class CohortPhenotypeAdjudication extends Model
         'demographics_json',
         'sampling_json',
         'sampled_at',
-        'reviewed_by',
+        'reviewer_id',
         'reviewed_at',
     ];
 
@@ -41,6 +42,16 @@ class CohortPhenotypeAdjudication extends Model
 
     public function reviewer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CohortPhenotypeAdjudicationReview::class, 'adjudication_id');
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(CohortPhenotypeAdjudicationEvent::class, 'adjudication_id');
     }
 }

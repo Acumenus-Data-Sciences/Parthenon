@@ -10,17 +10,20 @@ class CohortPhenotypePromotion extends Model
 {
     protected $fillable = [
         'cohort_definition_id',
-        'validation_id',
+        'phenotype_validation_id',
         'promoted_cohort_definition_id',
         'status',
+        'promoted_quality_tier',
+        'quality_summary_json',
         'notes',
-        'promoted_by',
+        'approver_id',
         'promoted_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'quality_summary_json' => 'array',
             'promoted_at' => 'datetime',
         ];
     }
@@ -32,11 +35,11 @@ class CohortPhenotypePromotion extends Model
 
     public function validation(): BelongsTo
     {
-        return $this->belongsTo(CohortPhenotypeValidation::class, 'validation_id');
+        return $this->belongsTo(CohortPhenotypeValidation::class, 'phenotype_validation_id');
     }
 
-    public function promotedBy(): BelongsTo
+    public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'promoted_by');
+        return $this->belongsTo(User::class, 'approver_id');
     }
 }
