@@ -20,6 +20,8 @@ beforeEach(function () {
         'services.fhir_to_cdm.url' => 'http://fhir-to-cdm.test:8091',
         'services.dicomweb.base_url' => 'http://orthanc.test:8042',
         'services.templates.url' => 'http://templates.test:8000',
+        'services.scispacy.url' => 'http://scispacy.test:5101',
+        'services.anonymizer.url' => 'http://anonymizer.test:8080',
     ]);
 });
 
@@ -78,4 +80,21 @@ it('treats optional sidecars as ready on any HTTP response (avoids wrong-health-
 
     expect($byName['orthanc (PACS)']['status'])->toBe('ready')
         ->and($byName['orthanc (PACS)']['detail'])->toContain('401');
+});
+
+it('probes the scispacy and anonymizer ingestion sidecars as optional', function () {
+    Http::fake([
+        '*scispacy*/health' => Http::response(['status' => 'ok'], 200),
+        '*anonymizer*/health' => fn () => throw new ConnectionException('Connection refused'),
+        '*' => Http::response('', 200),
+    ]);
+
+    Artisan::call('sidecars:readiness', ['--json' => true]);
+    $out = json_decode(Artisan::output(), true);
+    $byName = collect($out['sidecars'])->keyBy('name');
+
+    expect($byName['scispacy']['status'])->toBe('ready')
+        ->and($byName['scispacy']['required'])->toBeFalse()
+        ->and($byName['anonymizer']['status'])->toBe('unreachable')
+        ->and($byName['anonymizer']['required'])->toBeFalse();
 });

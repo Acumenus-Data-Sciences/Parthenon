@@ -71,6 +71,8 @@ class SidecarReadinessCommand extends Command
             ['name' => 'fhir-to-cdm', 'url' => (string) config('services.fhir_to_cdm.url'), 'path' => '/health', 'required' => false, 'expect' => 'reachable'],
             ['name' => 'orthanc (PACS)', 'url' => (string) config('services.dicomweb.base_url'), 'path' => '/system', 'required' => false, 'expect' => 'reachable'],
             ['name' => 'templates', 'url' => (string) config('services.templates.url'), 'path' => '/health', 'required' => false, 'expect' => 'reachable'],
+            ['name' => 'scispacy', 'url' => (string) config('services.scispacy.url'), 'path' => '/health', 'required' => false, 'expect' => 'reachable'],
+            ['name' => 'anonymizer', 'url' => (string) config('services.anonymizer.url'), 'path' => '/health', 'required' => false, 'expect' => 'reachable'],
         ];
     }
 

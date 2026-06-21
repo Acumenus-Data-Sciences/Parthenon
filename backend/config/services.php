@@ -170,4 +170,13 @@ return [
         'timeout' => (int) env('TEMPLATES_SERVICE_TIMEOUT', 5),
     ],
 
+    // Ingestion-template sidecars probed by `sidecars:readiness` (reachability).
+    'scispacy' => [
+        'url' => env('PARTHENON_SCISPACY_URL', 'http://parthenon-scispacy:5101'),
+    ],
+
+    'anonymizer' => [
+        'url' => env('PARTHENON_ANONYMIZER_URL', 'http://parthenon-anonymizer:8080'),
+    ],
+
 ];
