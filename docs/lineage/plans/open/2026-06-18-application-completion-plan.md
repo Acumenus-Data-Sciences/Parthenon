@@ -177,8 +177,9 @@ Parthenon is "complete enough" for this backlog when all of these are true:
   skip flagged; the rest env-required or tooling-limited).
 - [ ] Add a short "current known blockers" section to each active module plan
   that still drives work.
-- [ ] Record the runtime readiness matrix for local Docker, hosted staging, and
+- [x] Record the runtime readiness matrix for local Docker, hosted staging, and
   production-adjacent smoke checks.
+  (`docs/lineage/operations/2026-06-21-environment-promotion-gates.md`)
 
 Acceptance evidence:
 
@@ -451,17 +452,18 @@ Acceptance evidence:
   - [ ] Llettuce.
   - [x] Redis queues/idempotency.
   - [x] PACS/Orthanc.
-- [ ] Define environment promotion gates for local, staging, and production:
-  - [ ] backend health
-  - [ ] frontend asset deployment
-  - [ ] queue workers
-  - [ ] database migrations
-  - [ ] representative CDM data
-  - [ ] AI/analysis sidecars
-  - [ ] PACS/DICOMweb
-  - [ ] ingestion template smoke
-- [ ] Publish an operator runbook for interpreting skipped tests and hosted-only
-  checks.
+- [x] Define environment promotion gates for local, staging, and production:
+  (`docs/lineage/operations/2026-06-21-environment-promotion-gates.md`)
+  - [x] backend health
+  - [x] frontend asset deployment
+  - [x] queue workers
+  - [x] database migrations
+  - [x] representative CDM data
+  - [x] AI/analysis sidecars
+  - [x] PACS/DICOMweb
+  - [x] ingestion template smoke
+- [x] Publish an operator runbook for interpreting skipped tests and hosted-only
+  checks. (`docs/lineage/operations/2026-06-21-test-skip-inventory.md`)
 
 Acceptance evidence:
 
