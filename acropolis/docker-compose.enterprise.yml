@@ -437,7 +437,7 @@ services:
       - AUTH_OIDC_CLIENT_SECRET=${DATAHUB_OAUTH_CLIENT_SECRET}
       - AUTH_OIDC_DISCOVERY_URI=https://auth.${DOMAIN:-acumenus.net}/application/o/datahub-oidc/.well-known/openid-configuration
       - AUTH_OIDC_BASE_URL=https://datahub.${DOMAIN:-acumenus.net}
-      - AUTH_OIDC_SCOPE=openid,profile,email
+      - AUTH_OIDC_SCOPE=openid,profile,email,groups
       - AUTH_OIDC_USER_NAME_CLAIM=preferred_username
       - AUTH_OIDC_GROUPS_CLAIM=groups
       - AUTH_JAAS_ENABLED=true

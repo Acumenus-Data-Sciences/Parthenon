@@ -2,6 +2,10 @@
 services:
   # Authentik bootstrap credentials
   authentik-worker:
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
     environment:
       AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
       AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
@@ -9,10 +13,18 @@ services:
 
   # Expose service ports to host for Apache proxy
   n8n:
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
     ports:
       - "5678:5678"
 
   superset:
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
     ports:
       - "8089:8088"
     environment:
@@ -21,31 +33,138 @@ services:
       bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && /usr/bin/run-server.sh"
 
   superset-worker:
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
     environment:
       - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
     command: >
       bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
 
   superset-beat:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     environment:
       - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
     command: >
       bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule"
 
   datahub-frontend:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     ports: []
 
   portainer:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     ports:
       - "9443:9443"
 
   pgadmin:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     ports:
       - "5050:80"
 
   authentik-server:
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
     ports:
       - "9000:9000"
 
   wazuh-dashboard:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     ports: []
+
+  # ── Added memory caps for previously-unbounded services ──
+  authentik-db:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  authentik-redis:
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  datahub-mysql:
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+
+  datahub-opensearch:
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+
+  datahub-broker:
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+
+  datahub-schema-registry:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  datahub-gms:
+    deploy:
+      resources:
+        limits:
+          memory: 3072M
+
+  datahub-actions:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  superset-cache:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  superset-db:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  traefik:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  wazuh-indexer:
+    deploy:
+      resources:
+        limits:
+          memory: 7168M
+
+  wazuh-manager:
+    deploy:
+      resources:
+        limits:
+          memory: 2048M

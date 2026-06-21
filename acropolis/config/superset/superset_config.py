@@ -8,6 +8,7 @@
 # =============================================================================
 import os
 from flask_appbuilder.security.manager import AUTH_OAUTH
+from superset.security import SupersetSecurityManager
 
 # ── Core ────────────────────────────────────────────────────────────────────
 ENABLE_PROXY_FIX = True
@@ -64,9 +65,19 @@ RATELIMIT_APPLICATION = "300 per second"
 
 # ── Authentik OIDC ─────────────────────────────────────────────────────────
 DOMAIN = os.environ.get("DOMAIN", "acumenus.net")
+AUTHENTIK_ADMIN_GROUPS = {
+    "authentik Admins",
+    "Parthenon Admins",
+    "Aurora Admins",
+}
 AUTH_TYPE = AUTH_OAUTH
 AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_USER_REGISTRATION_ROLE = "Gamma"
+AUTH_ROLES_SYNC_AT_LOGIN = True
+AUTH_ROLES_MAPPING = {
+    "Admin": ["Admin"],
+    "Gamma": ["Gamma"],
+}
 OAUTH_PROVIDERS = [
     {
         "name": "authentik",
@@ -79,10 +90,33 @@ OAUTH_PROVIDERS = [
             "access_token_url": f"https://auth.{DOMAIN}/application/o/token/",
             "authorize_url": f"https://auth.{DOMAIN}/application/o/authorize/",
             "server_metadata_url": f"https://auth.{DOMAIN}/application/o/superset-oidc/.well-known/openid-configuration",
-            "client_kwargs": {"scope": "openid profile email"},
+            "client_kwargs": {"scope": "openid profile email groups"},
         },
     }
 ]
+
+
+class AuthentikSecurityManager(SupersetSecurityManager):
+    def oauth_user_info(self, provider, response=None):
+        if provider != "authentik":
+            return super().oauth_user_info(provider, response)
+
+        remote = self.appbuilder.sm.oauth_remotes[provider]
+        userinfo = remote.get("userinfo").json()
+        groups = userinfo.get("groups") or []
+        name = userinfo.get("name") or userinfo.get("preferred_username") or userinfo.get("email")
+        role_key = "Admin" if any(group in AUTHENTIK_ADMIN_GROUPS for group in groups) else "Gamma"
+        return {
+            "username": userinfo.get("preferred_username") or userinfo.get("email"),
+            "name": name,
+            "email": userinfo.get("email"),
+            "first_name": name,
+            "last_name": "",
+            "role_keys": [role_key],
+        }
+
+
+CUSTOM_SECURITY_MANAGER = AuthentikSecurityManager
 
 # ── Display ─────────────────────────────────────────────────────────────────
 APP_NAME = "Acropolis Analytics"

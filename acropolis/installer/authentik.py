@@ -15,6 +15,7 @@ Idempotent — safe to re-run on an existing Authentik instance.
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from dataclasses import dataclass
@@ -36,8 +37,32 @@ class ServiceDef:
     external_host: str  # External URL template (with {domain} placeholder)
 
 
+# Common Authentik admin defaults for local Acumenus Docker surfaces.
+COMMON_SUPERADMIN_GROUP = "authentik Admins"
+COMMON_ADMIN_ALIAS_GROUPS = ["Parthenon Admins", "Aurora Admins"]
+COMMON_ADMIN_USERS = [
+    "admin",
+    "dmuraco",
+    "ebruno",
+    "gbock",
+    "jdawe",
+    "kpatel",
+    "sudoshi",
+]
+BOOTSTRAP_SUPERADMIN_USERS = ["akadmin"]
+GROUPS_SCOPE_MAPPING_NAME = "Acumenus: OAuth2 groups claim"
+LEGACY_GROUPS_SCOPE_MAPPING_NAMES = [
+    "Parthenon: OAuth2 groups claim",
+]
+
+
 # All services gated by Authentik forward auth
 SERVICE_DEFS: list[ServiceDef] = [
+    ServiceDef(
+        name="alfresco",
+        display_name="Alfresco",
+        external_host="https://docs.{domain}",
+    ),
     ServiceDef(
         name="grafana",
         display_name="Grafana",
@@ -110,7 +135,7 @@ NATIVE_SSO_DEFS: list[NativeSsoDef] = [
         service_name="superset",
         sso_type="oidc",
         app_slug="superset-oidc",
-        display_name="Superset OIDC",
+        display_name="Apache Superset OIDC",
         redirect_uris=[
             "https://superset.{domain}/oauth-authorized/authentik",
             "http://superset.{domain}/oauth-authorized/authentik",
@@ -269,6 +294,21 @@ class AuthentikAPI:
         result = self.get(path)
         return result.get("results", [])
 
+    def list_oauth2_scope_mappings(self) -> list[dict]:
+        """List OAuth2/OIDC scope mappings."""
+        result = self.get("/api/v3/propertymappings/provider/scope/?page_size=200")
+        return result.get("results", [])
+
+    def list_groups(self) -> list[dict]:
+        """List Authentik groups."""
+        result = self.get("/api/v3/core/groups/?page_size=200")
+        return result.get("results", [])
+
+    def list_users(self) -> list[dict]:
+        """List Authentik users."""
+        result = self.get("/api/v3/core/users/?page_size=200")
+        return result.get("results", [])
+
     def list_certificate_keypairs(self) -> list[dict]:
         """List certificate-key pairs."""
         result = self.get("/api/v3/crypto/certificatekeypairs/?page_size=50")
@@ -286,6 +326,18 @@ def _read_env_file() -> dict[str, str]:
                 key, _, value = line.partition("=")
                 env_vars[key.strip()] = value.strip()
     return env_vars
+
+
+def _csv_env(
+    env_vars: dict[str, str],
+    key: str,
+    default: list[str],
+) -> list[str]:
+    """Read a comma-separated setting from process env or .env."""
+    raw = os.environ.get(key) or env_vars.get(key)
+    if raw is None:
+        return default
+    return [item.strip() for item in raw.split(",") if item.strip()]
 
 
 def _update_env_var(key: str, value: str) -> None:
@@ -396,6 +448,111 @@ def _generate_client_id(length: int = 40) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
+def _ensure_common_admin_groups(api: AuthentikAPI, console: Console) -> None:
+    """Ensure the local admin groups and default admin memberships exist."""
+    env_vars = _read_env_file()
+    superadmin_group_name = (
+        os.environ.get("AUTHENTIK_SUPERADMIN_GROUP")
+        or env_vars.get("AUTHENTIK_SUPERADMIN_GROUP")
+        or COMMON_SUPERADMIN_GROUP
+    )
+    alias_group_names = _csv_env(
+        env_vars,
+        "AUTHENTIK_ADMIN_ALIAS_GROUPS",
+        COMMON_ADMIN_ALIAS_GROUPS,
+    )
+    admin_users = _csv_env(
+        env_vars,
+        "AUTHENTIK_COMMON_ADMIN_USERS",
+        COMMON_ADMIN_USERS,
+    )
+    bootstrap_users = _csv_env(
+        env_vars,
+        "AUTHENTIK_BOOTSTRAP_SUPERADMIN_USERS",
+        BOOTSTRAP_SUPERADMIN_USERS,
+    )
+
+    console.print("  Ensuring common admin groups...", end=" ")
+    groups_by_name = {group["name"]: group for group in api.list_groups()}
+
+    def ensure_group(name: str, is_superuser: bool) -> dict:
+        existing = groups_by_name.get(name)
+        payload = {"name": name, "is_superuser": is_superuser}
+        if existing:
+            if existing.get("is_superuser") != is_superuser:
+                existing = api.patch(f"/api/v3/core/groups/{existing['pk']}/", payload)
+                groups_by_name[name] = existing
+            return existing
+        created = api.post("/api/v3/core/groups/", payload)
+        groups_by_name[name] = created
+        return created
+
+    managed_groups = [
+        ensure_group(superadmin_group_name, True),
+        *[ensure_group(name, False) for name in alias_group_names],
+    ]
+
+    users_by_name = {user["username"]: user for user in api.list_users()}
+    missing_users: list[str] = []
+    changes = 0
+
+    def add_to_group(username: str, group: dict) -> None:
+        nonlocal changes
+        user = users_by_name.get(username)
+        if not user:
+            missing_users.append(username)
+            return
+        current_groups = set(user.get("groups", []) or [])
+        if group["pk"] in current_groups:
+            return
+        api.post(f"/api/v3/core/groups/{group['pk']}/add_user/", {"pk": user["pk"]})
+        current_groups.add(group["pk"])
+        user["groups"] = list(current_groups)
+        changes += 1
+
+    for username in admin_users:
+        for group in managed_groups:
+            add_to_group(username, group)
+
+    superadmin_group = groups_by_name[superadmin_group_name]
+    for username in bootstrap_users:
+        add_to_group(username, superadmin_group)
+
+    suffix = f", missing users: {', '.join(sorted(set(missing_users)))}" if missing_users else ""
+    console.print(f"[green]OK ({changes} memberships added{suffix})[/]")
+
+
+def _ensure_groups_scope_mapping(api: AuthentikAPI, mappings: list[dict]) -> str:
+    """Return an OAuth2 scope mapping pk that emits Authentik group names."""
+    for name in [GROUPS_SCOPE_MAPPING_NAME, *LEGACY_GROUPS_SCOPE_MAPPING_NAMES]:
+        for mapping in mappings:
+            if mapping.get("name") == name and mapping.get("scope_name") == "groups":
+                return mapping["pk"]
+
+    for mapping in mappings:
+        if mapping.get("scope_name") == "groups":
+            return mapping["pk"]
+
+    created = api.post(
+        "/api/v3/propertymappings/provider/scope/",
+        {
+            "name": GROUPS_SCOPE_MAPPING_NAME,
+            "scope_name": "groups",
+            "description": (
+                "Emits a `groups` claim containing the names of all Authentik "
+                "groups the user belongs to. Created by the Acropolis SSO "
+                "installer for shared local app admin mapping."
+            ),
+            "expression": (
+                "return {\n"
+                "    \"groups\": [group.name for group in request.user.ak_groups.all()],\n"
+                "}"
+            ),
+        },
+    )
+    return created["pk"]
+
+
 def _lookup_oidc_prerequisites(api: AuthentikAPI, console: Console) -> dict:
     """Look up scope mappings and signing key needed for OAuth2 providers.
 
@@ -403,18 +560,19 @@ def _lookup_oidc_prerequisites(api: AuthentikAPI, console: Console) -> dict:
     """
     console.print("  Looking up OIDC scope mappings...", end=" ")
 
-    # Find openid, profile, email scope mappings
-    all_mappings = api.list_property_mappings(
-        "goauthentik.io/providers/oauth2/scope-"
-    )
+    # Find openid, profile, email, and groups scope mappings.
+    all_mappings = api.list_oauth2_scope_mappings()
     target_scopes = {"openid", "profile", "email"}
     scope_pks: list[str] = []
     for m in all_mappings:
-        managed = m.get("managed", "")
+        managed = m.get("managed") or ""
         for scope in target_scopes:
             if managed.endswith(f"/scope-{scope}"):
                 scope_pks.append(m["pk"])
                 break
+    groups_mapping_pk = _ensure_groups_scope_mapping(api, all_mappings)
+    if groups_mapping_pk not in scope_pks:
+        scope_pks.append(groups_mapping_pk)
 
     # Find signing key (prefer authentik self-signed, fallback to any with key_data)
     keypairs = api.list_certificate_keypairs()
@@ -490,12 +648,18 @@ def _bootstrap_oidc_provider(
         for uri in sso_def.redirect_uris
     ]
 
-    # Check if provider already exists (use pre-fetched list if available)
-    provider = existing_oauth2.get(sso_def.display_name)
-
     env_vars = _read_env_file()
     client_id = env_vars.get(sso_def.env_client_id, "")
     client_secret = env_vars.get(sso_def.env_client_secret, "")
+
+    # Check if provider already exists. Prefer the canonical name, but also
+    # recover renamed providers by their persisted client ID to avoid duplicates.
+    provider = existing_oauth2.get(sso_def.display_name)
+    if not provider and client_id:
+        for existing in existing_oauth2.values():
+            if existing.get("client_id") == client_id:
+                provider = existing
+                break
 
     if provider:
         # Recover credentials from Authentik if missing from .env (partial first-run)
@@ -503,11 +667,18 @@ def _bootstrap_oidc_provider(
             client_id = provider.get("client_id", "")
         if not client_secret:
             client_secret = provider.get("client_secret", "")
-        # Update redirect URIs in case domain changed
+        # Update redirect URIs and mappings in case domain or shared claims changed.
+        update_payload: dict = {
+            "redirect_uris": redirect_uris,
+            "property_mappings": oidc_prereqs["scope_mapping_pks"],
+            "include_claims_in_id_token": True,
+        }
+        if oidc_prereqs.get("signing_key_pk"):
+            update_payload["signing_key"] = oidc_prereqs["signing_key_pk"]
         try:
             api.patch(
                 f"/api/v3/providers/oauth2/{provider['pk']}/",
-                {"redirect_uris": redirect_uris},
+                update_payload,
             )
         except (HTTPError, URLError):
             pass
@@ -810,6 +981,8 @@ def bootstrap_authentik(
     api = AuthentikAPI("http://localhost:9000", token)
     if not _wait_for_api(api, console):
         return False
+
+    _ensure_common_admin_groups(api, console)
 
     # ── Lookup prerequisite flows ──────────────────────────────────────
     console.print("  Looking up authorization flows...", end=" ")

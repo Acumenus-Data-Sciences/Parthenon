@@ -22,7 +22,7 @@ OAUTH2_CONFIG = [{
     'OAUTH2_API_BASE_URL': f'https://auth.{DOMAIN}/application/o/',
     'OAUTH2_USERINFO_ENDPOINT': f'https://auth.{DOMAIN}/application/o/userinfo/',
     'OAUTH2_SERVER_METADATA_URL': f'https://auth.{DOMAIN}/application/o/pgadmin-oidc/.well-known/openid-configuration',
-    'OAUTH2_SCOPE': 'openid profile email',
+    'OAUTH2_SCOPE': 'openid profile email groups',
     'OAUTH2_ICON': 'fa-key',
     'OAUTH2_BUTTON_COLOR': '#fd4b2d',
 }]
