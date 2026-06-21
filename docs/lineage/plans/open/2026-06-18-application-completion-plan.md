@@ -301,8 +301,8 @@ Acceptance evidence:
     deltas.
   - [ ] Replace the comparison placeholder with real loading, empty, error, and
     success states.
-- [ ] Decide and document the source connector matrix.
-  - [ ] For BigQuery, Redshift, Snowflake, Databricks, and Cloud Spanner, choose
+- [x] Decide and document the source connector matrix.
+  - [x] For BigQuery, Redshift, Snowflake, Databricks, and Cloud Spanner, choose
     ship, enterprise-only, feature-flag, or remove-from-UI.
   - [ ] For each shipped connector, add connection validation, credential
     storage, schema discovery, and smoke tests.
@@ -420,13 +420,13 @@ Acceptance evidence:
     note evidence.
 - [ ] Build service readiness checks for all sidecars that routinely cause
   skipped tests:
-  - [ ] Darkstar/R analysis.
-  - [ ] Python AI.
+  - [x] Darkstar/R analysis.
+  - [x] Python AI.
   - [ ] Anonymizer.
   - [ ] SciSpaCy.
   - [ ] Llettuce.
-  - [ ] Redis queues/idempotency.
-  - [ ] PACS/Orthanc.
+  - [x] Redis queues/idempotency.
+  - [x] PACS/Orthanc.
 - [ ] Define environment promotion gates for local, staging, and production:
   - [ ] backend health
   - [ ] frontend asset deployment
@@ -448,17 +448,17 @@ Acceptance evidence:
 
 ## Phase 9 - Decide Optional Enterprise Scope
 
-- [ ] Decide whether Airflow, Dagster, and Temporal adapters are product
+- [x] Decide whether Airflow, Dagster, and Temporal adapters are product
   commitments.
   - [ ] If yes, implement at least one complete non-Prefect adapter with submit,
     status, cancel, logs/artifacts, retry semantics, and integration tests.
-  - [ ] If no, remove the stubs from product-facing scope or mark them as
+  - [x] If no, remove the stubs from product-facing scope or mark them as
     developer extension examples.
-- [ ] Decide whether cloud warehouse connectors are core, enterprise, or future
+- [x] Decide whether cloud warehouse connectors are core, enterprise, or future
   scope.
 - [ ] Decide whether federated mapping depends on a concrete Hive Networks
   readiness date or should move to a hold-final decision.
-- [ ] Convert every deferred optional scope into either a closed decision record
+- [x] Convert every deferred optional scope into either a closed decision record
   or a named open plan with a closure trigger.
 
 Acceptance evidence:

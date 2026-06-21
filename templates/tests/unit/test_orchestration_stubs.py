@@ -1,4 +1,4 @@
-"""Stub backends raise NotImplementedError to prove the interface seam."""
+"""Developer-extension example backends raise NotImplementedError to prove the interface seam."""
 
 from __future__ import annotations
 
@@ -24,5 +24,5 @@ def flow() -> FlowSpec:
 @pytest.mark.parametrize("cls", [TemporalBackend, DagsterBackend, AirflowBackend])
 def test_stub_submit_raises(cls: type, flow: FlowSpec, tmp_path: Path) -> None:
     backend = cls(storage=LocalFilesystemStorage(root=tmp_path))
-    with pytest.raises(NotImplementedError, match="Phase 0"):
+    with pytest.raises(NotImplementedError, match="developer-extension example"):
         backend.submit(flow)
