@@ -56,9 +56,13 @@ closed decision record or a committed plan — not an indefinite placeholder.
   tracked frontend follow-up (the `dataSourceIngestionResources.ts` strings recur
   across locales/sections and warrant a focused, careful i18n change rather than
   a blind sweep). No connector is selectable in the community build.
-- **DOCX / XLSX:** committed to implementation; tracked in the completion plan
-  Phase 5 ("Reconcile publish export surfaces") until the backends ship and the
-  `ExportControls` badges are replaced with working actions.
+- **DOCX / XLSX (shipped):** DOCX was already live in the reachable export UI
+  (`ExportPanel` → `/publish/export` → `DocxExporter`). XLSX now ships too: a new
+  `XlsxExporter` (PhpSpreadsheet) wired into `PublicationService`, allowed by
+  `PublicationExportRequest`, and surfaced as an "Excel Workbook" option in
+  `ExportPanel`. The "coming soon" DOCX/XLSX badges flagged by the audit lived
+  only in `ExportControls`, which is orphaned dead code (referenced only by its
+  test, never rendered) — left in place but noted as non-reachable.
 
 ## Closure trigger
 

@@ -343,12 +343,12 @@ Acceptance evidence:
     opening.
 - [ ] Audit all AI/Abby features for implicit assumptions about default source,
   active project, active cohort, and current user permissions.
-- [ ] Reconcile publish export surfaces.
-  - [ ] Confirm whether DOCX/XLSX coming-soon badges in legacy controls are
+- [x] Reconcile publish export surfaces.
+  - [x] Confirm whether DOCX/XLSX coming-soon badges in legacy controls are
     still shown in reachable UI.
   - [ ] If export backends now exist elsewhere, remove stale controls or route
     them to the shipped export path.
-  - [ ] If not shipped, implement or hide the formats behind a deliberate scope
+  - [x] If not shipped, implement or hide the formats behind a deliberate scope
     decision.
 - [ ] Validate local-model CE behavior from the shipped plan and create a
   follow-up only for remaining work, not for already-deployed scope.
@@ -357,7 +357,7 @@ Acceptance evidence:
 
 - [x] The Abby `/data` channel binds to the selected source and source cards
   navigate to cited evidence for known local artifact types and URLs.
-- [ ] Publication/export controls no longer contradict backend capability.
+- [x] Publication/export controls no longer contradict backend capability.
 - [ ] AI workflows have authorization and provenance tests.
 
 ## Phase 6 - Complete Clinical Workbench Gaps
