@@ -51,14 +51,30 @@ passing or intentionally retired, and open plans have clear closeout evidence.
 > **Reconciliation 2026-06-21.** An 11-section evidence audit (each newly-done
 > claim adversarially re-verified, several by running the cited tests) reconciled
 > the checkboxes below against the codebase after the A1–A5 / Gate-B work of
-> 2026-06-19..21. Newly checked: Phase 0 bounded test lanes; all of Phase 3's
-> protocol-to-publication block (P0–P6 + parent), HADES sidecar verification,
-> sidecar contract tests, package closeout, the `r_not_implemented` decision, and
-> the phenotype-validation backlog (controller drift + 8 un-skipped cases). Items
-> left unchecked are genuinely open or `partial`/`decision` per the audit (e.g.
-> sidecar UI diagnostics, FHIR-export page wiring, connector matrix, signed
-> releases, promotion gates). Per-phase shipped evidence for Phase 3 is in
-> `docs/lineage/modules/studies/2026-06-21-protocol-to-publication-closeout.md`.
+> 2026-06-19..21, followed by a bounded implementation pass. **Progress: 76 of
+> 178 checklist items complete.** Work landed this pass:
+>
+> - **Reconciliation + Phase 3 closeout** (`dcdf34a39`): checked off Phase 0
+>   bounded test lanes and all of Phase 3's protocol-to-publication block (P0–P6
+>   + parent), HADES sidecar verification, sidecar contract tests, package
+>   closeout, the `r_not_implemented` decision, and the phenotype-validation
+>   backlog. Per-phase evidence in
+>   `docs/lineage/modules/studies/2026-06-21-protocol-to-publication-closeout.md`.
+> - **Sidecar readiness** (`54dcbeb0d`): new `php artisan sidecars:readiness`
+>   command (darkstar/python-ai/redis/PACS + others) → closed 4 Phase 8 readiness
+>   items and feeds the promotion gates.
+> - **Optional-scope decisions** (`5c311f718`, ADR-0021): connectors →
+>   enterprise-only; Airflow/Dagster/Temporal → developer-extension examples
+>   (relabeled in code); DOCX/XLSX → implement. Closed the Phase 4 connector-matrix
+>   and Phase 9 enterprise-scope decisions.
+> - **Publish export** (`e6aaeff1e`, `41de1dce8`): DOCX confirmed already live in
+>   `ExportPanel`; XLSX implemented (`XlsxExporter` + wired into the panel). Phase 5
+>   publish-export reconciliation closed.
+>
+> Items left unchecked are genuinely open, `partial`, or follow-ups per the audit
+> (sidecar UI diagnostics, FHIR-export page wiring, Source Profiler comparison,
+> 8 ingestion-template Phase-4 plans, signed releases, promotion-gate definitions,
+> connector UI enterprise relabel, frontend chunk-splitting + lint).
 
 ## Audit Evidence
 
@@ -90,7 +106,7 @@ passing or intentionally retired, and open plans have clear closeout evidence.
 | `cd backend && ./vendor/bin/pint --test` | Pass | PHP formatting is not blocking completion work. |
 | `cd backend && ./vendor/bin/phpstan analyse --no-progress` | Pass | Static PHP typing is not currently blocking completion work. |
 | `cd frontend && npm run build` | Pass with chunk-size warnings | The frontend builds, but bundle size and code splitting remain completion work. This was a validation gate, not the frontend deploy path. |
-| `cd frontend && npm run lint` | Pass with 42 warnings | React Compiler/hook purity and Fast Refresh warnings should be burned down before declaring frontend completion. |
+| `cd frontend && npm run lint` | Pass with 34 warnings (was 42; `ChartCard` extraction cleared 8) | React Compiler/hook purity and Fast Refresh warnings should be burned down before declaring frontend completion. |
 | `cd templates && uv run pytest -q` | Pass after implementation: 1295 passed, 11 skipped, 2 warnings | The original FHIR-to-OMOP throughput failure is fixed. Remaining skips are environment-bound sidecar/fixture gates. |
 | `cd backend && composer test:unit` | Pass after implementation: 99 passed, 576 deprecated, 7719 assertions | The pre-migrated local PostgreSQL test schema now reuses transactions instead of replaying `migrate:fresh` into a multi-schema database. |
 | `cd backend && composer test:integration` | Pass after implementation: 8 deprecated, 43 assertions | Search-path integration coverage now accepts the runtime test-harness path while preserving exact config assertions. |
@@ -108,19 +124,20 @@ passing or intentionally retired, and open plans have clear closeout evidence.
 | P0 | Achilles schema routing | Improved in this pass: the targeted Achilles routing test passes, includes a deterministic SourceContext regression, and live host checks now skip with actionable diagnostics when catalog tables are unavailable. | The full backend suite still needs a bounded default command. |
 | P0 | Test-suite observability | Improved in this pass: bounded Composer lanes now cover unit, integration, API feature, FinnGen feature, non-API feature modules, and explicit live-OMOP checks. The monolithic `php artisan test` command still timed out under a 15-minute cap. | Engineers should use the split lanes until the legacy monolithic command is retired or made equivalently bounded. |
 | P1 | Documentation governance | Fixed in this pass: the shipped local-model plan moved to `plans/closed/`, the active protocol-to-publication plan moved to `plans/open/`, and the open README/catalog were reconciled. | Continue checking future plan lifecycle changes in the same commit that moves or closes docs. |
-| P1 | Protocol-to-publication | The implementation plan has six active phases covering provenance, calibration, gate ledger, missing-cohort diagnostics, Abby orchestration, and manuscript synthesis. | Abby/publication workflow is still a plan, not a completed product surface. |
-| P1 | HADES/Darkstar analytics | PHP services still normalize or handle `r_not_implemented` / `not_implemented` responses for estimation, prediction, SCCS, and evidence synthesis. | User-facing analytics can degrade into failed/pending states unless R sidecar readiness and package availability are proven. |
-| P1 | Phenotype validation | Eight feature tests are skipped pending `PhenotypeValidationController` spec alignment. | API behavior and frontend expectations can drift without a passing contract suite. |
-| P1 | FHIR export | `FhirExportPage.tsx` is a "coming soon" backend-pending admin surface. | A visible administration workflow is unfinished. |
+| P1 | Protocol-to-publication | RESOLVED 2026-06-21: all seven phases (P0–P6) shipped with code + passing tests; closeout at `docs/lineage/modules/studies/2026-06-21-protocol-to-publication-closeout.md`. | Implementation plan stays open only for the live `execute=true` study-114 gated re-run. |
+| P1 | HADES/Darkstar analytics | RESOLVED 2026-06-21: 40/40 HADES packages verified, real end-to-end estimation; `r_not_implemented` retained as a defensive fallback (decision recorded); `RServiceTest` covers success/failed/unavailable/invalid; `sidecars:readiness` probes the sidecar. | UI sidecar-pending copy is still generic (partial); anonymizer/SciSpaCy/Llettuce readiness pending. |
+| P1 | Phenotype validation | RESOLVED 2026-06-21: the 8 skipped cases are gone; `PhenotypeValidationTest.php` has 17 passing contract cases over the multi-reviewer adjudication flow. | Frontend contract coverage for the resolved behavior remains a follow-up. |
+| P1 | FHIR export | PARTIAL: the OMOP→FHIR `$export` backend exists (`FhirR4Controller` + job + auth + tests), but `FhirExportPage.tsx` is still a "coming soon" placeholder not wired to it; no audit-logging/retention/cancel yet. | A visible administration workflow remains unfinished; backend is reachable via API. |
 | P1 | GIS import | Fixed in this implementation pass: `.xlsx` and `.xls` uploads now produce previews, stream rows through the GIS import job, skip blank spreadsheet rows, and preserve CSV/TSV behavior. | Very large spreadsheets should still be monitored operationally, but the visible "Excel support coming soon" path is gone. |
 | P1 | Patient similarity | Fixed in this implementation pass: matched PSM person IDs can now be exported through `/api/v1/patient-similarity/export-cohort`, materialized into the source results cohort table, and launched from the PSM workspace export dialog. | Keep future PSM enhancements focused on long-running job UX only if matched cohorts exceed the synchronous 10,000-patient contract. |
 | P1 | Abby source handling | Fixed in this pass for the first product slice: `/data` queries now use `activeSourceId ?? defaultSourceId`, missing source selection blocks with an inline error, and source cards navigate to internal artifacts or external URLs. | Broader Abby workflows still need auditing for default-source, active-project, cohort, permission, and provenance assumptions. |
-| P2 | Source connectors | BigQuery, Redshift, Snowflake, Databricks, and Cloud Spanner are listed as unavailable/coming soon. | The product advertises broader data-source ambitions than it completes today. |
+| P2 | Source connectors | DECIDED 2026-06-21 (ADR-0021): BigQuery, Redshift, Snowflake, Databricks, and Cloud Spanner are **enterprise-only**. | UI still labels them "Coming Soon"; the relabel to an Enterprise tier badge is a tracked i18n follow-up. |
 | P2 | ETL profiler comparison | Source profiler comparison view is a placeholder pending comparison API. | Cross-project/source profiling remains incomplete. |
-| P2 | Orchestration adapters | Airflow, Dagster, and Temporal backends are explicit Phase 0 `NotImplementedError` stubs. | Only the default orchestration path is productized; enterprise orchestration adapters need a ship/no-ship decision. |
+| P2 | Orchestration adapters | RESOLVED 2026-06-21 (ADR-0021): Airflow/Dagster/Temporal relabeled as **developer-extension examples** (Prefect is the shipped backend); docstrings + `NotImplementedError` messages + test updated. | Not core product promises; implementing one fully remains an optional future. |
 | P2 | Release packaging | Existing open plan still lacks verified signed release assets across target platforms. | Native release trust chain remains incomplete. |
 | P2 | Ingestion template Phase 4 | Existing open plans track BGE-base LoRA, timed reviewer tests, auto-approval calibration, rerank decision, Llettuce reevaluation, FHIR Bulk Data reader, federated mapping spike, and upstream diff workflows. | Template/product parity depends on closing or explicitly deferring these plans. |
-| P2 | Frontend quality | Build emits very large chunks; lint emits 42 warnings across hooks, immutability, purity, Fast Refresh, and unused variables. | The UI is buildable but not yet at a clean maintenance baseline. |
+| P2 | Frontend quality | Build emits very large chunks; lint down to 34 warnings (from 42, after the `ChartCard` extraction) across hooks, immutability, purity, Fast Refresh, and unused variables. | The UI is buildable but not yet at a clean maintenance baseline; chunk-splitting + the remaining 34 warnings are open. |
+| P2 | Publish export (DOCX/XLSX) | RESOLVED 2026-06-21 (ADR-0021): DOCX was already live in `ExportPanel`; XLSX implemented (`XlsxExporter` → `PublicationService` → `ExportPanel`). The "coming soon" badges lived only in orphaned `ExportControls` dead code. | Reachable export UI no longer contradicts backend capability. |
 | P2 | Environment-bound E2E | Several tests skip when CDM data, Redis, Darkstar, Python AI, anonymizer, SciSpaCy, Llettuce, FinnGen, PACS, or seeded workflow data are unavailable. | Completion cannot be assessed from local unit results alone; hosted smoke data and readiness gates need ownership. |
 | P3 | PHP 8.5 readiness | Backend test output includes repeated deprecations around `PDO::MYSQL_ATTR_SSL_CA` and doc-comment PHPUnit metadata. | Future runtime upgrades will turn today's warnings into maintenance pressure. |
 
