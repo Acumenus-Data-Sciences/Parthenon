@@ -11,7 +11,6 @@ import { fetchAllAnalyses } from "../../api/publishApi";
 import { StudySelector } from "../StudySelector";
 import { ReportPreview } from "../ReportPreview";
 import { ReportSectionCard } from "../ReportSection";
-import { ExportControls } from "../ExportControls";
 import { MethodsSection } from "../MethodsSection";
 import { ResultsSummarySection } from "../ResultsSummarySection";
 import type { ReportSection } from "../../types/publish";
@@ -619,52 +618,6 @@ describe("ReportSectionCard", () => {
     );
     fireEvent.click(screen.getByLabelText("Move down"));
     expect(onMoveDown).toHaveBeenCalledTimes(1);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// ExportControls — format selection
-// ---------------------------------------------------------------------------
-
-describe("ExportControls", () => {
-  it("renders format options", () => {
-    render(<ExportControls onExport={vi.fn()} isExporting={false} />);
-    expect(screen.getByText("PDF")).toBeInTheDocument();
-    expect(screen.getByText("DOCX")).toBeInTheDocument();
-    expect(screen.getByText("XLSX")).toBeInTheDocument();
-    expect(screen.getByText("PNG")).toBeInTheDocument();
-    expect(screen.getByText("SVG")).toBeInTheDocument();
-  });
-
-  it("shows Coming soon badges on DOCX and XLSX", () => {
-    render(<ExportControls onExport={vi.fn()} isExporting={false} />);
-    const badges = screen.getAllByText("Coming soon");
-    expect(badges.length).toBe(2);
-  });
-
-  it("defaults to PDF format", () => {
-    render(<ExportControls onExport={vi.fn()} isExporting={false} />);
-    expect(screen.getByText("Export as PDF")).toBeInTheDocument();
-  });
-
-  it("changes export button label when format changes", () => {
-    render(<ExportControls onExport={vi.fn()} isExporting={false} />);
-    fireEvent.click(screen.getByText("PNG"));
-    expect(screen.getByText("Export as PNG")).toBeInTheDocument();
-  });
-
-  it("calls onExport with selected format", () => {
-    const onExport = vi.fn();
-    render(<ExportControls onExport={onExport} isExporting={false} />);
-    fireEvent.click(screen.getByText("SVG"));
-    fireEvent.click(screen.getByText("Export as SVG"));
-    expect(onExport).toHaveBeenCalledWith("svg");
-  });
-
-  it("disables export button while exporting", () => {
-    render(<ExportControls onExport={vi.fn()} isExporting={true} />);
-    expect(screen.getByText("Exporting...")).toBeInTheDocument();
-    expect(screen.getByText("Exporting...").closest("button")).toBeDisabled();
   });
 });
 

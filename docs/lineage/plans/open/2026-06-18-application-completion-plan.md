@@ -378,13 +378,15 @@ Acceptance evidence:
   - [x] Frontend tests cover selected-source submission and the no-source guard.
   - [x] Frontend tests cover source-card internal navigation and external URL
     opening.
-- [ ] Audit all AI/Abby features for implicit assumptions about default source,
+- [x] Audit all AI/Abby features for implicit assumptions about default source,
   active project, active cohort, and current user permissions.
+  (`docs/lineage/modules/abby-ai/2026-06-21-ai-abby-context-assumptions-audit.md`)
 - [x] Reconcile publish export surfaces.
   - [x] Confirm whether DOCX/XLSX coming-soon badges in legacy controls are
     still shown in reachable UI.
-  - [ ] If export backends now exist elsewhere, remove stale controls or route
-    them to the shipped export path.
+  - [x] If export backends now exist elsewhere, remove stale controls or route
+    them to the shipped export path. (Removed the orphaned `ExportControls` dead
+    code; `ExportPanel` is the live, shipped export path.)
   - [x] If not shipped, implement or hide the formats behind a deliberate scope
     decision.
 - [ ] Validate local-model CE behavior from the shipped plan and create a
