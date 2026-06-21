@@ -5,6 +5,7 @@ namespace App\Services\Analysis;
 use App\Enums\DaimonType;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
+use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\SqlRenderer\SqlRendererService;
 use App\Support\Cohort\ConceptIdExtractor;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,7 @@ class CohortDiagnosticsService
 {
     public function __construct(
         private readonly SqlRendererService $sqlRenderer,
+        private readonly CohortSqlCompiler $cohortCompiler,
     ) {}
 
     /**
@@ -37,12 +39,13 @@ class CohortDiagnosticsService
     {
         $source->load('daimons');
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
-        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
 
         if ($cdmSchema === null || $resultsSchema === null) {
             throw new \RuntimeException('Source is missing required CDM or Results schema configuration.');
         }
+
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
 
         $dialect = $source->source_dialect ?? 'postgresql';
         $connectionName = $source->source_connection ?? 'omop';
@@ -64,6 +67,97 @@ class CohortDiagnosticsService
             'age_at_index' => $this->getAgeAtIndex($cohortId, $cohortTable, $cdmSchema, $params, $dialect, $connectionName),
             'index_event_breakdown' => $this->getIndexEventBreakdown($cohortId, $cohortTable, $cdmSchema, $params, $dialect, $connectionName),
             'orphan_concepts' => $this->getOrphanConcepts($cohortDef, $cdmSchema, $vocabSchema, $params, $dialect, $connectionName),
+            'inclusion_attrition' => $this->getInclusionAttrition($cohortDef, $cohortId, $cohortTable, $cdmSchema, $vocabSchema, $params, $dialect, $connectionName),
+        ];
+    }
+
+    /**
+     * Inclusion attrition: how many qualifying entry events survive the cohort's
+     * inclusion criteria. Parthenon compiles inclusion as AdditionalCriteria +
+     * DemographicCriteria (+ InclusionRules) into a single inclusion_events step,
+     * so attrition is measured as qualifying entry events (the cohort recompiled
+     * with all inclusion criteria stripped) versus the generated cohort. This is
+     * the S3 gate's empty/degenerate-cohort signal (ADR-0020 Phase 4): an
+     * inclusion rule that removes every subject is visible as a wipeout flag.
+     *
+     * @param  array<string, string>  $params
+     * @return array<string, mixed>
+     */
+    private function getInclusionAttrition(
+        CohortDefinition $cohortDef,
+        int $cohortId,
+        string $cohortTable,
+        string $cdmSchema,
+        string $vocabSchema,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $expression = $cohortDef->expression_json;
+        if (is_string($expression)) {
+            $expression = json_decode($expression, true);
+        }
+        if (! is_array($expression)) {
+            return ['has_inclusion_criteria' => false, 'stages' => [], 'flags' => ['no_expression' => true]];
+        }
+
+        $hasInclusion = ! empty($expression['AdditionalCriteria'])
+            || ! empty($expression['DemographicCriteria'])
+            || ! empty($expression['InclusionRules']);
+
+        // Final cohort count (already materialized by generation).
+        $finalSql = "SELECT COUNT(DISTINCT subject_id) AS n FROM {$cohortTable} WHERE cohort_definition_id = {$cohortId}";
+        $finalCount = (int) (DB::connection($connectionName)
+            ->selectOne($this->sqlRenderer->render($finalSql, $params, $dialect))->n ?? 0);
+
+        // Qualifying entry events: recompile the cohort with inclusion stripped.
+        // Best-effort — never break the rest of the diagnostics if it fails.
+        $entryCount = null;
+        try {
+            $entryExpression = $expression;
+            $entryExpression['AdditionalCriteria'] = null;
+            $entryExpression['DemographicCriteria'] = [];
+            $entryExpression['InclusionRules'] = [];
+
+            $previewSql = rtrim(trim($this->cohortCompiler->preview(
+                $entryExpression,
+                $cdmSchema,
+                $vocabSchema,
+                $dialect,
+            )), ';');
+
+            $countSql = "SELECT COUNT(DISTINCT person_id) AS n FROM (\n{$previewSql}\n) qualifying_entry_events";
+            $entryCount = (int) (DB::connection($connectionName)->selectOne($countSql)->n ?? 0);
+        } catch (\Throwable $e) {
+            $entryCount = null;
+        }
+
+        $finalStage = ['stage' => 'final_cohort', 'person_count' => $finalCount];
+        if ($entryCount !== null && $entryCount > 0) {
+            $finalStage['dropped_from_entry'] = $entryCount - $finalCount;
+            $finalStage['retention_pct'] = round(($finalCount / $entryCount) * 100, 2);
+        }
+
+        $flags = [];
+        if ($finalCount === 0) {
+            $flags[] = 'empty_cohort';
+        }
+        if ($hasInclusion && $entryCount !== null && $entryCount > 0 && $finalCount === 0) {
+            $flags[] = 'inclusion_wipeout';
+        }
+        if ($hasInclusion && $entryCount !== null && $entryCount > 0 && $finalCount > 0
+            && ($finalCount / $entryCount) < 0.05) {
+            $flags[] = 'severe_inclusion_attrition';
+        }
+
+        return [
+            'has_inclusion_criteria' => $hasInclusion,
+            'entry_recomputed' => $entryCount !== null,
+            'stages' => [
+                ['stage' => 'qualifying_entry_events', 'person_count' => $entryCount],
+                $finalStage,
+            ],
+            'flags' => $flags,
         ];
     }
 

@@ -492,6 +492,20 @@ export interface CohortCountRow {
   [key: string]: unknown;
 }
 
+export interface InclusionAttritionStage {
+  stage: string;
+  person_count: number | null;
+  dropped_from_entry?: number;
+  retention_pct?: number;
+}
+
+export interface InclusionAttritionResult {
+  has_inclusion_criteria: boolean;
+  entry_recomputed: boolean;
+  stages: InclusionAttritionStage[];
+  flags: string[];
+}
+
 export interface RDiagnosticsResults {
   cohort_counts?: CohortCountRow[];
   incidence_rates?: IncidenceRateRow[];
@@ -499,6 +513,7 @@ export interface RDiagnosticsResults {
   index_event_breakdown?: IndexEventBreakdownRow[];
   visit_context?: VisitContextRow[];
   inclusion_statistics?: InclusionStatRow[];
+  inclusion_attrition?: InclusionAttritionResult;
   temporal_characterization?: TemporalCharacterizationRow[];
 }
 

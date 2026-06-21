@@ -23,6 +23,7 @@ import type {
   IndexEventBreakdownRow,
   VisitContextRow,
   InclusionStatRow,
+  InclusionAttritionResult,
   TemporalCharacterizationRow,
   RunCohortDiagnosticsPayload,
 } from "../types/cohortExpression";
@@ -336,6 +337,70 @@ function VisitContextSection({ rows }: { rows: VisitContextRow[] }) {
 
 // ---- Inclusion Statistics ----
 
+function InclusionAttritionSection({ data }: { data: InclusionAttritionResult }) {
+  const [open, setOpen] = useState(true);
+  const entry = data.stages.find((s) => s.stage === "qualifying_entry_events");
+  const final = data.stages.find((s) => s.stage === "final_cohort");
+
+  return (
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+      <SectionHeader
+        title="Inclusion attrition"
+        count={data.flags.length || undefined}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="p-4 space-y-3">
+          {data.flags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {data.flags.map((f) => (
+                <span
+                  key={f}
+                  className="rounded bg-[#9B1B30]/15 px-2 py-0.5 text-[10px] font-medium text-[#9B1B30]"
+                >
+                  {f.replace(/_/g, " ")}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="space-y-2">
+            {data.stages.map((s) => (
+              <div
+                key={s.stage}
+                className="flex items-center justify-between text-[11px]"
+              >
+                <span className="text-text-secondary">
+                  {s.stage.replace(/_/g, " ")}
+                </span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
+                  {s.person_count == null
+                    ? "—"
+                    : s.person_count.toLocaleString()}
+                  {s.retention_pct != null && (
+                    <span className="text-text-muted ml-2">
+                      ({s.retention_pct}% retained)
+                    </span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+          {entry?.person_count != null &&
+            final?.person_count != null &&
+            entry.person_count > 0 && (
+              <p className="text-[10px] text-text-muted">
+                Inclusion criteria removed{" "}
+                {(entry.person_count - final.person_count).toLocaleString()} of{" "}
+                {entry.person_count.toLocaleString()} qualifying entry events.
+              </p>
+            )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function InclusionStatisticsSection({ rows }: { rows: InclusionStatRow[] }) {
   const { t } = useTranslation("app");
   const [open, setOpen] = useState(true);
@@ -538,6 +603,10 @@ function DiagnosticsResults({
 
       {r.index_event_breakdown && (
         <IndexEventBreakdownSection rows={r.index_event_breakdown} />
+      )}
+
+      {r.inclusion_attrition && (
+        <InclusionAttritionSection data={r.inclusion_attrition} />
       )}
 
       {r.visit_context && (
