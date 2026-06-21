@@ -206,7 +206,7 @@ Acceptance evidence:
     `SET search_path`.
   - [x] Add deterministic SourceContext coverage and live-catalog skip
     diagnostics instead of relying on leaked PHPUnit `DB_*` settings.
-- [ ] Make backend test output operator-friendly.
+- [x] Make backend test output operator-friendly.
   - [x] Add documented commands for fast unit, feature, integration, and
     environment-bound suites.
   - [x] Keep `--stop-on-failure` useful by avoiding silent long-running
@@ -215,8 +215,11 @@ Acceptance evidence:
     `environment-bound` grouping with `PARTHENON_LIVE_OMOP_FK_AUDIT=1`.
   - [x] Add a JUnit-aware Pest lane runner so known framework deprecation/skips
     do not hide the failure/error signal for the bounded Composer lanes.
-  - [ ] Decide whether `php artisan test --stop-on-failure` should become an
+  - [x] Decide whether `php artisan test --stop-on-failure` should become an
     alias for bounded lanes or remain an unsupported legacy local command.
+    DECIDED 2026-06-21: added a `composer test` alias that chains the bounded
+    lanes (unit → integration → feature:api → feature:finngen → feature:modules);
+    the monolithic `php artisan test` remains an unsupported legacy command.
 
 Acceptance evidence:
 
@@ -231,8 +234,9 @@ Acceptance evidence:
   result.
 - [x] `cd backend && composer test:feature:modules` produces a bounded pass/fail
   result.
-- [ ] `cd backend && php artisan test --stop-on-failure` produces a bounded
+- [x] `cd backend && php artisan test --stop-on-failure` produces a bounded
   pass/fail result or is deliberately replaced by the Composer lanes.
+  Deliberately replaced by `composer test` (the bounded Composer-lane alias).
 - [x] Achilles routing tests pass in isolation.
 
 ## Phase 2 - Repair Lineage And Plan Governance
