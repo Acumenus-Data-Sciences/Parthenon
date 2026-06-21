@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\GateStatus;
+use App\Models\App\AnalysisExecution;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\Source;
 use App\Models\App\Study;
@@ -96,6 +97,31 @@ it('withholds effect estimates when the study-diagnostics gate has not cleared',
     expect($results)->toContain('withheld')
         ->and($results)->not->toContain('1.47')
         ->and($doc['manuscript_meta']['effect_estimates_included'])->toBeFalse();
+});
+
+it('never prints an effect-estimate number absent from the source result payload', function () {
+    // ADR-0020 Phase 6 safety property: the composer pulls numbers from result
+    // payloads and must never fabricate one. Every estimate-magnitude decimal in
+    // the Results section must come from the source result_json (plus the
+    // published config thresholds and the gate's reported SMD value).
+    $user = User::factory()->create();
+    $study = abbyManuscriptStudy($user, GateStatus::Passed->value);
+
+    $doc = app(ManuscriptComposer::class)->compose($study);
+    $results = (string) collect($doc['sections'])->firstWhere('key', 'results')['content'];
+
+    $execution = AnalysisExecution::query()->latest('id')->firstOrFail();
+    preg_match_all('/\d+\.\d+/', (string) json_encode($execution->result_json), $payloadNums);
+    $allowed = array_merge(
+        $payloadNums[0],
+        ['0.80', '0.10', '0.30', '0.312'], // config thresholds + the gate's SMD reason value
+    );
+
+    preg_match_all('/\d+\.\d+/', $results, $emitted);
+    $fabricated = array_values(array_unique(array_diff($emitted[0], $allowed)));
+
+    expect($fabricated)->toBe([]);
+    expect($results)->toContain('1.47'); // the real calibrated estimate is still reported
 });
 
 it('emits descriptive subsections and reports each contrast by its own diagnostics', function () {
