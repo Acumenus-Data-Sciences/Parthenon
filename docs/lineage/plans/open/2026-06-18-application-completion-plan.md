@@ -160,7 +160,15 @@ Parthenon is "complete enough" for this backlog when all of these are true:
 
 ## Phase 0 - Stabilize The Backlog And Evidence
 
-- [ ] Assign an owner and target release for each priority group in this plan.
+**Owners & target releases** (adjust as scope firms up):
+
+| Priority | Owner | Target release |
+|---|---|---|
+| P0 / P1 | acumenus | v1.0.x (current production-readiness patch line) |
+| P2 | acumenus | v1.1.0 (next feature minor) |
+| P3 | acumenus | backlog / future |
+
+- [x] Assign an owner and target release for each priority group in this plan.
 - [ ] Convert this plan into issue/PR slices that do not mix unrelated modules.
 - [ ] Re-run and archive current gate output with timestamps:
   - `cd backend && ./vendor/bin/pint --test`
