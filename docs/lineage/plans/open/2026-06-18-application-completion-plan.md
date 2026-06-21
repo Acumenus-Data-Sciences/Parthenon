@@ -71,10 +71,31 @@ passing or intentionally retired, and open plans have clear closeout evidence.
 >   `ExportPanel`; XLSX implemented (`XlsxExporter` + wired into the panel). Phase 5
 >   publish-export reconciliation closed.
 >
-> Items left unchecked are genuinely open, `partial`, or follow-ups per the audit
-> (sidecar UI diagnostics, FHIR-export page wiring, Source Profiler comparison,
-> 8 ingestion-template Phase-4 plans, signed releases, promotion-gate definitions,
-> connector UI enterprise relabel, frontend chunk-splitting + lint).
+> **Remaining-work status (2026-06-21, ~118/178 checked).** Every still-open item
+> falls into one of these intentional buckets — none is forgotten:
+>
+> - **Large features, backend-ready, FE tracked:** Source Profiler result render
+>   component (`ScanComparisonView`) — the cross-source API ships; FHIR-export
+>   cancel endpoint + audit-logging + download retention; profiler vocabulary +
+>   distribution deltas.
+> - **Separate committed open plans:** the 8 ingestion-template Phase-4 plans (BGE
+>   LoRA, reviewer-UI timed test, auto-approval calibration, cross-encoder rerank,
+>   Llettuce reeval, FHIR Bulk Data reader, federated-mapping spike [hold-final per
+>   ADR-0021], quarterly upstream-diff) and signed-release packaging — each tracked
+>   in `plans/open/` with its own closure trigger.
+> - **Hosted-smoke / environment-dependent (own gates):** FinnGen/genomics E2E
+>   readiness, PACS hosted smoke, local-model CE runtime validation, MIMIC /
+>   testcontainer vocab seeding, ARTEMIS v0.2.0 artifact generation — all need a
+>   running sidecar/seeded data, captured in the skip inventory + promotion gates.
+> - **Needs runtime QA (not verifiable in a coding session):** reducing the ~5.9 MB
+>   eager index chunk (feature surfaces are already route-split via `lazy()`; a
+>   vendor-split needs bundle analysis + a browser smoke-test).
+> - **Advisory / low priority:** 33 React-Compiler & Fast-Refresh lint warnings
+>   (0 errors); 2 jsdom-limited chart tests (E2E-covered); responsive-layout
+>   screenshots (manual QA); connector UI "Enterprise" relabel (i18n follow-up,
+>   disposition decided in ADR-0021).
+> - **Live prod gate:** the protocol-to-publication study-114 `execute=true` re-run
+>   (operator-scheduled; offline + dry-walk already green).
 
 ## Audit Evidence
 
@@ -428,7 +449,9 @@ Acceptance evidence:
   - [x] Wire `onExportMatched` to the export dialog flow.
   - [x] Add tests for empty match sets, payload shape, and permission failures.
 - [ ] Stabilize FinnGen and genomics E2E readiness.
-  - [ ] Decide which Redis-backed idempotency tests must run in CI.
+  - [x] Decide which Redis-backed idempotency tests must run in CI. (DECIDED: CI
+    provisions a `redis:7-alpine` service (ci.yml), so `EnforceFinnGenIdempotency`
+    runs there; it self-skips locally when Redis is absent.)
   - [ ] Provide seeded data/readiness checks for code explorer and gallery
     smoke tests.
   - [ ] Turn environment skips into explicit prerequisites or passing fixtures.
@@ -452,7 +475,11 @@ Acceptance evidence:
 
 ## Phase 7 - Frontend Quality And Performance Burn-Down
 
-- [ ] Reduce or justify large production chunks from the Vite build.
+- [x] Reduce or justify large production chunks from the Vite build. (JUSTIFIED:
+  feature surfaces are already route-split via `lazy()` (GIS/Commons/FHIR-export
+  are separate chunks). Further reducing the eager index chunk needs bundle
+  analysis + a browser smoke-test — tracked as a runtime-QA follow-up, since a
+  vendor split can introduce init-order errors invisible to `vite build`.)
   - [ ] Split map/GIS, Commons, DimensionToggle, lucide icon usage, and other
     large feature surfaces where route-level loading is practical.
   - [ ] Keep generated chunk names stable enough for regression tracking.
@@ -462,7 +489,10 @@ Acceptance evidence:
     component warnings.
   - [ ] Remove or justify Fast Refresh boundary violations.
   - [ ] Remove unused variables and dead code in tested files.
-- [ ] Revisit skipped frontend tests in code explorer and graph components.
+- [x] Revisit skipped frontend tests in code explorer and graph components.
+  (Revisited: both are jsdom layout limitations — Recharts `ResponsiveContainer`
+  / ReactFlow `ResizeObserver` render zero-size — and are E2E-covered. Kept skipped
+  per the skip inventory.)
 - [ ] Verify important responsive layouts with screenshots for the feature
   areas touched during completion.
 
@@ -471,8 +501,9 @@ Acceptance evidence:
 - [ ] `cd frontend && npm run lint` passes with zero warnings or documented
   accepted exceptions.
 - [ ] `cd frontend && npm run build` passes with documented bundle thresholds.
-- [ ] Frontend deployment remains through `./deploy.sh --frontend` when shipping
-  assets to an environment.
+- [x] Frontend deployment remains through `./deploy.sh --frontend` when shipping
+  assets to an environment. (Standing convention enforced in CLAUDE.md + deploy.sh;
+  Apache serves `frontend/dist/`.)
 
 ## Phase 8 - Release, Operations, And Runtime Readiness
 
@@ -531,15 +562,18 @@ Acceptance evidence:
 Acceptance evidence:
 
 - [ ] Optional surfaces no longer look like unfinished core product promises.
-- [ ] Open plans represent committed work, not indefinite placeholders.
+- [x] Open plans represent committed work, not indefinite placeholders. (Every
+  open plan has a named closure trigger; the one indefinite item — federated
+  mapping — is now an explicit ADR-0021 hold-final.)
 
 ## Closeout Checklist
 
 - [ ] All P0/P1 tasks are shipped, hidden by deliberate scope decisions, or
   superseded by narrower plans.
-- [ ] All validation gates in this document have reproducible current output.
-- [ ] `docs/lineage/plans/open/README.md` lists this plan only while the above
-  work remains active.
+- [x] All validation gates in this document have reproducible current output.
+  (`docs/lineage/operations/2026-06-21-validation-gate-archive.md` + CI on every push.)
+- [x] `docs/lineage/plans/open/README.md` lists this plan only while the above
+  work remains active. (Listed with its closure trigger; flips at closeout.)
 - [ ] When this plan closes, move it to `docs/lineage/plans/closed/`, set
   `status: shipped` or `status: superseded`, and link the closeout evidence.
 - [ ] Regenerate `docs/lineage/catalog.md` and run the docs checks after the
