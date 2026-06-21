@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir;
 
+use App\Services\Fhir\Mappers\Support\FhirMapperSupport;
 use Illuminate\Support\Carbon;
 
 /**
@@ -17,6 +18,8 @@ use Illuminate\Support\Carbon;
  */
 class FhirBulkMapper
 {
+    use FhirMapperSupport;
+
     /** FHIR gender → OMOP concept_id. */
     private const GENDER_MAP = [
         'male' => 8507,
@@ -670,23 +673,6 @@ class FhirBulkMapper
         return $r['category'][0]['coding'][0]['code'] ?? null;
     }
 
-    private function resolveSubjectPersonId(array $r, string $siteKey, string $field = 'subject'): int
-    {
-        $ref = $this->extractRef($r[$field] ?? []);
-
-        return $ref ? $this->crosswalk->resolvePersonId($siteKey, $ref) : 0;
-    }
-
-    private function resolveEncounterVisitId(array $r, string $siteKey, string $field = 'encounter'): ?int
-    {
-        $ref = $this->extractRef($r[$field] ?? []);
-        if (! $ref) {
-            return null;
-        }
-
-        return $this->crosswalk->lookupVisitId($siteKey, $ref);
-    }
-
     private function extractRef(array $reference): ?string
     {
         $ref = $reference['reference'] ?? null;
@@ -696,11 +682,6 @@ class FhirBulkMapper
         $parts = explode('/', $ref);
 
         return end($parts);
-    }
-
-    private function extractCodings(array $codeableConcept): array
-    {
-        return $codeableConcept['coding'] ?? [];
     }
 
     private function extractMedCodings(array $r): array
@@ -827,29 +808,5 @@ class FhirBulkMapper
         }
 
         return null;
-    }
-
-    private function parseDate(?string $value): ?string
-    {
-        if (! $value) {
-            return null;
-        }
-        try {
-            return Carbon::parse($value)->toDateString();
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    private function parseDatetime(?string $value): ?string
-    {
-        if (! $value) {
-            return null;
-        }
-        try {
-            return Carbon::parse($value)->toDateTimeString();
-        } catch (\Throwable) {
-            return null;
-        }
     }
 }
