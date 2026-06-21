@@ -417,9 +417,11 @@ Acceptance evidence:
     checks.
   - [ ] Maintain a hosted smoke that proves current credentials, stats refresh,
     and study-browser access.
-- [ ] Reassess CDM-data-dependent API skips.
-  - [ ] Provide a minimal CDM fixture for `CdmModelTest.php`.
-  - [ ] Record which larger CDM checks belong only in hosted smoke tests.
+- [x] Reassess CDM-data-dependent API skips.
+  - [x] Provide a minimal CDM fixture for `CdmModelTest.php`. (Sentinel-id seed in
+    `beforeEach`; the 2 read tests now execute.)
+  - [x] Record which larger CDM checks belong only in hosted smoke tests.
+    (Classified in `docs/lineage/operations/2026-06-21-test-skip-inventory.md`.)
 
 Acceptance evidence:
 
@@ -458,13 +460,14 @@ Acceptance evidence:
   - [ ] Produce verified signed macOS, Windows, and Linux release assets.
   - [ ] Record signature verification, notarization/trusted signing, and release
     note evidence.
-- [ ] Build service readiness checks for all sidecars that routinely cause
+- [x] Build service readiness checks for all sidecars that routinely cause
   skipped tests:
   - [x] Darkstar/R analysis.
   - [x] Python AI.
-  - [ ] Anonymizer.
-  - [ ] SciSpaCy.
-  - [ ] Llettuce.
+  - [x] Anonymizer.
+  - [x] SciSpaCy.
+  - [x] Llettuce. (N/A — in-process eval-only package with no network endpoint;
+    documented in the skip inventory rather than network-probed.)
   - [x] Redis queues/idempotency.
   - [x] PACS/Orthanc.
 - [x] Define environment promotion gates for local, staging, and production:
