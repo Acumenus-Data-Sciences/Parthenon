@@ -144,7 +144,8 @@ export function EstimationResults({
               {t("analyses.auto.rSidecarPending_b8be5c")}
             </h3>
             <p className="mt-1 text-xs text-text-muted">
-              {result.message ||
+              {execution?.fail_message ||
+                result.message ||
                 "The R execution environment is not yet available. Your study design has been validated and saved. Results will be available once the R sidecar is deployed."}
             </p>
           </div>

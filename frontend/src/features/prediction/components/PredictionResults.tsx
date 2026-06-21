@@ -162,7 +162,8 @@ export function PredictionResults({
               {t("analyses.auto.rSidecarPending_b8be5c")}
             </h3>
             <p className="mt-1 text-xs text-text-muted">
-              {result.message ||
+              {execution?.fail_message ||
+                result.message ||
                 "The R/Python execution environment is not yet available. Your prediction model design has been validated and saved. Results will be available once the compute sidecar is deployed."}
             </p>
           </div>
