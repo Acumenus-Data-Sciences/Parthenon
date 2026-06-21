@@ -41,13 +41,26 @@ This plan establishes procedures for recovering the Parthenon outcomes research 
 
 ### 3.1 Database Backups
 
-| Backup Script | Schedule | Schemas Covered | Retention | Location |
+> **Verified 2026-06-21 against the live crontab** (see
+> `docs/lineage/operations/2026-06-21-dr-restore-runbook.md`). The production
+> backup path is the **host PostgreSQL** scripts below — `db-backup.sh` targets
+> the Docker Postgres and is a legacy/manual path, not the scheduled production
+> backup. Backups land in `/mnt/md0/postgres-backups/`, not `backups/`.
+
+| Backup Script | Schedule (actual cron) | Schemas Covered | Retention | Location |
 |---|---|---|---|---|
-| `scripts/db-backup.sh` | Daily 3:17 AM (cron) | `app`, `irsf`, `irsf_results`, `vocab`, `results`, `omop`, `public` (Orthanc) | 30 daily backups | `backups/` directory |
-| `scripts/pg-host-basebackup.sh` | Weekly (manual/cron) | Full cluster (WAL-level) | 4 weeks | `backups/` directory |
-| `scripts/pg-host-logical-backup.sh` | On demand | Per-schema logical dumps | Manual | `backups/` directory |
-| `scripts/pg-host-prune-backups.sh` | Weekly | N/A (pruning) | N/A | Removes backups beyond retention |
-| `scripts/backup-app-db.sh` | On demand | Application tables only | Manual | `backups/` directory |
+| `scripts/pg-host-basebackup.sh` | **Daily 02:23** | Full cluster + WAL (point-in-time) | per `pg-host-prune-backups.sh` | `/mnt/md0/postgres-backups/` |
+| `scripts/pg-host-logical-backup.sh` | **3×/day 06:17, 14:17, 22:17** | `app` schema (`PG_LOGICAL_SCHEMAS`) | 14 dumps (`PG_LOGICAL_KEEP_COUNT`) | `/mnt/md0/postgres-backups/logical/` |
+| `scripts/pg-wal-retention.sh --purge` | Daily 06:30 | N/A (WAL pruning) | N/A | — |
+| `scripts/pg-host-prune-backups.sh` | Daily 06:00 | N/A (pruning) | N/A | Removes backups beyond retention |
+| `scripts/db-backup.sh` (legacy, Docker PG) | Manual | `app`, `irsf`, `irsf_results`, `vocab`, `results`, `omop`, `public` | 30 daily | `backups/` directory |
+
+**Restoring the logical `app` dump requires prerequisites** (verified by the
+2026-06-21 drill): the `postgis`, `vector`, and `pg_trgm` extensions, plus the
+`vocab` schema, must exist in the target — the `app` schema has geometry/vector
+columns and cross-schema FKs into `vocab`. A fresh-instance restore therefore uses
+the **physical basebackup** (Scenario A in the runbook), not the logical dump. The
+logical backup now self-installs the extensions; the vocab dependency is by design.
 
 **Backup features:**
 - Timestamped filenames: `parthenon-full-YYYYMMDD-HHMMSS.sql`

@@ -21,14 +21,26 @@ for schema in "${schema_list[@]}"; do
   [ -n "$schema" ] || continue
 
   out_file="$BACKUP_ROOT/${schema}-${TIMESTAMP}.sql.gz"
-  pg_dump \
-    -d "$PG_URL" \
-    --schema="$schema" \
-    --clean \
-    --if-exists \
-    --no-owner \
-    --no-acl \
-    | gzip -9 > "$out_file"
+  {
+    # Carry the schema's extension dependencies so a restore into a fresh
+    # database does not fail on the first geometry/vector column. A --schema
+    # dump does NOT emit the public extensions the app schema relies on
+    # (postgis for gis_admin_boundaries.geom, pgvector for *.embedding,
+    # pg_trgm for GIN indexes) — the DR drill on 2026-06-21 hit exactly these.
+    # NOTE: the app schema also has cross-schema FKs into `vocab`, so a full
+    # standalone restore still requires the vocab schema; see the DR runbook
+    # at docs/lineage/operations/2026-06-21-dr-restore-runbook.md.
+    echo "CREATE EXTENSION IF NOT EXISTS postgis;"
+    echo "CREATE EXTENSION IF NOT EXISTS vector;"
+    echo "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+    pg_dump \
+      -d "$PG_URL" \
+      --schema="$schema" \
+      --clean \
+      --if-exists \
+      --no-owner \
+      --no-acl
+  } | gzip -9 > "$out_file"
 
   ln -sfn "$out_file" "$BACKUP_ROOT/latest-${schema}.sql.gz"
   echo "    Wrote $out_file"
