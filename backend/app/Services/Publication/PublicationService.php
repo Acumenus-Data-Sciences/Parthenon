@@ -5,6 +5,7 @@ namespace App\Services\Publication;
 use App\Services\Publication\Exporters\DocxExporter;
 use App\Services\Publication\Exporters\FiguresExporter;
 use App\Services\Publication\Exporters\PdfExporter;
+use App\Services\Publication\Exporters\XlsxExporter;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicationService
@@ -13,6 +14,7 @@ class PublicationService
         private readonly DocxExporter $docxExporter,
         private readonly PdfExporter $pdfExporter,
         private readonly FiguresExporter $figuresExporter,
+        private readonly XlsxExporter $xlsxExporter,
     ) {}
 
     /**
@@ -38,6 +40,7 @@ class PublicationService
         return match ($payload['format']) {
             'docx' => $this->docxExporter->export($document),
             'pdf' => $this->pdfExporter->export($document),
+            'xlsx' => $this->xlsxExporter->export($document),
             'figures-zip' => $this->figuresExporter->export($document),
             default => throw new \InvalidArgumentException("Unsupported format: {$payload['format']}"),
         };

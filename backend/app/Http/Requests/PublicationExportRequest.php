@@ -18,7 +18,7 @@ class PublicationExportRequest extends FormRequest
     {
         return [
             'template' => 'required|string|in:generic-ohdsi',
-            'format' => 'required|string|in:docx,pdf,figures-zip',
+            'format' => 'required|string|in:docx,pdf,xlsx,figures-zip',
             'title' => 'required|string|max:500',
             'authors' => 'present|array',
             'authors.*' => 'string|max:200',

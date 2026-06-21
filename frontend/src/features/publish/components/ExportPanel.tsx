@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   FileText,
   FileDown,
+  FileSpreadsheet,
   ImageIcon,
   Code,
   ArrowLeft,
@@ -26,7 +27,7 @@ const BUNDLE_FORMATS: { value: string; label: string }[] = [
   { value: "ohdsi_report_generator_r", label: "Report Generator (R)" },
 ];
 
-type ExportableFormat = "docx" | "pdf" | "figures-zip";
+type ExportableFormat = "docx" | "pdf" | "xlsx" | "figures-zip";
 
 interface ExportPanelProps {
   sections: ReportSection[];
@@ -80,6 +81,12 @@ export default function ExportPanel({
       icon: FileDown,
       label: t("publish.exportPanel.formats.pdf.label"),
       description: t("publish.exportPanel.formats.pdf.description"),
+    },
+    {
+      format: "xlsx",
+      icon: FileSpreadsheet,
+      label: "Excel Workbook",
+      description: t("publish.exportControls.formats.xlsx.description"),
     },
     {
       format: "figures-zip",
