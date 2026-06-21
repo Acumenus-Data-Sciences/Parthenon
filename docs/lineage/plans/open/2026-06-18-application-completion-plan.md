@@ -171,8 +171,10 @@ Parthenon is "complete enough" for this backlog when all of these are true:
   - `cd templates && uv run pytest -q`
 - [x] Split the Laravel test command into bounded suites if the full command
   remains too long or too quiet for routine verification.
-- [ ] Capture a skip inventory by module and classify each skip as:
+- [x] Capture a skip inventory by module and classify each skip as:
   environment-required, intentionally optional, stale backlog, or bug-masking.
+  Shipped: `docs/lineage/operations/2026-06-21-test-skip-inventory.md` (1 bug-masking
+  skip flagged; the rest env-required or tooling-limited).
 - [ ] Add a short "current known blockers" section to each active module plan
   that still drives work.
 - [ ] Record the runtime readiness matrix for local Docker, hosted staging, and
@@ -181,8 +183,9 @@ Parthenon is "complete enough" for this backlog when all of these are true:
 Acceptance evidence:
 
 - [ ] A closeout or updated plan links exact command output for every gate.
-- [ ] A skip-inventory artifact lists each skipped test cluster and the owner
+- [x] A skip-inventory artifact lists each skipped test cluster and the owner
   responsible for removing or preserving it.
+  (`docs/lineage/operations/2026-06-21-test-skip-inventory.md`)
 - [ ] Another agent can start with `docs/lineage/plans/open/README.md` and find
   the same open backlog without source-code spelunking.
 
