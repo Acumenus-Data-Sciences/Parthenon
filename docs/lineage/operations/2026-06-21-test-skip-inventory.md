@@ -37,7 +37,7 @@ limitation, e.g. jsdom), `intentional` (a deliberate conditional or scope), and
 | env-required | the large majority (sidecars, CDM/OMOP/vocab data, Redis, testcontainers, seeded E2E data) | Owned by hosted smoke gates (Phase 8); not expected to run in local unit lanes. |
 | tooling-limited | 3 (jsdom chart tests, Chromium-only screenshot) | Keep skipped; revisit only if the runner gains the capability. |
 | intentional | 2 (study-114 future discrete rules; ARTEMIS v0.2.0-present fallback) | Keep; tracked as future design-lint work where applicable. |
-| **bug-masking** | **1** (`wip(i18n): locale propagation to exception handler`) | **Action: resolve and un-skip — frontend/i18n owner.** |
+| bug-masking | 0 (the one `wip(i18n)` skip was **resolved + un-skipped** 2026-06-21, commit `f1d18a2f5`) | None outstanding. |
 
 ## Backend (Pest)
 
@@ -53,7 +53,7 @@ limitation, e.g. jsdom), `intentional` (a deliberate conditional or scope), and
 | `Feature/Database/CrossSchemaForeignKeyTest.php` | 2 | live-OMOP opt-in (`PARTHENON_LIVE_OMOP_FK_AUDIT=1`) | env-required | `composer test:live-omop`. |
 | `Feature/Api/V1/CdmModelTest.php` | 2 | `No CDM data available in test database` | env-required | Minimal CDM fixture (Phase 6) or hosted smoke. |
 | misc one-offs (`Vocabulary*`, `Co2SchemaProvisioner`, `LibraryLifecycleColumns`, role/vocab gates) | ~6 | vocab tables / `parthenon_app` role absent | env-required | DB bootstrap — hosted smoke. |
-| (one of `Api/V1` auth/profile) | 1 | `wip(i18n): locale propagation to exception handler under investigation` | **bug-masking** | **frontend/i18n — resolve + un-skip.** |
+| `Feature/Api/V1/AuthTest.php` | 0 | ~~`wip(i18n): locale propagation`~~ | resolved | **RESOLVED 2026-06-21** (`f1d18a2f5`): 401 now localizes via `ResolveLocale::localeForRequest`. |
 
 ## Frontend (Vitest)
 
@@ -87,9 +87,9 @@ limitation, e.g. jsdom), `intentional` (a deliberate conditional or scope), and
 
 ## Action items
 
-1. **Resolve the one bug-masking skip** — `wip(i18n): locale propagation to
-   exception handler under investigation`. This is the only skip hiding a real
-   defect; all others are environment- or tooling-gated.
+1. ~~**Resolve the one bug-masking skip**~~ — **DONE 2026-06-21** (`f1d18a2f5`):
+   the `wip(i18n)` locale-propagation defect is fixed and the test un-skipped. No
+   bug-masking skips remain; all others are environment- or tooling-gated.
 2. The `env-required` clusters are the input list for the Phase 8 hosted smoke
    gates and the `sidecars:readiness` promotion gate; none should be expected to
    pass in the local bounded `composer test` lanes.

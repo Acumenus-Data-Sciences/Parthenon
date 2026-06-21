@@ -280,11 +280,13 @@ Acceptance evidence:
 
 - [x] Decide whether `r_not_implemented` remains a supported compatibility
   status or should be removed from the product path.
-- [ ] For estimation, prediction, SCCS, and evidence synthesis:
+- [x] For estimation, prediction, SCCS, and evidence synthesis:
   - [x] Verify the Darkstar/R sidecar endpoints run with the expected HADES
     packages in local Docker and hosted staging.
-  - [ ] Replace generic "not implemented" UI messaging with actionable
+  - [x] Replace generic "not implemented" UI messaging with actionable
     environment or package diagnostics.
+    EstimationResults/PredictionResults now surface `execution.fail_message`
+    (names the unavailable package + admin action); EvidenceSynthesis already did.
   - [x] Add contract tests for successful, failed, unavailable, and invalid
     sidecar responses.
   - [x] Record package versions and sidecar readiness in a module closeout.
