@@ -1402,6 +1402,10 @@ Route::prefix('v1')->group(function () {
 
         // Source Profiler (persisted WhiteRabbit scans)
         // Uses 'scan-profiles' to avoid collision with patient profiles at sources/{source}/profiles/{personId}
+        // Cross-source/project scan comparison (global profile IDs, any source/project).
+        Route::get('scan-profiles/compare', [SourceProfilerController::class, 'compareCross'])
+            ->middleware('permission:profiler.view');
+
         Route::prefix('sources/{source}/scan-profiles')->group(function () {
             Route::get('/', [SourceProfilerController::class, 'index'])
                 ->middleware('permission:profiler.view');

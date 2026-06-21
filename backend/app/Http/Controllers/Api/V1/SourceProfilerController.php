@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CompareProfilesRequest;
 use App\Http\Requests\RunScanRequest;
 use App\Models\App\IngestionProject;
 use App\Models\App\Source;
@@ -109,6 +110,35 @@ class SourceProfilerController extends Controller
         $diff = $this->comparisonService->compare($current, $baseline);
 
         return response()->json(['data' => $diff]);
+    }
+
+    /**
+     * GET /scan-profiles/compare?current={id}&baseline={id}
+     *
+     * Compare two scan profiles from ANY source or ingestion project (the
+     * same-source `compare` above is scoped to one source). The diff engine is
+     * source-agnostic; this just resolves the two profiles globally and labels
+     * each side with its owning source/project name.
+     */
+    public function compareCross(CompareProfilesRequest $request): JsonResponse
+    {
+        $current = SourceProfile::with(['source', 'ingestionProject'])
+            ->findOrFail($request->integer('current'));
+        $baseline = SourceProfile::with(['source', 'ingestionProject'])
+            ->findOrFail($request->integer('baseline'));
+
+        return response()->json([
+            'data' => $this->comparisonService->compare($current, $baseline),
+            'current_label' => $this->profileLabel($current),
+            'baseline_label' => $this->profileLabel($baseline),
+        ]);
+    }
+
+    private function profileLabel(SourceProfile $profile): string
+    {
+        return $profile->source?->source_name
+            ?? $profile->ingestionProject?->name
+            ?? "Profile #{$profile->id}";
     }
 
     /**
