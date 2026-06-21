@@ -112,7 +112,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return response()->json(ApiMessage::payload('auth.unauthenticated'), 401);
+            // auth:sanctum throws before ResolveLocale runs (priority list), so
+            // resolve the request locale here to localize the 401.
+            return response()->json(
+                ApiMessage::payload('auth.unauthenticated', [], ResolveLocale::localeForRequest($request)),
+                401,
+            );
         });
 
         $exceptions->render(function (AuthorizationException $exception, Request $request) use ($shouldRenderApiJson) {

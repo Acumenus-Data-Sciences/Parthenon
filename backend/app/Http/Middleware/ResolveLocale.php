@@ -14,7 +14,7 @@ class ResolveLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $this->resolveLocale($request);
+        $locale = self::localeForRequest($request);
         $laravelLocale = ParthenonLocales::laravelLocale($locale);
 
         App::setLocale($laravelLocale);
@@ -29,7 +29,14 @@ class ResolveLocale
         return $response;
     }
 
-    private function resolveLocale(Request $request): string
+    /**
+     * Resolve the Parthenon locale for a request: authenticated user's
+     * preference, then an explicit header/query, then Accept-Language, then the
+     * default. Exposed statically so exception handlers that fire BEFORE this
+     * middleware runs (e.g. an unauthenticated 401 thrown by `auth:sanctum`) can
+     * still localize their response.
+     */
+    public static function localeForRequest(Request $request): string
     {
         $userLocale = $request->user()?->locale;
         if ($locale = ParthenonLocales::normalize($userLocale)) {
