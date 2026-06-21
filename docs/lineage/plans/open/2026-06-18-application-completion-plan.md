@@ -371,8 +371,10 @@ Acceptance evidence:
   source context.
 - [x] Implement source-card navigation from Abby responses to the cited document
   or source artifact.
-- [ ] Add backend and frontend tests for source selection, answer provenance,
+- [x] Add backend and frontend tests for source selection, answer provenance,
   source-click navigation, and missing-source recovery.
+  (Backend: `tests/Feature/Api/V1/DataInterrogationTest.php` — auth, permission,
+  source-selection, missing-source recovery, query provenance.)
   - [x] Frontend tests cover selected-source submission and the no-source guard.
   - [x] Frontend tests cover source-card internal navigation and external URL
     opening.
@@ -393,7 +395,8 @@ Acceptance evidence:
 - [x] The Abby `/data` channel binds to the selected source and source cards
   navigate to cited evidence for known local artifact types and URLs.
 - [x] Publication/export controls no longer contradict backend capability.
-- [ ] AI workflows have authorization and provenance tests.
+- [x] AI workflows have authorization and provenance tests.
+  (`DataInterrogationTest` covers auth/permission + query provenance.)
 
 ## Phase 6 - Complete Clinical Workbench Gaps
 
