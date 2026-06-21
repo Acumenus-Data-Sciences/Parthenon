@@ -43,6 +43,7 @@ closed decision record or a committed plan — not an indefinite placeholder.
 | Cloud warehouse connectors | **Enterprise-only** | Keep visible but gate behind an enterprise tier rather than implying imminent community availability. They remain a real roadmap commitment, scoped to Enterprise. |
 | Airflow / Dagster / Temporal backends | **Developer-extension examples** | Prefect is the shipped orchestration backend. The other three are intentional extension points demonstrating the portable `OrchestrationBackend` seam — not core product promises. Relabeled accordingly (this ADR's commit). |
 | DOCX / XLSX publish export | **Implement** | These are reasonable, bounded additions to the existing publish-export path; build the backends and wire the controls. |
+| Federated mapping (Hive Networks) | **Hold-final** | Production lift depends on a Hive Networks readiness milestone with no concrete date. Rather than carry it as an indefinite placeholder, it is a **hold-final** decision: the `2026-05-07-…federated-mapping-spike.md` plan stays open with its Hive-Networks gate as the explicit closure trigger; it is not committed work until Hive Networks reaches the named phase. |
 
 ## Consequences / status
 

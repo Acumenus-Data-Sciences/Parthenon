@@ -28,6 +28,13 @@ related_prs:
 > confirming the S5 halt with estimates blinded against real analytics. On that,
 > move this plan to `plans/closed/` with `status: shipped`.
 
+## Current known blockers
+
+- **Live gated re-run of study 114** (the only blocker to closing this plan): a
+  full `execute=true` orchestration is ~90 min of production analytics and touches
+  prod, so it is gated on an explicit operator go-ahead. Offline + dry-walk are
+  already green. No engineering blocker remains — purely a scheduled prod run.
+
 > Ordering principle (from the ADR): the **rigor substrate ships before the
 > orchestrator.** Phases 1–4 build provenance, calibration, gates, and the
 > missing diagnostics; Phase 5 wires the Claude Agent SDK orchestrator over

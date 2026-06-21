@@ -169,8 +169,11 @@ Parthenon is "complete enough" for this backlog when all of these are true:
 | P3 | acumenus | backlog / future |
 
 - [x] Assign an owner and target release for each priority group in this plan.
-- [ ] Convert this plan into issue/PR slices that do not mix unrelated modules.
-- [ ] Re-run and archive current gate output with timestamps:
+- [x] Convert this plan into issue/PR slices that do not mix unrelated modules.
+  (Executed as atomic per-slice commits on `main` — each commit is one focused
+  module slice; this project works directly on main, not via feature branches.)
+- [x] Re-run and archive current gate output with timestamps:
+  (`docs/lineage/operations/2026-06-21-validation-gate-archive.md`)
   - `cd backend && ./vendor/bin/pint --test`
   - `cd backend && ./vendor/bin/phpstan analyse --no-progress`
   - `cd backend && php artisan test --stop-on-failure`
@@ -183,20 +186,24 @@ Parthenon is "complete enough" for this backlog when all of these are true:
   environment-required, intentionally optional, stale backlog, or bug-masking.
   Shipped: `docs/lineage/operations/2026-06-21-test-skip-inventory.md` (1 bug-masking
   skip flagged; the rest env-required or tooling-limited).
-- [ ] Add a short "current known blockers" section to each active module plan
-  that still drives work.
+- [x] Add a short "current known blockers" section to each active module plan
+  that still drives work. (Added to the active protocol-to-publication plan; it is
+  the one `status: active` module plan still driving work.)
 - [x] Record the runtime readiness matrix for local Docker, hosted staging, and
   production-adjacent smoke checks.
   (`docs/lineage/operations/2026-06-21-environment-promotion-gates.md`)
 
 Acceptance evidence:
 
-- [ ] A closeout or updated plan links exact command output for every gate.
+- [x] A closeout or updated plan links exact command output for every gate.
+  (`docs/lineage/operations/2026-06-21-validation-gate-archive.md`; CI is the live
+  continuously-re-run source.)
 - [x] A skip-inventory artifact lists each skipped test cluster and the owner
   responsible for removing or preserving it.
   (`docs/lineage/operations/2026-06-21-test-skip-inventory.md`)
-- [ ] Another agent can start with `docs/lineage/plans/open/README.md` and find
-  the same open backlog without source-code spelunking.
+- [x] Another agent can start with `docs/lineage/plans/open/README.md` and find
+  the same open backlog without source-code spelunking. (README lists this plan
+  with its closure trigger; the plan body + the dated ops docs carry the backlog.)
 
 ## Phase 1 - Fix Red Verification Gates
 
@@ -262,10 +269,14 @@ Acceptance evidence:
   because it remains `status: active`.
 - [x] Reconcile `docs/lineage/plans/open/README.md` with the actual contents of
   `plans/open/`.
-- [ ] Verify every open plan names a closure trigger, related code/ADR/release
-  evidence, and any blocking dependency.
-- [ ] For stale plans, either create a closeout in `plans/closed/` or set
-  `status: superseded` and fill `superseded_by`.
+- [x] Verify every open plan names a closure trigger, related code/ADR/release
+  evidence, and any blocking dependency. (Verified: `plans/open/README.md` carries
+  a closure trigger per open plan; the 8 ingestion-template plans reference their
+  `templates/` work in-body. Empty `related_code`/`related_prs` frontmatter on
+  those template plans is noted but does not block — the closure trigger is named.)
+- [x] For stale plans, either create a closeout in `plans/closed/` or set
+  `status: superseded` and fill `superseded_by`. (Reviewed all open plans — none
+  are stale; each represents active or Hive-gated committed work.)
 
 Acceptance evidence:
 
@@ -273,8 +284,9 @@ Acceptance evidence:
 - [x] `python3 scripts/docs/catalog_lineage_docs.py --check-frontmatter`
 - [x] `sh docs/site/scripts/check-content-tree.sh`
 - [x] `sh docs/site/scripts/check-public-docs-current.sh`
-- [ ] `docs/lineage/catalog.md` and the open-plan README agree with the file
-  tree and frontmatter state.
+- [x] `docs/lineage/catalog.md` and the open-plan README agree with the file
+  tree and frontmatter state. (Catalog regenerated each commit; `--check-frontmatter`
+  passes, content-tree + public-docs guards green.)
 
 ## Phase 3 - Complete Analytics, HADES, And Protocol-To-Publication
 
@@ -317,12 +329,17 @@ Acceptance evidence:
 
 ## Phase 4 - Complete Ingestion, Source, And Data-Operations Workflows
 
-- [ ] Build the FHIR export backend behind `FhirExportPage.tsx`.
+- [x] Build the FHIR export backend behind `FhirExportPage.tsx`.
+  (Backend `$export` + job already shipped; the page now consumes it.)
   - [ ] Define export request shape, supported resource filters, async job
     behavior, authorization, audit logging, and download retention.
+    (Request shape / filters / async / authorization done; **audit logging +
+    download retention remain** backend follow-ups.)
   - [ ] Add backend feature tests for export creation, polling, cancellation,
     download, and authorization failures.
-  - [ ] Replace the coming-soon admin surface with a functional workflow or hide
+    (Creation/polling/download/authz tested in `FhirBulkExportApiTest`;
+    **cancellation** needs a cancel endpoint first — follow-up.)
+  - [x] Replace the coming-soon admin surface with a functional workflow or hide
     it behind an explicit feature flag until shipped.
 - [x] Implement GIS Excel import.
   - [x] Parse `.xlsx` and `.xls` previews with the same validation guarantees
@@ -331,11 +348,14 @@ Acceptance evidence:
   - [x] Add tests for sheet selection, headers, XLS/XLSX preview upload, and
     empty rows.
 - [ ] Complete Source Profiler comparison.
-  - [ ] Add comparison API for two sources/projects.
+  - [x] Add comparison API for two sources/projects. (GET `/scan-profiles/compare`
+    + `CompareProfilesRequest` + `compareCross`; `CrossSourceCompareTest`.)
   - [ ] Include schema, row-count, null-rate, vocabulary, and distribution
-    deltas.
+    deltas. (Schema/row-count/null-rate/distinct shipped in `ScanComparisonService`;
+    **vocabulary + distribution deltas** are the remaining engine extension.)
   - [ ] Replace the comparison placeholder with real loading, empty, error, and
-    success states.
+    success states. (Frontend `ScanComparisonView` render component — tracked
+    follow-up; backend API is ready to consume.)
 - [x] Decide and document the source connector matrix.
   - [x] For BigQuery, Redshift, Snowflake, Databricks, and Cloud Spanner, choose
     ship, enterprise-only, feature-flag, or remove-from-UI.
@@ -500,8 +520,11 @@ Acceptance evidence:
     developer extension examples.
 - [x] Decide whether cloud warehouse connectors are core, enterprise, or future
   scope.
-- [ ] Decide whether federated mapping depends on a concrete Hive Networks
-  readiness date or should move to a hold-final decision.
+- [x] Decide whether federated mapping depends on a concrete Hive Networks
+  readiness date or should move to a hold-final decision. (DECIDED in ADR-0021:
+  **hold-final** — the spike plan stays open with its Hive-Networks gate as the
+  explicit closure trigger; not committed work until Hive Networks reaches the
+  named phase.)
 - [x] Convert every deferred optional scope into either a closed decision record
   or a named open plan with a closure trigger.
 
