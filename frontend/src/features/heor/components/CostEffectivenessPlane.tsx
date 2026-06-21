@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChartCard, CHART, formatCompact } from "@/features/data-explorer/components/charts/chartUtils";
+import { CHART, formatCompact } from "@/features/data-explorer/components/charts/chartUtils";
+import { ChartCard } from "@/features/data-explorer/components/charts/ChartCard";
 import type { HeorResult } from "../types";
 
 interface Props {

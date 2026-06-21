@@ -18,13 +18,13 @@ import {
 } from "../hooks/useAchillesData";
 import {
   formatCompact,
-  ChartCard,
   DOMAIN_COLORS,
   GENDER_COLORS,
   CHART,
   tableToDomain,
   formatTableName,
 } from "../components/charts/chartUtils";
+import { ChartCard } from "../components/charts/ChartCard";
 import { Sparkline } from "../components/charts/Sparkline";
 import { ProportionalBar } from "../components/charts/ProportionalBar";
 import { DemographicsPyramid } from "../components/charts/DemographicsPyramid";

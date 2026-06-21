@@ -9,7 +9,8 @@ import {
   Cell,
 } from "recharts";
 import { useTranslation } from "react-i18next";
-import { ChartCard, CHART, TOOLTIP_CLS, formatCompact } from "@/features/data-explorer/components/charts/chartUtils";
+import { CHART, TOOLTIP_CLS, formatCompact } from "@/features/data-explorer/components/charts/chartUtils";
+import { ChartCard } from "@/features/data-explorer/components/charts/ChartCard";
 import type { HeorResult } from "../types";
 
 interface Props {
