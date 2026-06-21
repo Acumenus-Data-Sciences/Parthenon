@@ -778,6 +778,9 @@ services:
           memory: 8G
     networks:
       - parthenon
+      # Shared Acropolis internal network — lets infra/other stacks reach the
+      # PACS by DNS (parthenon-orthanc:8042) instead of host.docker.internal.
+      - acropolis-backend
     restart: unless-stopped
 
   ohif-build:
@@ -1240,6 +1243,10 @@ services:
 
   parthenon-templates:
     container_name: parthenon-templates
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     build:
       context: .
       dockerfile: templates/Dockerfile
@@ -1318,6 +1325,9 @@ networks:
     driver: bridge
   acropolis:
     name: acumenus
+    external: true
+  acropolis-backend:
+    name: acropolis-backend
     external: true
   jupyter_users:
     name: parthenon_jupyter_users
