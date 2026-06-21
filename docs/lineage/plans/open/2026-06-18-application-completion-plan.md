@@ -48,6 +48,18 @@ lineage documentation. Completion means the shipped product no longer exposes
 "coming soon" surfaces as primary workflows, high-signal tests are either
 passing or intentionally retired, and open plans have clear closeout evidence.
 
+> **Reconciliation 2026-06-21.** An 11-section evidence audit (each newly-done
+> claim adversarially re-verified, several by running the cited tests) reconciled
+> the checkboxes below against the codebase after the A1–A5 / Gate-B work of
+> 2026-06-19..21. Newly checked: Phase 0 bounded test lanes; all of Phase 3's
+> protocol-to-publication block (P0–P6 + parent), HADES sidecar verification,
+> sidecar contract tests, package closeout, the `r_not_implemented` decision, and
+> the phenotype-validation backlog (controller drift + 8 un-skipped cases). Items
+> left unchecked are genuinely open or `partial`/`decision` per the audit (e.g.
+> sidecar UI diagnostics, FHIR-export page wiring, connector matrix, signed
+> releases, promotion gates). Per-phase shipped evidence for Phase 3 is in
+> `docs/lineage/modules/studies/2026-06-21-protocol-to-publication-closeout.md`.
+
 ## Audit Evidence
 
 - Read `graphify-out/GRAPH_REPORT.md` before source triage. The graph covers
@@ -140,7 +152,7 @@ Parthenon is "complete enough" for this backlog when all of these are true:
   - `cd frontend && npm run lint`
   - `cd frontend && npm run build`
   - `cd templates && uv run pytest -q`
-- [ ] Split the Laravel test command into bounded suites if the full command
+- [x] Split the Laravel test command into bounded suites if the full command
   remains too long or too quiet for routine verification.
 - [ ] Capture a skip inventory by module and classify each skip as:
   environment-required, intentionally optional, stale backlog, or bug-masking.
@@ -233,40 +245,40 @@ Acceptance evidence:
 
 ## Phase 3 - Complete Analytics, HADES, And Protocol-To-Publication
 
-- [ ] Decide whether `r_not_implemented` remains a supported compatibility
+- [x] Decide whether `r_not_implemented` remains a supported compatibility
   status or should be removed from the product path.
 - [ ] For estimation, prediction, SCCS, and evidence synthesis:
-  - [ ] Verify the Darkstar/R sidecar endpoints run with the expected HADES
+  - [x] Verify the Darkstar/R sidecar endpoints run with the expected HADES
     packages in local Docker and hosted staging.
   - [ ] Replace generic "not implemented" UI messaging with actionable
     environment or package diagnostics.
-  - [ ] Add contract tests for successful, failed, unavailable, and invalid
+  - [x] Add contract tests for successful, failed, unavailable, and invalid
     sidecar responses.
-  - [ ] Record package versions and sidecar readiness in a module closeout.
-- [ ] Unblock the protocol-to-publication phases:
-  - [ ] Phase 0: un-skip the regression harness that proves existing
+  - [x] Record package versions and sidecar readiness in a module closeout.
+- [x] Unblock the protocol-to-publication phases:
+  - [x] Phase 0: un-skip the regression harness that proves existing
     publication routes still work.
-  - [ ] Phase 1: ship the provenance spine across analysis outputs and draft
+  - [x] Phase 1: ship the provenance spine across analysis outputs and draft
     artifacts.
-  - [ ] Phase 2: ship empirical calibration service and persisted calibration
+  - [x] Phase 2: ship empirical calibration service and persisted calibration
     reports.
-  - [ ] Phase 3: ship gate ledger, blocking gates, and estimate blinding.
-  - [ ] Phase 4: ship missing-cohort diagnostics with user-visible explanations.
-  - [ ] Phase 5: ship Abby orchestration through Python AI with recoverable job
+  - [x] Phase 3: ship gate ledger, blocking gates, and estimate blinding.
+  - [x] Phase 4: ship missing-cohort diagnostics with user-visible explanations.
+  - [x] Phase 5: ship Abby orchestration through Python AI with recoverable job
     state.
-  - [ ] Phase 6: ship manuscript synthesis with provenance-linked sections.
-- [ ] Close the phenotype validation backlog.
-  - [ ] Resolve `PhenotypeValidationController` spec drift.
-  - [ ] Unskip the eight skipped `PhenotypeValidationTest.php` cases.
+  - [x] Phase 6: ship manuscript synthesis with provenance-linked sections.
+- [x] Close the phenotype validation backlog.
+  - [x] Resolve `PhenotypeValidationController` spec drift.
+  - [x] Unskip the eight skipped `PhenotypeValidationTest.php` cases.
   - [ ] Add frontend/API contract coverage for the resolved behavior.
 
 Acceptance evidence:
 
-- [ ] Analytics service tests pass without `r_not_implemented` for configured
+- [x] Analytics service tests pass without `r_not_implemented` for configured
   environments.
-- [ ] Protocol-to-publication has shipped closeout evidence for each phase or a
+- [x] Protocol-to-publication has shipped closeout evidence for each phase or a
   superseding plan that explicitly narrows scope.
-- [ ] Phenotype validation tests are unskipped and pass.
+- [x] Phenotype validation tests are unskipped and pass.
 
 ## Phase 4 - Complete Ingestion, Source, And Data-Operations Workflows
 

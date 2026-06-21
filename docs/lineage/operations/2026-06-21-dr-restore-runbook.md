@@ -7,6 +7,7 @@ module: infrastructure
 lineage_anchor: false
 supersedes: []
 superseded_by: null
+related_prs: []
 related_code:
   - scripts/pg-host-logical-backup.sh
   - scripts/pg-host-basebackup.sh

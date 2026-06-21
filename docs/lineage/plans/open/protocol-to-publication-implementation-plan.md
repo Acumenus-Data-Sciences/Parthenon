@@ -15,9 +15,18 @@ related_prs:
 # Abby — Protocol-to-Publication Pipeline: Implementation Plan
 
 **ADR:** `docs/lineage/decisions/adr/adr-0020-protocol-to-publication-pipeline.md`
-**Status:** Active — pending checkpoint review
+**Status:** Active — implementation complete (P0–P6 shipped + tested 2026-06-19..21); open pending the live gated re-run of study 114
 **Validation target:** Hypertension Study v3 (`app.studies.id = 114`) rerun as the golden regression case
 **Date:** 2026-06-09
+
+> **Implementation status (2026-06-21).** All seven phases (P0–P6) have shipped
+> code with passing tests; see the closeout
+> `docs/lineage/modules/studies/2026-06-21-protocol-to-publication-closeout.md`
+> for per-phase commit/file/test evidence. The orchestrator has been dry-walked
+> end-to-end (HTTP 200, gated-halt proven offline). This plan stays **open** for
+> the single remaining acceptance: the live `execute=true` re-run of study 114
+> confirming the S5 halt with estimates blinded against real analytics. On that,
+> move this plan to `plans/closed/` with `status: shipped`.
 
 > Ordering principle (from the ADR): the **rigor substrate ships before the
 > orchestrator.** Phases 1–4 build provenance, calibration, gates, and the
