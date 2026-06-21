@@ -60,6 +60,7 @@ OPTIONAL_ROUTERS: list[tuple[str, dict[str, Any]]] = [
     ("app.routers.profiling", {"prefix": "/profiling", "tags": ["profiling"]}),
     ("app.routers.schema_mapping", {"prefix": "/schema-mapping", "tags": ["schema-mapping"]}),
     ("app.routers.abby", {"prefix": "/abby", "tags": ["abby"]}),
+    ("app.routers.orchestrator", {"prefix": "/orchestrate", "tags": ["orchestrator"]}),
     ("app.routers.chroma", {"prefix": "/chroma", "tags": ["chroma"]}),
     ("app.routers.gis", {"prefix": "/gis", "tags": ["gis"]}),
     ("app.routers.cdm_spatial", {"tags": ["cdm-spatial"]}),

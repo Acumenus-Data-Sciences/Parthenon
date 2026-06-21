@@ -45,3 +45,10 @@ Broadcast::channel('publish.draft.{draft}', function ($user, int $draft) {
 
     return $d !== null && (new PublicationDraftPolicy)->view($user, $d);
 });
+
+// Abby orchestrator / agent progress stream for a study (ADR-0020 Phase 5).
+// Both the deterministic orchestrator (StudyOrchestratorController) and the
+// conversational agent (AbbyAgentController) publish to private-abby.study.{study}.
+Broadcast::channel('abby.study.{study}', function ($user, int $study) {
+    return Study::accessibleBy($user->id)->whereKey($study)->exists();
+});

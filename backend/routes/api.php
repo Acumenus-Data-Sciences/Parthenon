@@ -144,6 +144,7 @@ use App\Http\Controllers\Api\V1\StudyDesignController;
 use App\Http\Controllers\Api\V1\StudyGateController;
 use App\Http\Controllers\Api\V1\StudyManuscriptController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
+use App\Http\Controllers\Api\V1\StudyOrchestratorController;
 use App\Http\Controllers\Api\V1\StudyPackageController;
 use App\Http\Controllers\Api\V1\StudyResultController;
 use App\Http\Controllers\Api\V1\StudySiteController;
@@ -892,6 +893,10 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:studies.edit');
             Route::post('gates/{studyGate}/override', [StudyGateController::class, 'override'])
                 ->middleware('permission:studies.edit');
+
+            // Deterministic protocol-to-publication orchestrator (ADR-0020 Phase 5)
+            Route::post('orchestrate', [StudyOrchestratorController::class, 'orchestrate'])
+                ->middleware('permission:studies.execute');
 
             // Abby orchestrator agent (ADR-0020 Phase 5b)
             Route::post('agent/sessions', [AbbyAgentController::class, 'start'])
