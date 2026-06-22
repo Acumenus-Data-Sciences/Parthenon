@@ -56,7 +56,9 @@ finds the key whose kid matches the header, verifies the signature.
 Epic issues an access token. Vulcan begins the Bulk Data $export.
 ```
 
-On **2026-06-22**, that is exactly what happened. The `kid`-bearing assertion was accepted, an access token came back, and Parthenon read Epic's `CapabilityStatement` over the authenticated channel. It was the first time Parthenon authenticated to a real, externally-operated EHR FHIR server instead of a stand-in. The front door opened. With the connection live and the Bulk Data pipeline already in place behind it, pulling the sandbox's synthetic patients through into OMOP CDM is the next step — but the part that had been blocking everything, the handshake, is done.
+On **2026-06-22**, that is exactly what happened — once Epic re-fetched our (now clean) key and propagated it across its token nodes, the `kid`-bearing assertion was accepted and an access token came back. Then we kept going. Against Camila Lopez, one of Epic's synthetic sandbox patients, Vulcan read real Epic resources over the authenticated channel and ran every one of the six new resource types through its mappers into OMOP CDM: a DocumentReference into a clinical `note`, a completed ServiceRequest into a `procedure_occurrence` whose LOINC code resolved *live* to an OMOP concept, a CarePlan, a Goal carrying its real goal text, and a CareTeam with its "Family Medicine" role. All of it on real Epic data — and all of it inside a rolled-back transaction, so not a single row persisted. A dress rehearsal on a live stage. It was the first time Parthenon authenticated to, read from, and correctly mapped a real, externally-operated EHR FHIR server instead of a stand-in.
+
+One honest asterisk: Epic's *public* sandbox does not hand self-service apps the bulk `$export` firehose — that transport is Group-scoped and reserved for vendor-sandbox and production registrations — so we proved the identical pipeline through authenticated reads rather than a bulk NDJSON download. The signature, the token, the reads, and the mapping are all the real thing; only the transport differs, and the transform behind it is the same either way.
 
 ## What came through the door: six new resource types
 
@@ -79,8 +81,8 @@ Real clinical data isn't append-only. A diagnosis entered on the wrong chart get
 
 OMOP is the destination, but EHRs are where the data lives, and the most painful, most expensive part of building an OMOP repository has always been the extract. The mature implementations — Mt. Sinai, Johns Hopkins — got there by writing thousands of hours of bespoke ETL against proprietary database schemas. FHIR Bulk Data is the bet that you can do it vendor-agnostically, against a standard API, in a fraction of the time.
 
-That bet only pays off if the connection actually works against the systems clinicians actually use. As of this week, against Epic's sandbox, it does. Vulcan has shaken hands with Epic — and the path from a production EHR to a research-ready OMOP CDM is one large, real step shorter.
+That bet only pays off if the connection actually works against the systems clinicians actually use. As of this week, against Epic's sandbox, it does — Vulcan has shaken hands with Epic, read its data, and mapped that data correctly into OMOP. The path from a production EHR to a research-ready OMOP CDM is one large, real step shorter.
 
-Next, we run the first bulk export against the live connection and capture its metrics, resolve the deferred concept mappings so care-coordination data lands as coded concepts rather than source text, and walk the same handshake through Epic's production registration. But the hardest part — getting a real EHR to trust us enough to open the door — is done.
+Next, we earn a *persisted* run: a Group-scoped bulk export from Epic's vendor sandbox or a real site (pointed at a dedicated external-EHR schema, not the curated CDM), the deferred concept mappings so care-coordination data lands as coded concepts rather than source text, and Epic's production registration. But the hardest parts — getting a real EHR to trust us enough to open the door, and proving our mappers handle what it actually sends — are done.
 
 *Vulcan kept the forge. This week, it forged a key that Epic accepted.*

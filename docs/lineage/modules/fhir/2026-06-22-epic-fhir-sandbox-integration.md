@@ -32,7 +32,7 @@ related_code:
 **Date:** 2026-06-22
 **Module:** FHIR ingestion (Vulcan)
 **Branch:** `feature/fhir-ingestion-medgnosis-parity`
-**Outcome:** ✅ Live SMART Backend Services **authentication** to the Epic on FHIR sandbox achieved — the JWT → token → CapabilityStatement handshake succeeded against a real, externally-operated EHR. Six new clinical resource types wired into the OMOP CDM v5.4 ingestion path; soft-delete semantics and a public JWKS key-discovery endpoint shipped. **A record-writing bulk `$export` sync has not yet been run** — the Epic connection is configured and active; first ingestion is the next step (§10.1).
+**Outcome:** ✅ End-to-end **validated against a live Epic FHIR server**: SMART Backend Services auth (real access token) → authenticated reads of real Epic patient data → all six new resource types mapping correctly to OMOP CDM with live vocabulary resolution (§10.2). Six new clinical resource types, soft-delete semantics, and a public JWKS key-discovery endpoint shipped. **Caveat:** the mapping validation ran **dry (rolled back, zero writes)**, and Epic's *public* sandbox does not expose Patient-level bulk `$export` (Group-scoped only), so a **persisted bulk ingestion is not yet done** — it awaits a Group-scoped export or a deliberate read-backfill into a dedicated external-EHR schema (§13).
 
 > **Companion documents**
 > - Design spec: [`docs/lineage/design/specs/2026-06-21-fhir-ingestion-medgnosis-parity-port-design.md`](../../design/specs/2026-06-21-fhir-ingestion-medgnosis-parity-port-design.md)
@@ -46,7 +46,7 @@ related_code:
 
 Parthenon has shipped FHIR R4 → OMOP CDM ingestion since **Phase 16** (the *Vulcan* engine): SMART Backend Services authentication, asynchronous Bulk Data `$export`, NDJSON download, vocabulary resolution, identity crosswalks, two-pass processing, and incremental sync. That pipeline was, however, validated only against **mock endpoints** (`https://example.test/fhir`) and a fixed roster of nine resource types. It had never completed a handshake with a **real, externally-operated EHR FHIR server**.
 
-This log records the work that closed that gap. By porting the inbound-ingestion advances from our sister application **Medgnosis** (its `feature/fhir-edw-ingestion-expansion` branch, retargeted from `phm_edw` to OMOP CDM v5.4) and adding a **public JWKS key-discovery endpoint with a stable `kid`**, Parthenon completed a **live SMART Backend Services authentication handshake against the Epic on FHIR sandbox** on **2026-06-22**: a `kid`-bearing RS384 assertion was accepted at Epic's token endpoint, an access token was issued, and Epic's `metadata` CapabilityStatement was retrieved over the authenticated channel. This is the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock. A record-writing bulk `$export` sync has **not** yet completed — and the blocker is **Epic's public sandbox, not Parthenon's code** (intermittent key propagation across Epic's non-production token nodes; see §10.1).
+This log records the work that closed that gap. By porting the inbound-ingestion advances from our sister application **Medgnosis** (its `feature/fhir-edw-ingestion-expansion` branch, retargeted from `phm_edw` to OMOP CDM v5.4) and adding a **public JWKS key-discovery endpoint with a stable `kid`**, Parthenon completed a **live SMART Backend Services authentication handshake against the Epic on FHIR sandbox** on **2026-06-22**: a `kid`-bearing RS384 assertion was accepted at Epic's token endpoint, an access token was issued, and Epic's `metadata` CapabilityStatement was retrieved over the authenticated channel. This is the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock. With auth resolved (after an Epic-side key re-fetch), the full data path was then validated on **real Epic patient data** — every new mapper produced correct OMOP rows, including live vocabulary resolution — though the validation ran **dry (zero persisted writes)** and Epic's public sandbox does not expose bulk `$export` transport, so a persisted bulk ingestion remains a follow-up (§10.2, §13).
 
 The work landed as **eight sequential commits** between 2026-06-21 19:58 and 2026-06-22 12:19 (≈16.5 hours of focused implementation), each gated by `tsc`/Pint/PHPStan and a growing test suite (16 new FHIR test files).
 
@@ -58,7 +58,7 @@ The work landed as **eight sequential commits** between 2026-06-21 19:58 and 202
 | Mapper architecture | one 855-line monolith (`FhirBulkMapper`) | **pluggable `ResourceMapper` registry** + shared trait |
 | Deletes | not handled | **`entered-in-error` soft-delete** + Bulk `deleted` manifest processing |
 | EHR key discovery | none (no way for an EHR to find our public key) | **public `/api/fhir/jwks.json`** + RFC 7638 `kid` in the assertion header |
-| Live EHR validation | mock endpoints only | **live Epic sandbox auth handshake** (token + CapabilityStatement); bulk sync pending |
+| Live EHR validation | mock endpoints only | **live Epic data**: auth (real token) + authenticated reads + all 6 new mappers validated on real patient records (dry-run); persisted bulk ingestion pending (sandbox has no `$export`) |
 
 ---
 
@@ -348,13 +348,29 @@ FhirNdjsonProcessorService (two-pass)
 | `fhir_patient_crosswalk` rows for `epic-sandbox` | **0** |
 | OMOP extension tables (`omop.care_plan`, `omop.care_team`, …) | present (migrations applied) |
 
-**Proven vs. blocked (live field status, 2026-06-22):**
+### 10.2 Run results — live Epic data validation (2026-06-22)
 
-- ✅ **Connectivity — proven.** Full SMART Backend Services handshake against Epic; real token received. Our JWT, JWKS, `kid`, endpoint, and clock are all verified correct, and the JWKS is served rock-solid.
-- ⛔ **Live data flow — blocked by Epic's sandbox, not our code.** Epic's non-production environment fetched our key **once (≈12:40)** and has not re-fetched since, so its token nodes are **unevenly propagated** — authentication currently succeeds roughly **1 attempt in 10**. We cannot get a consistent `$export` window out of the public sandbox under that condition, which is why **zero Epic records have reached OMOP** to date.
-- ✅ **Mappers — proven independent of Epic.** Every mapper is exhaustively tested (unit + real-OMOP-schema rollback) and standards-based, so it will map whatever Epic returns. The gap is purely the sandbox's intermittent auth, not the transform.
+The earlier intermittent auth (~1-in-10) was Epic's non-production key propagation, not our code. **Re-saving the Epic app registration forced a JWKS re-fetch**, after which auth became consistent. End-to-end validation against the **live Epic sandbox** then succeeded:
 
-> **Unblock path.** Because our JWKS is now clean and stable, **re-saving the Epic app registration** (in the Epic on FHIR developer portal) forces Epic to **re-fetch the current key**, which should propagate it evenly across Epic's token nodes and stabilize auth. Once auth is consistent, trigger the first `$export`, then append a **"Run results"** subsection here with the `fhir_sync_runs` id and the actual `records_extracted/mapped/written` figures so the numbers are evidence-backed.
+- ✅ **Connectivity & auth.** Full SMART Backend Services handshake; **real access token received**. JWT, JWKS, `kid`, audience, and clock all verified against Epic's production-grade verifier; the public JWKS endpoint served reliably.
+- ✅ **Authenticated reads of real Epic data.** Epic `metadata` CapabilityStatement (HTTP 200) and a real sandbox patient — **Camila Maria Lopez** (`erXuFYUfucBZaryVksYEcMg3`, HTTP 200).
+- ✅ **All six new mappers validated on Camila Lopez's live records**, each mapped through the registry inside a **rolled-back transaction (zero net writes)**:
+
+  | FHIR resource (live Epic) | Avail. | OMOP target | Result |
+  |---|---|---|---|
+  | Patient | 1 | `person` | ✅ `person_id` linked |
+  | DocumentReference | 18 | `note` | ✅ linked to person |
+  | ServiceRequest `[completed/original-order]` | 22 | `procedure_occurrence` | ✅ LOINC `36643-5` → concept **3047860** (live vocabulary resolution) |
+  | CarePlan | 1 | `care_plan` | ✅ `active\|plan` |
+  | Goal | 13 | `care_goal` | ✅ real text "Food and/or Nutrient Delivery (ND)" |
+  | CareTeam | 2 | `care_team` + `care_team_member` | ✅ member role "Family Medicine" |
+  | Coverage | 1 | — | `[]` — **correct**: Epic's sandbox Coverage carried no `beneficiary`/`subscriber`, so the null-guard fired (graceful handling of incomplete source, not a bug) |
+
+  Core types also present for the patient: Condition 10, Observation 6, MedicationRequest 2. The ServiceRequest vocabulary resolution required a `SourceContext` (`SourceContext::forSource($source)`), which the real `RunFhirSyncJob` sets — an earlier dry-run error was a harness artifact, not a mapper bug.
+
+- ⚠️ **Bulk `$export` transport — not available on Epic's *public* sandbox.** `GET /Patient/$export` returns **HTTP 404 / `OperationOutcome` code 59008** — Patient-level system bulk export is not enabled for self-service sandbox apps (Epic backend bulk is **Group-scoped**). The identical transform pipeline was therefore proven via **authenticated per-resource reads** rather than bulk NDJSON transport.
+
+> **What this does and does not establish.** On a **live, externally-operated Epic FHIR server with real clinical data**, it establishes that auth, authenticated reads, and the full FHIR→OMOP mapping (including live vocabulary resolution) all work correctly. It does **not** yet establish a **persisted** bulk ingestion: the validation ran dry (rolled back, zero writes), and the public sandbox does not expose the bulk-export transport. Persisted ingestion awaits either a **Group-scoped `$export`** (Epic vendor/Connectathon sandbox or a production site) or a deliberate authenticated-read backfill — written to a **dedicated external-EHR CDM schema**, not the curated `omop` (§13).
 
 ---
 
@@ -389,11 +405,15 @@ Preceded by the design spec (`4a2b45a93`) and implementation plan (`e4565c528`).
 
 ## 13. Follow-Ups
 
-1. **Run the first bulk `$export` against the configured Epic connection** and capture metrics (per-resource counts, `FhirSyncRun` id), then append the §10.1 "Run results" subsection. This is the immediate next step now that auth is validated.
-2. **Resolve the `cdm_row_id = 0` placeholder** so batch-inserted rows are individually deletable (today they are audited but reported `unresolved`).
-3. **Concept resolution for the deferred fields** — CarePlan status/intent, Goal achievement, CareTeam role, Coverage payer/plan currently land as `source_value` with `concept_id = 0`; add vocabulary mappings.
-4. **Goal → CarePlan linkage** — populate `care_goal.care_plan_id` once cross-resource surrogate linking is in.
-5. **Merge to `main`** after the live-run subsection is backfilled and the branch is rebased.
+1. **Achieve a persisted bulk ingestion.** The public sandbox has no Patient-level `$export`; obtain a **Group-scoped `$export`** (Epic vendor/Connectathon sandbox or a real site) or run a deliberate authenticated-read backfill, then capture the `FhirSyncRun` counts and append a §10.2 "persisted run" addendum.
+2. **Set the Epic connection's `target_source_id` to a dedicated external-EHR CDM schema** — not the curated `omop`. The real `RunFhirSyncJob` derives its `SourceContext` (and therefore vocabulary resolution) from this; it also keeps real-world Epic data from mixing into the curated CDM. *(Production note from the live validation.)*
+3. **Apply the pending migration** (`./deploy.sh --db`) before any production ingestion run.
+4. **Coverage requires `beneficiary`/`subscriber` in the source** — Epic's sandbox sample lacked both, so the mapper correctly emitted no row. Real-site Coverage should populate it.
+5. **Resolve the `cdm_row_id = 0` placeholder** so batch-inserted rows are individually deletable (today they are audited but reported `unresolved`).
+6. **Concept resolution for the deferred fields** — CarePlan status/intent, Goal achievement, CareTeam role, Coverage payer/plan currently land as `source_value` with `concept_id = 0`; add vocabulary mappings.
+7. **Goal → CarePlan linkage** — populate `care_goal.care_plan_id` once cross-resource surrogate linking is in.
+
+> **Merge status:** the branch was fast-forward **merged to `main`** at `7a8165fd2` (the port plus this devlog and the companion blog). The blog post remains **un-deployed** pending a publish decision.
 
 ---
 
