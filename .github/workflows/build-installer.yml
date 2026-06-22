@@ -17,7 +17,7 @@ jobs:
     name: Source installer smoke test
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref || github.ref_name }}
 

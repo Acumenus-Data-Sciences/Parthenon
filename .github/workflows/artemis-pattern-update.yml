@@ -37,7 +37,7 @@ jobs:
       # `4.4` tag does not exist and 404s with "manifest unknown".
       image: r-base:4.4.3
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
