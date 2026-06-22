@@ -62,6 +62,7 @@ use App\Http\Controllers\Api\V1\EtlFieldMappingController;
 use App\Http\Controllers\Api\V1\EtlProjectController;
 use App\Http\Controllers\Api\V1\EvidencePinController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
+use App\Http\Controllers\Api\V1\FhirJwksController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\FinnGen\AnalysisModuleController;
 use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
@@ -179,6 +180,12 @@ Route::get('/health', [HealthController::class, 'index']);
 // already-shipped installer binaries, legacy WebAPI redirects) get the same
 // payload instead of a 404. Direct route, NOT a redirect: probes check for 200.
 Route::get('/v1/health', [HealthController::class, 'index']);
+
+// Public, non-PHI JWKS for SMART Backend Services key discovery. Analogous to
+// /health: no auth:sanctum. It serves ONLY RSA public keys (the JWKS derived
+// from active FHIR connections' signing keys) so EHRs can verify our signed
+// client-assertion JWTs. Resolves to GET /api/fhir/jwks.json.
+Route::get('/fhir/jwks.json', [FhirJwksController::class, 'index']);
 
 // Broadcasting auth — registered under Sanctum so SPA bearer tokens work.
 // Must use /api/broadcasting/auth path; Echo is configured to match.

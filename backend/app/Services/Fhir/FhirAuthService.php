@@ -11,6 +11,8 @@ use RuntimeException;
 
 class FhirAuthService
 {
+    public function __construct(private readonly FhirJwksService $jwks) {}
+
     /**
      * Obtain an access token via SMART Backend Services (client_credentials + signed JWT).
      *
@@ -48,6 +50,14 @@ class FhirAuthService
     {
         $now = time();
         $header = ['alg' => 'RS384', 'typ' => 'JWT'];
+
+        // Advertise the signing key via its JWKS thumbprint so EHRs can select
+        // the right published public key. Omit entirely when no kid is derivable
+        // (never emit a null kid into the header).
+        $kid = $this->jwks->kidForConnection($conn);
+        if ($kid !== null) {
+            $header['kid'] = $kid;
+        }
 
         $payload = [
             'iss' => $conn->client_id,
