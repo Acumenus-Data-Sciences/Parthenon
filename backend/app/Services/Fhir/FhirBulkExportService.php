@@ -188,6 +188,72 @@ class FhirBulkExportService
     }
 
     /**
+     * Download the FHIR Bulk Data `deleted` manifest files (a sibling of
+     * `output` per the Bulk Data spec). Each entry is `{type?: 'Bundle', url}`
+     * pointing at NDJSON of transaction Bundles whose entries carry
+     * `request.method === 'DELETE'`. Returns a flat list of local file paths
+     * (deleted Bundles are not grouped by resource type, unlike `output`).
+     *
+     * Mirrors downloadNdjsonFiles' auth + streaming download; per-file fetch
+     * failures are logged and skipped, never fatal.
+     *
+     * @param  array<string, mixed>  $manifest
+     * @return list<string> Local file paths.
+     */
+    public function downloadDeletedFiles(
+        FhirConnection $connection,
+        FhirSyncRun $run,
+        array $manifest,
+    ): array {
+        $deletedFiles = $manifest['deleted'] ?? [];
+        if (! is_array($deletedFiles) || $deletedFiles === []) {
+            return [];
+        }
+
+        $token = $this->auth->getAccessToken($connection);
+        $storageDir = "fhir-exports/{$connection->site_key}/{$run->id}/deleted";
+
+        $paths = [];
+        $fileCount = 0;
+
+        foreach ($deletedFiles as $file) {
+            $url = is_array($file) ? ($file['url'] ?? '') : '';
+            if ($url === '') {
+                continue;
+            }
+
+            $response = Http::timeout(300)
+                ->withHeaders([
+                    'Authorization' => "Bearer {$token['access_token']}",
+                    'Accept' => 'application/fhir+ndjson',
+                ])
+                ->get($url);
+
+            if ($response->failed()) {
+                Log::error('Failed to download FHIR deleted manifest file', [
+                    'url' => $url,
+                    'status' => $response->status(),
+                ]);
+
+                continue;
+            }
+
+            $filePath = "{$storageDir}/deleted-".($fileCount + 1).'.ndjson';
+            Storage::put($filePath, $response->body());
+            $paths[] = Storage::path($filePath);
+            $fileCount++;
+        }
+
+        Log::info('FHIR deleted manifest files downloaded', [
+            'connection' => $connection->site_key,
+            'run_id' => $run->id,
+            'files' => $fileCount,
+        ]);
+
+        return $paths;
+    }
+
+    /**
      * Clean up downloaded NDJSON files for a sync run.
      */
     public function cleanupFiles(FhirConnection $connection, FhirSyncRun $run): void

@@ -16,6 +16,15 @@ related_code:
   - backend/app/Services/Fhir/Mappers/GoalMapper.php
   - backend/app/Services/Fhir/Mappers/CareTeamMapper.php
   - backend/app/Services/Fhir/CrosswalkService.php
+  - backend/database/migrations/2026_06_21_100300_add_fhir_dedup_tracking_deleted_columns.php
+  - backend/app/Services/Fhir/FhirDedupService.php
+  - backend/app/Services/Fhir/FhirNdjsonProcessorService.php
+  - backend/app/Services/Fhir/FhirBulkExportService.php
+  - backend/app/Jobs/Fhir/RunFhirSyncJob.php
+  - backend/tests/Unit/Services/Fhir/FhirEnteredInErrorTest.php
+  - backend/tests/Feature/Fhir/FhirDedupSoftDeleteTest.php
+  - backend/tests/Feature/Fhir/FhirProcessorEnteredInErrorTest.php
+  - backend/tests/Feature/Fhir/FhirBulkDeletionsJobTest.php
 related_prs: []
 ---
 # FHIR Ingestion Parity — Care-Extension Tables + Crosswalk Soft-Delete (DB Foundation 1.3–1.5)
@@ -128,3 +137,111 @@ granted explicitly to `parthenon_app` (verified `app_grants:4`).
 - Pest mappers + Fhir feature lane (Phase 4): 0 failures (192 assertions; "deprecated" count is the pre-existing `PDO::MYSQL_ATTR_SSL_CA` harness warning)
 - PHPStan L8 (`app/Services/Fhir` + `AppServiceProvider`): `[OK] No errors`
 - Migrations applied to both live `parthenon` and the `parthenon_testing` test DB.
+
+## Phase 5 — Soft-delete (entered-in-error + Bulk `deleted` manifest)
+
+OMOP is append-only; "soft-delete" here means **remove the erroneous CDM row but
+keep an audit trail** on the dedup-tracking table.
+
+### Dedup-tracking deleted columns
+
+`2026_06_21_100300_add_fhir_dedup_tracking_deleted_columns.php` adds nullable
+`deleted_at` (timestamp) + `deleted_reason` (varchar 250) to `fhir_dedup_tracking`
+(default `pgsql` connection, `app` schema), each `Schema::hasColumn`-guarded. The
+migration deploys to prod via `deploy.sh`.
+
+### `FhirDedupService::deleteByResource()`
+
+New primitive: looks up the `(site_key, resource_type, resource_id)` tracking row
+**directly** (not the in-memory cache — bulk-delete / entered-in-error paths run
+with no warm cache). Behavior:
+
+- No tracking row → `{resolved:false, deleted:false, cdm_table:null}`.
+- `cdm_row_id > 0` and not already deleted → delete the CDM row through
+  `cdm()->table(...)->where(pk, id)->delete()` (try/catch: log + swallow), then
+  stamp `deleted_at`/`deleted_reason`. Returns `{resolved:true, deleted:true, …}`.
+- `cdm_row_id === 0` (batch-insert placeholder — clinical resources inserted in
+  bulk record id 0 and cannot be pinpointed) → stamp `deleted_at`/`deleted_reason`
+  for audit, log a warning, return `{resolved:false, deleted:false, …}`.
+
+`getPrimaryKeyColumn()` was extended to cover every CDM table the FHIR mappers
+emit (note, payer_plan_period, location, care_site, provider, visit_detail, death,
+care_plan/goal/team/member) so deletion can target the correct PK.
+
+**Latent-bug fix:** `FhirDedupService` and `FhirNdjsonProcessorService` referenced
+`DB::` without `use Illuminate\Support\Facades\DB;` — the facade resolved to a
+non-existent `App\Services\Fhir\DB` (5 baselined `class.notFound` errors). Every
+`DB::` method there would have fatalled if ever hit; they were simply never
+exercised by a test. The missing imports are now added and the baseline entries
+removed.
+
+### `isEnteredInError()` — placement
+
+A `public static` method on `FhirDedupService`. Rationale: the processor already
+depends on `FhirDedupService`, so no new class/dependency is needed; `static` +
+pure lets the unit test exercise it with zero DB/SourceContext setup. It returns
+true for top-level `status === 'entered-in-error'`, or a `verificationStatus.
+coding[*].code === 'entered-in-error'` (covers Condition + AllergyIntolerance).
+
+### Processor hydration skip
+
+`FhirNdjsonProcessorService::processFile()` checks `isEnteredInError($resource)` in
+the per-line loop **before** mapping — resourceType/id come straight off the
+decoded resource (`$resource['resourceType']`, `$resource['id']`). On a hit it
+calls `deleteByResource(..., 'entered-in-error')`, bumps the new
+`entered_in_error`/`deleted` run-stats counters, and `continue`s (no hydration).
+
+### `RunFhirSyncJob::processBulkDeletions()`
+
+Per the FHIR Bulk Data spec the `$export` manifest may carry a `deleted` array
+(sibling of `output`) of `{type:'Bundle', url}` files; each file is NDJSON of
+transaction Bundles whose entries have `request.method === 'DELETE'` and
+`request.url === 'Type/id'`.
+
+- **Fetching the `deleted` set:** added a focused `downloadDeletedFiles()` to
+  `FhirBulkExportService`, mirroring `downloadNdjsonFiles`' auth + streaming
+  download but reading `$manifest['deleted']` and returning a flat list of local
+  paths (deleted Bundles are not grouped by resource type). Least-invasive: a new
+  method rather than overloading the `output` downloader's return shape.
+- `processBulkDeletions()` downloads each file, decodes each Bundle, and for every
+  DELETE entry parses `[$type,$id] = explode('/', url)` and calls
+  `deleteByResource(site_key, type, id, 'bulk-deleted')`. Tallies
+  `{files, processed, deleted, unresolved}`. Per-file open/JSON errors are counted,
+  never fatal. Called from `handle()` after the hydration pass **and** in the
+  empty-`output` early-return branch (a deletion-only incremental export).
+- **Tally recording:** `fhir_sync_runs` has no JSON/metadata column (only typed
+  stat columns + a `resource_types` json), and no migration was in scope, so the
+  tally is recorded via the existing structured `Log::info` run-summary line
+  (`bulk_deletions` key) rather than persisted to a column.
+
+### Tests
+
+- `FhirEnteredInErrorTest` (unit) — each entered-in-error shape + negative case.
+- `FhirDedupSoftDeleteTest` (feature, real DB) — binds a SourceContext so `ctx_cdm`
+  resolves to the `omop` schema **inside parthenon_testing** (never host/prod),
+  inserts a sentinel `note` row + tracking row, asserts the CDM row is gone and
+  `deleted_at` is stamped; plus unresolved-path and `cdm_row_id=0` cases. Skips
+  cleanly if `deleted_at` is not yet migrated on the local test DB or omop is
+  unwritable.
+- `FhirProcessorEnteredInErrorTest` (feature) — mocked mapper asserts the EIE
+  resource is **never** mapped; mocked dedup asserts `deleteByResource` is called.
+- `FhirBulkDeletionsJobTest` (feature) — mocked export service returns a known
+  deleted-Bundle NDJSON; asserts `deleteByResource(type,id,'bulk-deleted')` per
+  DELETE entry and the correct `{files,processed,deleted,unresolved}` tally.
+
+### Verification (Phase 5)
+
+- Pint (`app/Services/Fhir app/Jobs/Fhir tests/Unit/Services/Fhir tests/Feature/Fhir`): PASS (50 files)
+- Pest `tests/Unit/Services/Fhir tests/Feature/Fhir`: 0 failures (376 assertions;
+  the `PDO::MYSQL_ATTR_SSL_CA` "deprecated" count is pre-existing harness noise).
+  The two column-dependent `FhirDedupSoftDeleteTest` cases **skip** on the local
+  test DB until the `deleted_at` migration runs there.
+- PHPStan L8 (`app/Services/Fhir app/Jobs/Fhir`): `[OK] No errors` (baseline
+  entries for the renamed run-stats shape updated; the fixed `DB` import removed
+  5 stale `class.notFound` baseline lines).
+
+> Precondition note: the Phase 5 migration file existed untracked but had **not**
+> been applied to the local `parthenon_testing` DB (and the suite deliberately
+> keeps RefreshDatabase in transaction-only mode, so it does not run new
+> migrations). The two real-DB soft-delete assertions therefore skip locally;
+> they pass once the migration lands on the test DB (CI/`deploy.sh` path).

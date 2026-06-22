@@ -2400,37 +2400,25 @@ parameters:
 			path: app/Services/Fhir/FhirBulkMapper.php
 
 		-
-			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Fhir\\DB\.$#'
-			identifier: class.notFound
-			count: 5
-			path: app/Services/Fhir/FhirDedupService.php
-
-		-
 			message: '#^Parameter \#2 \$data of function hash expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Fhir/FhirDedupService.php
 
 		-
-			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Fhir\\DB\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/Fhir/FhirNdjsonProcessorService.php
-
-		-
-			message: '#^Method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFiles\(\) should return array\{extracted\: int, mapped\: int, written\: int, failed\: int, skipped\: int, updated\: int, by_table\: array\<string, int\>\} but returns non\-empty\-array\.$#'
+			message: '#^Method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFiles\(\) should return array\{extracted\: int, mapped\: int, written\: int, failed\: int, skipped\: int, updated\: int, deleted\: int, entered_in_error\: int, \.\.\.\} but returns non\-empty\-array\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
 
 		-
-			message: '#^Offset ''skipped'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>, skipped\?\: \(float\|int\), updated\?\: \(float\|int\)\}\.$#'
+			message: '#^Offset ''skipped'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, deleted\: int, entered_in_error\: int, by_table\: array\<string, int\>, skipped\?\: \(float\|int\), \.\.\.\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
 
 		-
-			message: '#^Offset ''updated'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>, skipped\?\: \(float\|int\), updated\?\: \(float\|int\)\}\.$#'
+			message: '#^Offset ''updated'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, deleted\: int, entered_in_error\: int, by_table\: array\<string, int\>, skipped\?\: \(float\|int\), \.\.\.\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
@@ -2442,7 +2430,7 @@ parameters:
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
 
 		-
-			message: '#^Parameter \#4 \$stats of method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFile\(\) expects array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>\}, array given\.$#'
+			message: '#^Parameter \#4 \$stats of method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFile\(\) expects array\{extracted\: int, mapped\: int, written\: int, failed\: int, deleted\: int, entered_in_error\: int, by_table\: array\<string, int\>\}, array given\.$#'
 			identifier: argument.type
 			count: 2
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php

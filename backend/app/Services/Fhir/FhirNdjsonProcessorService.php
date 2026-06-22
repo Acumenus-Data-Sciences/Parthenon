@@ -6,6 +6,7 @@ namespace App\Services\Fhir;
 
 use App\Concerns\SourceAware;
 use App\Models\App\FhirSyncRun;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -42,7 +43,7 @@ class FhirNdjsonProcessorService
      * Process downloaded NDJSON files: parse, map to OMOP CDM, and write.
      *
      * @param  array<string, string[]>  $filesByType  Resource type => array of local file paths
-     * @return array{extracted: int, mapped: int, written: int, failed: int, skipped: int, updated: int, by_table: array<string, int>}
+     * @return array{extracted: int, mapped: int, written: int, failed: int, skipped: int, updated: int, deleted: int, entered_in_error: int, by_table: array<string, int>}
      */
     public function processFiles(FhirSyncRun $run, array $filesByType, string $siteKey, bool $incremental = false): array
     {
@@ -65,6 +66,8 @@ class FhirNdjsonProcessorService
             'failed' => 0,
             'skipped' => 0,
             'updated' => 0,
+            'deleted' => 0,
+            'entered_in_error' => 0,
             'by_table' => [],
         ];
 
@@ -122,6 +125,8 @@ class FhirNdjsonProcessorService
             'written' => $stats['written'],
             'skipped' => $stats['skipped'],
             'updated' => $stats['updated'],
+            'deleted' => $stats['deleted'],
+            'entered_in_error' => $stats['entered_in_error'],
             'failed' => $stats['failed'],
             'by_table' => $stats['by_table'],
             'vocab_cache' => $this->vocab->getCacheStats(),
@@ -135,7 +140,7 @@ class FhirNdjsonProcessorService
      * Process a single NDJSON file line by line.
      *
      * @param  array<string, list<array<string, mixed>>>  &$buffers
-     * @param  array{extracted: int, mapped: int, written: int, failed: int, by_table: array<string, int>}  &$stats
+     * @param  array{extracted: int, mapped: int, written: int, failed: int, deleted: int, entered_in_error: int, by_table: array<string, int>}  &$stats
      */
     private function processFile(
         string $filePath,
@@ -168,6 +173,24 @@ class FhirNdjsonProcessorService
             }
 
             $stats['extracted']++;
+
+            // Soft-delete: an entered-in-error resource must remove any CDM row
+            // already mapped for it (OMOP is append-only). Resolve resourceType
+            // + id from the decoded resource, dispatch the delete, and skip
+            // hydration entirely.
+            if (FhirDedupService::isEnteredInError($resource)) {
+                $resourceType = (string) ($resource['resourceType'] ?? '');
+                $resourceId = (string) ($resource['id'] ?? '');
+
+                if ($resourceType !== '' && $resourceId !== '') {
+                    $this->dedup->deleteByResource($siteKey, $resourceType, $resourceId, 'entered-in-error');
+                }
+
+                $stats['entered_in_error']++;
+                $stats['deleted']++;
+
+                continue;
+            }
 
             // Map FHIR resource to OMOP CDM row(s)
             $mappedRows = $this->mapper->mapResource($resource, $siteKey);

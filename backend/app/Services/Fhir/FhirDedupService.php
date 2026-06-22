@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Fhir;
 
 use App\Concerns\SourceAware;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -124,6 +125,155 @@ class FhirDedupService
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Soft-delete a FHIR resource: remove its mapped CDM row (OMOP is
+     * append-only, so "soft-delete" means physically removing the erroneous
+     * clinical row) and stamp the tracking row with an audit trail.
+     *
+     * Queries fhir_dedup_tracking DIRECTLY — the bulk-deleted / entered-in-error
+     * paths run with no warm cache, so this never relies on $this->cache.
+     *
+     * cdm_row_id caveat: batch inserts record cdm_row_id = 0 (placeholder); only
+     * person/visit and the row-by-row fallback capture a real id. A placeholder
+     * row cannot be pinpointed for deletion, so it is stamped for audit but
+     * reported as unresolved (deleted=false) — never throws.
+     *
+     * @return array{resolved: bool, deleted: bool, cdm_table: string|null, cdm_row_id?: int, reason: string}
+     */
+    public function deleteByResource(
+        string $siteKey,
+        string $resourceType,
+        string $resourceId,
+        string $reason,
+    ): array {
+        $row = DB::table('fhir_dedup_tracking')
+            ->where('site_key', $siteKey)
+            ->where('fhir_resource_type', $resourceType)
+            ->where('fhir_resource_id', $resourceId)
+            ->first();
+
+        if (! $row) {
+            return [
+                'resolved' => false,
+                'deleted' => false,
+                'cdm_table' => null,
+                'reason' => $reason,
+            ];
+        }
+
+        $cacheKey = "{$siteKey}|{$resourceType}|{$resourceId}";
+        $cdmRowId = (int) $row->cdm_row_id;
+        $alreadyDeleted = ($row->deleted_at ?? null) !== null;
+
+        // Placeholder row id (batch insert) — cannot pinpoint the CDM row.
+        if ($cdmRowId === 0) {
+            $this->stampDeleted($siteKey, $resourceType, $resourceId, $reason);
+            unset($this->cache[$cacheKey]);
+
+            Log::warning('FHIR soft-delete: tracking row has placeholder cdm_row_id=0, cannot pinpoint CDM row', [
+                'site_key' => $siteKey,
+                'resource_type' => $resourceType,
+                'resource_id' => $resourceId,
+                'cdm_table' => $row->cdm_table,
+                'reason' => $reason,
+            ]);
+
+            return [
+                'resolved' => false,
+                'deleted' => false,
+                'cdm_table' => $row->cdm_table,
+                'cdm_row_id' => 0,
+                'reason' => $reason,
+            ];
+        }
+
+        $deleted = false;
+
+        if (! $alreadyDeleted) {
+            $pkColumn = $this->getPrimaryKeyColumn($row->cdm_table);
+
+            try {
+                $this->cdm()
+                    ->table($row->cdm_table)
+                    ->where($pkColumn, $cdmRowId)
+                    ->delete();
+                $deleted = true;
+            } catch (\Exception $e) {
+                Log::warning('FHIR soft-delete: failed to delete CDM row', [
+                    'site_key' => $siteKey,
+                    'resource_type' => $resourceType,
+                    'resource_id' => $resourceId,
+                    'cdm_table' => $row->cdm_table,
+                    'cdm_row_id' => $cdmRowId,
+                    'reason' => $reason,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $this->stampDeleted($siteKey, $resourceType, $resourceId, $reason);
+        unset($this->cache[$cacheKey]);
+
+        return [
+            'resolved' => true,
+            'deleted' => $deleted,
+            'cdm_table' => $row->cdm_table,
+            'cdm_row_id' => $cdmRowId,
+            'reason' => $reason,
+        ];
+    }
+
+    /**
+     * Stamp deleted_at / deleted_reason on a tracking row (audit trail).
+     */
+    private function stampDeleted(string $siteKey, string $resourceType, string $resourceId, string $reason): void
+    {
+        DB::table('fhir_dedup_tracking')
+            ->where('site_key', $siteKey)
+            ->where('fhir_resource_type', $resourceType)
+            ->where('fhir_resource_id', $resourceId)
+            ->update([
+                'deleted_at' => now(),
+                'deleted_reason' => substr($reason, 0, 250),
+                'updated_at' => now(),
+            ]);
+    }
+
+    /**
+     * True when a FHIR resource is marked entered-in-error and must be removed.
+     *
+     * Covers the three shapes Medgnosis parity requires:
+     *   - top-level `status === 'entered-in-error'` (Observation, MedicationRequest, …)
+     *   - Condition.verificationStatus.coding[*].code === 'entered-in-error'
+     *   - AllergyIntolerance.verificationStatus.coding[*].code === 'entered-in-error'
+     *
+     * Static + pure: the processor already depends on FhirDedupService, so no
+     * new class/dependency is needed, and unit tests can exercise it without
+     * any DB or SourceContext setup.
+     *
+     * @param  array<string, mixed>  $resource
+     */
+    public static function isEnteredInError(array $resource): bool
+    {
+        if (($resource['status'] ?? null) === 'entered-in-error') {
+            return true;
+        }
+
+        $verification = $resource['verificationStatus'] ?? null;
+        if (is_array($verification)) {
+            $codings = $verification['coding'] ?? [];
+            if (is_array($codings)) {
+                foreach ($codings as $coding) {
+                    if (is_array($coding) && ($coding['code'] ?? null) === 'entered-in-error') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -256,6 +406,7 @@ class FhirDedupService
         return match ($cdmTable) {
             'person' => 'person_id',
             'visit_occurrence' => 'visit_occurrence_id',
+            'visit_detail' => 'visit_detail_id',
             'condition_occurrence' => 'condition_occurrence_id',
             'drug_exposure' => 'drug_exposure_id',
             'procedure_occurrence' => 'procedure_occurrence_id',
@@ -263,6 +414,16 @@ class FhirDedupService
             'observation' => 'observation_id',
             'device_exposure' => 'device_exposure_id',
             'specimen' => 'specimen_id',
+            'note' => 'note_id',
+            'death' => 'person_id',
+            'payer_plan_period' => 'payer_plan_period_id',
+            'location' => 'location_id',
+            'care_site' => 'care_site_id',
+            'provider' => 'provider_id',
+            'care_plan' => 'care_plan_id',
+            'care_goal' => 'care_goal_id',
+            'care_team' => 'care_team_id',
+            'care_team_member' => 'care_team_member_id',
             default => 'id',
         };
     }

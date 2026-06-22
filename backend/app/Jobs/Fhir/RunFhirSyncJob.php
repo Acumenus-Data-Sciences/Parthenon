@@ -7,6 +7,7 @@ namespace App\Jobs\Fhir;
 use App\Models\App\FhirConnection;
 use App\Models\App\FhirSyncRun;
 use App\Services\Fhir\FhirBulkExportService;
+use App\Services\Fhir\FhirDedupService;
 use App\Services\Fhir\FhirNdjsonProcessorService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -89,14 +90,22 @@ class RunFhirSyncJob implements ShouldQueue
             // ── Step 3: Download NDJSON files ───────────────────────────────
             $filesByType = $exportService->downloadNdjsonFiles($conn, $run, $manifest);
 
+            $dedup = app(FhirDedupService::class);
+
             if (empty($filesByType)) {
+                // No `output`, but a `deleted` manifest may still be present
+                // (e.g. an incremental export with only soft-deletes).
+                $deletionTally = $this->processBulkDeletions($conn, $run, $manifest, $dedup);
+
                 $run->update([
                     'status' => 'completed',
                     'finished_at' => now(),
                 ]);
                 $this->updateConnectionStatus($conn, $run, 'completed', 0);
 
-                Log::info("FHIR sync completed (no data) for {$conn->site_key}");
+                Log::info("FHIR sync completed (no data) for {$conn->site_key}", [
+                    'bulk_deletions' => $deletionTally,
+                ]);
 
                 return;
             }
@@ -105,6 +114,11 @@ class RunFhirSyncJob implements ShouldQueue
             $run->update(['status' => 'processing']);
 
             $stats = $processor->processFiles($run, $filesByType, $conn->site_key, $isIncremental);
+
+            // ── Step 4b: Process Bulk Data `deleted` manifest ───────────────
+            // Resources the source flagged as deleted/erroneous (FHIR Bulk Data
+            // `deleted` sibling of `output`). Soft-deletes their mapped CDM rows.
+            $deletionTally = $this->processBulkDeletions($conn, $run, $manifest, $dedup);
 
             // ── Step 5: Finalize ────────────────────────────────────────────
             $run->update([
@@ -123,6 +137,9 @@ class RunFhirSyncJob implements ShouldQueue
                 'extracted' => $stats['extracted'],
                 'written' => $stats['written'],
                 'failed' => $stats['failed'],
+                'deleted' => $stats['deleted'],
+                'entered_in_error' => $stats['entered_in_error'],
+                'bulk_deletions' => $deletionTally,
             ]);
         } catch (\Throwable $e) {
             Log::error("FHIR sync failed for {$conn->site_key}: {$e->getMessage()}", [
@@ -172,6 +189,98 @@ class RunFhirSyncJob implements ShouldQueue
             // Exponential backoff: 10s → 15s → 22s → 33s → ... → max 120s
             $interval = min((int) ($interval * 1.5), self::MAX_POLL_INTERVAL);
         }
+    }
+
+    /**
+     * Process the FHIR Bulk Data `deleted` manifest: download each deleted-Bundle
+     * NDJSON file, parse every transaction Bundle entry whose
+     * `request.method === 'DELETE'`, and soft-delete the mapped CDM row via
+     * FhirDedupService::deleteByResource.
+     *
+     * Per-file fetch errors and unresolved resources are tallied, never fatal.
+     *
+     * @param  array<string, mixed>  $manifest
+     * @return array{files: int, processed: int, deleted: int, unresolved: int}
+     */
+    public function processBulkDeletions(
+        FhirConnection $conn,
+        FhirSyncRun $run,
+        array $manifest,
+        FhirDedupService $dedup,
+    ): array {
+        $tally = ['files' => 0, 'processed' => 0, 'deleted' => 0, 'unresolved' => 0];
+
+        $deletedManifest = $manifest['deleted'] ?? [];
+        if (! is_array($deletedManifest) || $deletedManifest === []) {
+            return $tally;
+        }
+
+        $exportService = app(FhirBulkExportService::class);
+        $files = $exportService->downloadDeletedFiles($conn, $run, $manifest);
+
+        foreach ($files as $filePath) {
+            $tally['files']++;
+
+            $handle = @fopen($filePath, 'r');
+            if ($handle === false) {
+                Log::error("Cannot open FHIR deleted manifest file: {$filePath}");
+
+                continue;
+            }
+
+            while (($line = fgets($handle)) !== false) {
+                $line = trim($line);
+                if ($line === '') {
+                    continue;
+                }
+
+                $bundle = json_decode($line, true);
+                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($bundle)) {
+                    Log::warning('Invalid JSON in FHIR deleted manifest line', ['file' => $filePath]);
+
+                    continue;
+                }
+
+                foreach (($bundle['entry'] ?? []) as $entry) {
+                    if (! is_array($entry)) {
+                        continue;
+                    }
+                    $request = $entry['request'] ?? [];
+                    if (! is_array($request) || ($request['method'] ?? null) !== 'DELETE') {
+                        continue;
+                    }
+
+                    $relativeUrl = (string) ($request['url'] ?? '');
+                    if (! str_contains($relativeUrl, '/')) {
+                        continue;
+                    }
+
+                    [$type, $id] = explode('/', $relativeUrl, 2);
+                    if ($type === '' || $id === '') {
+                        continue;
+                    }
+
+                    $tally['processed']++;
+                    $result = $dedup->deleteByResource($conn->site_key, $type, $id, 'bulk-deleted');
+
+                    if ($result['deleted']) {
+                        $tally['deleted']++;
+                    } else {
+                        $tally['unresolved']++;
+                    }
+                }
+            }
+
+            fclose($handle);
+        }
+
+        Log::info('FHIR bulk deletions processed', [
+            'connection' => $conn->site_key,
+            'run_id' => $run->id,
+            'tally' => $tally,
+        ]);
+
+        return $tally;
     }
 
     /**
