@@ -10,7 +10,12 @@ superseded_by: null
 related_code:
   - backend/database/migrations/2026_06_21_100000_create_omop_care_extension_tables.php
   - backend/database/migrations/2026_06_21_100100_add_fhir_crosswalk_deleted_columns.php
+  - backend/database/migrations/2026_06_21_100200_create_fhir_careteam_crosswalk.php
   - backend/tests/Feature/Fhir/FhirCrossSchemaExtensionTest.php
+  - backend/app/Services/Fhir/Mappers/CarePlanMapper.php
+  - backend/app/Services/Fhir/Mappers/GoalMapper.php
+  - backend/app/Services/Fhir/Mappers/CareTeamMapper.php
+  - backend/app/Services/Fhir/CrosswalkService.php
 related_prs: []
 ---
 # FHIR Ingestion Parity — Care-Extension Tables + Crosswalk Soft-Delete (DB Foundation 1.3–1.5)
@@ -83,18 +88,43 @@ lands the DDL. On any fresh environment this self-grant runs as part of `up()`.
 
 > Operator note: on the already-migrated live `parthenon` DB the runtime grant
 > was not yet applied (the migration row predates the grant code, and the
-> migrator cannot grant on the smudoshi-owned `omop` schema). Until a superuser
-> applies it, `parthenon_app` cannot write the care tables on that one
-> environment:
-> ```
-> sudo -u postgres psql parthenon -c "
->   GRANT SELECT,INSERT,UPDATE,DELETE ON omop.care_plan,omop.care_goal,omop.care_team,omop.care_team_member TO parthenon_app;
->   GRANT USAGE,SELECT ON SEQUENCE omop.care_plan_care_plan_id_seq,omop.care_goal_care_goal_id_seq,omop.care_team_care_team_id_seq,omop.care_team_member_care_team_member_id_seq TO parthenon_app;"
-> ```
+> migrator cannot grant on the smudoshi-owned `omop` schema).
+> **RESOLVED 2026-06-21 (same session):** a superuser applied the care-table
+> runtime grant on live `parthenon` (`parthenon_app` now has full DML +
+> sequence USAGE on all four `omop` care tables; verified `app_grants:4` each).
+
+## Phase 4 — Extension mappers (CarePlan / Goal / CareTeam)
+
+Three `ResourceMapper` classes emit the extension-table rows, registered into
+`FhirBulkMapper` via the `afterResolving` block in `AppServiceProvider`:
+
+- `CarePlanMapper` → `care_plan` (single row; person/period/encounter; status+intent
+  packed into `care_plan_source_value`).
+- `GoalMapper` → `care_goal` (single row; `care_plan_id` deferred null — the column
+  is nullable and cross-resource PK linking is out of scope for v1).
+- `CareTeamMapper` → `care_team` + one `care_team_member` per participant.
+
+### CareTeam surrogate-PK linkage (Option B — single-pass, no processor change)
+
+`care_team_member.care_team_id` must reference the parent team's PK, which a plain
+auto-increment would not surface until after insert. Rather than a two-phase insert
+in `FhirNdjsonProcessorService`, `CrosswalkService::resolveCareTeamId()` get-or-creates
+a row in a new `fhir_careteam_crosswalk` table whose auto-increment PK **is** the
+OMOP surrogate `care_team_id` — exactly mirroring `resolveProviderId`/`resolveCareSiteId`.
+The mapper emits the `care_team` row with that explicit id and links every member to
+it, so the linkage is never null and the whole resource maps in one pass.
+
+`2026_06_21_100200_create_fhir_careteam_crosswalk.php` creates the crosswalk on the
+default (`pgsql`) connection (same as the other crosswalks). On the live `parthenon`
+DB it was applied as `parthenon_migrator` (`SET ROLE` under superuser, table owned by
+the migrator, tracked in `app.migrations`); the per-owner default privileges did not
+auto-grant the runtime role, so `SELECT/INSERT/UPDATE/DELETE` + sequence USAGE were
+granted explicitly to `parthenon_app` (verified `app_grants:4`).
 
 ## Verification
 
-- Pint: PASS (3 files)
+- Pint: PASS (3 files, then 42-file Fhir sweep clean)
 - Pest `tests/Feature/Fhir/FhirCrossSchemaExtensionTest.php`: 5 passed (against `parthenon_testing`, where the connecting role owns `omop`)
-- PHPStan (3 files): `[OK] No errors`
+- Pest mappers + Fhir feature lane (Phase 4): 0 failures (192 assertions; "deprecated" count is the pre-existing `PDO::MYSQL_ATTR_SSL_CA` harness warning)
+- PHPStan L8 (`app/Services/Fhir` + `AppServiceProvider`): `[OK] No errors`
 - Migrations applied to both live `parthenon` and the `parthenon_testing` test DB.

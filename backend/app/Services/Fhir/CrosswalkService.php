@@ -29,6 +29,9 @@ class CrosswalkService
     /** @var array<string, int> */
     private array $careSiteCache = [];
 
+    /** @var array<string, int> */
+    private array $careTeamCache = [];
+
     /**
      * Get or create a person_id for a FHIR Patient.
      */
@@ -201,6 +204,43 @@ class CrosswalkService
     }
 
     /**
+     * Get or create a care_team_id for a FHIR CareTeam. The crosswalk table's
+     * auto-increment PK IS the OMOP surrogate care_team_id supplied to the emitted
+     * care_team / care_team_member rows, so members link to their parent team in a
+     * single pass (mirrors resolveProviderId / resolveCareSiteId).
+     */
+    public function resolveCareTeamId(string $siteKey, string $fhirCareTeamId): int
+    {
+        $cacheKey = "{$siteKey}|{$fhirCareTeamId}";
+
+        if (isset($this->careTeamCache[$cacheKey])) {
+            return $this->careTeamCache[$cacheKey];
+        }
+
+        $row = DB::table('fhir_careteam_crosswalk')
+            ->where('site_key', $siteKey)
+            ->where('fhir_care_team_id', $fhirCareTeamId)
+            ->first();
+
+        if ($row) {
+            $this->careTeamCache[$cacheKey] = (int) $row->care_team_id;
+
+            return (int) $row->care_team_id;
+        }
+
+        $careTeamId = DB::table('fhir_careteam_crosswalk')->insertGetId([
+            'site_key' => $siteKey,
+            'fhir_care_team_id' => $fhirCareTeamId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'care_team_id');
+
+        $this->careTeamCache[$cacheKey] = (int) $careTeamId;
+
+        return (int) $careTeamId;
+    }
+
+    /**
      * Lookup person_id without creating — returns null if not found.
      */
     public function lookupPersonId(string $siteKey, string $fhirPatientId): ?int
@@ -260,5 +300,6 @@ class CrosswalkService
         $this->providerCache = [];
         $this->locationCache = [];
         $this->careSiteCache = [];
+        $this->careTeamCache = [];
     }
 }

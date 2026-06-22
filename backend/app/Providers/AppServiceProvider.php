@@ -98,8 +98,11 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\Fhir\FhirBulkMapper;
+use App\Services\Fhir\Mappers\CarePlanMapper;
+use App\Services\Fhir\Mappers\CareTeamMapper;
 use App\Services\Fhir\Mappers\CoverageMapper;
 use App\Services\Fhir\Mappers\DocumentReferenceMapper;
+use App\Services\Fhir\Mappers\GoalMapper;
 use App\Services\Fhir\Mappers\ServiceRequestMapper;
 use App\Services\FinnGen\FinnGenArtifactService;
 use App\Services\FinnGen\FinnGenClient;
@@ -395,6 +398,9 @@ class AppServiceProvider extends ServiceProvider
                 DocumentReferenceMapper::class,
                 CoverageMapper::class,
                 ServiceRequestMapper::class,
+                CarePlanMapper::class,
+                GoalMapper::class,
+                CareTeamMapper::class,
             ] as $c) {
                 $m->registerMapper($app->make($c));
             }
