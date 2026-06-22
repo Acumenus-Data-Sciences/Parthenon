@@ -121,3 +121,61 @@ it('care_team_member accepts a minimal valid row', function () {
         'role_source_value' => 'fhir-careteam-member-probe',
     ]);
 });
+
+// Phase 3 — DocumentReference → note, Coverage → payer_plan_period,
+// ServiceRequest → procedure_occurrence. Each row mirrors the exact shape its
+// mapper emits, exercised against the live omop schema (visit_occurrence_id
+// null so no foreign-key dependency).
+//
+// These three core CDM clinical tables have NOT-NULL primary keys with no DB
+// default — unlike the care-extension tables above which use serial/identity
+// PKs. In production the bulk loader assigns the surrogate key after the mapper
+// returns (the inline FhirBulkMapper mappers, e.g. condition_occurrence, also
+// omit the PK for this reason), so the mappers intentionally do NOT emit a
+// `*_id` column. The probe supplies a sentinel PK to mirror the loader and
+// exercise every remaining column/constraint.
+
+it('note accepts a DocumentReferenceMapper row', function () {
+    assertInsertableOmop('note', [
+        'note_id' => OMOP_PROBE_PERSON_ID,
+        'person_id' => OMOP_PROBE_PERSON_ID,
+        'note_date' => '2026-01-01',
+        'note_datetime' => '2026-01-01 10:00:00',
+        'note_type_concept_id' => 32817,
+        'note_class_concept_id' => 0,
+        'note_title' => 'Progress note',
+        'note_text' => 'Patient stable.',
+        'encoding_concept_id' => 32678,
+        'language_concept_id' => 4180186,
+        'visit_occurrence_id' => null,
+        'note_source_value' => '11506-3',
+    ]);
+});
+
+it('payer_plan_period accepts a CoverageMapper row', function () {
+    assertInsertableOmop('payer_plan_period', [
+        'payer_plan_period_id' => OMOP_PROBE_PERSON_ID,
+        'person_id' => OMOP_PROBE_PERSON_ID,
+        'payer_plan_period_start_date' => '2024-01-01',
+        'payer_plan_period_end_date' => '2024-12-31',
+        'payer_concept_id' => 0,
+        'payer_source_value' => 'Acme Health',
+        'plan_concept_id' => 0,
+        'plan_source_value' => 'Gold PPO',
+    ]);
+});
+
+it('procedure_occurrence accepts a ServiceRequestMapper row', function () {
+    assertInsertableOmop('procedure_occurrence', [
+        'procedure_occurrence_id' => OMOP_PROBE_PERSON_ID,
+        'person_id' => OMOP_PROBE_PERSON_ID,
+        'procedure_concept_id' => 4001,
+        'procedure_date' => '2024-03-01',
+        'procedure_datetime' => '2024-03-01 10:00:00',
+        'procedure_type_concept_id' => 32817,
+        'quantity' => null,
+        'visit_occurrence_id' => null,
+        'procedure_source_value' => '1234',
+        'procedure_source_concept_id' => 0,
+    ]);
+});

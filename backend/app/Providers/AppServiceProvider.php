@@ -97,6 +97,10 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\Fhir\FhirBulkMapper;
+use App\Services\Fhir\Mappers\CoverageMapper;
+use App\Services\Fhir\Mappers\DocumentReferenceMapper;
+use App\Services\Fhir\Mappers\ServiceRequestMapper;
 use App\Services\FinnGen\FinnGenArtifactService;
 use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenIdempotencyStore;
@@ -382,6 +386,19 @@ class AppServiceProvider extends ServiceProvider
         PathwayAnalysis::observe(PathwayAnalysisProtectionObserver::class);
         EvidenceSynthesisAnalysis::observe(EvidenceSynthesisAnalysisProtectionObserver::class);
         HeorAnalysis::observe(HeorAnalysisProtectionObserver::class);
+
+        // FHIR per-resource mappers — registered on the FhirBulkMapper after it
+        // resolves so resource types outside the inline match() route to these
+        // clean-home mapper classes (DocumentReference, Coverage, ServiceRequest).
+        $this->app->afterResolving(FhirBulkMapper::class, function (FhirBulkMapper $m, $app) {
+            foreach ([
+                DocumentReferenceMapper::class,
+                CoverageMapper::class,
+                ServiceRequestMapper::class,
+            ] as $c) {
+                $m->registerMapper($app->make($c));
+            }
+        });
     }
 
     private function configureRateLimiters(): void
