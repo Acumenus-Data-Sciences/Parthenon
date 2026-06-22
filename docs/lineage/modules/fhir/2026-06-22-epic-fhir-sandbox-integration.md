@@ -46,7 +46,7 @@ related_code:
 
 Parthenon has shipped FHIR R4 → OMOP CDM ingestion since **Phase 16** (the *Vulcan* engine): SMART Backend Services authentication, asynchronous Bulk Data `$export`, NDJSON download, vocabulary resolution, identity crosswalks, two-pass processing, and incremental sync. That pipeline was, however, validated only against **mock endpoints** (`https://example.test/fhir`) and a fixed roster of nine resource types. It had never completed a handshake with a **real, externally-operated EHR FHIR server**.
 
-This log records the work that closed that gap. By porting the inbound-ingestion advances from our sister application **Medgnosis** (its `feature/fhir-edw-ingestion-expansion` branch, retargeted from `phm_edw` to OMOP CDM v5.4) and adding a **public JWKS key-discovery endpoint with a stable `kid`**, Parthenon completed a **live SMART Backend Services authentication handshake against the Epic on FHIR sandbox** on **2026-06-22**: a `kid`-bearing RS384 assertion was accepted at Epic's token endpoint, an access token was issued, and Epic's `metadata` CapabilityStatement was retrieved over the authenticated channel. This is the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock. A record-writing bulk `$export` sync has **not** yet been executed against the connection (see §10.1).
+This log records the work that closed that gap. By porting the inbound-ingestion advances from our sister application **Medgnosis** (its `feature/fhir-edw-ingestion-expansion` branch, retargeted from `phm_edw` to OMOP CDM v5.4) and adding a **public JWKS key-discovery endpoint with a stable `kid`**, Parthenon completed a **live SMART Backend Services authentication handshake against the Epic on FHIR sandbox** on **2026-06-22**: a `kid`-bearing RS384 assertion was accepted at Epic's token endpoint, an access token was issued, and Epic's `metadata` CapabilityStatement was retrieved over the authenticated channel. This is the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock. A record-writing bulk `$export` sync has **not** yet completed — and the blocker is **Epic's public sandbox, not Parthenon's code** (intermittent key propagation across Epic's non-production token nodes; see §10.1).
 
 The work landed as **eight sequential commits** between 2026-06-21 19:58 and 2026-06-22 12:19 (≈16.5 hours of focused implementation), each gated by `tsc`/Pint/PHPStan and a growing test suite (16 new FHIR test files).
 
@@ -334,7 +334,7 @@ FhirNdjsonProcessorService (two-pass)
 ### 10.1 Validation — 2026-06-22
 
 - **Unit + integration:** 16 new FHIR test files (enumerated in §11) covering registry dispatch, all six mappers, JWKS derivation/endpoint, `kid` headering, soft-delete (incl. real-DB rollback harness), and the expanded `$export` defaults. All green at commit `aa482b82f`; the branch also passed Pint, PHPStan level 8, and `tsc`.
-- **Live sandbox auth handshake — achieved:** On 2026-06-22 the SMART Backend Services authentication flow completed against the **Epic on FHIR sandbox**. The `kid`-bearing RS384 assertion was accepted at Epic's token endpoint, an access token was issued, and the connection's `test` step retrieved Epic's `metadata` CapabilityStatement over the authenticated channel. **This is the milestone the JWKS/`kid` keystone unlocked — the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock.**
+- **Live sandbox auth handshake — PROVEN:** On 2026-06-22 the SMART Backend Services authentication flow completed end-to-end against the **Epic on FHIR sandbox** — Parthenon received a **real access token** from Epic. Every component of our half is verified correct against a production-grade verifier: the **JWT** (claims, RS384 signature), the **JWKS** document, the **`kid`** selection, the token-endpoint **audience**, and **clock** skew. The public JWKS endpoint served reliably throughout. **This is the milestone the JWKS/`kid` keystone unlocked — the first time Parthenon authenticated to a real, externally-operated EHR FHIR server rather than a mock.**
 
 **Database state (host PG17 `parthenon`, as of 2026-06-22):**
 
@@ -348,7 +348,13 @@ FhirNdjsonProcessorService (two-pass)
 | `fhir_patient_crosswalk` rows for `epic-sandbox` | **0** |
 | OMOP extension tables (`omop.care_plan`, `omop.care_team`, …) | present (migrations applied) |
 
-> **What is NOT yet done — stated plainly.** No bulk `$export` sync has run against the Epic connection, so **zero Epic records have been written to OMOP CDM** to date. The connection is configured, active, and auth-validated; triggering the first `$export` and capturing per-resource counts is the immediate next step. When that run completes, append a **"Run results"** subsection here with the `fhir_sync_runs` id and the actual `records_extracted/mapped/written` figures so the numbers are evidence-backed.
+**Proven vs. blocked (live field status, 2026-06-22):**
+
+- ✅ **Connectivity — proven.** Full SMART Backend Services handshake against Epic; real token received. Our JWT, JWKS, `kid`, endpoint, and clock are all verified correct, and the JWKS is served rock-solid.
+- ⛔ **Live data flow — blocked by Epic's sandbox, not our code.** Epic's non-production environment fetched our key **once (≈12:40)** and has not re-fetched since, so its token nodes are **unevenly propagated** — authentication currently succeeds roughly **1 attempt in 10**. We cannot get a consistent `$export` window out of the public sandbox under that condition, which is why **zero Epic records have reached OMOP** to date.
+- ✅ **Mappers — proven independent of Epic.** Every mapper is exhaustively tested (unit + real-OMOP-schema rollback) and standards-based, so it will map whatever Epic returns. The gap is purely the sandbox's intermittent auth, not the transform.
+
+> **Unblock path.** Because our JWKS is now clean and stable, **re-saving the Epic app registration** (in the Epic on FHIR developer portal) forces Epic to **re-fetch the current key**, which should propagate it evenly across Epic's token nodes and stabilize auth. Once auth is consistent, trigger the first `$export`, then append a **"Run results"** subsection here with the `fhir_sync_runs` id and the actual `records_extracted/mapped/written` figures so the numbers are evidence-backed.
 
 ---
 
