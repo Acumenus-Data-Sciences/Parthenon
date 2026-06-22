@@ -1,6 +1,6 @@
 ---
-doc_type: devlog
-status: current
+doc_type: lineage
+status: shipped
 date: 2026-06-21
 owner: acumenus
 module: fhir
