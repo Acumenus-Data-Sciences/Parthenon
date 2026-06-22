@@ -37,7 +37,7 @@ class FhirBulkExportService
 
         // Resource types
         $resourceTypes = $connection->export_resource_types
-            ?: 'Patient,Condition,Encounter,MedicationRequest,Observation,Procedure,Immunization,AllergyIntolerance,DiagnosticReport';
+            ?: 'Patient,Condition,Encounter,MedicationRequest,Observation,Procedure,Immunization,AllergyIntolerance,DiagnosticReport,DocumentReference,Coverage,ServiceRequest,CarePlan,Goal,CareTeam';
         $params['_type'] = $resourceTypes;
 
         // Incremental: use _since if enabled and we have a last sync timestamp (unless forced full)
