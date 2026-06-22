@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir;
 
+use App\Services\Fhir\Mappers\ResourceMapper;
 use App\Services\Fhir\Mappers\Support\FhirMapperSupport;
 use Illuminate\Support\Carbon;
 
@@ -86,10 +87,24 @@ class FhirBulkMapper
         'biologic' => 439224,       // Fallback to drug allergy
     ];
 
+    /** @var array<string, ResourceMapper> Per-resourceType mappers registered at runtime. */
+    private array $registry = [];
+
     public function __construct(
         private readonly VocabularyLookupService $vocab,
         private readonly CrosswalkService $crosswalk,
     ) {}
+
+    /**
+     * Register a per-resource mapper, keyed by its FHIR resourceType.
+     *
+     * Registered mappers handle resource types not covered by the internal match,
+     * letting new FHIR resources be added without editing this class.
+     */
+    public function registerMapper(ResourceMapper $mapper): void
+    {
+        $this->registry[$mapper->resourceType()] = $mapper;
+    }
 
     /**
      * Map a FHIR resource to one or more OMOP CDM rows.
@@ -109,7 +124,9 @@ class FhirBulkMapper
             'DiagnosticReport' => $this->mapDiagnosticReport($resource, $siteKey),
             'Immunization' => $this->mapImmunization($resource, $siteKey),
             'AllergyIntolerance' => $this->mapAllergyIntolerance($resource, $siteKey),
-            default => null,
+            default => isset($this->registry[$resource['resourceType'] ?? ''])
+                ? $this->registry[$resource['resourceType']]->map($resource, $siteKey)
+                : null,
         };
 
         if ($result === null || isset($result['__skip'])) { // Used by mapProcedure/mapImmunization status filters (Tasks 5/6)
@@ -671,17 +688,6 @@ class FhirBulkMapper
     private function extractConditionCategory(array $r): ?string
     {
         return $r['category'][0]['coding'][0]['code'] ?? null;
-    }
-
-    private function extractRef(array $reference): ?string
-    {
-        $ref = $reference['reference'] ?? null;
-        if ($ref === null) {
-            return null;
-        }
-        $parts = explode('/', $ref);
-
-        return end($parts);
     }
 
     private function extractMedCodings(array $r): array

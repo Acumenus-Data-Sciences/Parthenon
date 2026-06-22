@@ -14,8 +14,8 @@ use Illuminate\Support\Carbon;
  * duplication. Behavior is identical to the original private FhirBulkMapper methods.
  *
  * The using class MUST expose `$this->vocab` (VocabularyLookupService) and
- * `$this->crosswalk` (CrosswalkService). It must also provide an `extractRef()`
- * method (resolveSubjectPersonId / resolveEncounterVisitId call `$this->extractRef`).
+ * `$this->crosswalk` (CrosswalkService). The trait provides `extractRef()` itself,
+ * which resolveSubjectPersonId / resolveEncounterVisitId rely on.
  */
 trait FhirMapperSupport
 {
@@ -39,6 +39,17 @@ trait FhirMapperSupport
     protected function extractCodings(array $codeableConcept): array
     {
         return $codeableConcept['coding'] ?? [];
+    }
+
+    protected function extractRef(array $reference): ?string
+    {
+        $ref = $reference['reference'] ?? null;
+        if ($ref === null) {
+            return null;
+        }
+        $parts = explode('/', $ref);
+
+        return end($parts);
     }
 
     protected function parseDate(?string $value): ?string
