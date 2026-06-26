@@ -1,0 +1,143 @@
+{
+    "id": 5460,
+    "name": "Diabetes male >40 yo",
+    "description": null,
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Entry: Diabetes type 2 review + 2 more",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 3554841,
+                                "CONCEPT_CODE": "279331000000102",
+                                "CONCEPT_NAME": "Diabetes type 2 review",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Undefined"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 3554842,
+                                "CONCEPT_CODE": "279341000000106",
+                                "CONCEPT_NAME": "Diabetes type 2 review",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Undefined"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 44791270,
+                                "CONCEPT_CODE": "279321000000104",
+                                "CONCEPT_NAME": "Diabetes type 2 review",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Entry: Diabetes Type 2",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Meas Value",
+                                "CONCEPT_ID": 45877606,
+                                "CONCEPT_CODE": "LA10552-0",
+                                "CONCEPT_NAME": "Diabetes Type 2",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Answer",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "Observation": {
+                        "CodesetId": 0
+                    }
+                },
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 1
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 97,
+                "PriorDays": 100
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "DemographicCriteria": [
+            {
+                "Age": {
+                    "Op": "bt",
+                    "Value": 40
+                },
+                "Race": [
+                    8527
+                ],
+                "Gender": [
+                    8507
+                ],
+                "Ethnicity": [
+                    38003563
+                ]
+            }
+        ]
+    },
+    "author_id": 524,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-06-24T03:12:16.000000Z",
+    "updated_at": "2026-06-24T03:12:16.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null,
+    "tenant_id": 1,
+    "status": "active",
+    "archived_at": null,
+    "archived_by": null,
+    "promoted_at": null,
+    "expression_sha256": "84d51e6e7244d2ec572d7a89a30ef542cc51956fa5cc3beee3fc9c61167d1504"
+}
