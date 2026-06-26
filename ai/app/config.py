@@ -47,6 +47,23 @@ class Settings(BaseSettings):
     abby_ollama_model: str = "puyangwang/medgemma-27b-it:q4_0"
     abby_ollama_keep_alive: int = 3600
     abby_cloud_routing_enabled: bool = False
+    abby_chat_provider_mode: str = ""
+    abby_chat_default_profile_id: str = ""
+    abby_chat_fallback_profile_ids: str = ""
+    abby_local_chat_profile_id: str = "local-medgemma"
+    abby_local_chat_fallback_profile_ids: str = ""
+    # Lower-resource local fallback (MedGemma 4B) — a second local profile so a
+    # constrained host can still answer when the 27B model is unavailable.
+    abby_local_chat_4b_profile_id: str = "local-medgemma-4b"
+    abby_local_chat_4b_model: str = "MedAIBase/MedGemma1.5:4b"
+    # Optional operator-friendly tag aliases, "alias=real_tag" comma list, e.g.
+    # "medgemma:27b=puyangwang/medgemma-27b-it:q4_0". Resolved before Ollama calls.
+    abby_model_aliases: str = "medgemma:27b=puyangwang/medgemma-27b-it:q4_0"
+    # Warm the local model with a 1-token probe on service startup when enabled,
+    # to avoid a cold-start stall on the first user turn.
+    abby_warmup_on_startup: bool = False
+    abby_cloud_chat_profile_id: str = "anthropic-claude"
+    abby_cloud_entitlement: str = "org_api_key"
     phenotype_interpreter_enabled: bool = True
     phenotype_interpreter_base_url: str = "http://host.docker.internal:11434"
     phenotype_interpreter_model: str = "MedAIBase/MedGemma1.5:4b"
@@ -103,6 +120,26 @@ class Settings(BaseSettings):
     claude_model: str = "claude-sonnet-4-20250514"
     claude_max_tokens: int = 4096
     claude_timeout: int = 60
+    # Per-million-token pricing carried in provider profile metadata (the single
+    # declarative source for budget estimation; the adapter falls back to its own
+    # PRICING table only for models without profile metadata).
+    claude_input_price_per_mtok: float = 3.0
+    claude_output_price_per_mtok: float = 15.0
+
+    # OpenAI API / OpenAI-compatible providers (provider-agnostic Abby routing)
+    openai_api_key: str = ""
+    openai_model: str = "gpt-5.5"
+    openai_base_url: str = ""
+    openai_max_output_tokens: int = 4096
+    openai_timeout: int = 60
+    # 0.0 = operator must set real pricing to enable budget estimation for OpenAI.
+    openai_input_price_per_mtok: float = 0.0
+    openai_output_price_per_mtok: float = 0.0
+    openai_compatible_api_key: str = ""
+    openai_compatible_model: str = ""
+    openai_compatible_base_url: str = ""
+    openai_compatible_max_output_tokens: int = 4096
+    openai_compatible_timeout: int = 60
 
     # PHI sanitization (Phase 2 — data governance)
     phi_detection_enabled: bool = True
@@ -112,6 +149,9 @@ class Settings(BaseSettings):
     cloud_monthly_budget_usd: float = 500.0
     cloud_budget_alert_thresholds: list[float] = [0.50, 0.80, 0.95]
     cloud_budget_cutoff_threshold: float = 0.95
+    anthropic_monthly_budget_usd: float = 0.0
+    openai_monthly_budget_usd: float = 0.0
+    openai_compatible_monthly_budget_usd: float = 0.0
 
     # Claude Agent SDK (Study Designer agent)
     agent_model: str = "claude-opus-4-7"

@@ -13,6 +13,12 @@ if TYPE_CHECKING:
     from app.memory.context_assembler import ContextPiece
 
 
+# Version stamp for the active cloud-safety ruleset. Recorded in the usage audit
+# so an operator can correlate a redaction/block decision with the policy that
+# produced it. Bump when the source allowlists or content patterns change.
+POLICY_VERSION = "2026-06-25"
+
+
 # ---------------------------------------------------------------------------
 # Source allowlists / blocklists
 # ---------------------------------------------------------------------------

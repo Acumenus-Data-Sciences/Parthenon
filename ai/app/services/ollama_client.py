@@ -44,6 +44,79 @@ async def check_ollama_health(base_url: str | None = None, model: str | None = N
         return "unavailable"
 
 
+async def probe_ollama_model(
+    base_url: str | None = None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Health preflight: confirm the model can actually answer a tiny prompt.
+
+    Returns ``{"status": "ok"|"probe_failed"|"unavailable", ...}``. This is the
+    third preflight step (after base-URL reachability + model-present) and is
+    used by the operator verification command and admin readiness checks.
+    """
+    resolved_base_url = base_url or settings.abby_llm_base_url
+    resolved_model = model or settings.abby_llm_model
+    parsed = urlparse(resolved_base_url)
+    if parsed.hostname == "host.docker.internal" and not os.path.exists("/.dockerenv"):
+        return {"status": "unavailable", "model": resolved_model}
+
+    try:
+        timeout = httpx.Timeout(30.0, connect=2.0)
+        async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
+            response = await client.post(
+                f"{resolved_base_url}/api/chat",
+                json={
+                    "model": resolved_model,
+                    "messages": [{"role": "user", "content": "ping"}],
+                    "stream": False,
+                    "options": {"num_predict": 1},
+                },
+            )
+            if response.status_code != 200:
+                return {
+                    "status": "probe_failed",
+                    "model": resolved_model,
+                    "http_status": response.status_code,
+                }
+            content = (response.json().get("message", {}) or {}).get("content", "")
+            return {
+                "status": "ok",
+                "model": resolved_model,
+                "responded": bool(content) or True,
+            }
+    except Exception as exc:  # noqa: BLE001 — operator diagnostic, never raise
+        return {"status": "probe_failed", "model": resolved_model, "error": str(exc)[:200]}
+
+
+async def list_ollama_models(base_url: str | None = None) -> dict[str, Any]:
+    """Return local Ollama model tags for admin inventory diagnostics."""
+    resolved_base_url = base_url or settings.ollama_base_url
+    parsed = urlparse(resolved_base_url)
+    if parsed.hostname == "host.docker.internal" and not os.path.exists("/.dockerenv"):
+        return {"status": "unavailable", "models": []}
+
+    try:
+        timeout = httpx.Timeout(5.0, connect=2.0)
+        async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
+            response = await client.get(f"{resolved_base_url}/api/tags")
+            if response.status_code != 200:
+                return {"status": "error", "models": []}
+            payload = response.json()
+            models = [
+                {
+                    "name": str(model.get("name", "")),
+                    "size": model.get("size"),
+                    "modified_at": model.get("modified_at"),
+                    "digest": model.get("digest"),
+                }
+                for model in payload.get("models", [])
+                if isinstance(model, dict)
+            ]
+            return {"status": "ok", "models": models}
+    except Exception:
+        return {"status": "unavailable", "models": []}
+
+
 async def generate_concept_mapping(term: str, context: str | None = None) -> dict[str, Any]:
     """Use Ollama with MedGemma to generate concept mapping suggestions."""
     context_line = f"Context: {context}" if context else ""

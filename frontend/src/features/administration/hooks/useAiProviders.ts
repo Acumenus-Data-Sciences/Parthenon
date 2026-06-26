@@ -1,8 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   activateAiProvider,
+  archiveAbbyProviderProfile,
+  createAbbyProviderProfile,
+  deleteAbbyProviderProfile,
   disableAiProvider,
   enableAiProvider,
+  fetchAbbyPolicy,
   fetchAgentSettings,
   fetchAiProvider,
   fetchAiProviders,
@@ -12,8 +16,11 @@ import {
   fetchSystemHealth,
   setAgentProviderMode,
   setAgentSettings,
+  simulateAbbyRoute,
   testAiProvider,
   testLiveKitConnection,
+  updateAbbyProviderProfile,
+  updateAbbySurfacePolicy,
   updateAiProvider,
   updateLiveKitConfig,
 } from "../api/adminApi";
@@ -24,6 +31,7 @@ import type { AgentProviderMode } from "../api/adminApi";
 const FEATURE_FLAGS_KEY = ["system", "feature-flags"] as const;
 
 const QUERY_KEY = "ai-providers";
+const ABBY_POLICY_KEY = "abby-policy";
 const HEALTH_KEY = "system-health";
 const HADES_PACKAGES_KEY = "hades-packages";
 
@@ -67,6 +75,66 @@ export function useToggleAiProvider() {
 export function useTestAiProvider() {
   return useMutation({
     mutationFn: (type: string) => testAiProvider(type),
+  });
+}
+
+export function useAbbyPolicy() {
+  return useQuery({
+    queryKey: [ABBY_POLICY_KEY],
+    queryFn: fetchAbbyPolicy,
+  });
+}
+
+export function useCreateAbbyProviderProfile() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: createAbbyProviderProfile,
+    onSuccess: () => qc.invalidateQueries({ queryKey: [ABBY_POLICY_KEY] }),
+  });
+}
+
+export function useUpdateAbbyProviderProfile() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ profileId, data }: { profileId: string; data: Parameters<typeof updateAbbyProviderProfile>[1] }) =>
+      updateAbbyProviderProfile(profileId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [ABBY_POLICY_KEY] }),
+  });
+}
+
+export function useArchiveAbbyProviderProfile() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: archiveAbbyProviderProfile,
+    onSuccess: () => qc.invalidateQueries({ queryKey: [ABBY_POLICY_KEY] }),
+  });
+}
+
+export function useDeleteAbbyProviderProfile() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteAbbyProviderProfile,
+    onSuccess: () => qc.invalidateQueries({ queryKey: [ABBY_POLICY_KEY] }),
+  });
+}
+
+export function useUpdateAbbySurfacePolicy() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ surface, data }: { surface: string; data: Parameters<typeof updateAbbySurfacePolicy>[1] }) =>
+      updateAbbySurfacePolicy(surface, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [ABBY_POLICY_KEY] }),
+  });
+}
+
+export function useSimulateAbbyRoute() {
+  return useMutation({
+    mutationFn: simulateAbbyRoute,
   });
 }
 

@@ -58,7 +58,27 @@ export interface AbbyQueryResponse {
   retrieval_time_ms: number;
   generation_time_ms: number;
   conversation_id?: number;
+  routing?: AbbyRouting;
 }
+
+/**
+ * Provider-neutral routing metadata returned by /abby/chat. Drives the
+ * Local / Cloud / Fallback / Cloud-blocked badge. Never carries secrets or PHI
+ * policy internals — only the provider/transport/model and route reason.
+ */
+export interface AbbyRouting {
+  model: string;
+  provider: string;
+  transport: string;
+  model_name?: string;
+  reason: string;
+  stage?: number;
+  fallback_used: boolean;
+  cloud_safety_applied?: boolean;
+  cloud_safety_blocked?: boolean;
+}
+
+export type AbbyRouteBadgeKind = "local" | "cloud" | "fallback" | "cloud_blocked";
 
 export interface AbbySource {
   collection: string;
@@ -166,6 +186,8 @@ export interface AbbyResponseCardProps {
   onFeedback?: (feedback: AbbyFeedbackRequest) => void;
   onObjectReferenceClick?: (ref: ObjectReference) => void;
   compact?: boolean;
+  /** Provider-neutral routing metadata; when present a route badge is shown. */
+  routing?: AbbyRouting;
 }
 
 export interface AbbySourceAttributionProps {

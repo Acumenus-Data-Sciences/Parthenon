@@ -30,6 +30,46 @@ Parthenon ships with 8 pre-configured AI providers spanning local, US-hosted, EU
 
 Each provider card displays a **region badge** indicating where the inference requests are processed. This is important for data governance and regulatory compliance in clinical research environments.
 
+:::warning All examples use placeholder keys
+Every API key shown in this documentation and in support bundles is a placeholder
+(e.g. `sk-ant-xxxx`, `your-openai-key`). Never paste a real key into a doc, ticket,
+or screenshot. Admin read endpoints return **masked** key metadata only — the raw
+key never leaves the server.
+:::
+
+## API keys vs. consumer subscriptions (important)
+
+A backend AI provider is configured with an **API key** billed per token. This is
+**not the same** as a consumer chat subscription:
+
+- **ChatGPT Plus/Pro, Claude Pro/Max, and Google AI Pro subscriptions cannot be
+  used as backend Abby capacity.** Those plans entitle a *person* to use a chat
+  UI; they are not API quota and may not be consumed by a server-side product.
+- Server-side Abby supports three honest modes:
+  1. **Local** — Abby runs on operator hardware via Ollama/MedGemma (no API key,
+     PHI-safe, the default).
+  2. **API cloud** — an organization, an individual operator (**BYO key**), or
+     Acumenus provides a real provider **API key**.
+  3. **External assistant app / MCP** — a *separate, read-only* surface where the
+     external assistant (e.g. a ChatGPT app) calls approved Parthenon tools from
+     **its own** subscription. This is not backend Abby capacity, and it is tracked
+     as a future capability — not the provider configuration on this page.
+
+:::info BYO API key
+"Bring your own key" means pasting an operator/organization-owned provider API key
+into the provider card. It is billed to that key's account. It is still an API key,
+not a consumer subscription.
+:::
+
+## Providers are not uniformly wired into every Abby surface
+
+Selecting an active provider does **not** mean every Abby surface uses it. Abby
+routes per-surface (chat/RAG, cohort parser, study orchestrator agent, protocol
+evaluator, GIS assistant, phenotype interpreter, embeddings) with capability and
+safety checks. A surface that requires a capability a provider lacks (e.g. tool
+calling for the study agent, or streaming for chat) will refuse that provider and
+fall back local. Configure per-surface policy under **Abby Behavior**.
+
 ## Provider Card Layout
 
 Each provider is displayed as an expandable card with:

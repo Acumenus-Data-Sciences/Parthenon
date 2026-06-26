@@ -1,7 +1,7 @@
 """Tests for Cloud Safety Filter — allowlist-based protection of individual-level data."""
 import pytest
 from app.memory.context_assembler import ContextPiece, ContextTier
-from app.routing.cloud_safety import CloudSafetyFilter
+from app.routing.cloud_safety import POLICY_VERSION, CloudSafetyFilter
 
 
 @pytest.fixture
@@ -75,3 +75,46 @@ def test_filter_pieces_removes_unsafe(filter_: CloudSafetyFilter) -> None:
     sources = [p.source for p in safe]
     assert "cdm.person" not in sources
     assert "cdm.visit_occurrence" not in sources
+
+
+# ── LIVE tier — additional CDM identifier patterns + raw/staging sources ──────
+
+def test_blocks_measurement_id_content(filter_: CloudSafetyFilter) -> None:
+    piece = _piece(
+        ContextTier.LIVE,
+        "measurement_id=55667 value_as_number=9.1",
+        source="cdm.measurement",
+    )
+    assert filter_.is_cloud_safe(piece) is False
+
+
+def test_blocks_measurement_id_even_from_unknown_source(filter_: CloudSafetyFilter) -> None:
+    # Source not on the blocklist, but content carries an individual-level id.
+    piece = _piece(ContextTier.LIVE, "row: measurement_id=42", source="ad_hoc_query")
+    assert filter_.is_cloud_safe(piece) is False
+
+
+def test_blocks_birth_datetime_content(filter_: CloudSafetyFilter) -> None:
+    piece = _piece(
+        ContextTier.LIVE,
+        "birth_datetime 1970-05-02 gender_concept_id=8532",
+        source="unlabeled",
+    )
+    assert filter_.is_cloud_safe(piece) is False
+
+
+def test_blocks_raw_staging_source_labels(filter_: CloudSafetyFilter) -> None:
+    for source in ("raw.person", "raw.visit_occurrence", "staging.person", "staging.visit_occurrence"):
+        piece = _piece(ContextTier.LIVE, "row data", source=source)
+        assert filter_.is_cloud_safe(piece) is False, source
+
+
+def test_blocks_episodic_history_with_individual_identifiers(filter_: CloudSafetyFilter) -> None:
+    # Episodic memory is scanned for content even though it has no CDM source.
+    piece = _piece(ContextTier.EPISODIC, "earlier the user asked about person_id=9001")
+    assert filter_.is_cloud_safe(piece) is False
+
+
+def test_policy_version_is_exposed() -> None:
+    assert isinstance(POLICY_VERSION, str)
+    assert POLICY_VERSION

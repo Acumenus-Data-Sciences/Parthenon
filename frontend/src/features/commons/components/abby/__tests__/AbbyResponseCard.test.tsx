@@ -67,6 +67,55 @@ describe("AbbyResponseCard", () => {
     );
   });
 
+  it("renders no route badge for legacy responses without routing", () => {
+    renderCard([]);
+    expect(screen.queryByTestId("abby-route-badge")).toBeNull();
+  });
+
+  it("renders a local route badge when routing is local", () => {
+    render(
+      <MemoryRouter initialEntries={["/commons/general"]}>
+        <AbbyResponseCard
+          message={message}
+          sources={[]}
+          objectReferences={[]}
+          routing={{
+            model: "local",
+            provider: "ollama",
+            transport: "ollama_chat",
+            reason: "local_ollama_required",
+            fallback_used: false,
+          }}
+        />
+      </MemoryRouter>,
+    );
+    const badge = screen.getByTestId("abby-route-badge");
+    expect(badge).toHaveAttribute("data-route-kind", "local");
+  });
+
+  it("renders a fallback route badge when a cloud turn fell back local", () => {
+    render(
+      <MemoryRouter initialEntries={["/commons/general"]}>
+        <AbbyResponseCard
+          message={message}
+          sources={[]}
+          objectReferences={[]}
+          routing={{
+            model: "local",
+            provider: "ollama",
+            transport: "ollama_chat",
+            reason: "budget_exhausted",
+            fallback_used: true,
+          }}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("abby-route-badge")).toHaveAttribute(
+      "data-route-kind",
+      "fallback",
+    );
+  });
+
   it("opens cited document URLs from source cards", async () => {
     const user = userEvent.setup();
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);

@@ -187,17 +187,22 @@ class ParthenonAgentService:
         profile = get_profile(state.profile_name)
         tools = build_tool_pack(state.profile_name, state.tool_context)
         writes = write_tools(state.profile_name)
-        server = create_sdk_mcp_server(name="parthenon", version="1.0.0", tools=tools)
 
         # Resolve the effective provider (EE=anthropic cloud / CE=local model).
         # The agent loop is model-agnostic; only the model/effort and the CLI's
         # request target change. On the local provider with actions disabled, the
-        # approval-gated WRITE tools are withdrawn entirely so CE runs reads/chat
-        # only — operators opt into actions once their local model proves it can
-        # drive the tool-use + approval loop reliably.
+        # approval-gated WRITE tools are withdrawn ENTIRELY — removed from the MCP
+        # server, not merely un-gated — so a CE reads-only deployment cannot reach
+        # or auto-approve a write tool. (Zeroing ``writes`` alone would move them
+        # into ``allowed_tools`` and auto-approve them under "dontAsk".) Operators
+        # opt into actions once their local model proves it can drive the tool-use
+        # + approval loop reliably.
         resolved = settings.resolve_agent_provider(profile.provider, state.provider_override)
-        if resolved.provider == "local" and not resolved.actions_enabled:
+        if resolved.provider == "local" and not resolved.actions_enabled and writes:
+            tools = [t for t in tools if t.name not in writes]
             writes = set()
+
+        server = create_sdk_mcp_server(name="parthenon", version="1.0.0", tools=tools)
 
         # Write tools are intentionally EXCLUDED from allowed_tools so that the
         # CLI routes them through the can_use_tool callback (which gates on human

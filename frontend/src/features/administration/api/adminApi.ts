@@ -114,7 +114,7 @@ export const fetchAiProvider = (type: string) =>
 
 export const updateAiProvider = (
   type: string,
-  data: Partial<Pick<AiProviderSetting, "display_name" | "model"> & { settings: Record<string, string> }>,
+  data: Partial<Pick<AiProviderSetting, "display_name" | "model"> & { settings: AiProviderSetting["settings"] }>,
 ) => apiClient.put<AiProviderSetting>(`/admin/ai-providers/${type}`, data).then((r) => r.data);
 
 export const activateAiProvider = (type: string) =>
@@ -128,6 +128,144 @@ export const disableAiProvider = (type: string) =>
 
 export const testAiProvider = (type: string) =>
   apiClient.post<TestResult>(`/admin/ai-providers/${type}/test`).then((r) => r.data);
+
+// ── Abby Provider Profiles and Behavior Policy ────────────────────────────────
+
+export type AbbyProviderMode =
+  | "local_only"
+  | "cloud_only"
+  | "local_first"
+  | "cloud_first"
+  | "auto_by_complexity"
+  | "auto_by_budget"
+  | "disabled";
+
+export interface AbbyProviderProfile {
+  id: number;
+  profile_id: string;
+  display_name: string;
+  provider_type: string;
+  transport: string;
+  entitlement_type: string;
+  model: string;
+  base_url?: string | null;
+  provider_setting_type?: string | null;
+  is_enabled: boolean;
+  capabilities?: string[] | null;
+  safety?: Record<string, unknown> | null;
+  limits?: Record<string, unknown> | null;
+  fallback_profile_ids?: string[] | null;
+  notes?: string[] | null;
+}
+
+export interface AbbySurfacePolicy {
+  id: number;
+  surface: string;
+  provider_mode: AbbyProviderMode;
+  default_profile_id?: string | null;
+  fallback_profile_ids?: string[] | null;
+  never_send_phi_to_cloud: boolean;
+  allow_cloud: boolean;
+  required_capabilities?: string[] | null;
+  settings?: Record<string, unknown> | null;
+}
+
+export interface AbbyPolicyCatalog {
+  capabilities: string[];
+  entitlements: string[];
+  modes: AbbyProviderMode[];
+  surfaces: string[];
+  transports: string[];
+  surface_requirements: Record<string, string[]>;
+}
+
+export interface AbbyPolicyPayload {
+  profiles: AbbyProviderProfile[];
+  surface_policies: AbbySurfacePolicy[];
+  catalog: AbbyPolicyCatalog;
+}
+
+export interface AbbyRouteSimulation {
+  configured: boolean;
+  surface: string;
+  provider_mode?: AbbyProviderMode;
+  message_length?: number;
+  requested_profile_id?: string | null;
+  selected_profile?: Pick<
+    AbbyProviderProfile,
+    "profile_id" | "display_name" | "provider_type" | "transport" | "entitlement_type" | "model" | "is_enabled"
+  > | null;
+  fallback_profile_ids?: string[];
+  fallback_used?: boolean;
+  reason: string;
+  blocked_reasons?: string[];
+  will_call_paid_provider: boolean;
+  estimated_budget_impact?: string;
+}
+
+export interface AbbyProviderProfilePayload {
+  profile_id?: string;
+  display_name?: string;
+  provider_type?: string;
+  transport?: string;
+  entitlement_type?: string;
+  model?: string;
+  base_url?: string | null;
+  provider_setting_type?: string | null;
+  is_enabled?: boolean;
+  capabilities?: string[];
+  safety?: Record<string, unknown>;
+  limits?: Record<string, unknown>;
+  fallback_profile_ids?: string[];
+  notes?: string[];
+}
+
+export interface AbbySurfacePolicyPayload {
+  provider_mode: AbbyProviderMode;
+  default_profile_id?: string | null;
+  fallback_profile_ids?: string[];
+  never_send_phi_to_cloud?: boolean;
+  allow_cloud?: boolean;
+  required_capabilities?: string[];
+  settings?: Record<string, unknown>;
+}
+
+export const fetchAbbyPolicy = (): Promise<AbbyPolicyPayload> =>
+  apiClient.get<AbbyPolicyPayload>("/admin/abby-ai").then((r) => r.data);
+
+export const createAbbyProviderProfile = (
+  data: AbbyProviderProfilePayload,
+): Promise<AbbyProviderProfile> =>
+  apiClient.post<AbbyProviderProfile>("/admin/abby-ai/profiles", data).then((r) => r.data);
+
+export const updateAbbyProviderProfile = (
+  profileId: string,
+  data: AbbyProviderProfilePayload,
+): Promise<AbbyProviderProfile> =>
+  apiClient.put<AbbyProviderProfile>(`/admin/abby-ai/profiles/${profileId}`, data).then((r) => r.data);
+
+export const archiveAbbyProviderProfile = (
+  profileId: string,
+): Promise<AbbyProviderProfile> =>
+  apiClient.post<AbbyProviderProfile>(`/admin/abby-ai/profiles/${profileId}/archive`).then((r) => r.data);
+
+export const deleteAbbyProviderProfile = (
+  profileId: string,
+): Promise<{ deleted: boolean; profile_id: string }> =>
+  apiClient.delete<{ deleted: boolean; profile_id: string }>(`/admin/abby-ai/profiles/${profileId}`).then((r) => r.data);
+
+export const updateAbbySurfacePolicy = (
+  surface: string,
+  data: AbbySurfacePolicyPayload,
+): Promise<AbbySurfacePolicy> =>
+  apiClient.put<AbbySurfacePolicy>(`/admin/abby-ai/surfaces/${surface}`, data).then((r) => r.data);
+
+export const simulateAbbyRoute = (data: {
+  surface?: string;
+  message: string;
+  page_context?: string;
+}): Promise<AbbyRouteSimulation> =>
+  apiClient.post<AbbyRouteSimulation>("/admin/abby-ai/simulate-route", data).then((r) => r.data);
 
 // ── AI Agents Feature Flag ────────────────────────────────────────────────────
 

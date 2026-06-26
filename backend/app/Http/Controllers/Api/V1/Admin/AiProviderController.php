@@ -16,14 +16,18 @@ class AiProviderController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(AiProviderSetting::orderBy('provider_type')->get());
+        $providers = AiProviderSetting::orderBy('provider_type')->get()
+            ->map(fn (AiProviderSetting $p) => $p->toSafeArray())
+            ->values();
+
+        return response()->json($providers);
     }
 
     public function show(string $type): JsonResponse
     {
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
 
-        return response()->json($provider);
+        return response()->json($provider->toSafeArray());
     }
 
     public function update(Request $request, string $type): JsonResponse
@@ -37,16 +41,26 @@ class AiProviderController extends Controller
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
 
         if (isset($validated['settings'])) {
-            $validated['settings'] = array_merge(
-                $provider->settings ?? [],
-                $validated['settings'],
-            );
+            $existing = $provider->settings ?? [];
+            $incoming = $validated['settings'];
+
+            // Never let a re-submitted masked secret overwrite the stored value.
+            // The admin UI prefills key inputs with the masked representation, so
+            // an unchanged form would otherwise clobber a real key with bullets.
+            foreach ($incoming as $key => $value) {
+                if (AiProviderSetting::isSecretSettingKey((string) $key)
+                    && AiProviderSetting::isMaskedValue($value)) {
+                    unset($incoming[$key]);
+                }
+            }
+
+            $validated['settings'] = array_merge($existing, $incoming);
         }
 
         $provider->fill(array_merge($validated, ['updated_by' => $request->user()->id]));
         $provider->save();
 
-        return response()->json($provider->fresh());
+        return response()->json($provider->fresh()->toSafeArray());
     }
 
     public function activate(Request $request, string $type): JsonResponse
@@ -59,7 +73,9 @@ class AiProviderController extends Controller
                 ->update(['is_active' => true, 'updated_by' => $request->user()->id]);
         });
 
-        return response()->json(AiProviderSetting::where('provider_type', $type)->first());
+        return response()->json(
+            AiProviderSetting::where('provider_type', $type)->firstOrFail()->toSafeArray()
+        );
     }
 
     public function enable(Request $request, string $type): JsonResponse
@@ -67,7 +83,7 @@ class AiProviderController extends Controller
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
         $provider->update(['is_enabled' => true, 'updated_by' => $request->user()->id]);
 
-        return response()->json($provider->fresh());
+        return response()->json($provider->fresh()->toSafeArray());
     }
 
     public function disable(Request $request, string $type): JsonResponse
@@ -75,7 +91,7 @@ class AiProviderController extends Controller
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
         $provider->update(['is_enabled' => false, 'updated_by' => $request->user()->id]);
 
-        return response()->json($provider->fresh());
+        return response()->json($provider->fresh()->toSafeArray());
     }
 
     public function test(Request $request, string $type): JsonResponse

@@ -15,10 +15,8 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, cast
-
-if TYPE_CHECKING:
-    from anthropic.types import MessageParam
+from types import SimpleNamespace
+from typing import Any, AsyncGenerator, Callable, cast
 
 import httpx
 from fastapi import APIRouter, HTTPException
@@ -40,8 +38,28 @@ from app.memory.profile_learner import ProfileLearner, UserProfile as MemoryUser
 from app.routing.rule_router import RuleRouter, RoutingDecision
 from app.routing.claude_client import ClaudeClient
 from app.routing.phi_sanitizer import PHISanitizer
+from app.routing.cloud_safety import POLICY_VERSION as CLOUD_SAFETY_POLICY_VERSION
 from app.routing.cloud_safety import CloudSafetyFilter
 from app.routing.cost_tracker import CostTracker
+from app.routing.chat_adapters import (
+    AnthropicMessagesAdapter,
+    ChatAdapterError,
+    ChatAdapterRequest,
+    OllamaChatAdapter,
+    OpenAICompatibleChatAdapter,
+    OpenAIResponsesAdapter,
+)
+from app.routing.provider_profiles import (
+    CAPABILITY_FLAGS,
+    ENTITLEMENT_TYPES,
+    ROUTING_STRATEGIES,
+    TRANSPORTS,
+    AbbyRouteDecision,
+    build_default_provider_profiles,
+    decide_abby_chat_route,
+    force_local_abby_route,
+    resolve_abby_chat_policy,
+)
 
 from app.agency.plan_engine import PlanEngine, PlanStep, ActionPlan
 from app.agency.api_client import AgencyApiClient
@@ -88,6 +106,14 @@ _knowledge_surfacer: Any | None = None
 _ollama_http_client: httpx.AsyncClient | None = None
 
 
+_OPENAI_COMPATIBLE_BASE_URLS: dict[str, str] = {
+    "deepseek": "https://api.deepseek.com",
+    "mistral": "https://api.mistral.ai/v1",
+    "moonshot": "https://api.moonshot.cn/v1",
+    "qwen": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+}
+
+
 def _get_claude_client() -> ClaudeClient | None:
     global _claude_client
     if _claude_client is None and settings.claude_api_key:
@@ -96,6 +122,192 @@ def _get_claude_client() -> ClaudeClient | None:
         except (ValueError, RuntimeError):
             logger.warning("Claude API unavailable (anthropic package not installed or key missing), cloud routing disabled")
     return _claude_client
+
+
+def _settings_dict() -> dict[str, Any]:
+    if hasattr(settings, "model_dump"):
+        data = cast(dict[str, Any], settings.model_dump())
+    else:
+        data = dict(settings.__dict__)
+    data["abby_llm_base_url"] = settings.abby_llm_base_url
+    data["abby_llm_model"] = settings.abby_llm_model
+    return data
+
+
+def _coerce_int(value: Any, fallback: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _coerce_float(value: Any, fallback: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _effective_chat_config(provider_policy: dict[str, Any] | None) -> Any:
+    """Apply a per-request admin provider override on top of env settings."""
+    if not isinstance(provider_policy, dict):
+        return settings
+
+    provider_type = str(provider_policy.get("provider_type", "")).strip().lower()
+    provider_settings = provider_policy.get("settings") if isinstance(provider_policy.get("settings"), dict) else {}
+    profile_id = str(provider_policy.get("profile_id", "")).strip()
+    mode = str(provider_policy.get("mode", "")).strip()
+    model = str(provider_policy.get("model", "")).strip()
+    if not provider_type:
+        return settings
+
+    config = _settings_dict()
+    if mode:
+        config["abby_chat_provider_mode"] = mode
+
+    entitlement = str(provider_settings.get("entitlement", "") or provider_policy.get("entitlement", "") or "")
+    if entitlement:
+        config["abby_cloud_entitlement"] = entitlement
+
+    timeout = _coerce_int(provider_settings.get("timeout"), config.get("openai_timeout", 60))
+    max_tokens = _coerce_int(provider_settings.get("max_output_tokens"), config.get("openai_max_output_tokens", 4096))
+    monthly_budget = _coerce_float(provider_settings.get("monthly_budget_usd"), 0.0)
+
+    if provider_type == "ollama":
+        config["abby_chat_provider_mode"] = mode or "local_only"
+        config["abby_cloud_routing_enabled"] = False
+        if profile_id:
+            config["abby_local_chat_profile_id"] = profile_id
+        if model:
+            config["abby_llm_model"] = model
+            config["abby_ollama_model"] = model
+        if provider_settings.get("base_url"):
+            base_url = str(provider_settings["base_url"]).rstrip("/")
+            config["abby_llm_base_url"] = base_url
+            config["abby_ollama_base_url"] = base_url
+        if provider_settings.get("timeout") is not None:
+            config["ollama_timeout"] = _coerce_int(provider_settings.get("timeout"), config.get("ollama_timeout", 120))
+        if provider_settings.get("max_output_tokens") is not None:
+            config["ollama_num_predict"] = _coerce_int(
+                provider_settings.get("max_output_tokens"),
+                config.get("ollama_num_predict", 256),
+            )
+        return SimpleNamespace(**config)
+
+    if provider_type == "anthropic":
+        config["abby_cloud_routing_enabled"] = True
+        config["abby_chat_provider_mode"] = mode or "cloud_first"
+        config["abby_cloud_chat_profile_id"] = profile_id or "anthropic-claude"
+        config["anthropic_profile_id"] = profile_id or "anthropic-claude"
+        if model:
+            config["claude_model"] = model
+        config["claude_api_key"] = str(provider_settings.get("api_key", ""))
+        config["claude_timeout"] = timeout
+        config["claude_max_tokens"] = max_tokens
+        config["anthropic_monthly_budget_usd"] = monthly_budget
+        return SimpleNamespace(**config)
+
+    if provider_type == "openai":
+        config["abby_cloud_routing_enabled"] = True
+        config["abby_chat_provider_mode"] = mode or "cloud_first"
+        config["abby_cloud_chat_profile_id"] = profile_id or "openai-responses"
+        config["openai_profile_id"] = profile_id or "openai-responses"
+        if model:
+            config["openai_model"] = model
+        config["openai_api_key"] = str(provider_settings.get("api_key", ""))
+        config["openai_base_url"] = str(provider_settings.get("base_url", "") or "")
+        config["openai_timeout"] = timeout
+        config["openai_max_output_tokens"] = max_tokens
+        config["openai_monthly_budget_usd"] = monthly_budget
+        return SimpleNamespace(**config)
+
+    if provider_type in _OPENAI_COMPATIBLE_BASE_URLS:
+        config["abby_cloud_routing_enabled"] = True
+        config["abby_chat_provider_mode"] = mode or "cloud_first"
+        config["abby_cloud_chat_profile_id"] = profile_id or "openai-compatible-chat"
+        config["openai_compatible_profile_id"] = profile_id or "openai-compatible-chat"
+        if model:
+            config["openai_compatible_model"] = model
+        config["openai_compatible_api_key"] = str(provider_settings.get("api_key", ""))
+        config["openai_compatible_base_url"] = str(
+            provider_settings.get("base_url", "") or _OPENAI_COMPATIBLE_BASE_URLS[provider_type]
+        ).rstrip("/")
+        config["openai_compatible_timeout"] = timeout
+        config["openai_compatible_max_output_tokens"] = max_tokens
+        config["openai_compatible_monthly_budget_usd"] = monthly_budget
+        return SimpleNamespace(**config)
+
+    config["abby_chat_provider_mode"] = "local_only"
+    config["abby_cloud_routing_enabled"] = False
+    return SimpleNamespace(**config)
+
+
+def _selected_cloud_profile(config: Any = settings) -> Any:
+    profiles = build_default_provider_profiles(config)
+    profile_id = getattr(config, "abby_cloud_chat_profile_id", "anthropic-claude")
+    profile = profiles.get(profile_id) or profiles.get("anthropic-claude")
+    if profile is not None:
+        return profile
+    return next(profile for profile in profiles.values() if profile.is_cloud)
+
+
+def _cloud_chat_available(config: Any = settings) -> bool:
+    profile = _selected_cloud_profile(config)
+    if profile.transport == "anthropic_messages":
+        return bool(getattr(config, "claude_api_key", ""))
+    if profile.transport == "openai_responses":
+        return bool(getattr(config, "openai_api_key", ""))
+    if profile.transport == "openai_compatible_chat":
+        return bool(
+            getattr(config, "openai_compatible_api_key", "")
+            and getattr(config, "openai_compatible_base_url", "")
+        )
+    return False
+
+
+def _build_cloud_chat_adapter(profile: Any, config: Any = settings) -> Any:
+    if profile.transport == "anthropic_messages":
+        if config is settings:
+            claude_client = _get_claude_client()
+        else:
+            claude_client = ClaudeClient(
+                api_key=getattr(config, "claude_api_key", ""),
+                model=getattr(config, "claude_model", settings.claude_model),
+                max_tokens=getattr(config, "claude_max_tokens", settings.claude_max_tokens),
+                timeout=getattr(config, "claude_timeout", settings.claude_timeout),
+            )
+        if claude_client is None:
+            raise ChatAdapterError(
+                "Anthropic client is not configured",
+                error_class="provider_unavailable",
+                status_code=503,
+            )
+        return AnthropicMessagesAdapter(profile=profile, client=claude_client)
+    if profile.transport == "openai_responses":
+        return OpenAIResponsesAdapter(
+            profile=profile,
+            api_key=getattr(config, "openai_api_key", ""),
+            base_url=getattr(config, "openai_base_url", "") or None,
+            timeout_seconds=getattr(config, "openai_timeout", settings.openai_timeout),
+            max_output_tokens=getattr(config, "openai_max_output_tokens", settings.openai_max_output_tokens),
+        )
+    if profile.transport == "openai_compatible_chat":
+        return OpenAICompatibleChatAdapter(
+            profile=profile,
+            api_key=getattr(config, "openai_compatible_api_key", ""),
+            base_url=getattr(config, "openai_compatible_base_url", ""),
+            timeout_seconds=getattr(config, "openai_compatible_timeout", settings.openai_compatible_timeout),
+            max_output_tokens=getattr(
+                config,
+                "openai_compatible_max_output_tokens",
+                settings.openai_compatible_max_output_tokens,
+            ),
+        )
+    raise ChatAdapterError(
+        f"Unsupported cloud transport: {profile.transport}",
+        error_class="unsupported_transport",
+        status_code=503,
+    )
 
 
 def _get_cost_tracker() -> CostTracker:
@@ -112,23 +324,267 @@ def _get_cost_tracker() -> CostTracker:
     return _cost_tracker
 
 
+def _profile_monthly_budget(profile: Any) -> float:
+    return _coerce_float(profile.limits.get("monthly_budget_usd") if hasattr(profile, "limits") else None, 0.0)
+
+
+def _cloud_budget_exhausted(config: Any = settings) -> bool:
+    tracker = _get_cost_tracker()
+    if tracker.is_budget_exhausted():
+        return True
+    cloud_profile = _selected_cloud_profile(config)
+    profile_budget = _profile_monthly_budget(cloud_profile)
+    if profile_budget <= 0:
+        return False
+    return tracker.is_budget_exhausted(
+        monthly_budget=profile_budget,
+        provider=cloud_profile.provider,
+        provider_profile_id=cloud_profile.id,
+        request_surface="abby_chat",
+    )
+
+
+def _budget_status_payload(config: Any = settings) -> dict[str, Any]:
+    tracker = _get_cost_tracker()
+    cloud_profile = _selected_cloud_profile(config)
+    return {
+        "global": tracker.get_budget_status(),
+        "selected_profile": tracker.get_budget_status(
+            monthly_budget=_profile_monthly_budget(cloud_profile),
+            provider=cloud_profile.provider,
+            provider_profile_id=cloud_profile.id,
+            request_surface="abby_chat",
+        ),
+    }
+
+
+def _resolve_abby_chat_route(message: str, config: Any = settings) -> AbbyRouteDecision:
+    """Choose Abby's provider profile, defaulting to local Ollama for governance."""
+    policy = resolve_abby_chat_policy(config)
+    budget_exhausted = False
+    if policy.mode not in {"local_only", "disabled"} and getattr(config, "abby_cloud_routing_enabled"):
+        budget_exhausted = _cloud_budget_exhausted(config)
+
+    return decide_abby_chat_route(
+        message,
+        config=config,
+        rule_router=_router,
+        budget_exhausted=budget_exhausted,
+        cloud_client_available=lambda: _cloud_chat_available(config),
+    )
+
+
 def _route_abby_request(message: str) -> RoutingDecision:
-    """Choose Abby's model route, defaulting to local Ollama for governance."""
-    if not settings.abby_cloud_routing_enabled:
-        return RoutingDecision(
-            model="local",
-            stage=0,
-            reason="local_ollama_required",
-            confidence=1.0,
+    """Backward-compatible legacy route decision used by older tests/callers."""
+    return _resolve_abby_chat_route(message).routing
+
+
+_FALLBACK_REASONS = {
+    "budget_exhausted",
+    "claude_unavailable",
+    "phi_blocked",
+    "claude_error",
+    "cloud_safety_blocked",
+    "api_key_missing",
+    "provider_disabled",
+    "provider_rate_limited",
+    "provider_quota_exhausted",
+    "subscription_backend_unsupported",
+    "invalid_key",
+    "model_unavailable",
+    "provider_error",
+    "provider_safety_refusal",
+    "provider_unavailable",
+    "unsupported_capability",
+    "local_fallback_unavailable",
+    "timeout",
+}
+
+
+def _empty_safety_metadata(model_profile: str) -> dict[str, Any]:
+    """Default prompt safety metadata for provider-neutral route reporting."""
+    cloud_profile = model_profile != "medgemma"
+    return {
+        "cloud_safety_applied": cloud_profile,
+        "cloud_safety_blocked": False,
+        "blocked_context_count": 0,
+        "context_pieces_before": 0,
+        "context_pieces_after": 0,
+        "cloud_safety_policy_version": CLOUD_SAFETY_POLICY_VERSION,
+    }
+
+
+def _apply_cloud_safety_filter(
+    model_profile: str,
+    context_pieces: list[ContextPiece],
+    safety_metadata: dict[str, Any] | None = None,
+) -> list[ContextPiece]:
+    """Filter context before a cloud-bound prompt leaves the service."""
+    metadata = _empty_safety_metadata(model_profile)
+    metadata["context_pieces_before"] = len(context_pieces)
+
+    if model_profile != "medgemma":
+        safe_pieces = _cloud_safety.filter_for_cloud(context_pieces)
+        metadata["context_pieces_after"] = len(safe_pieces)
+        metadata["blocked_context_count"] = len(context_pieces) - len(safe_pieces)
+        metadata["cloud_safety_blocked"] = metadata["blocked_context_count"] > 0
+    else:
+        safe_pieces = context_pieces
+        metadata["context_pieces_after"] = len(context_pieces)
+
+    if safety_metadata is not None:
+        safety_metadata.clear()
+        safety_metadata.update(metadata)
+
+    return safe_pieces
+
+
+def _routing_payload(
+    routing: RoutingDecision,
+    *,
+    safety_metadata: dict[str, Any] | None = None,
+    route_decision: AbbyRouteDecision | None = None,
+) -> dict[str, Any]:
+    """Provider-neutral routing metadata returned to Laravel/frontend callers.
+
+    The legacy ``model``, ``reason``, and ``stage`` keys stay in place while
+    richer provider/profile fields give the admin UI a stable contract to grow
+    into.
+    """
+    safety = safety_metadata or _empty_safety_metadata(
+        "claude" if routing.model == "claude" else "medgemma"
+    )
+
+    if routing.reason == "grounded_definition":
+        provider = "none"
+        transport = "grounded_definition"
+        model_name = "none"
+        profile_id = "grounded-definition"
+        entitlement = "local"
+        fallback_profile_ids: list[str] = []
+        routing_strategy = "local_only"
+        requested_profile_id = None
+        profile_enabled = True
+        profile_capabilities: dict[str, bool] = {}
+    elif route_decision is not None:
+        profile = route_decision.profile
+        provider = profile.provider
+        transport = profile.transport
+        model_name = profile.model
+        profile_id = profile.id
+        entitlement = profile.entitlement
+        fallback_profile_ids = [p.id for p in route_decision.fallback_profiles]
+        routing_strategy = route_decision.policy.mode
+        requested_profile_id = (
+            route_decision.requested_profile.id
+            if route_decision.requested_profile is not None
+            else None
         )
+        profile_enabled = profile.enabled
+        profile_capabilities = profile.capability_map()
+    elif routing.model == "claude":
+        profiles = build_default_provider_profiles(settings)
+        profile = profiles.get(settings.abby_cloud_chat_profile_id) or profiles["anthropic-claude"]
+        provider = profile.provider
+        transport = profile.transport
+        model_name = profile.model
+        profile_id = profile.id
+        entitlement = profile.entitlement
+        fallback_profile_ids = list(profile.fallback_profile_ids)
+        routing_strategy = resolve_abby_chat_policy(settings).mode
+        requested_profile_id = None
+        profile_enabled = profile.enabled
+        profile_capabilities = profile.capability_map()
+    else:
+        profile = build_default_provider_profiles(settings)[settings.abby_local_chat_profile_id]
+        provider = profile.provider
+        transport = profile.transport
+        model_name = profile.model
+        profile_id = profile.id
+        entitlement = profile.entitlement
+        fallback_profile_ids = list(profile.fallback_profile_ids)
+        routing_strategy = resolve_abby_chat_policy(settings).mode
+        requested_profile_id = None
+        profile_enabled = profile.enabled
+        profile_capabilities = profile.capability_map()
 
-    cost_tracker = _get_cost_tracker()
-    routing = _router.route(message, budget_exhausted=cost_tracker.is_budget_exhausted())
-    if routing.model == "claude" and _get_claude_client() is None:
-        logger.debug("Claude routed but no client available, falling back to local before prompt build")
-        return RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+    return {
+        "model": routing.model,
+        "reason": routing.reason,
+        "stage": routing.stage,
+        "provider": provider,
+        "transport": transport,
+        "model_name": model_name,
+        "profile_id": profile_id,
+        "requested_profile_id": requested_profile_id,
+        "entitlement": entitlement,
+        "routing_strategy": routing_strategy,
+        "fallback_profile_ids": fallback_profile_ids,
+        "profile_enabled": profile_enabled,
+        "capabilities": profile_capabilities,
+        "fallback_used": routing.reason in _FALLBACK_REASONS or bool(
+            route_decision.fallback_used if route_decision is not None else False
+        ),
+        "cloud_safety_applied": bool(safety.get("cloud_safety_applied", False)),
+        "cloud_safety_blocked": bool(safety.get("cloud_safety_blocked", False)),
+        "blocked_context_count": int(safety.get("blocked_context_count", 0) or 0),
+        "context_pieces_before": int(safety.get("context_pieces_before", 0) or 0),
+        "context_pieces_after": int(safety.get("context_pieces_after", 0) or 0),
+        "cloud_safety_policy_version": safety.get(
+            "cloud_safety_policy_version", CLOUD_SAFETY_POLICY_VERSION
+        ),
+    }
 
-    return routing
+
+def _should_audit_local_route(route_decision: AbbyRouteDecision) -> bool:
+    return (
+        route_decision.routing.model == "local"
+        and route_decision.routing.reason != "grounded_definition"
+    )
+
+
+def _audit_local_route_decision(
+    route_decision: AbbyRouteDecision,
+    request: "ChatRequest",
+    *,
+    safety_metadata: dict[str, Any] | None = None,
+    streaming: bool = False,
+) -> None:
+    """Persist local/fallback routing decisions without blocking Abby responses."""
+    if not _should_audit_local_route(route_decision):
+        return
+
+    fallback_used = route_decision.routing.reason in _FALLBACK_REASONS or route_decision.fallback_used
+    status = "fallback_local" if fallback_used else "routed_local"
+    requested_profile_id = (
+        route_decision.requested_profile.id
+        if route_decision.requested_profile is not None
+        else None
+    )
+    try:
+        _get_cost_tracker().record_route_decision(
+            user_id=request.user_id,
+            provider=route_decision.profile.provider,
+            transport=route_decision.profile.transport,
+            provider_profile_id=route_decision.profile.id,
+            entitlement_type=route_decision.profile.entitlement,
+            model=route_decision.profile.model,
+            route_reason=route_decision.routing.reason,
+            status=status,
+            fallback_reason=route_decision.routing.reason if fallback_used else None,
+            requested_provider_profile_id=requested_profile_id,
+            usage_metadata={
+                "page_context": request.page_context,
+                "routing_stage": route_decision.routing.stage,
+                "routing_confidence": route_decision.routing.confidence,
+                "routing_strategy": route_decision.policy.mode,
+                "fallback_profile_ids": [profile.id for profile in route_decision.fallback_profiles],
+                "streaming": streaming,
+                "safety": safety_metadata or {},
+            },
+        )
+    except Exception:
+        logger.debug("Abby local route decision audit failed", exc_info=True)
 
 
 def _get_shared_engine() -> Any:
@@ -342,6 +798,10 @@ class ChatRequest(BaseModel):
     conversation_id: int | None = Field(
         default=None,
         description="Conversation ID for session memory tracking"
+    )
+    provider_policy: dict[str, Any] | None = Field(
+        default=None,
+        description="Resolved admin provider policy supplied by Laravel for this Abby turn"
     )
 
 
@@ -749,85 +1209,166 @@ def _get_help_context(page_context: str) -> str:
 async def call_ollama(system_prompt: str, user_message: str,
                       history: list[ChatMessage] | None = None,
                       temperature: float = 0.1,
-                      num_predict: int | None = None) -> str:
+                      num_predict: int | None = None,
+                      config: Any = settings) -> str:
     """Call Ollama with the configured MedGemma model."""
-    started = time.perf_counter()
-    messages = [{"role": "system", "content": system_prompt}]
-
-    if history:
-        for msg in history[-10:]:  # cap at last 10 turns
-            messages.append({"role": msg.role, "content": msg.content})
-
-    messages.append({"role": "user", "content": user_message})
-
-    # First attempt uses a longer timeout to accommodate cold model loads or
-    # model swapping (e.g. evicting a large model like gemma3:27b takes >90s).
-    # Subsequent retries use a shorter timeout since the model should be warm.
-    max_retries = 2
-    client = _get_ollama_http_client()
-
-    for attempt in range(max_retries + 1):
-        attempt_timeout = 180 if attempt == 0 else 60
-        attempt_started = time.perf_counter()
-        try:
-            resp = await client.post(
-                f"{settings.abby_llm_base_url}/api/chat",
-                json={
-                    "model": settings.abby_llm_model,
-                    "messages": messages,
-                    "stream": False,
-                    "think": False,
-                    "keep_alive": settings.abby_ollama_keep_alive,
-                    "options": {
-                        "temperature": temperature,
-                        "num_predict": num_predict if num_predict is not None else settings.ollama_num_predict,
-                    },
-                },
-                timeout=attempt_timeout,
+    local_profile_id = getattr(config, "abby_local_chat_profile_id", settings.abby_local_chat_profile_id)
+    local_profile = build_default_provider_profiles(config)[local_profile_id]
+    adapter = OllamaChatAdapter(
+        profile=local_profile,
+        client=_get_ollama_http_client(),
+        default_num_predict=getattr(config, "ollama_num_predict", settings.ollama_num_predict),
+        keep_alive_seconds=getattr(config, "abby_ollama_keep_alive", settings.abby_ollama_keep_alive),
+        timeout_seconds=getattr(config, "ollama_timeout", settings.ollama_timeout),
+        log_latency=_log_latency,
+        estimate_tokens=_estimate_tokens,
+        ns_to_ms=_ns_to_ms,
+    )
+    try:
+        response = await adapter.chat(
+            ChatAdapterRequest(
+                system_prompt=system_prompt,
+                message=user_message,
+                history=[
+                    {"role": msg.role, "content": msg.content}
+                    for msg in (history or [])[-10:]
+                ],
+                temperature=temperature,
+                max_output_tokens=num_predict,
             )
-            resp.raise_for_status()
-            data = resp.json()
-            total_ms = (time.perf_counter() - started) * 1000
-            attempt_ms = (time.perf_counter() - attempt_started) * 1000
-            _log_latency(
-                "abby_ollama_call",
-                model=settings.abby_llm_model,
-                base_url=settings.abby_llm_base_url,
-                attempts=attempt + 1,
-                total_ms=total_ms,
-                attempt_ms=attempt_ms,
-                prompt_chars=len(system_prompt),
-                prompt_tokens_est=_estimate_tokens(system_prompt),
-                message_chars=len(user_message),
-                num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
-                history_turns=len(history[-10:]) if history else 0,
-                response_chars=len(data.get("message", {}).get("content", "")),
-                load_ms=_ns_to_ms(data.get("load_duration")),
-                prompt_eval_ms=_ns_to_ms(data.get("prompt_eval_duration")),
-                eval_ms=_ns_to_ms(data.get("eval_duration")),
-                ollama_total_ms=_ns_to_ms(data.get("total_duration")),
-                prompt_eval_count=data.get("prompt_eval_count"),
-                eval_count=data.get("eval_count"),
-            )
-            return data["message"]["content"]  # type: ignore[no-any-return]
-        except httpx.TimeoutException:
-            if attempt < max_retries:
-                logger.warning("Ollama attempt %d/%d timed out, retrying...", attempt + 1, max_retries + 1)
-                continue
-            raise HTTPException(status_code=504, detail="LLM service timed out after retries.")
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 500 and attempt < max_retries:
-                logger.warning("Ollama returned 500 on attempt %d, retrying...", attempt + 1)
-                continue
-            raise HTTPException(status_code=503, detail=f"LLM service error: {e}")
-        except Exception as e:
-            logger.error("Ollama call failed: %s", e)
-            raise HTTPException(status_code=503, detail=f"LLM service unavailable: {e}")
-
-    raise HTTPException(status_code=503, detail="LLM service unavailable: all retries exhausted")
+        )
+        return response.reply
+    except ChatAdapterError as exc:
+        logger.error("Ollama adapter failed (%s): %s", exc.error_class, exc)
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
 
 # ── Endpoints ────────────────────────────────────────────────────────────────
+
+
+@router.get("/provider-health")
+async def provider_health() -> dict[str, Any]:
+    """Return Abby provider readiness without exposing secrets."""
+    from app.services.ollama_client import check_ollama_health
+
+    profiles = build_default_provider_profiles(settings)
+    policy = resolve_abby_chat_policy(settings)
+    local_profile = profiles[settings.abby_local_chat_profile_id]
+    cloud_profile = profiles.get(settings.abby_cloud_chat_profile_id) or profiles["anthropic-claude"]
+    local_status = await check_ollama_health(
+        base_url=local_profile.base_url,
+        model=local_profile.model,
+    )
+    cloud_status = "disabled"
+    if cloud_profile.enabled:
+        if not cloud_profile.key_configured:
+            cloud_status = "missing_key"
+        elif cloud_profile.transport == "anthropic_messages" and _get_claude_client() is None:
+            cloud_status = "client_unavailable"
+        else:
+            cloud_status = "ready"
+
+    fallback_profile_ids = list(policy.fallback_profile_ids)
+    default_route = "local" if policy.mode == "local_only" else policy.mode
+    fallback_chain = ["ollama"] if policy.mode == "local_only" else ["anthropic", "ollama"]
+
+    return {
+        "chat": {
+            "default_route": default_route,
+            "cloud_routing_enabled": settings.abby_cloud_routing_enabled,
+            "fallback_chain": fallback_chain,
+            "policy": policy.public_dict(),
+            "fallback_profile_ids": fallback_profile_ids,
+            "local": {
+                "profile_id": local_profile.id,
+                "provider": local_profile.provider,
+                "transport": local_profile.transport,
+                "model": local_profile.model,
+                "base_url": local_profile.base_url,
+                "status": local_status,
+                "last_error_class": None if local_status == "ok" else local_status,
+                "capabilities": local_profile.capability_map(),
+            },
+            "cloud": {
+                "profile_id": cloud_profile.id,
+                "provider": cloud_profile.provider,
+                "transport": cloud_profile.transport,
+                "model": cloud_profile.model,
+                "status": cloud_status,
+                "last_error_class": None if cloud_status in {"ready", "disabled"} else cloud_status,
+                "entitlement": cloud_profile.entitlement,
+                "key_configured": cloud_profile.key_configured,
+                "capabilities": cloud_profile.capability_map(),
+            },
+            "safety": {
+                "phi_detection_enabled": settings.phi_detection_enabled,
+                "phi_block_on_detection": settings.phi_block_on_detection,
+                "cloud_safety_filter": "enabled",
+            },
+            "budget": _budget_status_payload(settings),
+            "profiles": [profile.public_dict() for profile in profiles.values()],
+            "capability_flags": list(CAPABILITY_FLAGS),
+            "routing_strategies": list(ROUTING_STRATEGIES),
+            "entitlement_types": list(ENTITLEMENT_TYPES),
+            "transports": list(TRANSPORTS),
+        },
+        "agent": {
+            "provider": settings.agent_provider,
+            "local_model": settings.agent_local_model,
+            "local_base_url": settings.agent_local_base_url,
+            "local_actions_enabled": settings.agent_local_actions_enabled,
+        },
+    }
+
+
+@router.get("/model-inventory")
+async def model_inventory() -> dict[str, Any]:
+    """Return configured Abby profiles and local model tags for admin UIs."""
+    from app.services.ollama_client import list_ollama_models
+
+    profiles = build_default_provider_profiles(settings)
+    policy = resolve_abby_chat_policy(settings)
+    local_profile = profiles[settings.abby_local_chat_profile_id]
+    ollama_inventory = await list_ollama_models(base_url=local_profile.base_url)
+    local_model_names = {
+        str(model.get("name", ""))
+        for model in ollama_inventory.get("models", [])
+        if isinstance(model, dict)
+    }
+    configured_model = local_profile.model
+    configured_local_present = any(
+        configured_model == name or configured_model in name
+        for name in local_model_names
+    )
+
+    return {
+        "policy": policy.public_dict(),
+        "profiles": [profile.public_dict() for profile in profiles.values()],
+        "local": {
+            "provider": local_profile.provider,
+            "base_url": local_profile.base_url,
+            "status": ollama_inventory.get("status", "unavailable"),
+            "configured_model": configured_model,
+            "configured_model_present": configured_local_present,
+            "models": ollama_inventory.get("models", []),
+        },
+        "profile_usage": {
+            "chat": policy.default_profile_id,
+            "fallbacks": list(policy.fallback_profile_ids),
+            "parse_cohort": settings.abby_local_chat_profile_id,
+            "agent": settings.agent_provider,
+        },
+        "capability_flags": list(CAPABILITY_FLAGS),
+        "routing_strategies": list(ROUTING_STRATEGIES),
+        "entitlement_types": list(ENTITLEMENT_TYPES),
+        "transports": list(TRANSPORTS),
+        "subscription_boundary": {
+            "backend_subscription_quota_supported": False,
+            "supported_entitlements": ["local", "org_api_key", "user_api_key", "acumenus_managed_api"],
+            "external_subscription_app_is_separate_surface": True,
+        },
+    }
+
 
 @router.post("/parse-cohort", response_model=CohortParseResponse)
 async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
@@ -1242,6 +1783,7 @@ def _build_chat_system_prompt(
     model_profile: str = "medgemma",
     *,
     session: dict | None = None,
+    safety_metadata: dict[str, Any] | None = None,
 ) -> str:
     """Build the system prompt for a chat request.
 
@@ -1479,6 +2021,8 @@ def _build_chat_system_prompt(
         finally:
             institutional_ms = (time.perf_counter() - institutional_started) * 1000
 
+    context_pieces = _apply_cloud_safety_filter(model_profile, context_pieces, safety_metadata)
+
     context_block, _ = _build_context_block(model_profile, context_pieces)
     if context_block:
         system_prompt += "\n\n" + context_block
@@ -1668,6 +2212,7 @@ async def _retry_local_visible_reply(
     user_message: str,
     history: list[ChatMessage] | None,
     num_predict: int,
+    config: Any = settings,
 ) -> tuple[str, list[str]]:
     """Retry once with stronger instructions and a much larger token budget."""
     retry_prompt = (
@@ -1683,6 +2228,7 @@ async def _retry_local_visible_reply(
         history=history,
         temperature=0.1,
         num_predict=retry_budget,
+        config=config,
     )
     return _extract_suggestions(raw_retry)
 
@@ -1864,14 +2410,36 @@ async def chat(request: ChatRequest) -> ChatResponse:
     """
     request_started = time.perf_counter()
     session = _prepare_chat_session(request)
+    effective_config = _effective_chat_config(request.provider_policy)
 
-    routing = _route_abby_request(request.message)
+    route_decision = _resolve_abby_chat_route(request.message, config=effective_config)
+    routing = route_decision.routing
     local_num_predict = _get_local_num_predict(request.page_context)
+    safety_metadata = _empty_safety_metadata(route_decision.profile.prompt_profile)
     system_prompt = _build_chat_system_prompt(
         request,
-        model_profile="claude" if routing.model == "claude" else "medgemma",
+        model_profile=route_decision.profile.prompt_profile,
         session=session,
+        safety_metadata=safety_metadata,
     )
+    if routing.model == "claude" and safety_metadata.get("cloud_safety_blocked"):
+        logger.warning(
+            "Cloud safety filter blocked %d context piece(s), falling back to local",
+            safety_metadata.get("blocked_context_count", 0),
+        )
+        route_decision = force_local_abby_route(
+            config=effective_config,
+            reason="cloud_safety_blocked",
+            requested_profile=route_decision.profile,
+        )
+        routing = route_decision.routing
+        safety_metadata = _empty_safety_metadata("medgemma")
+        system_prompt = _build_chat_system_prompt(
+            request,
+            model_profile=route_decision.profile.prompt_profile,
+            session=session,
+            safety_metadata=safety_metadata,
+        )
 
     reply = ""
     suggestions: list[str] = []
@@ -1880,7 +2448,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
     if grounded_definition_reply:
         reply = grounded_definition_reply
         sources = grounded_sources
-        routing = RoutingDecision(model="local", stage=0, reason="grounded_definition", confidence=1.0)
+        route_decision = force_local_abby_route(config=effective_config, reason="grounded_definition")
+        routing = route_decision.routing
 
     # Populate sources from RAG results when not grounded (so the UI can show citations)
     if not sources:
@@ -1903,7 +2472,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
         except Exception:
             logger.debug("Source extraction for response failed (non-blocking)")
 
-    if not reply and routing.model == "claude" and _get_claude_client() is not None:
+    if not reply and routing.model == "claude":
         # Cloud path: PHI sanitization + cloud safety filter
         # Build history_dicts first so we can include history content in PHI scan
         history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
@@ -1915,49 +2484,93 @@ async def chat(request: ChatRequest) -> ChatResponse:
             user_text += "\n" + h.get("content", "")
         phi_result = _phi_sanitizer.scan(user_text)
 
-        if phi_result.phi_detected and settings.phi_block_on_detection:
+        if phi_result.phi_detected and getattr(effective_config, "phi_block_on_detection", settings.phi_block_on_detection):
             logger.warning(
                 "PHI detected in cloud-bound prompt, falling back to local. "
                 "Redactions: %d", phi_result.redaction_count,
             )
-            routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
+            route_decision = force_local_abby_route(
+                config=effective_config,
+                reason="phi_blocked",
+                requested_profile=route_decision.profile,
+            )
+            routing = route_decision.routing
+            safety_metadata = _empty_safety_metadata("medgemma")
             system_prompt = _build_chat_system_prompt(
                 request,
-                model_profile="medgemma",
+                model_profile=route_decision.profile.prompt_profile,
                 session=session,
+                safety_metadata=safety_metadata,
             )
         else:
-            # Safe to send to Claude
-            claude_client = _get_claude_client()
-            if claude_client is None:
-                raise ValueError("Claude API client is not configured")
+            # Safe to send to the selected cloud adapter.
             try:
-                claude_response = claude_client.chat(
-                    system_prompt=system_prompt,
-                    message=phi_result.redacted_text if phi_result.redaction_count > 0 else request.message,
-                    history=cast(list["MessageParam"], history_dicts),
+                cloud_adapter = _build_cloud_chat_adapter(route_decision.profile, config=effective_config)
+                cloud_response = await cloud_adapter.chat(
+                    ChatAdapterRequest(
+                        system_prompt=system_prompt,
+                        message=phi_result.redacted_text if phi_result.redaction_count > 0 else request.message,
+                        history=cast(list[dict[str, str]], history_dicts),
+                    )
                 )
-                reply = claude_response.reply
+                reply = cloud_response.reply
 
                 cost_tracker = _get_cost_tracker()
                 cost_tracker.record_usage(
                     user_id=request.user_id,
-                    tokens_in=claude_response.tokens_in,
-                    tokens_out=claude_response.tokens_out,
-                    cost_usd=claude_response.cost_usd,
-                    model=claude_response.model,
-                    request_hash=claude_response.request_hash,
+                    tokens_in=cloud_response.tokens_in,
+                    tokens_out=cloud_response.tokens_out,
+                    cost_usd=cloud_response.cost_usd,
+                    model=cloud_response.model,
+                    request_hash=cloud_response.request_hash,
                     redaction_count=phi_result.redaction_count,
                     route_reason=routing.reason,
+                    provider=cloud_response.provider,
+                    transport=cloud_response.transport,
+                    provider_profile_id=route_decision.profile.id,
+                    entitlement_type=route_decision.profile.entitlement,
+                    status="success",
+                    response_latency_ms=cloud_response.latency_ms,
+                    usage_metadata={
+                        "requested_profile_id": route_decision.requested_profile.id
+                        if route_decision.requested_profile is not None
+                        else None,
+                        "fallback_profile_ids": [profile.id for profile in route_decision.fallback_profiles],
+                    },
                 )
                 reply, suggestions = _extract_suggestions(reply)
-            except Exception:
-                logger.exception("Claude API call failed, falling back to local")
-                routing = RoutingDecision(model="local", stage=0, reason="claude_error", confidence=1.0)
+            except ChatAdapterError as exc:
+                logger.exception(
+                    "Cloud adapter failed (%s), falling back to local",
+                    exc.error_class,
+                )
+                route_decision = force_local_abby_route(
+                    config=effective_config,
+                    reason=exc.error_class,
+                    requested_profile=route_decision.profile,
+                )
+                routing = route_decision.routing
+                safety_metadata = _empty_safety_metadata("medgemma")
                 system_prompt = _build_chat_system_prompt(
                     request,
-                    model_profile="medgemma",
+                    model_profile=route_decision.profile.prompt_profile,
                     session=session,
+                    safety_metadata=safety_metadata,
+                )
+            except Exception:
+                logger.exception("Cloud API call failed, falling back to local")
+                route_decision = force_local_abby_route(
+                    config=effective_config,
+                    reason="claude_error",
+                    requested_profile=route_decision.profile,
+                )
+                routing = route_decision.routing
+                safety_metadata = _empty_safety_metadata("medgemma")
+                system_prompt = _build_chat_system_prompt(
+                    request,
+                    model_profile=route_decision.profile.prompt_profile,
+                    session=session,
+                    safety_metadata=safety_metadata,
                 )
 
     if not reply and routing.model == "local":
@@ -1968,6 +2581,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
             history=request.history,
             temperature=0.15,
             num_predict=local_num_predict,
+            config=effective_config,
         )
         reply, suggestions = _extract_suggestions(raw)
         if _needs_visible_reply_retry(raw, reply):
@@ -1979,9 +2593,15 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 user_message=request.message,
                 history=request.history,
                 num_predict=local_num_predict,
+                config=effective_config,
             )
 
     _post_process_chat_turn(request, reply, routing_reason=routing.reason)
+    _audit_local_route_decision(
+        route_decision,
+        request,
+        safety_metadata=safety_metadata,
+    )
 
     # Check for FAQ promotion (non-blocking)
     try:
@@ -2017,9 +2637,11 @@ async def chat(request: ChatRequest) -> ChatResponse:
         reply=reply,
         suggestions=suggestions,
         routing={
-            "model": routing.model,
-            "reason": routing.reason,
-            "stage": routing.stage,
+            **_routing_payload(
+                routing,
+                safety_metadata=safety_metadata,
+                route_decision=route_decision,
+            ),
         },
         confidence=confidence,
         sources=sources,
@@ -2050,135 +2672,133 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                          temperature: float = 0.3,
                          num_predict: int | None = None,
                          sources: list[dict[str, object]] | None = None,
-                         on_complete: Callable[[str, list[str]], None] | None = None) -> AsyncGenerator[str, None]:
+                         on_complete: Callable[[str, list[str]], None] | None = None,
+                         config: Any = settings) -> AsyncGenerator[str, None]:
     """Stream tokens from Ollama as SSE events."""
     started = time.perf_counter()
-    messages = [{"role": "system", "content": system_prompt}]
-    if history:
-        for msg in history[-10:]:
-            messages.append({"role": msg.role, "content": msg.content})
-    messages.append({"role": "user", "content": user_message})
+    full_content = ""
+    visible_content = ""
+    first_token_ms: float | None = None
+    final_data: dict[str, Any] | None = None
+    pending = ""
+    suppress_reasoning: bool | None = None
+    local_profile_id = getattr(config, "abby_local_chat_profile_id", settings.abby_local_chat_profile_id)
+    local_profile = build_default_provider_profiles(config)[local_profile_id]
+    adapter = OllamaChatAdapter(
+        profile=local_profile,
+        client=_get_ollama_http_client(),
+        default_num_predict=getattr(config, "ollama_num_predict", settings.ollama_num_predict),
+        keep_alive_seconds=getattr(config, "abby_ollama_keep_alive", settings.abby_ollama_keep_alive),
+        timeout_seconds=getattr(config, "ollama_timeout", settings.ollama_timeout),
+        estimate_tokens=_estimate_tokens,
+        ns_to_ms=_ns_to_ms,
+    )
 
     try:
-        client = _get_ollama_http_client()
-        async with client.stream(
-            "POST",
-            f"{settings.abby_llm_base_url}/api/chat",
-            json={
-                "model": settings.abby_llm_model,
-                "messages": messages,
-                "stream": True,
-                "think": False,
-                "keep_alive": settings.abby_ollama_keep_alive,
-                "options": {
-                    "temperature": temperature,
-                    "num_predict": num_predict if num_predict is not None else settings.ollama_num_predict,
-                },
-            },
-            timeout=settings.ollama_timeout,
-        ) as resp:
-            resp.raise_for_status()
-            full_content = ""
-            visible_content = ""
-            first_token_ms: float | None = None
-            final_data: dict[str, Any] | None = None
-            pending = ""
-            suppress_reasoning: bool | None = None
-            async for line in resp.aiter_lines():
-                if not line.strip():
-                    continue
-                try:
-                    data = json.loads(line)
-                    if data.get("done"):
-                        final_data = data
-                        break
-                    token = data.get("message", {}).get("content", "")
-                    if token:
-                        full_content += token
-                        if first_token_ms is None:
-                            first_token_ms = (time.perf_counter() - started) * 1000
-                        pending += token
-                        if suppress_reasoning is None:
-                            stripped_pending = pending.lstrip()
-                            if stripped_pending.startswith("<think>") or stripped_pending.startswith("<unused94>"):
-                                suppress_reasoning = True
-                            elif len(pending) >= 16:
-                                suppress_reasoning = False
+        async for event in adapter.stream(
+            ChatAdapterRequest(
+                system_prompt=system_prompt,
+                message=user_message,
+                history=[
+                    {"role": msg.role, "content": msg.content}
+                    for msg in (history or [])[-10:]
+                ],
+                temperature=temperature,
+                max_output_tokens=num_predict,
+            )
+        ):
+            if event.kind == "complete":
+                first_token_ms = cast(float | None, event.payload.get("first_token_ms"))
+                final_data = cast(dict[str, Any] | None, event.payload.get("final_data"))
+                full_content = str(event.payload.get("full_content", full_content))
+                continue
+            if event.kind != "token":
+                continue
+            token = event.token
+            full_content += token
+            pending += token
+            if suppress_reasoning is None:
+                stripped_pending = pending.lstrip()
+                if stripped_pending.startswith("<think>") or stripped_pending.startswith("<unused94>"):
+                    suppress_reasoning = True
+                elif len(pending) >= 16:
+                    suppress_reasoning = False
 
-                        if suppress_reasoning is True:
-                            cleaned = _strip_thinking_tokens(pending)
-                            if cleaned:
-                                visible_content += cleaned
-                                yield f"data: {json.dumps({'token': cleaned})}\n\n"
-                                pending = ""
-                                suppress_reasoning = False
-                        elif suppress_reasoning is False:
-                            visible_content += pending
-                            yield f"data: {json.dumps({'token': pending})}\n\n"
-                            pending = ""
-                except json.JSONDecodeError:
-                    continue
-
-            # Extract suggestions from complete response
-            if pending and suppress_reasoning is not True:
+            if suppress_reasoning is True:
+                cleaned = _strip_thinking_tokens(pending)
+                if cleaned:
+                    visible_content += cleaned
+                    yield f"data: {json.dumps({'token': cleaned})}\n\n"
+                    pending = ""
+                    suppress_reasoning = False
+            elif suppress_reasoning is False:
                 visible_content += pending
                 yield f"data: {json.dumps({'token': pending})}\n\n"
-
-            _, suggestions = _extract_suggestions(full_content)
-            if not visible_content.strip() and _needs_visible_reply_retry(full_content, visible_content):
-                logger.warning(
-                    "Local Abby stream contained only hidden reasoning; retrying with larger token budget"
-                )
-                retry_reply, retry_suggestions = await _retry_local_visible_reply(
-                    system_prompt=system_prompt,
-                    user_message=user_message,
-                    history=history,
-                    num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
-                )
-                if retry_reply:
-                    visible_content += retry_reply
-                    yield f"data: {json.dumps({'token': retry_reply})}\n\n"
-                if retry_suggestions:
-                    suggestions = retry_suggestions
-            if suggestions:
-                yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
-            if sources:
-                yield f"data: {json.dumps({'sources': sources})}\n\n"
-
-            if on_complete is not None:
-                try:
-                    on_complete((visible_content or full_content).strip(), suggestions)
-                except Exception:
-                    logger.exception("Abby stream post-processing failed")
-
-            yield "data: [DONE]\n\n"
-
-            _log_latency(
-                "abby_ollama_stream",
-                model=settings.abby_llm_model,
-                base_url=settings.abby_llm_base_url,
-                total_ms=(time.perf_counter() - started) * 1000,
-                first_token_ms=first_token_ms,
-                prompt_chars=len(system_prompt),
-                prompt_tokens_est=_estimate_tokens(system_prompt),
-                message_chars=len(user_message),
-                num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
-                history_turns=len(history[-10:]) if history else 0,
-                response_chars=len(visible_content or full_content),
-                load_ms=_ns_to_ms(final_data.get("load_duration")) if final_data else None,
-                prompt_eval_ms=_ns_to_ms(final_data.get("prompt_eval_duration")) if final_data else None,
-                eval_ms=_ns_to_ms(final_data.get("eval_duration")) if final_data else None,
-                ollama_total_ms=_ns_to_ms(final_data.get("total_duration")) if final_data else None,
-                prompt_eval_count=final_data.get("prompt_eval_count") if final_data else None,
-                eval_count=final_data.get("eval_count") if final_data else None,
-            )
-    except httpx.TimeoutException:
-        yield f"data: {json.dumps({'error': 'LLM service timed out.'})}\n\n"
+                pending = ""
+    except ChatAdapterError as exc:
+        logger.error("Ollama streaming failed (%s): %s", exc.error_class, exc)
+        yield f"data: {json.dumps({'error': str(exc)})}\n\n"
         yield "data: [DONE]\n\n"
-    except Exception as e:
-        logger.error("Ollama streaming failed: %s", e)
-        yield f"data: {json.dumps({'error': f'LLM service unavailable: {e}'})}\n\n"
+        return
+    except Exception as exc:
+        logger.error("Ollama streaming failed: %s", exc)
+        yield f"data: {json.dumps({'error': f'LLM service unavailable: {exc}'})}\n\n"
         yield "data: [DONE]\n\n"
+        return
+
+    # Extract suggestions from complete response
+    if pending and suppress_reasoning is not True:
+        visible_content += pending
+        yield f"data: {json.dumps({'token': pending})}\n\n"
+
+    _, suggestions = _extract_suggestions(full_content)
+    if not visible_content.strip() and _needs_visible_reply_retry(full_content, visible_content):
+        logger.warning(
+            "Local Abby stream contained only hidden reasoning; retrying with larger token budget"
+        )
+        retry_reply, retry_suggestions = await _retry_local_visible_reply(
+            system_prompt=system_prompt,
+            user_message=user_message,
+            history=history,
+            num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
+        )
+        if retry_reply:
+            visible_content += retry_reply
+            yield f"data: {json.dumps({'token': retry_reply})}\n\n"
+        if retry_suggestions:
+            suggestions = retry_suggestions
+    if suggestions:
+        yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+    if sources:
+        yield f"data: {json.dumps({'sources': sources})}\n\n"
+
+    if on_complete is not None:
+        try:
+            on_complete((visible_content or full_content).strip(), suggestions)
+        except Exception:
+            logger.exception("Abby stream post-processing failed")
+
+    yield "data: [DONE]\n\n"
+
+    _log_latency(
+        "abby_ollama_stream",
+        model=local_profile.model,
+        base_url=local_profile.base_url,
+        total_ms=(time.perf_counter() - started) * 1000,
+        first_token_ms=first_token_ms,
+        prompt_chars=len(system_prompt),
+        prompt_tokens_est=_estimate_tokens(system_prompt),
+        message_chars=len(user_message),
+        num_predict=num_predict if num_predict is not None else getattr(config, "ollama_num_predict", settings.ollama_num_predict),
+        history_turns=len(history[-10:]) if history else 0,
+        response_chars=len(visible_content or full_content),
+        load_ms=_ns_to_ms(final_data.get("load_duration")) if final_data else None,
+        prompt_eval_ms=_ns_to_ms(final_data.get("prompt_eval_duration")) if final_data else None,
+        eval_ms=_ns_to_ms(final_data.get("eval_duration")) if final_data else None,
+        ollama_total_ms=_ns_to_ms(final_data.get("total_duration")) if final_data else None,
+        prompt_eval_count=final_data.get("prompt_eval_count") if final_data else None,
+        eval_count=final_data.get("eval_count") if final_data else None,
+    )
 
 
 async def _stream_claude_response(
@@ -2190,100 +2810,66 @@ async def _stream_claude_response(
     request_user_id: int | None = None,
     route_reason: str = "claude_stream",
     on_complete: Callable[[str, list[str]], None] | None = None,
+    config: Any = settings,
+    cloud_profile: Any | None = None,
 ) -> AsyncGenerator[str, None]:
     """Stream tokens from Claude as SSE events."""
-    import asyncio
-    import queue
-
-    import anthropic
-
     started = time.perf_counter()
-    token_queue: queue.Queue[tuple[str, object] | None] = queue.Queue()
     history_dicts: list[dict[str, Any]] = (
         [{"role": msg.role, "content": msg.content} for msg in history[-10:]] if history else []
     )
-
-    def _run_sync_stream() -> None:
-        final_model = settings.claude_model
-        full_content = ""
-        usage_in = 0
-        usage_out = 0
-        try:
-            client = anthropic.Anthropic(api_key=settings.claude_api_key)
-            with client.messages.stream(
-                model=settings.claude_model,
-                max_tokens=settings.claude_max_tokens,
-                system=system_prompt,
-                messages=cast(Any, [*history_dicts, {"role": "user", "content": user_message}]),
-            ) as stream:
-                for text in stream.text_stream:
-                    if not text:
-                        continue
-                    full_content += text
-                    token_queue.put(("token", text))
-
-                try:
-                    final_message = stream.get_final_message()
-                    final_model = getattr(final_message, "model", final_model)
-                    usage = getattr(final_message, "usage", None)
-                    usage_in = int(getattr(usage, "input_tokens", 0) or 0)
-                    usage_out = int(getattr(usage, "output_tokens", 0) or 0)
-                except Exception:
-                    logger.debug("Claude stream final message unavailable", exc_info=True)
-        except Exception as exc:
-            logger.exception("Claude streaming failed")
-            token_queue.put(("error", str(exc)))
-            return
-        finally:
-            token_queue.put(
-                (
-                    "complete",
-                    {
-                        "full_content": full_content,
-                        "model": final_model,
-                        "tokens_in": usage_in,
-                        "tokens_out": usage_out,
-                    },
-                )
-            )
-            token_queue.put(None)
-
-    loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, _run_sync_stream)
-
     full_content = ""
-    final_model = settings.claude_model
+    final_model = getattr(config, "claude_model", settings.claude_model)
     tokens_in = 0
     tokens_out = 0
+    cost_usd = 0.0
+    cloud_profile = cloud_profile or _selected_cloud_profile(config)
+    try:
+        adapter = _build_cloud_chat_adapter(cloud_profile, config=config)
+    except ChatAdapterError as exc:
+        yield f"data: {json.dumps({'error': f'Cloud API unavailable: {exc}'})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
 
-    while True:
-        try:
-            item = token_queue.get_nowait()
-        except queue.Empty:
-            await asyncio.sleep(0.05)
-            continue
+    try:
+        async for event in adapter.stream(
+            ChatAdapterRequest(
+                system_prompt=system_prompt,
+                message=user_message,
+                history=cast(list[dict[str, str]], history_dicts),
+                max_output_tokens=getattr(config, "claude_max_tokens", settings.claude_max_tokens),
+            )
+        ):
+            if event.kind == "token":
+                token = event.token
+                full_content += token
+                yield f"data: {json.dumps({'token': token})}\n\n"
+                continue
 
-        if item is None:
-            break
+            if event.kind == "error":
+                message = event.payload.get("message", "unknown error")
+                error_class = event.payload.get("error_class", "provider_error")
+                logger.error("Cloud streaming failed (%s): %s", error_class, message)
+                yield f"data: {json.dumps({'error': f'Cloud API unavailable: {message}'})}\n\n"
+                yield "data: [DONE]\n\n"
+                return
 
-        kind, payload = item
-        if kind == "token":
-            token = str(payload)
-            full_content += token
-            yield f"data: {json.dumps({'token': token})}\n\n"
-            continue
-
-        if kind == "error":
-            yield f"data: {json.dumps({'error': f'Claude API unavailable: {payload}'})}\n\n"
-            yield "data: [DONE]\n\n"
-            return
-
-        if kind == "complete":
-            meta = cast(dict[str, Any], payload)
-            full_content = str(meta.get("full_content", full_content))
-            final_model = str(meta.get("model", final_model))
-            tokens_in = int(meta.get("tokens_in", 0) or 0)
-            tokens_out = int(meta.get("tokens_out", 0) or 0)
+            if event.kind == "complete":
+                full_content = str(event.payload.get("full_content", full_content))
+                final_model = str(event.payload.get("model", final_model))
+                tokens_in = int(event.payload.get("tokens_in", 0) or 0)
+                tokens_out = int(event.payload.get("tokens_out", 0) or 0)
+                cost_usd = float(event.payload.get("cost_usd", 0.0) or 0.0)
+    except ChatAdapterError as exc:
+        logger.error("Cloud streaming failed (%s): %s", exc.error_class, exc)
+        yield f"data: {json.dumps({'error': f'Cloud API unavailable: {exc}'})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
+    except Exception as exc:
+        logger.exception("Cloud streaming failed")
+        yield f"data: {json.dumps({'error': f'Cloud API unavailable: {exc}'})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
 
     _, suggestions = _extract_suggestions(full_content)
     if suggestions:
@@ -2297,15 +2883,20 @@ async def _stream_claude_response(
                 user_id=request_user_id,
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
-                cost_usd=ClaudeClient(api_key=settings.claude_api_key).estimate_cost(
-                    tokens_in=tokens_in,
-                    tokens_out=tokens_out,
-                    model=final_model,
-                ),
+                cost_usd=cost_usd,
                 model=final_model,
                 request_hash=request_hash or "",
                 redaction_count=0,
                 route_reason=route_reason,
+                provider=cloud_profile.provider,
+                transport=cloud_profile.transport,
+                provider_profile_id=cloud_profile.id,
+                entitlement_type=cloud_profile.entitlement,
+                status="success",
+                usage_metadata={
+                    "streaming": True,
+                    "fallback_profile_ids": list(cloud_profile.fallback_profile_ids),
+                },
             )
         except Exception:
             logger.debug("Claude stream usage accounting failed", exc_info=True)
@@ -2353,6 +2944,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     """
     started = time.perf_counter()
     session = _prepare_chat_session(request)
+    effective_config = _effective_chat_config(request.provider_policy)
     grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
     if grounded_definition_reply:
         _post_process_chat_turn(request, grounded_definition_reply, routing_reason="grounded_definition")
@@ -2368,11 +2960,10 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 ChatResponse(
                     reply=grounded_definition_reply,
                     suggestions=[],
-                    routing={
-                        "model": "local",
-                        "reason": "grounded_definition",
-                        "stage": 0,
-                    },
+                    routing=_routing_payload(
+                        RoutingDecision(model="local", stage=0, reason="grounded_definition", confidence=1.0),
+                        safety_metadata=_empty_safety_metadata("medgemma"),
+                    ),
                     confidence="medium",
                     sources=grounded_sources,
                 )
@@ -2385,7 +2976,9 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             },
         )
 
-    routing = _route_abby_request(request.message)
+    route_decision = _resolve_abby_chat_route(request.message, config=effective_config)
+    routing = route_decision.routing
+    safety_metadata = _empty_safety_metadata(route_decision.profile.prompt_profile)
 
     sources: list[dict[str, object]] = []
     try:
@@ -2409,10 +3002,30 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
 
     system_prompt = _build_chat_system_prompt(
         request,
-        model_profile="claude" if routing.model == "claude" else "medgemma",
+        model_profile=route_decision.profile.prompt_profile,
         session=session,
+        safety_metadata=safety_metadata,
     )
     local_num_predict = _get_local_num_predict(request.page_context)
+
+    if routing.model == "claude" and safety_metadata.get("cloud_safety_blocked"):
+        logger.warning(
+            "Cloud safety filter blocked %d context piece(s), falling back to local stream",
+            safety_metadata.get("blocked_context_count", 0),
+        )
+        route_decision = force_local_abby_route(
+            config=effective_config,
+            reason="cloud_safety_blocked",
+            requested_profile=route_decision.profile,
+        )
+        routing = route_decision.routing
+        safety_metadata = _empty_safety_metadata("medgemma")
+        system_prompt = _build_chat_system_prompt(
+            request,
+            model_profile=route_decision.profile.prompt_profile,
+            session=session,
+            safety_metadata=safety_metadata,
+        )
 
     if routing.model == "claude":
         history_dicts: list[dict[str, Any]] = [
@@ -2422,16 +3035,23 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
         for history_item in history_dicts:
             user_text += "\n" + str(history_item.get("content", ""))
         phi_result = _phi_sanitizer.scan(user_text)
-        if phi_result.phi_detected and settings.phi_block_on_detection:
+        if phi_result.phi_detected and getattr(effective_config, "phi_block_on_detection", settings.phi_block_on_detection):
             logger.warning(
                 "PHI detected in cloud-bound prompt, falling back to local stream. Redactions: %d",
                 phi_result.redaction_count,
             )
-            routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
+            route_decision = force_local_abby_route(
+                config=effective_config,
+                reason="phi_blocked",
+                requested_profile=route_decision.profile,
+            )
+            routing = route_decision.routing
+            safety_metadata = _empty_safety_metadata("medgemma")
             system_prompt = _build_chat_system_prompt(
                 request,
-                model_profile="medgemma",
+                model_profile=route_decision.profile.prompt_profile,
                 session=session,
+                safety_metadata=safety_metadata,
             )
         else:
             request_hash = ClaudeClient._compute_hash(
@@ -2458,6 +3078,8 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                     request_hash=request_hash,
                     request_user_id=request.user_id,
                     route_reason=routing.reason,
+                    config=effective_config,
+                    cloud_profile=route_decision.profile,
                     on_complete=lambda reply, _suggestions: _post_process_chat_turn(
                         request,
                         reply,
@@ -2485,6 +3107,19 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
         sources=len(sources),
     )
 
+    def _complete_local_stream(reply: str, _suggestions: list[str]) -> None:
+        _post_process_chat_turn(
+            request,
+            reply,
+            routing_reason=routing.reason,
+        )
+        _audit_local_route_decision(
+            route_decision,
+            request,
+            safety_metadata=safety_metadata,
+            streaming=True,
+        )
+
     return StreamingResponse(
         _stream_ollama(
             system_prompt=system_prompt,
@@ -2493,11 +3128,8 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             temperature=0.3,
             num_predict=local_num_predict,
             sources=sources,
-            on_complete=lambda reply, _suggestions: _post_process_chat_turn(
-                request,
-                reply,
-                routing_reason="local",
-            ),
+            config=effective_config,
+            on_complete=_complete_local_stream,
         ),
         media_type="text/event-stream",
         headers={

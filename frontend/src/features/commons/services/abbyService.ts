@@ -7,6 +7,8 @@ import type {
   AbbyConversationSummary,
   AbbyConversationMessage,
   AbbySource,
+  AbbyRouting,
+  AbbyRouteBadgeKind,
 } from "../types/abby";
 import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
 
@@ -119,6 +121,42 @@ function normalizeSuggestions(rawSuggestions: unknown): string[] {
     .filter((value): value is string => Boolean(value));
 }
 
+/**
+ * Normalize the provider-neutral `routing` block from /abby/chat. Returns
+ * undefined for legacy responses that carry no routing metadata, so the existing
+ * chat UI keeps working with both legacy and new payload shapes.
+ */
+export function normalizeAbbyRouting(raw: unknown): AbbyRouting | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const r = raw as Record<string, unknown>;
+  const model = asTrimmedString(r.model);
+  const provider = asTrimmedString(r.provider);
+  if (!model && !provider) return undefined;
+  return {
+    model,
+    provider,
+    transport: asTrimmedString(r.transport),
+    model_name: asTrimmedString(r.model_name) || undefined,
+    reason: asTrimmedString(r.reason),
+    stage: typeof r.stage === "number" ? r.stage : undefined,
+    fallback_used: r.fallback_used === true,
+    cloud_safety_applied: r.cloud_safety_applied === true,
+    cloud_safety_blocked: r.cloud_safety_blocked === true,
+  };
+}
+
+/**
+ * Classify routing metadata into a single badge kind for display. Order matters:
+ * a cloud-safety block takes precedence, then any fallback, then local vs cloud.
+ */
+export function abbyRouteBadgeKind(routing?: AbbyRouting): AbbyRouteBadgeKind | undefined {
+  if (!routing) return undefined;
+  if (routing.cloud_safety_blocked) return "cloud_blocked";
+  if (routing.fallback_used) return "fallback";
+  if (routing.model === "local" || routing.provider === "ollama") return "local";
+  return "cloud";
+}
+
 export function normalizeConversationResponse(
   message: AbbyConversationMessage,
 ): AbbyQueryResponse | null {
@@ -145,6 +183,7 @@ export async function queryAbby(
     suggestions?: string[];
     sources?: unknown[];
     conversation_id?: number | null;
+    routing?: unknown;
   }>(
     "/abby/chat",
     {
@@ -176,6 +215,7 @@ export async function queryAbby(
     retrieval_time_ms: 0,
     generation_time_ms: 0,
     conversation_id: typeof data.conversation_id === "number" ? data.conversation_id : undefined,
+    routing: normalizeAbbyRouting(data.routing),
   };
 }
 
@@ -223,6 +263,7 @@ export async function queryAbbyStream(
   let suggestions: string[] = [];
   let sources: AbbySource[] = [];
   let conversationId: number | undefined;
+  let routing: AbbyRouting | undefined;
 
   if (reader) {
     while (true) {
@@ -244,10 +285,14 @@ export async function queryAbbyStream(
           sources?: unknown[];
           conversation_id?: number;
           error?: string;
+          routing?: unknown;
         };
 
         if (parsed.error) {
           throw new Error(parsed.error);
+        }
+        if (parsed.routing) {
+          routing = normalizeAbbyRouting(parsed.routing) ?? routing;
         }
         if (typeof parsed.conversation_id === "number") {
           conversationId = parsed.conversation_id;
@@ -278,6 +323,7 @@ export async function queryAbbyStream(
     retrieval_time_ms: 0,
     generation_time_ms: 0,
     conversation_id: conversationId,
+    routing,
   };
 }
 

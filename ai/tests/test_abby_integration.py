@@ -25,6 +25,8 @@ from fastapi.testclient import TestClient
 
 from app.config import settings
 from app.main import app
+from app.routing.chat_adapters import ChatAdapterError, ChatAdapterResponse
+from app.routing.provider_profiles import build_default_provider_profiles, decide_abby_chat_route, resolve_abby_chat_policy
 from app.routers.abby import (
     ChatRequest,
     ChatResponse,
@@ -32,11 +34,14 @@ from app.routers.abby import (
     RoutingDecision,
     UserProfile,
     chat_stream,
+    _build_chat_system_prompt,
+    _effective_chat_config,
     _extract_suggestions,
     _is_reference_only_grounded_sentence,
     _looks_truncated_visible_reply,
     _needs_visible_reply_retry,
     _route_abby_request,
+    _resolve_abby_chat_route,
     _save_user_profile,
     _should_store_conversation_answer,
     _strip_thinking_tokens,
@@ -50,6 +55,111 @@ client = TestClient(app)
 # ---------------------------------------------------------------------------
 
 OLLAMA_REPLY = "Here is my answer.\nSUGGESTIONS: [\"Follow up?\", \"More detail?\"]"
+
+
+def test_provider_policy_maps_openai_to_openai_cloud_profile() -> None:
+    config = _effective_chat_config({
+        "provider_type": "openai",
+        "profile_id": "openai-responses",
+        "mode": "cloud_first",
+        "model": "gpt-5.5",
+        "settings": {
+            "api_key": "sk-test-openai",
+            "base_url": "https://api.openai.com/v1",
+            "timeout": 45,
+            "max_output_tokens": 1200,
+            "monthly_budget_usd": 25.0,
+        },
+    })
+
+    profiles = build_default_provider_profiles(config)
+    decision = decide_abby_chat_route(
+        "Analyze this study design",
+        config=config,
+        rule_router=MagicMock(),
+        cloud_client_available=lambda: True,
+    )
+
+    assert profiles["openai-responses"].key_configured is True
+    assert profiles["openai-responses"].model == "gpt-5.5"
+    assert profiles["openai-responses"].limits["monthly_budget_usd"] == 25.0
+    assert decision.routing.model == "claude"
+    assert decision.profile.provider == "openai"
+    assert decision.profile.transport == "openai_responses"
+
+
+def test_provider_policy_preserves_custom_openai_profile_id() -> None:
+    config = _effective_chat_config({
+        "provider_type": "openai",
+        "profile_id": "abby-openai-reasoner",
+        "mode": "cloud_first",
+        "model": "gpt-5.5",
+        "settings": {
+            "api_key": "sk-test-openai",
+            "monthly_budget_usd": 25.0,
+        },
+    })
+
+    decision = decide_abby_chat_route(
+        "Analyze this study design",
+        config=config,
+        rule_router=MagicMock(),
+        cloud_client_available=lambda: True,
+    )
+
+    assert decision.profile.id == "abby-openai-reasoner"
+    assert decision.routing.model == "claude"
+    assert decision.profile.provider == "openai"
+
+
+def test_selected_provider_budget_exhaustion_routes_local() -> None:
+    config = _effective_chat_config({
+        "provider_type": "openai",
+        "profile_id": "openai-responses",
+        "mode": "cloud_first",
+        "model": "gpt-5.5",
+        "settings": {
+            "api_key": "sk-test-openai",
+            "monthly_budget_usd": 25.0,
+        },
+    })
+    mock_tracker = MagicMock()
+    mock_tracker.is_budget_exhausted.side_effect = [False, True]
+
+    with patch("app.routers.abby._get_cost_tracker", return_value=mock_tracker):
+        decision = _resolve_abby_chat_route("Analyze this study design", config=config)
+
+    assert decision.routing.model == "local"
+    assert decision.routing.reason == "budget_exhausted"
+    assert mock_tracker.is_budget_exhausted.call_args_list[1].kwargs == {
+        "monthly_budget": 25.0,
+        "provider": "openai",
+        "provider_profile_id": "openai-responses",
+        "request_surface": "abby_chat",
+    }
+
+
+def test_unsupported_provider_policy_forces_local_only() -> None:
+    config = _effective_chat_config({
+        "provider_type": "gemini",
+        "profile_id": "gemini",
+        "mode": "cloud_first",
+        "model": "gemini-2.5-pro",
+        "settings": {"api_key": "gemini-key"},
+    })
+
+    policy = resolve_abby_chat_policy(config)
+    decision = decide_abby_chat_route(
+        "Analyze this study design",
+        config=config,
+        rule_router=MagicMock(),
+        cloud_client_available=lambda: True,
+    )
+
+    assert policy.mode == "local_only"
+    assert policy.cloud_routing_enabled is False
+    assert decision.routing.model == "local"
+    assert decision.profile.provider == "ollama"
 
 
 def _mock_chat_patches() -> tuple:
@@ -284,6 +394,226 @@ class TestChatEndpointResponseContract:
         data = resp.json()
         assert "routing" in data
         assert "model" in data["routing"]
+        assert "provider" in data["routing"]
+        assert "transport" in data["routing"]
+        assert "profile_id" in data["routing"]
+        assert "entitlement" in data["routing"]
+        assert "routing_strategy" in data["routing"]
+        assert "fallback_profile_ids" in data["routing"]
+        assert "capabilities" in data["routing"]
+        assert "fallback_used" in data["routing"]
+
+    def test_build_prompt_filters_unsafe_context_for_cloud(self) -> None:
+        safety_metadata: dict[str, Any] = {}
+        with (
+            patch("app.routers.abby._get_help_context", return_value=""),
+            patch("app.routers.abby.build_rag_context", return_value=""),
+            patch("app.routers.abby._build_episodic_memory_context", return_value=""),
+            patch("app.routers.abby._should_skip_live_context", return_value=False),
+            patch("app.chroma.live_context.query_live_context", return_value="LIVE PLATFORM DATA:\nperson_id=12345 has HbA1c 9.1"),
+            patch("app.routers.abby._should_include_data_quality_context", return_value=False),
+            patch("app.routers.abby._should_include_institutional_context", return_value=False),
+        ):
+            prompt = _build_chat_system_prompt(
+                ChatRequest(message="Summarize this patient's labs"),
+                model_profile="claude",
+                safety_metadata=safety_metadata,
+            )
+
+        assert safety_metadata["cloud_safety_applied"] is True
+        assert safety_metadata["cloud_safety_blocked"] is True
+        assert safety_metadata["blocked_context_count"] == 1
+        assert "person_id=12345" not in prompt
+
+    def test_cloud_safety_block_falls_back_to_local_with_metadata(self) -> None:
+        def fake_prompt(*args: Any, **kwargs: Any) -> str:
+            model_profile = kwargs.get("model_profile", "medgemma")
+            safety_metadata = kwargs.get("safety_metadata")
+            if isinstance(safety_metadata, dict):
+                safety_metadata.clear()
+                safety_metadata.update({
+                    "cloud_safety_applied": model_profile == "claude",
+                    "cloud_safety_blocked": model_profile == "claude",
+                    "blocked_context_count": 1 if model_profile == "claude" else 0,
+                    "context_pieces_before": 3,
+                    "context_pieces_after": 2 if model_profile == "claude" else 3,
+                })
+            return "You are Abby."
+
+        with (
+            patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=2, reason="test_cloud", confidence=1.0)),
+            patch("app.routers.abby._get_claude_client", return_value=object()) as mock_claude_client,
+            patch("app.routers.abby.call_ollama", new_callable=AsyncMock, return_value=OLLAMA_REPLY) as mock_ollama,
+            patch("app.routers.abby._build_chat_system_prompt", side_effect=fake_prompt),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby.store_conversation_turn"),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+            patch.object(settings, "claude_api_key", "test-secret"),
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+
+            resp = client.post("/abby/chat", json={
+                "message": "Analyze this patient-level context",
+                "page_context": "patient_profiles",
+            })
+
+        assert resp.status_code == 200
+        routing = resp.json()["routing"]
+        assert routing["model"] == "local"
+        assert routing["provider"] == "ollama"
+        assert routing["profile_id"] == "local-medgemma"
+        assert routing["requested_profile_id"] == "anthropic-claude"
+        assert routing["reason"] == "cloud_safety_blocked"
+        assert routing["fallback_used"] is True
+        assert mock_ollama.await_count == 1
+        # Availability checks are key-based; no Claude API chat client is needed after safety fallback.
+        assert mock_claude_client.call_count == 0
+        mock_cost.record_route_decision.assert_called_once()
+        route_audit = mock_cost.record_route_decision.call_args.kwargs
+        assert route_audit["status"] == "fallback_local"
+        assert route_audit["fallback_reason"] == "cloud_safety_blocked"
+        assert route_audit["requested_provider_profile_id"] == "anthropic-claude"
+
+    def test_phi_detection_blocks_cloud_and_uses_local(self) -> None:
+        """PHI in the user message (not just curated context) must block the cloud
+        provider and answer locally. The cloud adapter is never even built."""
+        build_cloud = MagicMock()
+        with (
+            patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch.object(settings, "claude_api_key", "test-secret"),
+            patch.object(settings, "phi_block_on_detection", True),
+            patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=2, reason="test_cloud", confidence=1.0)),
+            patch("app.routers.abby._get_claude_client", return_value=object()),
+            patch("app.routers.abby._build_cloud_chat_adapter", build_cloud),
+            patch("app.routers.abby.call_ollama", new_callable=AsyncMock, return_value=OLLAMA_REPLY) as mock_ollama,
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby.store_conversation_turn"),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+            mock_scan.return_value = MagicMock(
+                phi_detected=True,
+                redaction_count=2,
+                redacted_text="[REDACTED]",
+            )
+
+            resp = client.post("/abby/chat", json={
+                "message": "Patient John Smith MRN 00123456 has HbA1c 9.1, summarize",
+            })
+
+        assert resp.status_code == 200
+        routing = resp.json()["routing"]
+        assert routing["model"] == "local"
+        assert routing["reason"] == "phi_blocked"
+        assert routing["requested_profile_id"] == "anthropic-claude"
+        assert routing["fallback_used"] is True
+        # PHI is caught BEFORE any cloud adapter is constructed or called.
+        assert build_cloud.call_count == 0
+        assert mock_ollama.await_count == 1
+        mock_cost.record_route_decision.assert_called_once()
+        route_audit = mock_cost.record_route_decision.call_args.kwargs
+        assert route_audit["status"] == "fallback_local"
+        assert route_audit["fallback_reason"] == "phi_blocked"
+
+    def test_classified_cloud_error_falls_back_to_local_with_reason(self) -> None:
+        adapter = MagicMock()
+        adapter.chat = AsyncMock(side_effect=ChatAdapterError(
+            "insufficient credit balance",
+            error_class="provider_quota_exhausted",
+            status_code=503,
+        ))
+        with (
+            patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch.object(settings, "claude_api_key", "test-secret"),
+            patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=2, reason="test_cloud", confidence=1.0)),
+            patch("app.routers.abby._get_claude_client", return_value=object()),
+            patch("app.routers.abby.AnthropicMessagesAdapter", return_value=adapter),
+            patch("app.routers.abby.call_ollama", new_callable=AsyncMock, return_value=OLLAMA_REPLY) as mock_ollama,
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby.store_conversation_turn"),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+            mock_scan.return_value = MagicMock(phi_detected=False, redaction_count=0, redacted_text="")
+
+            resp = client.post("/abby/chat", json={"message": "Analyze this design"})
+
+        assert resp.status_code == 200
+        routing = resp.json()["routing"]
+        assert routing["model"] == "local"
+        assert routing["reason"] == "provider_quota_exhausted"
+        assert routing["requested_profile_id"] == "anthropic-claude"
+        assert routing["fallback_used"] is True
+        assert mock_ollama.await_count == 1
+        mock_cost.record_route_decision.assert_called_once()
+        route_audit = mock_cost.record_route_decision.call_args.kwargs
+        assert route_audit["status"] == "fallback_local"
+        assert route_audit["fallback_reason"] == "provider_quota_exhausted"
+        assert route_audit["requested_provider_profile_id"] == "anthropic-claude"
+
+    def test_openai_cloud_profile_uses_cloud_adapter_metadata(self) -> None:
+        adapter = MagicMock()
+        adapter.chat = AsyncMock(return_value=ChatAdapterResponse(
+            reply="OpenAI cloud reply",
+            provider="openai",
+            transport="openai_responses",
+            model="gpt-5.5",
+            tokens_in=25,
+            tokens_out=9,
+            request_hash="openai-hash",
+        ))
+        with (
+            patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch.object(settings, "abby_chat_provider_mode", "cloud_first"),
+            patch.object(settings, "abby_cloud_chat_profile_id", "openai-responses"),
+            patch.object(settings, "openai_api_key", "test-openai-key"),
+            patch("app.routers.abby._build_cloud_chat_adapter", return_value=adapter),
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby.store_conversation_turn"),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+            mock_scan.return_value = MagicMock(phi_detected=False, redaction_count=0, redacted_text="")
+
+            resp = client.post("/abby/chat", json={"message": "Analyze this design"})
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["reply"] == "OpenAI cloud reply"
+        assert data["routing"]["model"] == "claude"
+        assert data["routing"]["provider"] == "openai"
+        assert data["routing"]["transport"] == "openai_responses"
+        assert data["routing"]["profile_id"] == "openai-responses"
+        assert data["routing"]["entitlement"] == "org_api_key"
+        mock_cost.record_usage.assert_called_once()
+        mock_cost.record_route_decision.assert_not_called()
 
     def test_truncated_local_reply_retries_and_stores_final_answer(self) -> None:
         truncated = (
@@ -318,6 +648,12 @@ class TestChatEndpointResponseContract:
         assert resp.json()["reply"] == recovered
         assert mock_ollama.await_count == 2
         assert mock_store.call_args.kwargs["answer"] == recovered
+        mock_cost.record_route_decision.assert_called_once()
+        route_audit = mock_cost.record_route_decision.call_args.kwargs
+        assert route_audit["provider"] == "ollama"
+        assert route_audit["provider_profile_id"] == "local-medgemma"
+        assert route_audit["status"] == "routed_local"
+        assert route_audit["fallback_reason"] is None
 
     def test_grounded_definition_returns_sources_and_skips_memory_storage(self) -> None:
         with (
@@ -365,6 +701,7 @@ class TestChatEndpointResponseContract:
             }
         ]
         mock_store.assert_not_called()
+        mock_cost.record_route_decision.assert_not_called()
 
     async def test_stream_grounded_definition_emits_sources_event(self) -> None:
         with patch(
@@ -431,6 +768,7 @@ class TestChatEndpointResponseContract:
             patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
             patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=0, reason="test", confidence=1.0)),
             patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch.object(settings, "claude_api_key", "test-secret"),
         ):
             mock_cost = MagicMock()
             mock_cost.is_budget_exhausted.return_value = False
@@ -450,6 +788,49 @@ class TestChatEndpointResponseContract:
 
         assert response.status_code == 200
         assert 'data: {"token": "Hello"}' in lines
+
+    async def test_local_stream_records_route_decision_on_completion(self) -> None:
+        async def fake_ollama_stream(*args: Any, **kwargs: Any):
+            on_complete = kwargs.get("on_complete")
+            yield 'data: {"token": "Hello"}\n\n'
+            if on_complete is not None:
+                on_complete("Hello", [])
+            yield "data: [DONE]\n\n"
+
+        with (
+            patch("app.routers.abby._stream_ollama", new=fake_ollama_stream),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+            patch(
+                "app.routers.abby._router.route",
+                return_value=RoutingDecision(model="local", stage=0, reason="local_test", confidence=1.0),
+            ),
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+
+            response = await chat_stream(
+                ChatRequest(
+                    message="What is OMOP?",
+                    page_context="general",
+                )
+            )
+            chunks = []
+            async for chunk in response.body_iterator:
+                chunks.append(chunk.decode() if isinstance(chunk, bytes) else chunk)
+
+        assert response.status_code == 200
+        assert 'data: {"token": "Hello"}' in [line for line in "".join(chunks).splitlines() if line]
+        mock_cost.record_route_decision.assert_called_once()
+        route_audit = mock_cost.record_route_decision.call_args.kwargs
+        assert route_audit["status"] == "routed_local"
+        assert route_audit["fallback_reason"] is None
+        assert route_audit["usage_metadata"]["streaming"] is True
 
     def test_anonymous_user_no_user_id(self) -> None:
         """No user_id — no profile fetch, no profile save, still returns reply."""
@@ -816,6 +1197,53 @@ class TestRouterRegistration:
         resp = _post_chat({"message": "Test without anthropic"})
         assert resp.status_code == 200
         assert resp.json()["routing"]["model"] == "local"
+
+    def test_provider_health_reports_local_and_cloud_readiness_without_secret(self) -> None:
+        with (
+            patch("app.services.ollama_client.check_ollama_health", new_callable=AsyncMock, return_value="ok"),
+            patch.object(settings, "abby_cloud_routing_enabled", True),
+            patch.object(settings, "claude_api_key", ""),
+        ):
+            resp = client.get("/abby/provider-health")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["chat"]["local"]["provider"] == "ollama"
+        assert data["chat"]["local"]["status"] == "ok"
+        assert data["chat"]["cloud"]["provider"] == "anthropic"
+        assert data["chat"]["cloud"]["status"] == "missing_key"
+        assert data["chat"]["policy"]["mode"] == "auto_by_complexity"
+        assert data["chat"]["profiles"][0]["id"] == "local-medgemma"
+        assert "local_only" in data["chat"]["routing_strategies"]
+        assert "sk-ant" not in json.dumps(data).lower()
+        assert "sk-proj" not in json.dumps(data).lower()
+
+    def test_model_inventory_reports_local_models_and_profiles_without_secret(self) -> None:
+        with patch(
+            "app.services.ollama_client.list_ollama_models",
+            new_callable=AsyncMock,
+            return_value={
+                "status": "ok",
+                "models": [
+                    {
+                        "name": "puyangwang/medgemma-27b-it:q4_0",
+                        "size": 123,
+                        "modified_at": "2026-06-25T00:00:00Z",
+                        "digest": "sha256:test",
+                    }
+                ],
+            },
+        ):
+            resp = client.get("/abby/model-inventory")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["local"]["status"] == "ok"
+        assert data["local"]["configured_model_present"] is True
+        assert data["profile_usage"]["chat"] == "local-medgemma"
+        assert data["subscription_boundary"]["backend_subscription_quota_supported"] is False
+        assert "sk-ant" not in json.dumps(data).lower()
+        assert "sk-proj" not in json.dumps(data).lower()
 
 
 # ===========================================================================

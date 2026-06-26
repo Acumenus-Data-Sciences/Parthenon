@@ -497,8 +497,12 @@ async def test_options_local_injects_env_and_model(monkeypatch):
 
 async def test_options_local_actions_disabled_withdraws_writes(monkeypatch):
     """local provider with actions disabled (CE default) withdraws all write
-    tools: they move into allowed_tools (auto-approved reads only), no approval
-    callback fires, and the env redirect is still applied."""
+    tools ENTIRELY — they are removed from the MCP tool server, NOT moved into
+    auto-approved allowed_tools. (The write-tool implementations execute their
+    PATCH/POST unconditionally and carry no internal actions guard, so leaving
+    them auto-approved under dontAsk would let a CE local agent silently mutate
+    study state — violating the 'reads-only until explicitly enabled' contract.)
+    The env redirect to the local proxy is still applied."""
     from app.agents.tool_packs import write_tools as wt
     import app.config as cfg
     monkeypatch.setattr(cfg.settings, "agent_provider", "local")
@@ -508,12 +512,14 @@ async def test_options_local_actions_disabled_withdraws_writes(monkeypatch):
     opts = service._options(_publish_state())
 
     allowed = set(opts.allowed_tools or [])
-    # every former write tool is now auto-approved (no human-in-the-loop on CE)
+    # No write tool may be reachable: not auto-approved, and not registered.
     for write_name in wt("publish"):
-        assert f"mcp__parthenon__{write_name}" in allowed, (
-            f"write tool '{write_name}' should be withdrawn into allowed_tools when "
-            "local actions are disabled"
+        assert f"mcp__parthenon__{write_name}" not in allowed, (
+            f"write tool '{write_name}' must NOT be auto-approved when local "
+            "actions are disabled"
         )
+    # Reads remain available and auto-approved.
+    assert "mcp__parthenon__get_draft" in allowed
     assert opts.permission_mode == "dontAsk"
     assert opts.can_use_tool is None
     assert opts.env["ANTHROPIC_BASE_URL"] == cfg.settings.agent_local_base_url

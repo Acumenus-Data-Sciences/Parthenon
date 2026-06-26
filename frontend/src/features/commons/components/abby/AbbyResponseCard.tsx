@@ -3,8 +3,23 @@ import { formatDate } from "@/i18n/format";
 import AbbyAvatar from "./AbbyAvatar";
 import AbbySourceAttribution from "./AbbySourceAttribution";
 import AbbyFeedback from "./AbbyFeedback";
-import type { AbbyResponseCardProps, ObjectReference } from "../../types/abby";
+import type { AbbyResponseCardProps, ObjectReference, AbbyRouteBadgeKind } from "../../types/abby";
+import { abbyRouteBadgeKind } from "../../services/abbyService";
 import DOMPurify from "dompurify";
+
+const ROUTE_BADGE_STYLES: Record<AbbyRouteBadgeKind, string> = {
+  local: "bg-teal-500/15 text-teal-400",
+  cloud: "bg-sky-500/15 text-sky-400",
+  fallback: "bg-amber-500/15 text-amber-400",
+  cloud_blocked: "bg-rose-500/15 text-rose-400",
+};
+
+const ROUTE_BADGE_I18N: Record<AbbyRouteBadgeKind, string> = {
+  local: "abby.route.local",
+  cloud: "abby.route.cloud",
+  fallback: "abby.route.fallback",
+  cloud_blocked: "abby.route.cloudBlocked",
+};
 
 const REF_TYPE_KEYS: Record<string, string> = {
   cohort_definition: "abby.refTypes.cohortDefinition",
@@ -54,8 +69,10 @@ export default function AbbyResponseCard({
   onFeedback,
   onObjectReferenceClick,
   compact = false,
+  routing,
 }: AbbyResponseCardProps) {
   const { t } = useTranslation("commons");
+  const routeKind = abbyRouteBadgeKind(routing);
 
   return (
     <div className="group px-4 py-3 hover:bg-muted/30 transition-colors duration-100">
@@ -80,6 +97,17 @@ export default function AbbyResponseCard({
             {!compact && (
               <span className="text-[10px] text-muted-foreground">
                 {t("abby.modelLabel")}
+              </span>
+            )}
+
+            {routeKind && (
+              <span
+                data-testid="abby-route-badge"
+                data-route-kind={routeKind}
+                title={routing?.model_name ?? routing?.model}
+                className={`inline-flex items-center px-1.5 py-px rounded text-[9px] font-medium ${ROUTE_BADGE_STYLES[routeKind]}`}
+              >
+                {t(ROUTE_BADGE_I18N[routeKind])}
               </span>
             )}
 

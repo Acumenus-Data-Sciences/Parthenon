@@ -2,12 +2,21 @@
 
 namespace App\Services;
 
+use App\Models\App\AiProviderSetting;
+use App\Services\AI\AbbyProviderPolicyService;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 
 class AiService
 {
+    private const ABBY_OPENAI_COMPATIBLE_BASE_URLS = [
+        'deepseek' => 'https://api.deepseek.com',
+        'mistral' => 'https://api.mistral.ai/v1',
+        'moonshot' => 'https://api.moonshot.cn/v1',
+        'qwen' => 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    ];
+
     private string $baseUrl;
 
     private int $timeout;
@@ -194,10 +203,124 @@ class AiService
             $payload['conversation_id'] = $conversationId;
         }
 
+        $providerPolicy = $this->abbyProviderPolicyPayload();
+        if ($providerPolicy !== null) {
+            $payload['provider_policy'] = $providerPolicy;
+        }
+
         $response = Http::timeout(300)
             ->post("{$this->baseUrl}/abby/chat", $payload);
 
         return $response->json() ?? ['reply' => 'Abby is unavailable.', 'suggestions' => []];
+    }
+
+    /**
+     * Build the provider-neutral policy payload consumed by python-ai Abby chat.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function abbyProviderPolicyPayload(): ?array
+    {
+        try {
+            $surfacePolicy = app(AbbyProviderPolicyService::class)->payloadForSurface('chat');
+            if ($surfacePolicy !== null) {
+                return $surfacePolicy;
+            }
+        } catch (\Throwable) {
+            // Preserve existing active-provider fallback during rollout/migration windows.
+        }
+
+        $provider = AiProviderSetting::query()
+            ->where('is_active', true)
+            ->where('is_enabled', true)
+            ->first();
+
+        if ($provider === null) {
+            return null;
+        }
+
+        $settings = $provider->settings ?? [];
+        $type = strtolower($provider->provider_type);
+        $base = [
+            'provider_type' => $type,
+            'model' => $provider->model,
+            'entitlement' => $settings['entitlement'] ?? 'org_api_key',
+        ];
+
+        if ($type === 'ollama') {
+            return array_merge($base, [
+                'profile_id' => 'local-medgemma',
+                'mode' => 'local_only',
+                'settings' => $this->onlyNonEmpty([
+                    'base_url' => $settings['base_url'] ?? null,
+                    'timeout' => $settings['timeout'] ?? null,
+                    'max_output_tokens' => $settings['max_output_tokens'] ?? null,
+                    'monthly_budget_usd' => $settings['monthly_budget_usd'] ?? null,
+                ]),
+            ]);
+        }
+
+        if ($type === 'anthropic') {
+            return array_merge($base, [
+                'profile_id' => 'anthropic-claude',
+                'mode' => 'cloud_first',
+                'settings' => $this->onlyNonEmpty([
+                    'api_key' => $settings['api_key'] ?? null,
+                    'timeout' => $settings['timeout'] ?? null,
+                    'max_output_tokens' => $settings['max_output_tokens'] ?? null,
+                    'monthly_budget_usd' => $settings['monthly_budget_usd'] ?? null,
+                    'entitlement' => $settings['entitlement'] ?? null,
+                ]),
+            ]);
+        }
+
+        if ($type === 'openai') {
+            return array_merge($base, [
+                'profile_id' => 'openai-responses',
+                'mode' => 'cloud_first',
+                'settings' => $this->onlyNonEmpty([
+                    'api_key' => $settings['api_key'] ?? null,
+                    'base_url' => $settings['base_url'] ?? null,
+                    'timeout' => $settings['timeout'] ?? null,
+                    'max_output_tokens' => $settings['max_output_tokens'] ?? null,
+                    'monthly_budget_usd' => $settings['monthly_budget_usd'] ?? null,
+                    'entitlement' => $settings['entitlement'] ?? null,
+                ]),
+            ]);
+        }
+
+        if (array_key_exists($type, self::ABBY_OPENAI_COMPATIBLE_BASE_URLS)) {
+            return array_merge($base, [
+                'profile_id' => 'openai-compatible-chat',
+                'mode' => 'cloud_first',
+                'settings' => $this->onlyNonEmpty([
+                    'api_key' => $settings['api_key'] ?? null,
+                    'base_url' => $settings['base_url'] ?? self::ABBY_OPENAI_COMPATIBLE_BASE_URLS[$type],
+                    'timeout' => $settings['timeout'] ?? null,
+                    'max_output_tokens' => $settings['max_output_tokens'] ?? null,
+                    'monthly_budget_usd' => $settings['monthly_budget_usd'] ?? null,
+                    'entitlement' => $settings['entitlement'] ?? null,
+                ]),
+            ]);
+        }
+
+        return array_merge($base, [
+            'profile_id' => 'local-medgemma',
+            'mode' => 'local_only',
+            'settings' => [],
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    private function onlyNonEmpty(array $values): array
+    {
+        return array_filter(
+            $values,
+            fn ($value): bool => $value !== null && $value !== '',
+        );
     }
 
     /**

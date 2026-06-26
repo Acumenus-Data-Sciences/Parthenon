@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AbbyProfileController;
 use App\Http\Controllers\Api\V1\AchillesController;
+use App\Http\Controllers\Api\V1\Admin\AbbyProviderPolicyController;
 use App\Http\Controllers\Api\V1\Admin\AgentSettingsController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AppSettingsController;
@@ -1567,6 +1568,17 @@ Route::prefix('v1')->group(function () {
             Route::middleware('role:super-admin')->prefix('ai-agents')->group(function () {
                 Route::get('/', [AgentSettingsController::class, 'show']);
                 Route::put('/', [AgentSettingsController::class, 'update']);
+            });
+
+            // ── Abby provider profile and behavior policy (super-admin only) ──
+            Route::middleware('role:super-admin')->prefix('abby-ai')->group(function () {
+                Route::get('/', [AbbyProviderPolicyController::class, 'show']);
+                Route::post('/profiles', [AbbyProviderPolicyController::class, 'storeProfile']);
+                Route::put('/profiles/{profileId}', [AbbyProviderPolicyController::class, 'updateProfile']);
+                Route::post('/profiles/{profileId}/archive', [AbbyProviderPolicyController::class, 'archiveProfile']);
+                Route::delete('/profiles/{profileId}', [AbbyProviderPolicyController::class, 'destroyProfile']);
+                Route::put('/surfaces/{surface}', [AbbyProviderPolicyController::class, 'updateSurfacePolicy']);
+                Route::post('/simulate-route', [AbbyProviderPolicyController::class, 'simulate']);
             });
 
             // ── WebAPI registry (admin+) ──────────────────────────────────

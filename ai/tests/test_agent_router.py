@@ -200,6 +200,112 @@ def test_approve_resolves_pending_future(monkeypatch):
         loop.close()
 
 
+def _publish_profile_state(agent_session_id: int = 90001):
+    """Build an in-memory publish-profile session (publish has write tools)."""
+    from app.agents.service import AgentSessionState
+    from app.agents.tool_base import AgentToolContext
+
+    ctx = AgentToolContext(auth_token="tok", context={"draft_id": 5})
+    return AgentSessionState(
+        agent_session_id=agent_session_id,
+        profile_name="publish",
+        subject_id=5,
+        channel="private-publish.draft.5",
+        ingest_path=f"/api/v1/publish/drafts/5/agent/sessions/{agent_session_id}/ingest",
+        tool_context=ctx,
+    )
+
+
+def test_agent_local_provider_with_actions_disabled_removes_write_tools(monkeypatch):
+    """CE reads-only (local provider, actions disabled) must REMOVE the publish
+    write tools from the MCP server entirely — not merely un-gate them. Otherwise
+    a zeroed write-set would drop the writes into auto-approved allowed_tools."""
+    import app.config as cfg
+    from app.agents.service import ParthenonAgentService
+    from app.config import ResolvedAgentProvider
+
+    monkeypatch.setattr(
+        type(cfg.settings),
+        "resolve_agent_provider",
+        lambda self, *a, **k: ResolvedAgentProvider(
+            provider="local",
+            model="qwen2.5-coder:32b",
+            effort="medium",
+            base_url="http://claude-router:8787",
+            auth_token="local",
+            actions_enabled=False,
+        ),
+    )
+
+    service = ParthenonAgentService()
+    options = service._options(_publish_profile_state())
+
+    # Write tools must not appear anywhere in the auto-approved allow list.
+    assert "mcp__parthenon__update_draft" not in options.allowed_tools
+    assert "mcp__parthenon__create_snapshot" not in options.allowed_tools
+    # Reads-only => no approval callback, headless deny for anything unlisted.
+    assert options.permission_mode == "dontAsk"
+    assert getattr(options, "can_use_tool", None) is None
+
+
+def test_agent_local_provider_with_actions_enabled_gates_write_tools(monkeypatch):
+    """When local actions ARE enabled, write tools stay gated through can_use_tool
+    (kept out of allowed_tools, permission_mode=default) — not removed."""
+    import app.config as cfg
+    from app.agents.service import ParthenonAgentService
+    from app.config import ResolvedAgentProvider
+
+    monkeypatch.setattr(
+        type(cfg.settings),
+        "resolve_agent_provider",
+        lambda self, *a, **k: ResolvedAgentProvider(
+            provider="local",
+            model="qwen2.5-coder:32b",
+            effort="medium",
+            base_url="http://claude-router:8787",
+            auth_token="local",
+            actions_enabled=True,
+        ),
+    )
+
+    service = ParthenonAgentService()
+    options = service._options(_publish_profile_state(90002))
+
+    # Writes are gated (not auto-approved), so they must not be in allowed_tools
+    # but the approval callback must be wired and permission_mode default.
+    assert "mcp__parthenon__update_draft" not in options.allowed_tools
+    assert options.permission_mode == "default"
+    assert getattr(options, "can_use_tool", None) is not None
+
+
+def test_agent_local_provider_sets_anthropic_base_url_env(monkeypatch):
+    """Local mode redirects the CLI subprocess to the Anthropic-compatible proxy
+    via ClaudeAgentOptions.env (ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN)."""
+    import app.config as cfg
+    from app.agents.service import ParthenonAgentService
+    from app.config import ResolvedAgentProvider
+
+    monkeypatch.setattr(
+        type(cfg.settings),
+        "resolve_agent_provider",
+        lambda self, *a, **k: ResolvedAgentProvider(
+            provider="local",
+            model="qwen2.5-coder:32b",
+            effort="medium",
+            base_url="http://claude-router:8787",
+            auth_token="router-token",
+            actions_enabled=False,
+        ),
+    )
+
+    service = ParthenonAgentService()
+    options = service._options(_publish_profile_state(90003))
+
+    env = getattr(options, "env", None) or {}
+    assert env.get("ANTHROPIC_BASE_URL") == "http://claude-router:8787"
+    assert env.get("ANTHROPIC_AUTH_TOKEN") == "router-token"
+
+
 async def test_duplicate_idempotency_key_runs_once(monkeypatch):
     """Second call with the same idempotency key must be deduped — run_turn called exactly once."""
     from app.agents import registry as reg
