@@ -428,7 +428,7 @@ class OpenAIResponsesAdapter:
             response = self.client.responses.create(
                 model=self.profile.model,
                 instructions=request.system_prompt,
-                input=_responses_input(request),
+                input=cast(Any, _responses_input(request)),
                 max_output_tokens=request.max_output_tokens or self.max_output_tokens,
                 temperature=request.temperature,
                 timeout=self.timeout_seconds,
@@ -461,7 +461,7 @@ class OpenAIResponsesAdapter:
             stream = self.client.responses.create(
                 model=self.profile.model,
                 instructions=request.system_prompt,
-                input=_responses_input(request),
+                input=cast(Any, _responses_input(request)),
                 max_output_tokens=request.max_output_tokens or self.max_output_tokens,
                 temperature=request.temperature,
                 stream=True,
@@ -529,7 +529,7 @@ class OpenAICompatibleChatAdapter:
         try:
             response = self.client.chat.completions.create(
                 model=self.profile.model,
-                messages=_chat_completion_messages(request),
+                messages=cast(Any, _chat_completion_messages(request)),
                 max_completion_tokens=request.max_output_tokens or self.max_output_tokens,
                 temperature=request.temperature,
                 timeout=self.timeout_seconds,
@@ -561,7 +561,7 @@ class OpenAICompatibleChatAdapter:
         try:
             stream = self.client.chat.completions.create(
                 model=self.profile.model,
-                messages=_chat_completion_messages(request),
+                messages=cast(Any, _chat_completion_messages(request)),
                 max_completion_tokens=request.max_output_tokens or self.max_output_tokens,
                 temperature=request.temperature,
                 stream=True,

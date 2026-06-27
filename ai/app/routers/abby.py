@@ -154,7 +154,8 @@ def _effective_chat_config(provider_policy: dict[str, Any] | None) -> Any:
         return settings
 
     provider_type = str(provider_policy.get("provider_type", "")).strip().lower()
-    provider_settings = provider_policy.get("settings") if isinstance(provider_policy.get("settings"), dict) else {}
+    raw_settings = provider_policy.get("settings")
+    provider_settings: dict[str, Any] = raw_settings if isinstance(raw_settings, dict) else {}
     profile_id = str(provider_policy.get("profile_id", "")).strip()
     mode = str(provider_policy.get("mode", "")).strip()
     model = str(provider_policy.get("model", "")).strip()
