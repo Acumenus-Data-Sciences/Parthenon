@@ -875,6 +875,10 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"DB_PASSWORD={cfg['db_password']}",
         f"REDIS_PASSWORD={cfg['redis_password']}",
         f"",
+        f"# Shared internal service token (php <-> parthenon-templates sidecar)."
+        f" docker compose requires this to start.",
+        f"PARTHENON_INTERNAL_TOKEN={cfg.get('parthenon_internal_token') or _generate_password(32)}",
+        f"",
         f"# Host port mapping",
         f"NGINX_PORT={cfg['nginx_port']}",
         f"VITE_PORT=5175",
@@ -915,6 +919,19 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"# AI safety & budget guardrails",
         f"PHI_DETECTION_ENABLED=true",
         f"CLOUD_MONTHLY_BUDGET_USD=500",
+        f"",
+        f"# Reverb (WebSocket server for Abby streaming + agent copilots + Commons realtime)",
+        f"REVERB_APP_ID=parthenon-commons",
+        f"REVERB_APP_KEY={cfg.get('reverb_app_key') or _generate_password(24)}",
+        f"REVERB_APP_SECRET={cfg.get('reverb_app_secret') or _generate_password(32)}",
+        f"REVERB_PORT={cfg.get('reverb_port', 8080)}",
+        f"",
+        f"# JupyterHub (notebook workspaces)",
+        f"JUPYTER_JWT_SECRET={cfg.get('jupyter_jwt_secret') or _generate_password(32)}",
+        f"JUPYTERHUB_CRYPT_KEY={cfg.get('jupyterhub_crypt_key') or _generate_password(32)}",
+        f"JUPYTER_HUB_API_KEY={cfg.get('jupyter_hub_api_key') or _generate_password(32)}",
+        f"JUPYTER_DB_RESEARCHER_PASSWORD={cfg.get('jupyter_db_researcher_password') or _generate_password(24)}",
+        f"JUPYTER_DB_ADMIN_PASSWORD={cfg.get('jupyter_db_admin_password') or _generate_password(24)}",
     ]
 
     # Optional sidecar service ports

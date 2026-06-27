@@ -2,6 +2,50 @@
 
 All notable changes to Parthenon are documented here.
 
+## [1.0.9] — 2026-06-26
+
+### Added
+- **Protocol-to-Publication pipeline (ADR-0020)** — a deterministic study orchestration FSM that carries a study from protocol through estimation, calibration, and gated analysis to a publication-ready manuscript. Includes a **provenance spine** (content-addressable hashes, version pinning, reproducible study packages), **empirical calibration** (calibrated confidence intervals, EASE, multiplicity correction, negative-control calibration in the CohortMethod sidecar), a **scientific gate ledger with estimate blinding** (behind `studies.gating_enabled`), index-event breakdown + orphan-concept diagnostics, and a **gate-aware STROBE/RECORD manuscript composer**
+- **Abby study orchestrator** — a Claude Agent SDK copilot that drives study design → execution → publication, with an orchestrator launch surface and copilot panel
+- **FHIR ingestion (Medgnosis parity)** — ingest CarePlan, Goal, CareTeam, DocumentReference, Coverage, and ServiceRequest into the OMOP CDM via a new `ResourceMapper` interface with registry dispatch; care-extension tables and soft-delete crosswalk columns; soft-delete via `entered-in-error` with a Bulk deleted manifest
+- **Epic SMART Backend Services authentication** — public JWKS endpoint with `kid` in the Backend Services JWT, validated end-to-end against the live Epic FHIR sandbox (auth handshake + six mappers proven on real data)
+- **OMOP-to-FHIR bulk `$export`** with per-user rate limiting, plus an admin bulk-export page wired to the backend (create / poll / download NDJSON)
+- **Omnipresent Abby copilot** — action-taking assistant on the Claude Agent SDK, grounded on all 38 page contexts, with help and Abby drawer coverage on every page
+- **Local-model copilots for Community Edition** — an admin-switchable copilot provider (Anthropic cloud ↔ local Ollama) with graceful fallback, and a config-driven local-model backend so CE can run the copilots fully on-prem
+- **`sidecars:readiness` command** — health probes for all nine sidecars (darkstar/R, python-ai, redis, orthanc, hecate, fhir-to-cdm, templates, anonymizer, scispacy) with `--json` and a non-zero exit for environment promotion gates
+- **Publish module export maturation** — XLSX manuscript export, PNG/SVG figure export, OHDSI report-bundle import/export, a rich OHDSI study-first picker with typed result summaries, and `###` subheading support in the paper renderer
+- **OHDSI-lifecycle study tabs** — Study Protocol → Analysis Results → Draft Manuscript, populated from analysis results with a composed manuscript and merged progress tracking, plus inclusion-attrition diagnostics
+- **Source profiler scan comparison** — cross-source and cross-project schema/row-count/null-rate/vocabulary/distribution deltas
+- **Patient-similarity PSM export** — write matched propensity-score cohorts to the results table
+- **GIS `.xlsx`/`.xls` upload** in the data-import wizard
+- **Multi-reviewer phenotype adjudication** contract
+- **Hypertension v4 study** end-to-end on the Acumenus OMOP CDM (BP-indexed target, delay strata, negative-control panel, recording-comparable normotensive comparator)
+- Self-controlled cohort analysis detail route wired into the UI
+
+### Changed
+- Estimation, prediction, SCCS, and evidence-synthesis runs now **fail with actionable diagnostics** when the R sidecar is unavailable, instead of silently completing; the R sidecar response contract is hardened and HADES is verified end-to-end
+- A per-contrast study-diagnostics gate means one bad contrast no longer fails an entire study
+- Airflow / Dagster / Temporal are relabeled as developer-extension examples (ADR-0021), not first-class orchestration connectors
+- Removed non-functional surfaces for honesty: the dead Abby agentic plan-execution UI, Chroma Studio seed-FAQ / aggregate-conversations, and imaging AI measurement-extraction / template-suggestion stubs
+- Health endpoints canonicalized on `/api/health` with an `/api/v1/health` alias to prevent drift
+
+### Fixed
+- **Security** — CORS scoped to app origins (was wildcard with credentials); RBAC permission middleware added to Achilles, DQD, risk-score, and clinical-coherence routes; `profiles.view` enforced on Morpheus and Patient Profile PHI routes
+- Estimation sidecar restored (age binning, incidence-rate confidence intervals, negative-control calibration)
+- Abby grounded on all 38 page contexts (was 21); the data-quality profiler now targets the `omop` schema (not a phantom `cdm` schema); failed/empty agent turns are surfaced instead of hanging; the double `/api/v1` prefix on Abby profile and risk-score calls is removed
+- Unauthenticated 401 responses are now localized via locale resolution in the exception handler
+- Zero-resource FHIR-to-OMOP outputs are handled gracefully; schema mappings with a null `cdm_column` are skipped
+- Cohort and analysis labels always resolve to names, never bare IDs
+- Hecate vocabulary search latency and Ariadne vector search repaired; Orthanc PACS credentials kept in sync
+- Installer loads the license module via an `importlib` spec and unblocks its build (rustfmt, bundle version pin)
+- **Fresh-machine install hardening** — `docker compose` now starts from a clean `.env.example` (adds the required `PARTHENON_INTERNAL_TOKEN` plus default-service credentials for Reverb, Orthanc, Hecate, and JupyterHub); the installer creates the `acropolis-backend` network and the `data/wiki` bind directory; and the manual-install docs match the `dev`-profile frontend build
+
+### Engineering
+- Coverage floor ratcheted from 25% → 32% (measured 33.59%), enforced via pcov and explicit clover parsing
+- Real PHPStan level 8 restored by replacing blanket ignores with a dated baseline
+- Darkstar image builds authenticate `install_github` via a BuildKit secret (push-safe); HADES/ARTEMIS/FinnGen scheduled CI jobs green without external prerequisites
+- Bounded Pest test lanes and a `composer test` alias; R↔PHP calibration contract test, Abby data-interrogation contract tests, and a manuscript numeric-fabrication guard
+
 ## [1.0.8] — 2026-05-28
 
 ### Added

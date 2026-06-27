@@ -17,7 +17,7 @@ curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 Pinned source bootstrap:
 
 ```bash
-curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.9
 ```
 
 Desktop launcher:

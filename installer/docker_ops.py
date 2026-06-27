@@ -1,6 +1,7 @@
 """Phase 3 — Docker setup: pull, build, start, and healthcheck polling."""
 from __future__ import annotations
 
+import os
 import sys
 import time
 from typing import Any
@@ -93,12 +94,14 @@ def compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
 def _ensure_external_networks() -> None:
     """Create external networks referenced by docker-compose.yml if missing.
 
-    docker-compose.yml declares the `acumenus` network as external (shared
-    with the Acropolis infrastructure stack). On a fresh machine that network
-    does not exist and compose fails immediately. On a dev machine it already
-    exists — `docker network create` is idempotent via the check below.
+    docker-compose.yml declares `acumenus` and `acropolis-backend` as external
+    (shared with the Acropolis infrastructure stack). The default `php` service
+    attaches to `acumenus` and the default `orthanc`/`ohif` services attach to
+    `acropolis-backend`, so on a fresh machine where neither network exists,
+    compose fails immediately. On a dev machine they already exist —
+    `docker network create` is idempotent via the check below.
     """
-    for net in ("acumenus",):
+    for net in ("acumenus", "acropolis-backend"):
         inspect = utils.run(
             ["docker", "network", "inspect", net],
             capture=True, check=False,
@@ -108,6 +111,17 @@ def _ensure_external_networks() -> None:
                 ["docker", "network", "create", net],
                 capture=True, check=False,
             )
+
+
+def _ensure_host_bind_dirs() -> None:
+    """Create host directories that docker-compose.yml bind-mounts.
+
+    `wiki-data` binds `${PWD}/data/wiki` into python-ai (a default service).
+    The path is gitignored, so it is absent on a fresh clone; a bind-type
+    volume does not auto-create its source and compose fails with
+    "no such file or directory". Create it idempotently before `up`.
+    """
+    os.makedirs("data/wiki", exist_ok=True)
 
 
 def pull(cfg: dict[str, Any] | None = None) -> None:
@@ -138,6 +152,7 @@ def build(cfg: dict[str, Any] | None = None) -> None:
 def start(cfg: dict[str, Any] | None = None) -> None:
     """docker compose up -d — start the selected services."""
     _ensure_external_networks()
+    _ensure_host_bind_dirs()
     console.print("[cyan][3/3] Starting services…[/cyan]")
     result = utils.docker_compose(["up", "-d", *_compose_service_names(cfg)], check=False)
     if result.returncode != 0:

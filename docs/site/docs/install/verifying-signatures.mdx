@@ -54,23 +54,23 @@ You should see `REPO="Acumenus-Data-Sciences/Parthenon"` and source archive URLs
 Use a pinned tag for repeatable installs:
 
 ```bash
-curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.9
 ```
 
 Before running, confirm the tag exists and record the resolved commit:
 
 ```bash
-git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.7
+git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.9
 ```
 
 If your policy requires reviewing the archive first, download it directly:
 
 ```bash
-curl -fL -o parthenon-v1.0.7.tar.gz \
-  https://github.com/Acumenus-Data-Sciences/Parthenon/archive/refs/tags/v1.0.7.tar.gz
+curl -fL -o parthenon-v1.0.9.tar.gz \
+  https://github.com/Acumenus-Data-Sciences/Parthenon/archive/refs/tags/v1.0.9.tar.gz
 
-shasum -a 256 parthenon-v1.0.7.tar.gz
-tar -tzf parthenon-v1.0.7.tar.gz | head
+shasum -a 256 parthenon-v1.0.9.tar.gz
+tar -tzf parthenon-v1.0.9.tar.gz | head
 ```
 
 Store the checksum and the `git ls-remote` output with your deployment record.

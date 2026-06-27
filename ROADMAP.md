@@ -62,9 +62,23 @@ A platform this large needs excellent documentation to be useful.
 
 ---
 
-### v1.0.9 — Security Audit & Hardening
+### v1.0.9 — Protocol-to-Publication, FHIR & Production-Readiness
 
-*Target: July 2026*
+*Shipped: 2026-06-26*
+
+v1.0.9 shipped broader than its original "Security Audit & Hardening" theme: it
+landed the deterministic **protocol-to-publication pipeline** (ADR-0020 —
+provenance, empirical calibration, scientific gates, manuscript synthesis),
+**Medgnosis-parity FHIR ingestion** validated on the live Epic sandbox, the
+**Abby copilot on every page with a local-model backend for CE**, and a
+**production-readiness pass** that *delivered* the security hardening below
+(RBAC on every PHI route, CORS scoped to app origins, R/HADES proven
+end-to-end, no "coming soon" in primary workflows) plus a fresh-machine install
+that starts cleanly from `docker compose up`. See the
+[v1.0.9 release notes](docs/blog/2026-06-26-v1-0-9-release-notes.md).
+
+The security validation checklist below remains the reference for the ongoing
+third-party penetration test (the one item not yet closed in v1.0.9).
 
 HIGHSEC is established. This release validates it end to end.
 
@@ -479,8 +493,8 @@ AWS Marketplace technical validation takes **4–12 weeks**. Azure and GCP are c
 | Version | Target | Theme | Channel impact |
 |---|---|---|---|
 | v1.0.7 | 2026-05-10 (shipped) | AGPLv3 + CE/EE fork + extension points | Baseline. |
-| v1.0.8 | 2026-06 | Documentation & Onboarding | Gates v2.1. |
-| v1.0.9 | 2026-07 | Security Audit & Hardening | Unblocks EE pilots and marketplace listings. |
+| v1.0.8 | 2026-05-28 (shipped) | Publish, Library Lifecycle & Agentic Copilots | Gates v2.1. |
+| v1.0.9 | 2026-06-26 (shipped) | Protocol-to-Publication + FHIR + Copilots + Production-Readiness | Security hardening delivered; unblocks EE pilots and marketplace listings. |
 | v1.0.10 | 2026-07 late | Release Candidate | Stabilization closes. |
 | v1.1 | 2026-08 | Federation & Multi-Site Studies | Multi-tenant primitives validated. |
 | v1.2 | 2026-10 / 11 | Advanced AI + Keycloak SSO migration | EE identity foundation. |

@@ -39,13 +39,13 @@ No output from `cmp` means the files match.
 Use a tagged release for repeatable installs:
 
 ```bash
-curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.7
+curl -fsSL https://parthenon.acumenus.net/install.sh | sh -s -- --version v1.0.9
 ```
 
 Verify the tag before running it:
 
 ```bash
-git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.7
+git ls-remote --tags https://github.com/Acumenus-Data-Sciences/Parthenon.git refs/tags/v1.0.9
 ```
 
 Save the resolved commit SHA with your deployment record.
@@ -64,7 +64,7 @@ If your policy forbids `curl | sh`, use the inspect-then-run form:
 ```bash
 curl -fsSLo parthenon-install.sh https://parthenon.acumenus.net/install.sh
 less parthenon-install.sh
-sh parthenon-install.sh --version v1.0.7
+sh parthenon-install.sh --version v1.0.9
 ```
 
 ## Windows prompts
