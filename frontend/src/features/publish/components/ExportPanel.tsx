@@ -46,6 +46,8 @@ function formatLabel(
       return t("publish.exportPanel.formatLabels.docx");
     case "pdf":
       return t("publish.exportPanel.formatLabels.pdf");
+    case "xlsx":
+      return "Excel Workbook";
     case "figures-zip":
       return t("publish.exportPanel.formatLabels.figuresZip");
   }

@@ -133,11 +133,11 @@ export function normalizeAbbyRouting(raw: unknown): AbbyRouting | undefined {
   const provider = asTrimmedString(r.provider);
   if (!model && !provider) return undefined;
   return {
-    model,
-    provider,
-    transport: asTrimmedString(r.transport),
+    model: model ?? "",
+    provider: provider ?? "",
+    transport: asTrimmedString(r.transport) ?? "",
     model_name: asTrimmedString(r.model_name) || undefined,
-    reason: asTrimmedString(r.reason),
+    reason: asTrimmedString(r.reason) ?? "",
     stage: typeof r.stage === "number" ? r.stage : undefined,
     fallback_used: r.fallback_used === true,
     cloud_safety_applied: r.cloud_safety_applied === true,
