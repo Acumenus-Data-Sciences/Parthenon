@@ -121,6 +121,34 @@ the M and O frontend views show a green "Real CDM" provenance note.
 **Provenance now:** M + O = real CDM; N, P, Q, R, triangulation = fixture (need
 custom darkstar R endpoints — darkstar has no target-trial or IV endpoint).
 
+## Follow-up 3 — real Analysis P (target-trial, landmark emulation)
+
+Added `study:htn-v4 --action=run-p`. Implemented as a **landmark new-user
+target-trial emulation** rather than hand-writing/validating a full
+clone-censor-weight + IPCW endpoint (documented as the refinement): index = the
+**t2 + 90 d grace landmark**, so no clone contributes immortal person-time (the
+immortal-time check passes by construction). Strategy cohorts (additive,
+`scripts/sql/htn-v5-estimation-cohorts.sql`): **5457** = treated with an
+antihypertensive within 90 d (637), **5458** = not (102,671), both restricted to
+members alive & observed at the landmark. Run through the same proven darkstar
+CohortMethod estimation (PS matching + Cox + negative-control calibration).
+
+**Result: withheld — PS AUC 0.913 ≥ 0.80** (treated vs untreated are near-perfectly
+separable → poor overlap; max |SMD| 0.0991 and equipoise 0.3507 pass). This is the
+true finding: the treatment/delay contrasts fail on positivity/overlap — the exact
+motivation for the O/P/R triangulation design.
+
+**Gate-consistency fix (O + P):** the gate display had omitted the PS-AUC gate and
+used the covariate-balance SMD instead of `ps.max_smd_after`, so a contrast could
+show all-green-but-withheld. `runContrast` now mirrors `EstimationClearance`
+exactly (auc < 0.80 ∧ max_smd_after < 0.10 ∧ equipoise ≥ 0.30 ∧ calibrated); the
+`GateBanner` shows PS AUC; the withheld reason names the actual failing gate (O:
+max |SMD| 0.2434; P: PS AUC 0.913). `runContrast`/`estimationSummaryData`/
+`persistEstimationRow` are now shared by both O and P.
+
+**Provenance now:** M + O + P = real CDM (O and P correctly withheld); N, Q, R,
+triangulation = fixture. R (2SRI IV) still needs a net-new darkstar endpoint.
+
 ### Hard environmental blockers (why the rest stays fixture)
 - **The R / HADES runtime is absent from this compose stack** (`r-runtime` = "no
   such service"). That makes **O (ATO), P (target-trial + IPCW), R (site IV /
