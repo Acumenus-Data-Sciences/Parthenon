@@ -1,3 +1,4 @@
+import { Database } from "lucide-react";
 import { FixtureBanner } from "./FixtureBanner";
 import { SectionTitle, Tile } from "./ui";
 import { asRecord, fmt, fmtCount, fmtPct, num, records, str } from "./narrow";
@@ -15,10 +16,20 @@ export function PhenotypeRobustnessView({ data }: { data: Record<string, unknown
   const measurementOnly = asRecord(visitSplit.measurement_only);
   const eValues = asRecord(data.e_values);
   const qba = Array.isArray(data.qba_interval) ? data.qba_interval : [];
+  const isRealCdm = str(data.data_source) === "cdm";
 
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM data · </span>
+            {str(data.note) || "Never-diagnosed fraction + visit-linkage strata from the CDM."}
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Tile label="E-value (MACE)" value={fmt(eValues.mace)} />

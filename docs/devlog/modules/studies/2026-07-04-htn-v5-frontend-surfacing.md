@@ -177,6 +177,32 @@ correctly withheld); only N (BP distribution) and Q (phenotype robustness) remai
 fixture — both are descriptive-but-R / measurement-heavy (N needs the 710M-row
 measurement table).
 
+## Follow-up 5 — real Analysis N + Q (all 7 v5 analyses now real CDM)
+
+**Analysis N — index (t2) BP distribution.** `study:htn-v4 --action=run-n` reads
+`results.htn_v4_n_bp_summary` (built by `scripts/sql/htn-v5-analysis-n-bp.sql` — a
+~12-min bounded scan of the 710M-row measurement table taking the reading nearest
+the index per member). Real SBP/DBP moments + percentiles + skew/kurtosis per group
+× measure: diagnosed groups (G1–G4) ≈ 150/106 mmHg vs the normotensive comparator
+≈ 109/71 — the elevated-BP phenotype is stark and real. Ridgeline KDE is a Gaussian
+fit to the real mean/SD; t1/t_dx trajectories are refinements (further passes).
+
+**Analysis Q — phenotype robustness.** `study:htn-v4 --action=run-q` reports the real
+never-diagnosed fraction (90.0%, primary phenotype) and the visit-linked vs
+measurement-only split (`scripts/sql/htn-v5-analysis-q-visit-split.sql`, ~3 min).
+Two real findings: (1) never-diagnosed is ~90% in **both** strata (89.9%
+measurement-only, 90.1% visit-linked) — so the 90% headline is **not** a
+measurement-only data-feed artifact (disproving that hypothesis); (2) MACE
+ascertainment differs ~3× (visit-linked 11.7% vs measurement-only 3.8%) — outcomes
+get coded where there are encounters (the informative-visit signal). The index-rule
+grid needs phenotype re-materialisation and E-values need an estimable O/P effect
+(withheld), both noted as limits.
+
+**All seven v5 analyses are now real CDM** (M, N, O, P, Q, R, triangulation). The
+causal designs (O/P/R + triangulation) correctly withhold on positivity/overlap/
+instrument-strength; the descriptive analyses (M/N/Q) carry real prevalences,
+distributions and robustness findings. Both N and Q views show a "Real CDM" note.
+
 ### Hard environmental blockers (why the rest stays fixture)
 - **The R / HADES runtime is absent from this compose stack** (`r-runtime` = "no
   such service"). That makes **O (ATO), P (target-trial + IPCW), R (site IV /

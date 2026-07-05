@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { Download, Database } from "lucide-react";
 import { FixtureBanner } from "./FixtureBanner";
 import { SectionTitle, Tile } from "./ui";
 import { RidgelinePlot } from "./charts/RidgelinePlot";
@@ -31,9 +31,20 @@ export function BpDistributionView({ data }: { data: Record<string, unknown> }) 
     );
   };
 
+  const isRealCdm = str(data.data_source) === "cdm";
+
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM data · </span>
+            {str(data.note) || "SBP/DBP moments computed from omop.measurement."}
+          </span>
+        </div>
+      )}
 
       {belowTrigger !== null && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

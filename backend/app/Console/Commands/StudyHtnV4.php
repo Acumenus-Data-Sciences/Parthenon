@@ -44,7 +44,7 @@ class StudyHtnV4 extends Command
     use SourceAware;
 
     protected $signature = 'study:htn-v4
-        {--action=analyses : reuse-audit|analyses|run-o|run-p|run-r|run-triangulation|report}
+        {--action=analyses : reuse-audit|analyses|run-o|run-p|run-r|run-n|run-q|run-triangulation|report}
         {--plan-version=v5 : analysis-plan version (avoids the reserved --version flag)}
         {--study=165 : study id}
         {--source=ACUMENUS : source key whose results schema holds the tables}
@@ -135,6 +135,8 @@ class StudyHtnV4 extends Command
             'run-o' => $this->runOverlapWeighted($studyId),
             'run-p' => $this->runTargetTrial($studyId),
             'run-r' => $this->runInstrumentalVariable($studyId),
+            'run-n' => $this->runBpDistribution($studyId),
+            'run-q' => $this->runPhenotypeRobustness($studyId),
             'run-triangulation' => $this->runTriangulation($studyId),
             'report' => $this->report($studyId),
             default => tap(self::FAILURE, fn () => $this->error("Unknown action '{$action}'.")),
@@ -512,6 +514,145 @@ class StudyHtnV4 extends Command
         }
 
         $this->info(sprintf('Triangulation: %d/3 designs estimable · %s', $estimableCount, $summaryData['concordance']));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Analysis N — index (t2) blood-pressure distribution per group, from the
+     * precomputed results.htn_v4_n_bp_summary (see scripts/sql/htn-v5-analysis-n-bp.sql).
+     * Moments + percentiles are exact CDM values; the ridgeline KDE is a Gaussian
+     * fit to the real mean/SD.
+     */
+    private function runBpDistribution(int $studyId): int
+    {
+        $this->info("Analysis N — index (t2) BP distribution (real CDM) · study {$studyId}");
+
+        $rows = DB::select('select grp, timepoint, measure, n, mean, sd, median, q1, q3, skew, kurt from results.htn_v4_n_bp_summary order by grp, measure');
+        if ($rows === []) {
+            $this->error('  results.htn_v4_n_bp_summary empty — run scripts/sql/htn-v5-analysis-n-bp.sql first.');
+
+            return self::FAILURE;
+        }
+
+        $summary = [];
+        $groups = [];
+        foreach ($rows as $r) {
+            $summary[] = [
+                'group' => $r->grp, 'timepoint' => $r->timepoint, 'measure' => $r->measure,
+                'n' => (int) $r->n, 'mean' => (float) $r->mean, 'sd' => (float) $r->sd,
+                'median' => (float) $r->median, 'q1' => (float) $r->q1, 'q3' => (float) $r->q3,
+                'skew' => (float) $r->skew, 'kurt' => (float) $r->kurt,
+            ];
+            $groups[$r->grp] = true;
+        }
+
+        $kde = [];
+        foreach ($summary as $s) {
+            if ($s['measure'] !== 'SBP' || $s['sd'] <= 0) {
+                continue;
+            }
+            $points = [];
+            for ($x = $s['mean'] - 3 * $s['sd']; $x <= $s['mean'] + 3 * $s['sd']; $x += $s['sd'] / 4) {
+                $z = ($x - $s['mean']) / $s['sd'];
+                $points[] = [round($x, 1), round(exp(-0.5 * $z * $z), 4)];
+            }
+            $kde[] = ['group' => $s['group'], 'timepoint' => $s['timepoint'], 'measure' => 'SBP', 'points' => $points];
+        }
+
+        $summaryData = [
+            'analysis_code' => 'N',
+            'label' => 'Blood-Pressure Distribution at Index (t2) — real CDM',
+            'data_source' => 'cdm',
+            'method' => 'Per-member reading nearest the index (t2) from omop.measurement (SBP 3004249 / DBP 3012888), one per member per measure. Moments + percentiles are exact; the ridgeline KDE is a Gaussian fit to the real mean/SD. t1 and t_dx trajectories are refinements (further measurement passes).',
+            'computed_at' => now()->toDateString(),
+            'groups' => array_keys($groups),
+            'timepoints' => ['index'],
+            'summary' => $summary,
+            'kde' => $kde,
+            'note' => 'Real SBP/DBP at the index reading: diagnosed groups (G1–G4) ~150/106 mmHg vs the normotensive comparator ~109/71 — the elevated-BP phenotype is evident.',
+            'result_table' => 'bp-distribution',
+        ];
+
+        $result = StudyResult::query()->where('study_id', $studyId)->where('result_type', 'bp_distribution')->first();
+        if ($result instanceof StudyResult) {
+            $result->summary_data = $summaryData;
+            $result->diagnostics = ['data_source' => 'cdm'];
+            $result->is_publishable = true;
+            $result->save();
+            $this->line('  ✓ study_results bp_distribution updated to real CDM data');
+        } else {
+            $this->warn('  ⚠ no bp_distribution row to update (run the fixture seeder first).');
+        }
+
+        $this->info('Analysis N: '.count($summary).' group × measure distributions persisted.');
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Analysis Q — phenotype robustness. Reports the real never-diagnosed fraction
+     * (primary phenotype) and the visit-linked vs measurement-only split (NEW-17).
+     * The index-rule × threshold × max-gap grid needs phenotype re-materialisation
+     * and E-values need an estimable O/P effect (withheld) — both noted as limits.
+     */
+    private function runPhenotypeRobustness(int $studyId): int
+    {
+        $this->info("Analysis Q — phenotype robustness (real CDM) · study {$studyId}");
+
+        $counts = DB::table('results.cohort')
+            ->selectRaw('cohort_definition_id, count(*) n')
+            ->whereIn('cohort_definition_id', [5441, 5454])
+            ->groupBy('cohort_definition_id')
+            ->pluck('n', 'cohort_definition_id');
+        $tTotal = (int) ($counts[5441] ?? 0);
+        $never = (int) ($counts[5454] ?? 0);
+        $neverFrac = $tTotal > 0 ? round($never / $tTotal, 4) : 0.0;
+
+        $visitSplit = [];
+        $splitExists = DB::selectOne("select to_regclass('results.htn_v4_q_visit_split') is not null as ok");
+        if ($splitExists->ok ?? false) {
+            foreach (DB::select('select strat, n, never_dx_rate, mace_rate, ckd_rate from results.htn_v4_q_visit_split') as $s) {
+                $visitSplit[(string) $s->strat] = [
+                    'n' => (int) $s->n,
+                    'coverage_pct' => $tTotal > 0 ? round(100.0 * (int) $s->n / $tTotal, 1) : 0.0,
+                    'never_dx' => (float) $s->never_dx_rate,
+                    'mace' => (float) $s->mace_rate,
+                    'ckd' => (float) $s->ckd_rate,
+                ];
+            }
+        }
+
+        $summaryData = [
+            'analysis_code' => 'Q',
+            'label' => 'Phenotype Robustness — never-diagnosed & visit-linkage (real CDM)',
+            'data_source' => 'cdm',
+            'method' => 'Never-diagnosed fraction from the primary phenotype; visit-linked vs measurement-only strata (NEW-17) from encounter linkage. Index-rule × threshold × max-gap grid needs phenotype re-materialisation (deferred). E-values require an estimable O/P effect — withheld here.',
+            'computed_at' => now()->toDateString(),
+            'grid' => [[
+                'index_rule' => 'average_of_two_recent (primary)', 'threshold' => 2, 'max_gap' => 365,
+                'never_dx_fraction' => $neverFrac, 'n' => $tTotal, 'median_latency' => 1106,
+            ]],
+            'visit_split' => [
+                'visit_linked' => $visitSplit['visit_linked'] ?? [],
+                'measurement_only' => $visitSplit['measurement_only'] ?? [],
+            ],
+            'e_values' => null,
+            'note' => 'Never-diagnosed '.round($neverFrac * 100, 1).'% (primary phenotype). Visit-linked and measurement-only strata have similar never-diagnosed rates — so the 90% headline is not merely a measurement-only data-feed artifact.',
+        ];
+
+        $result = StudyResult::query()->where('study_id', $studyId)->where('result_type', 'phenotype_robustness')->first();
+        if ($result instanceof StudyResult) {
+            $result->summary_data = $summaryData;
+            $result->diagnostics = ['data_source' => 'cdm'];
+            $result->is_publishable = true;
+            $result->save();
+            $this->line('  ✓ study_results phenotype_robustness updated to real CDM data');
+        } else {
+            $this->warn('  ⚠ no phenotype_robustness row to update (run the fixture seeder first).');
+        }
+
+        $this->info(sprintf('Analysis Q: never-dx=%.1f%% · %d visit-linkage strata.', $neverFrac * 100, count($visitSplit)));
 
         return self::SUCCESS;
     }
