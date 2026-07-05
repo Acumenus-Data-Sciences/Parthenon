@@ -44,6 +44,25 @@ class RService
     }
 
     /**
+     * Run an overlap-weighted (ATO) population-level estimation. Returns the same
+     * normalized shape as runEstimation (estimates / propensity_score / calibration
+     * / covariate_balance) but with exact ATO overlap weights + a weighted Cox.
+     *
+     * @param  array<string, mixed>  $spec
+     * @return array<string, mixed>
+     */
+    public function runOverlapWeighting(array $spec): array
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->baseUrl}/analysis/overlap-weighting/run", $spec);
+
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'Darkstar returned a non-JSON or empty response for overlap weighting (HTTP '.$response->status().').',
+        ];
+    }
+
+    /**
      * Empirically calibrate effect estimates against negative controls.
      *
      * @param  array<string, mixed>  $spec

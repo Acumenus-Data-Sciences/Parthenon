@@ -118,6 +118,8 @@ RUN --mount=type=secret,id=github_pat,required=false \
   install.packages('fs'); \
   if (!requireNamespace('fs', quietly = TRUE)) stop('fs failed'); \
   install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx', 'digest')); \
+  install.packages(c('sandwich', 'cobalt', 'WeightIt', 'PSweight')); \
+  if (!requireNamespace('WeightIt', quietly = TRUE)) stop('WeightIt failed'); \
   remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   install.packages('rJava'); \
   Sys.setenv(MAKEFLAGS = '-j8'); \
