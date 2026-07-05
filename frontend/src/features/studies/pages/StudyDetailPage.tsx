@@ -42,6 +42,7 @@ import { StudyMilestonesTab } from "../components/StudyMilestonesTab";
 import { StudyArtifactsTab } from "../components/StudyArtifactsTab";
 import { StudyActivityTab } from "../components/StudyActivityTab";
 import { StudyResultsTab } from "../components/StudyResultsTab";
+import { StudyV5ReportTab } from "../components/StudyV5ReportTab";
 import { StudyManuscriptTab } from "../components/StudyManuscriptTab";
 import { FederatedExecutionTab } from "../components/FederatedExecutionTab";
 import { StudyGatesTab } from "../components/StudyGatesTab";
@@ -60,6 +61,7 @@ import {
   useStudyCohorts,
   useStudyMilestones,
   useStudyArtifacts,
+  useStudyResults,
 } from "../hooks/useStudies";
 
 // ---------------------------------------------------------------------------
@@ -81,7 +83,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string; dot: string }> = {
   withdrawn: { bg: "#E85A6B15", fg: "var(--critical)", dot: "var(--critical)" },
 };
 
-type TabKey = "overview" | "design" | "analyses" | "results" | "gates" | "manuscript" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
+type TabKey = "overview" | "design" | "analyses" | "results" | "report" | "gates" | "manuscript" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
 
 interface TabDef {
   key: TabKey;
@@ -118,6 +120,7 @@ const TAB_GROUPS: TabGroup[] = [
     id: "evidence",
     tabs: [
       { key: "results", icon: Layers },
+      { key: "report", icon: FileText },
       { key: "gates", icon: ShieldCheck },
       { key: "manuscript", icon: FileOutput },
     ],
@@ -169,6 +172,18 @@ export default function StudyDetailPage() {
   const { data: cohortsData } = useStudyCohorts(slug || null);
   const { data: milestonesData } = useStudyMilestones(slug || null);
   const { data: artifactsData } = useStudyArtifacts(slug || null);
+
+  // The v5 Report tab only appears for studies that carry a triangulation result
+  // (the Hypertension Outcomes Program v5 headline), so it never clutters
+  // unrelated studies.
+  const { data: v5ReportProbe } = useStudyResults(slug || null, { result_type: "triangulation", per_page: 1 });
+  const hasV5Report = (v5ReportProbe?.items?.length ?? 0) > 0;
+
+  const visibleGroups = TAB_GROUPS.map((group) =>
+    group.id === "evidence" && !hasV5Report
+      ? { ...group, tabs: group.tabs.filter((tab) => tab.key !== "report") }
+      : group,
+  );
 
   const tabCounts: Partial<Record<TabKey, number>> = {
     analyses: analyses?.length,
@@ -454,7 +469,7 @@ export default function StudyDetailPage() {
 
       {/* Tab navigation — grouped by study lifecycle phase */}
       <div className="tab-bar overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-        {TAB_GROUPS.map((group, groupIndex) => (
+        {visibleGroups.map((group, groupIndex) => (
           <div key={group.id} className="flex items-center">
             {groupIndex > 0 && (
               <span className="mx-1.5 h-4 w-px shrink-0 bg-border-default" aria-hidden />
@@ -473,7 +488,7 @@ export default function StudyDetailPage() {
                   className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", activeTab === tab.key && "active")}
                 >
                   <Icon size={14} />
-                  {t(`studies.detail.tabs.${tab.key}`)}
+                  {t(`studies.detail.tabs.${tab.key}`, { defaultValue: humanizeToken(tab.key) })}
                   {count != null && (
                     <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
                       ({count})
@@ -503,6 +518,7 @@ export default function StudyDetailPage() {
       )}
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
+      {activeTab === "report" && <StudyV5ReportTab slug={study.slug} />}
       {activeTab === "gates" && <StudyGatesTab slug={study.slug} canDecide />}
       {activeTab === "manuscript" && <StudyManuscriptTab slug={study.slug} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}

@@ -2,6 +2,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatNumber } from "@/i18n/format";
 import type { StudyResult } from "../types/study";
+import { OverlapWeightedEffectView } from "./v5/OverlapWeightedEffectView";
+import { TargetTrialView } from "./v5/TargetTrialView";
+import { InstrumentalVariableView } from "./v5/InstrumentalVariableView";
+import { ComorbidityMatrixView } from "./v5/ComorbidityMatrixView";
+import { BpDistributionView } from "./v5/BpDistributionView";
+import { PhenotypeRobustnessView } from "./v5/PhenotypeRobustnessView";
+import { TriangulationView } from "./v5/TriangulationView";
 
 // ---------------------------------------------------------------------------
 // Safe narrowing helpers — summary_data is Record<string, unknown> projected
@@ -49,6 +56,21 @@ export function StudyResultSummary({ result }: { result: StudyResult }) {
     case "characterization":
     case "baseline_characteristics":
       return <CharacterizationView data={data} />;
+    // v5 (Hypertension Outcomes Program) result types
+    case "overlap_weighted_effect":
+      return <OverlapWeightedEffectView data={data} />;
+    case "target_trial":
+      return <TargetTrialView data={data} />;
+    case "instrumental_variable":
+      return <InstrumentalVariableView data={data} />;
+    case "comorbidity_matrix":
+      return <ComorbidityMatrixView data={data} />;
+    case "bp_distribution":
+      return <BpDistributionView data={data} />;
+    case "phenotype_robustness":
+      return <PhenotypeRobustnessView data={data} />;
+    case "triangulation":
+      return <TriangulationView data={data} />;
     default:
       return <GenericView data={data} />;
   }
