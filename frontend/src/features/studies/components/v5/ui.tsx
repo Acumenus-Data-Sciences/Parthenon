@@ -30,6 +30,7 @@ export function GateBanner({
   estimable: boolean;
   gates: Record<string, unknown>;
 }) {
+  const psAuc = num(gates.ps_auc);
   const maxSmd = num(gates.max_smd);
   const equipoise = num(gates.equipoise);
   const nullCentered = gates.null_centered === true;
@@ -51,6 +52,7 @@ export function GateBanner({
       <span className="inline-flex items-center gap-1 font-semibold">
         <CheckCircle2 size={13} /> Estimability gates cleared
       </span>
+      {psAuc !== null && <span>PS AUC {fmt(psAuc, 3)}</span>}
       {maxSmd !== null && <span>max |SMD| {fmt(maxSmd, 3)}</span>}
       {equipoise !== null && <span>equipoise {fmt(equipoise, 2)}</span>}
       <span>null {nullCentered ? "centered" : "off-center"}</span>

@@ -1,7 +1,8 @@
+import { Database } from "lucide-react";
 import type { KaplanMeierPoint } from "@/features/estimation/components/KaplanMeierPlot";
 import { KaplanMeierPlot } from "@/features/estimation/components/KaplanMeierPlot";
 import { FixtureBanner } from "./FixtureBanner";
-import { SectionTitle, StatusPill, Tile } from "./ui";
+import { GateBanner, SectionTitle, StatusPill, Tile } from "./ui";
 import { asRecord, fmt, fmtPct, num, records, str } from "./narrow";
 
 function toKmPoints(value: unknown): KaplanMeierPoint[] {
@@ -15,9 +16,11 @@ function toKmPoints(value: unknown): KaplanMeierPoint[] {
 }
 
 /**
- * Analysis P — Target-trial emulation (clone-censor-weight + IPCW). Surfaces the
- * per-protocol effect, the immortal-time integrity check, the IPCW weight
- * diagnostic, and cumulative-incidence curves by strategy.
+ * Analysis P — Target-trial emulation. Renders the per-protocol effect, the
+ * immortal-time integrity check, and (for the fixture) cumulative-incidence
+ * curves + IPCW weights. The real CDM run is a landmark new-user emulation via
+ * CohortMethod, so it shows PS-gate diagnostics and withholds the effect when a
+ * gate fails rather than reporting a blinded number.
  */
 export function TargetTrialView({ data }: { data: Record<string, unknown> }) {
   const estimates = records(data.estimates);
@@ -26,24 +29,50 @@ export function TargetTrialView({ data }: { data: Record<string, unknown> }) {
   const ipcw = asRecord(data.ipcw);
   const immortal = str(data.immortal_time_check);
   const weightFlagged = ipcw.flag === true;
+  const isRealCdm = str(data.data_source) === "cdm";
+  const estimable = data.estimable !== false;
+  const gates = asRecord(data.gates);
+  const hasIpcw = num(ipcw.max_stabilized_weight) !== null;
 
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM result · </span>
+            {str(data.method) || "Landmark target-trial emulation via CohortMethod."}
+            {str(data.withheld_reason) && (
+              <span className="mt-1 block text-warning">{str(data.withheld_reason)}</span>
+            )}
+          </span>
+        </div>
+      )}
+      {isRealCdm && <GateBanner estimable={estimable} gates={gates} />}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Tile label="Grace period" value={`${num(data.grace_days) ?? "—"} d`} />
         <div className="bg-surface-darkest rounded p-2">
           <p className="text-[9px] text-text-ghost uppercase tracking-wide">Immortal-time check</p>
           <div className="mt-1">
-            <StatusPill label={immortal || "—"} tone={immortal === "PASS" ? "ok" : "bad"} />
+            <StatusPill label={immortal || "—"} tone={immortal.startsWith("PASS") ? "ok" : immortal ? "bad" : "muted"} />
           </div>
         </div>
-        <Tile label="Max stabilized weight" value={fmt(ipcw.max_stabilized_weight)} hint={weightFlagged ? "⚠ > 10" : "within range"} />
-        <Tile label="Mean stabilized weight" value={fmt(ipcw.mean_stabilized_weight)} />
+        {hasIpcw ? (
+          <>
+            <Tile label="Max stabilized weight" value={fmt(ipcw.max_stabilized_weight)} hint={weightFlagged ? "⚠ > 10" : "within range"} />
+            <Tile label="Mean stabilized weight" value={fmt(ipcw.mean_stabilized_weight)} />
+          </>
+        ) : (
+          <>
+            <Tile label="Treated / not (n)" value={`${num(data.comparator_count) ?? "—"} / ${num(data.target_count) ?? "—"}`} />
+            <Tile label="max |SMD|" value={fmt(gates.max_smd, 3)} />
+          </>
+        )}
       </div>
 
-      {estimates.length > 0 && (
+      {estimable && estimates.length > 0 && (
         <div>
           <SectionTitle>Per-protocol effect</SectionTitle>
           <div className="overflow-x-auto">

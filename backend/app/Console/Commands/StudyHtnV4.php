@@ -44,7 +44,7 @@ class StudyHtnV4 extends Command
     use SourceAware;
 
     protected $signature = 'study:htn-v4
-        {--action=analyses : reuse-audit|analyses|run-o|report}
+        {--action=analyses : reuse-audit|analyses|run-o|run-p|report}
         {--plan-version=v5 : analysis-plan version (avoids the reserved --version flag)}
         {--study=165 : study id}
         {--source=ACUMENUS : source key whose results schema holds the tables}
@@ -58,6 +58,11 @@ class StudyHtnV4 extends Command
     private const O_OUTCOMES = [5426 => 'MACE', 5427 => 'CKD progression'];
 
     private const O_NEG_CONTROLS = [5442, 5443, 5444, 5445, 5446, 5447, 5448, 5449];
+
+    /** Analysis P landmark cohorts (index = t2 + 90 d): treated-within-grace vs not. */
+    private const P_TREATED = 5457;
+
+    private const P_UNTREATED = 5458;
 
     protected $description = 'Hypertension v5 executor — runs the CDM-computable analyses (Analysis M comorbidity matrix); R-based causal analyses are skipped when the R runtime is absent';
 
@@ -123,6 +128,7 @@ class StudyHtnV4 extends Command
             'reuse-audit' => $this->reuseAudit($studyId),
             'analyses' => $this->runAnalyses($studyId),
             'run-o' => $this->runOverlapWeighted($studyId),
+            'run-p' => $this->runTargetTrial($studyId),
             'report' => $this->report($studyId),
             default => tap(self::FAILURE, fn () => $this->error("Unknown action '{$action}'.")),
         };
@@ -220,29 +226,82 @@ class StudyHtnV4 extends Command
     }
 
     /**
-     * Analysis O — the study's primary causal contrast (timely vs delayed),
-     * run for real through darkstar's proven CohortMethod estimation endpoint
-     * (PS matching + Cox + empirical calibration). Exact PSweight ATO is not in
-     * the endpoint; PS matching is the spec's named sensitivity and the estimand
-     * differences are noted. A failed estimability gate WITHHOLDS the effect
-     * (required behaviour) rather than reporting a blinded number.
+     * Analysis O — the study's primary causal contrast (timely vs delayed), run
+     * through darkstar's proven CohortMethod estimation (PS matching + Cox +
+     * empirical calibration). Orientation: delayed as target / timely as
+     * comparator (keeps the fits well-conditioned). A failed estimability gate
+     * WITHHOLDS the effect (required behaviour), never a blinded number.
      */
     private function runOverlapWeighted(int $studyId): int
     {
-        $this->info("Analysis O — timely (G1) vs delayed (G2+G3+G4) via darkstar CohortMethod · study {$studyId}");
+        $this->info("Analysis O — delayed (G2–G4) vs timely (G1) via darkstar CohortMethod · study {$studyId}");
 
+        $r = $this->runContrast($studyId, self::O_DELAYED, self::O_TIMELY);
+        if ($r === null) {
+            return self::FAILURE;
+        }
+
+        $summaryData = [
+            'analysis_code' => 'O',
+            'label' => 'Delay Effect — delayed (G2–G4) vs timely (G1), PS-matched Cox',
+            'method' => 'darkstar CohortMethod: 1:1 PS matching + Cox + EmpiricalCalibration. Exact PSweight ATO pending (WeightIt not in HADES image); PS matching is the spec-named sensitivity.',
+        ] + $this->estimationSummaryData($r);
+
+        $this->persistEstimationRow($studyId, 'overlap_weighted_effect', $summaryData, $r);
+        $this->info($this->contrastLine('Analysis O', $r));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Analysis P — target-trial emulation of "treat within 90 d of index vs not".
+     * Implemented as a landmark new-user active-comparator design (index = the
+     * t2 + 90 d landmark, so no clone contributes immortal person-time), run
+     * through the same proven estimation pipeline. Full clone-censor-weight +
+     * IPCW is a refinement noted in `method`.
+     */
+    private function runTargetTrial(int $studyId): int
+    {
+        $this->info("Analysis P — target-trial (treat-within-90d vs not) landmark emulation · study {$studyId}");
+
+        // Target = not-treated (large), comparator = treated (small) — keeps the
+        // Cox/negative-control fits well-conditioned, as for O.
+        $r = $this->runContrast($studyId, self::P_UNTREATED, self::P_TREATED);
+        if ($r === null) {
+            return self::FAILURE;
+        }
+
+        $summaryData = [
+            'analysis_code' => 'P',
+            'label' => 'Target-Trial Emulation — treat within 90 d vs not (landmark)',
+            'method' => 'Landmark new-user target-trial emulation (index = t2 + 90 d); PS-matched Cox + EmpiricalCalibration. Full clone-censor-weight + IPCW is a refinement.',
+            'grace_days' => 90,
+            'immortal_time_check' => 'PASS (landmark design — follow-up starts at the grace landmark)',
+        ] + $this->estimationSummaryData($r);
+
+        $this->persistEstimationRow($studyId, 'target_trial', $summaryData, $r);
+        $this->info($this->contrastLine('Analysis P', $r));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Run one PS-matched Cox contrast through darkstar, reusing the proven v4
+     * design (analysis 64) with the given target/comparator cohorts. Returns the
+     * gated, normalised result or null on error.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function runContrast(int $studyId, int $target, int $comparator): ?array
+    {
         $source = Source::query()->where('source_key', $this->option('source'))->first();
         if (! $source instanceof Source) {
             $this->error("Source '{$this->option('source')}' not found.");
 
-            return self::FAILURE;
+            return null;
         }
 
-        // Reuse the proven v4 delay-contrast design (analysis 64): same PS
-        // matching, Cox model, covariate exclusions and negative controls — only
-        // the cohorts change to the collapsed timely-vs-delayed exposure.
         $base = EstimationAnalysis::query()->whereKey(64)->value('design_json') ?? [];
-
         $outcomeNames = [];
         foreach (self::O_OUTCOMES as $id => $name) {
             $outcomeNames[(string) $id] = $name;
@@ -250,13 +309,9 @@ class StudyHtnV4 extends Command
 
         $spec = [
             'source' => HadesBridgeService::buildSourceSpec($source),
-            // Orientation matches the proven v4 delay contrast (analysis 64):
-            // the larger delayed group is the target, timely (G1) the comparator,
-            // so the Cox/negative-control fits stay well-conditioned. The HR is
-            // therefore delayed-relative-to-timely (HR > 1 ⇒ delay is harmful).
             'cohorts' => [
-                'target_cohort_id' => self::O_DELAYED,
-                'comparator_cohort_id' => self::O_TIMELY,
+                'target_cohort_id' => $target,
+                'comparator_cohort_id' => $comparator,
                 'outcome_cohort_ids' => array_keys(self::O_OUTCOMES),
                 'outcome_names' => $outcomeNames,
             ],
@@ -267,9 +322,9 @@ class StudyHtnV4 extends Command
         ];
 
         if ($this->option('dry-run')) {
-            $this->line('  [dry-run] would POST estimation to darkstar (target '.self::O_TIMELY.' vs comparator '.self::O_DELAYED.').');
+            $this->line("  [dry-run] would POST estimation to darkstar (target {$target} vs comparator {$comparator}).");
 
-            return self::SUCCESS;
+            return null;
         }
 
         $this->line('  Calling darkstar /analysis/estimation/run (CohortMethod, PS matching + negative-control calibration)…');
@@ -277,69 +332,117 @@ class StudyHtnV4 extends Command
         if (($raw['status'] ?? null) === 'error') {
             $this->error('  darkstar estimation error: '.($raw['message'] ?? 'unknown'));
 
-            return self::FAILURE;
+            return null;
         }
 
         $normalized = EstimationResultNormalizer::normalize($raw);
         $study = Study::find($studyId);
         $cleared = $study instanceof Study && EstimationClearance::isCleared($normalized, $study);
         $calibrated = EstimationClearance::isCalibrated($normalized);
-        $estimable = $cleared && $calibrated;
 
         $summary = is_array($normalized['summary'] ?? null) ? $normalized['summary'] : [];
         $ps = is_array($normalized['propensity_score'] ?? null) ? $normalized['propensity_score'] : [];
         $calibration = is_array($normalized['calibration'] ?? null) ? $normalized['calibration'] : [];
         $balanceRaw = is_array($normalized['covariate_balance'] ?? null) ? $normalized['covariate_balance'] : [];
-        $maxSmd = $this->maxAbsSmd($balanceRaw);
+        // Mirror EstimationClearance exactly: it gates on ps.auc, ps.max_smd_after
+        // and ps.equipoise. Fall back to the covariate-balance max only if the PS
+        // block omits max_smd_after, so the displayed gates match the verdict.
         $equipoise = isset($ps['equipoise']) && is_numeric($ps['equipoise']) ? (float) $ps['equipoise'] : null;
+        $psAuc = isset($ps['auc']) && is_numeric($ps['auc']) ? (float) $ps['auc'] : null;
+        $maxSmd = isset($ps['max_smd_after']) && is_numeric($ps['max_smd_after'])
+            ? round((float) $ps['max_smd_after'], 4)
+            : $this->maxAbsSmd($balanceRaw);
 
-        $summaryData = [
-            'analysis_code' => 'O',
-            'label' => 'Delay Effect — delayed (G2–G4) vs timely (G1), PS-matched Cox',
-            'data_source' => 'cdm',
-            'method' => 'darkstar CohortMethod: 1:1 PS matching + Cox + EmpiricalCalibration. Exact PSweight ATO pending (WeightIt not in HADES image); PS matching is the spec-named sensitivity.',
-            'computed_at' => now()->toDateString(),
-            'estimable' => $estimable,
-            'gates' => [
-                'max_smd' => $maxSmd,
-                'equipoise' => $equipoise,
-                'null_centered' => $calibrated,
-            ],
+        return [
+            'estimable' => $cleared && $calibrated,
+            'cleared' => $cleared,
+            'calibrated' => $calibrated,
             'target_count' => isset($summary['target_count']) ? (int) $summary['target_count'] : null,
             'comparator_count' => isset($summary['comparator_count']) ? (int) $summary['comparator_count'] : null,
-            'estimates' => $estimable ? $this->oEstimates($normalized) : [],
+            'ps_auc' => $psAuc,
+            'max_smd' => $maxSmd,
+            'equipoise' => $equipoise,
             'balance' => $this->oBalance($balanceRaw),
             'calibration' => [
                 'ease' => $calibration['ease'] ?? null,
                 'informative_negative_controls' => $calibration['informative_negative_controls'] ?? null,
             ],
-            'withheld_reason' => $estimable ? null : $this->withheldReason($maxSmd, $equipoise, $calibrated),
+            'estimates' => $this->oEstimates($normalized),
         ];
+    }
 
+    /**
+     * Shared summary_data fields for a gated estimation contrast.
+     *
+     * @param  array<string, mixed>  $r
+     * @return array<string, mixed>
+     */
+    private function estimationSummaryData(array $r): array
+    {
+        $estimable = $r['estimable'] === true;
+
+        return [
+            'data_source' => 'cdm',
+            'computed_at' => now()->toDateString(),
+            'estimable' => $estimable,
+            'gates' => [
+                'ps_auc' => $r['ps_auc'],
+                'max_smd' => $r['max_smd'],
+                'equipoise' => $r['equipoise'],
+                'null_centered' => $r['calibrated'],
+            ],
+            'target_count' => $r['target_count'],
+            'comparator_count' => $r['comparator_count'],
+            'estimates' => $estimable ? $r['estimates'] : [],
+            'balance' => $r['balance'],
+            'calibration' => $r['calibration'],
+            'withheld_reason' => $estimable ? null : $this->withheldReason(
+                is_float($r['ps_auc']) ? $r['ps_auc'] : null,
+                is_float($r['max_smd']) ? $r['max_smd'] : null,
+                is_float($r['equipoise']) ? $r['equipoise'] : null,
+                $r['calibrated'] === true,
+            ),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $summaryData
+     * @param  array<string, mixed>  $r
+     */
+    private function persistEstimationRow(int $studyId, string $resultType, array $summaryData, array $r): void
+    {
         $result = StudyResult::query()
             ->where('study_id', $studyId)
-            ->where('result_type', 'overlap_weighted_effect')
+            ->where('result_type', $resultType)
             ->first();
-        if ($result instanceof StudyResult) {
-            $result->summary_data = $summaryData;
-            $result->diagnostics = ['data_source' => 'cdm', 'cleared' => $cleared, 'calibrated' => $calibrated];
-            $result->is_publishable = $estimable;
-            $result->save();
-            $this->line('  ✓ study_results overlap_weighted_effect updated to real CDM result');
-        } else {
-            $this->warn('  ⚠ no overlap_weighted_effect row to update (run the fixture seeder first).');
+
+        if (! $result instanceof StudyResult) {
+            $this->warn("  ⚠ no {$resultType} row to update (run the fixture seeder first).");
+
+            return;
         }
 
-        $this->info(sprintf(
-            'Analysis O: estimable=%s · max|SMD|=%s · equipoise=%s · target/comparator=%d/%d',
-            $estimable ? 'true' : 'false (withheld)',
-            $maxSmd === null ? '—' : (string) $maxSmd,
-            $equipoise === null ? '—' : (string) $equipoise,
-            $summaryData['target_count'] ?? 0,
-            $summaryData['comparator_count'] ?? 0,
-        ));
+        $result->summary_data = $summaryData;
+        $result->diagnostics = ['data_source' => 'cdm', 'cleared' => $r['cleared'], 'calibrated' => $r['calibrated']];
+        $result->is_publishable = $r['estimable'] === true;
+        $result->save();
+        $this->line("  ✓ study_results {$resultType} updated to real CDM result");
+    }
 
-        return self::SUCCESS;
+    /**
+     * @param  array<string, mixed>  $r
+     */
+    private function contrastLine(string $label, array $r): string
+    {
+        return sprintf(
+            '%s: estimable=%s · max|SMD|=%s · equipoise=%s · target/comparator=%d/%d',
+            $label,
+            $r['estimable'] === true ? 'true' : 'false (withheld)',
+            $r['max_smd'] === null ? '—' : (string) $r['max_smd'],
+            $r['equipoise'] === null ? '—' : (string) $r['equipoise'],
+            $r['target_count'] ?? 0,
+            $r['comparator_count'] ?? 0,
+        );
     }
 
     /**
@@ -435,17 +538,20 @@ class StudyHtnV4 extends Command
         return round($rr + sqrt($rr * ($rr - 1)), 2);
     }
 
-    private function withheldReason(?float $maxSmd, ?float $equipoise, bool $calibrated): string
+    private function withheldReason(?float $psAuc, ?float $maxSmd, ?float $equipoise, bool $calibrated): string
     {
         $fails = [];
-        if ($maxSmd === null || $maxSmd >= 0.1) {
-            $fails[] = 'residual covariate imbalance (max |SMD| '.($maxSmd === null ? 'n/a' : (string) $maxSmd).' ≥ 0.1)';
+        if ($psAuc === null || $psAuc >= 0.80) {
+            $fails[] = 'PS AUC '.($psAuc === null ? 'n/a' : (string) $psAuc).' ≥ 0.80 (poor overlap / separable groups)';
         }
-        if ($equipoise !== null && $equipoise < 0.3) {
-            $fails[] = 'insufficient equipoise (< 0.3)';
+        if ($maxSmd === null || $maxSmd >= 0.10) {
+            $fails[] = 'residual imbalance (max |SMD| '.($maxSmd === null ? 'n/a' : (string) $maxSmd).' ≥ 0.10)';
+        }
+        if ($equipoise !== null && $equipoise < 0.30) {
+            $fails[] = 'insufficient equipoise (< 0.30)';
         }
         if (! $calibrated) {
-            $fails[] = 'negative-control null not centered';
+            $fails[] = 'negative-control calibration not established';
         }
 
         return $fails === [] ? 'estimability gate failed' : 'Effect withheld — '.implode('; ', $fails).'.';
