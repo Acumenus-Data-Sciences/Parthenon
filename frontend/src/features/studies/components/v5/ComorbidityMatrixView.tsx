@@ -42,7 +42,7 @@ export function ComorbidityMatrixView({ data }: { data: Record<string, unknown> 
             {str(data.note) || "Prevalence + Wilson 95% CI computed from the Acumenus omop CDM."}
             {pending.length > 0 && (
               <span className="mt-1 block text-text-muted">
-                Pending concept-set materialisation ({pending.length}): {pending.join(", ")}.
+                Not captured in this CDM — concept mapping under review ({pending.length}): {pending.join(", ")}.
               </span>
             )}
           </span>
