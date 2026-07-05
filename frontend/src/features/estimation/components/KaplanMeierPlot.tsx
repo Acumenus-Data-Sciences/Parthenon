@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { fmt } from "@/lib/formatters";
 import { useTranslation } from "react-i18next";
 
-interface KaplanMeierPoint {
+export interface KaplanMeierPoint {
   time: number;
   surv: number;
   survLower?: number;
