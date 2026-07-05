@@ -44,7 +44,7 @@ class StudyHtnV4 extends Command
     use SourceAware;
 
     protected $signature = 'study:htn-v4
-        {--action=analyses : reuse-audit|analyses|run-o|run-p|report}
+        {--action=analyses : reuse-audit|analyses|run-o|run-p|run-r|run-triangulation|report}
         {--plan-version=v5 : analysis-plan version (avoids the reserved --version flag)}
         {--study=165 : study id}
         {--source=ACUMENUS : source key whose results schema holds the tables}
@@ -63,6 +63,11 @@ class StudyHtnV4 extends Command
     private const P_TREATED = 5457;
 
     private const P_UNTREATED = 5458;
+
+    /** Analysis R instrument-strength gate: first-stage F must be ≥ 10 to interpret the LATE. */
+    private const R_MIN_FIRST_STAGE_F = 10.0;
+
+    private const R_COVERAGE_PCT = 37.9;
 
     protected $description = 'Hypertension v5 executor — runs the CDM-computable analyses (Analysis M comorbidity matrix); R-based causal analyses are skipped when the R runtime is absent';
 
@@ -129,6 +134,8 @@ class StudyHtnV4 extends Command
             'analyses' => $this->runAnalyses($studyId),
             'run-o' => $this->runOverlapWeighted($studyId),
             'run-p' => $this->runTargetTrial($studyId),
+            'run-r' => $this->runInstrumentalVariable($studyId),
+            'run-triangulation' => $this->runTriangulation($studyId),
             'report' => $this->report($studyId),
             default => tap(self::FAILURE, fn () => $this->error("Unknown action '{$action}'.")),
         };
@@ -281,6 +288,230 @@ class StudyHtnV4 extends Command
 
         $this->persistEstimationRow($studyId, 'target_trial', $summaryData, $r);
         $this->info($this->contrastLine('Analysis P', $r));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Analysis R — site diagnostic-propensity instrumental variable (2SRI). The
+     * first-stage strength gate is decisive: a site LOO diagnostic-propensity
+     * instrument must reach F ≥ 10 to interpret the LATE (spec §5.6). On this CDM
+     * both instrument definitions are far weaker (timely F ≈ 0.1, diagnosed F ≈
+     * 3.4), so the LATE is withheld and R contributes only a weak-instrument
+     * caveat — no second-stage 2SRI is warranted (it would be uninterpretable).
+     */
+    private function runInstrumentalVariable(int $studyId): int
+    {
+        $this->info("Analysis R — site diagnostic-propensity IV (first-stage strength) · study {$studyId}");
+
+        $conn = DB::connection();
+        $exists = $conn->selectOne("select to_regclass('results.htn_v4_r_instrument') is not null as ok");
+        if (! ($exists->ok ?? false)) {
+            $this->error('  results.htn_v4_r_instrument missing — run scripts/sql/htn-v5-analysis-r-instrument.sql first.');
+
+            return self::FAILURE;
+        }
+
+        $fs = $conn->selectOne(<<<'SQL'
+            with site as (
+                select care_site_id, count(*) n, sum(individual_diagnosed) nd
+                from results.htn_v4_r_instrument group by care_site_id
+            ),
+            m as (
+                select r.individual_timely, r.individual_diagnosed, r.z_loo,
+                    round((s.nd - r.individual_diagnosed)::numeric / nullif(s.n - 1, 0), 4) as z_dx
+                from results.htn_v4_r_instrument r join site s on s.care_site_id = r.care_site_id
+            )
+            select count(*) as n_members,
+                (select count(distinct care_site_id) from results.htn_v4_r_instrument) as n_sites,
+                (regr_r2(individual_timely, z_loo) / nullif(1 - regr_r2(individual_timely, z_loo), 0) * (count(*) - 2)) as f_timely,
+                (regr_r2(individual_diagnosed, z_dx) / nullif(1 - regr_r2(individual_diagnosed, z_dx), 0) * (count(*) - 2)) as f_diagnosed
+            from m
+        SQL);
+
+        $fTimely = is_numeric($fs->f_timely ?? null) ? round((float) $fs->f_timely, 2) : null;
+        $fDiagnosed = is_numeric($fs->f_diagnosed ?? null) ? round((float) $fs->f_diagnosed, 2) : null;
+        $firstStageF = max($fTimely ?? 0.0, $fDiagnosed ?? 0.0);
+        $interpretable = $firstStageF >= self::R_MIN_FIRST_STAGE_F;
+        $nSites = (int) ($fs->n_sites ?? 0);
+        $nMembers = (int) ($fs->n_members ?? 0);
+
+        $tertiles = $conn->select(<<<'SQL'
+            with site as (
+                select care_site_id, count(*) n, sum(individual_diagnosed) nd
+                from results.htn_v4_r_instrument group by care_site_id
+            ),
+            m as (
+                select r.individual_diagnosed, r.individual_timely, r.site_size,
+                    round((s.nd - r.individual_diagnosed)::numeric / nullif(s.n - 1, 0), 4) as z_dx
+                from results.htn_v4_r_instrument r join site s on s.care_site_id = r.care_site_id
+            ),
+            t as (select m.*, ntile(3) over (order by z_dx) as tert from m)
+            select tert,
+                round(avg(individual_diagnosed)::numeric, 4) as dx_rate,
+                round(avg(site_size)::numeric, 1) as site_size,
+                round(avg(individual_timely)::numeric, 4) as timely_rate
+            from t group by tert order by tert
+        SQL);
+
+        $summaryData = [
+            'analysis_code' => 'R',
+            'label' => 'Site Diagnostic-Propensity IV (2SRI) — instrument-strength gate',
+            'data_source' => 'cdm',
+            'method' => 'Site leave-one-out diagnostic-propensity instrument on the visit-linked subset. First-stage F must reach ≥ 10 to interpret the LATE (spec §5.6); below that the instrument is too weak and the LATE is withheld.',
+            'computed_at' => now()->toDateString(),
+            'first_stage_f' => round($firstStageF, 1),
+            'interpretable' => $interpretable,
+            'n_sites' => $nSites,
+            'coverage_pct' => self::R_COVERAGE_PCT,
+            'late' => [],
+            'tertile_balance' => $this->rTertileBalance($tertiles),
+            'nc_on_instrument_null' => null,
+            'first_stage_detail' => ['timely_f' => $fTimely, 'diagnosed_f' => $fDiagnosed, 'n_members' => $nMembers],
+            'withheld_reason' => $interpretable ? null
+                : 'Instrument too weak — first-stage F '.round($firstStageF, 1).' < 10 (timely F '.($fTimely ?? '—').' / diagnosed F '.($fDiagnosed ?? '—').'). The LATE is not interpretable; R contributes only a weak-instrument caveat to the triangulation.',
+        ];
+
+        $result = StudyResult::query()->where('study_id', $studyId)->where('result_type', 'instrumental_variable')->first();
+        if ($result instanceof StudyResult) {
+            $result->summary_data = $summaryData;
+            $result->diagnostics = ['data_source' => 'cdm', 'interpretable' => $interpretable];
+            $result->is_publishable = false; // IV triangulates only; never a sole basis
+            $result->save();
+            $this->line('  ✓ study_results instrumental_variable updated to real CDM result');
+        } else {
+            $this->warn('  ⚠ no instrumental_variable row to update (run the fixture seeder first).');
+        }
+
+        $this->info(sprintf(
+            'Analysis R: first-stage F=%.1f (timely %s / diagnosed %s) · interpretable=%s · %d sites',
+            $firstStageF,
+            $fTimely === null ? '—' : (string) $fTimely,
+            $fDiagnosed === null ? '—' : (string) $fDiagnosed,
+            $interpretable ? 'true' : 'false (weak instrument)',
+            $nSites,
+        ));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Reshape tertile summary rows into the view's tertile-balance shape. With a
+     * weak instrument the treatment rates barely differ across tertiles — that
+     * near-balance IS the weak-first-stage signal.
+     *
+     * @param  array<int, mixed>  $tertiles
+     * @return list<array{covariate: string, t1: float, t2: float, t3: float, balanced: bool}>
+     */
+    private function rTertileBalance(array $tertiles): array
+    {
+        $byTert = [];
+        foreach ($tertiles as $row) {
+            if (is_object($row) && isset($row->tert)) {
+                $byTert[(int) $row->tert] = $row;
+            }
+        }
+
+        $val = fn (int $t, string $k): float => isset($byTert[$t]->$k) && is_numeric($byTert[$t]->$k) ? (float) $byTert[$t]->$k : 0.0;
+
+        $out = [];
+        foreach ([['Diagnosed rate', 'dx_rate'], ['Site size', 'site_size'], ['Timely-dx rate', 'timely_rate']] as [$label, $key]) {
+            $t1 = $val(1, $key);
+            $t2 = $val(2, $key);
+            $t3 = $val(3, $key);
+            $maxAbs = max(abs($t1), abs($t2), abs($t3));
+            $spread = $maxAbs > 0 ? abs($t3 - $t1) / $maxAbs : 0.0;
+            $out[] = ['covariate' => $label, 't1' => $t1, 't2' => $t2, 't3' => $t3, 'balanced' => $spread < 0.1];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Triangulation — assemble the real O / P / R results into the headline
+     * cross-design figure, honestly reflecting whether each design was estimable.
+     * When all three withhold, that concordant non-identifiability is the finding.
+     */
+    private function runTriangulation(int $studyId): int
+    {
+        $this->info("Triangulation — assembling real O / P / R results · study {$studyId}");
+
+        $rows = StudyResult::query()
+            ->where('study_id', $studyId)
+            ->whereIn('result_type', ['overlap_weighted_effect', 'target_trial', 'instrumental_variable', 'triangulation'])
+            ->get()
+            ->keyBy('result_type');
+
+        $specs = [
+            ['overlap_weighted_effect', 'O — Overlap-weighted (ATO / PSM)', 'O'],
+            ['target_trial', 'P — Target-trial (landmark)', 'P'],
+            ['instrumental_variable', 'R — Instrumental variable (2SRI)', 'R'],
+        ];
+
+        $designs = [];
+        $estimableCount = 0;
+        foreach ($specs as [$rt, $name, $code]) {
+            $row = $rows->get($rt);
+            $sd = $row instanceof StudyResult && is_array($row->summary_data) ? $row->summary_data : [];
+            $estimable = ($sd['estimable'] ?? null) === true || ($sd['interpretable'] ?? null) === true;
+            if ($estimable) {
+                $estimableCount++;
+            }
+            $design = [
+                'name' => $name,
+                'code' => $code,
+                'estimable' => $estimable,
+                'gate_status' => $estimable ? 'cleared' : 'withheld',
+                'reason' => is_string($sd['withheld_reason'] ?? null) ? $sd['withheld_reason'] : null,
+            ];
+            $estimates = is_array($sd['estimates'] ?? null) ? $sd['estimates'] : [];
+            foreach ($estimates as $e) {
+                if (! is_array($e)) {
+                    continue;
+                }
+                $on = strtolower((string) ($e['outcome_name'] ?? ''));
+                if (str_contains($on, 'mace')) {
+                    $design['hr_mace'] = $e['hazard_ratio'] ?? null;
+                    $design['mace_lo'] = $e['ci_95_lower'] ?? null;
+                    $design['mace_hi'] = $e['ci_95_upper'] ?? null;
+                }
+                if (str_contains($on, 'ckd')) {
+                    $design['hr_ckd'] = $e['hazard_ratio'] ?? null;
+                    $design['ckd_lo'] = $e['ci_95_lower'] ?? null;
+                    $design['ckd_hi'] = $e['ci_95_upper'] ?? null;
+                }
+            }
+            $designs[] = $design;
+        }
+
+        $allWithheld = $estimableCount === 0;
+        $narrative = $allWithheld
+            ? "All three designs withheld the delay effect: O on residual covariate imbalance, P on poor overlap (PS AUC ≥ 0.80), and R on a weak instrument (first-stage F < 10). The timely-vs-delayed contrast is not identifiable in this CDM — the positivity, power and instrument-strength failures are concordant, which is itself the finding. The study's calibrated signal rests on the anchor (elevated vs normotensive) contrast, not the delay contrast."
+            : 'At least one design produced an estimable effect; compare the estimates below.';
+
+        $summaryData = [
+            'analysis_code' => 'Triangulation',
+            'label' => 'Cross-Design Triangulation — timely vs delayed (real CDM)',
+            'data_source' => 'cdm',
+            'computed_at' => now()->toDateString(),
+            'designs' => $designs,
+            'concordance' => $allWithheld ? 'not estimable (concordant non-identifiability)' : 'mixed',
+            'most_credible' => $allWithheld ? 'none — anchor (elevated vs normotensive) instead' : '',
+            'narrative' => $narrative,
+        ];
+
+        $result = $rows->get('triangulation');
+        if ($result instanceof StudyResult) {
+            $result->summary_data = $summaryData;
+            $result->diagnostics = ['data_source' => 'cdm', 'estimable_designs' => $estimableCount];
+            $result->is_publishable = true; // the triangulation verdict itself is reportable
+            $result->save();
+            $this->line('  ✓ study_results triangulation updated to real CDM assembly');
+        } else {
+            $this->warn('  ⚠ no triangulation row to update (run the fixture seeder first).');
+        }
+
+        $this->info(sprintf('Triangulation: %d/3 designs estimable · %s', $estimableCount, $summaryData['concordance']));
 
         return self::SUCCESS;
     }

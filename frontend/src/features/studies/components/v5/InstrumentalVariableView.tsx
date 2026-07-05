@@ -1,4 +1,4 @@
-import { Info } from "lucide-react";
+import { Info, Database } from "lucide-react";
 import { ForestPlot } from "@/features/estimation/components/ForestPlot";
 import { FixtureBanner } from "./FixtureBanner";
 import { SectionTitle, StatusPill, Tile } from "./ui";
@@ -17,9 +17,23 @@ export function InstrumentalVariableView({ data }: { data: Record<string, unknow
   const tertileBalance = records(data.tertile_balance);
   const ncNull = data.nc_on_instrument_null === true;
 
+  const isRealCdm = str(data.data_source) === "cdm";
+
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM result · </span>
+            {str(data.method) || "Site diagnostic-propensity instrument computed from the CDM."}
+            {str(data.withheld_reason) && (
+              <span className="mt-1 block text-warning">{str(data.withheld_reason)}</span>
+            )}
+          </span>
+        </div>
+      )}
 
       <div className="flex items-start gap-2 rounded-md border border-info/30 bg-info/10 px-3 py-2 text-[11px] text-info">
         <Info size={14} className="mt-0.5 shrink-0" />
