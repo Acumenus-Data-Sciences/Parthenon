@@ -86,6 +86,41 @@ matrix), descriptive core**, from the live CDM.
 - Query is index-driven (`idx_co_concept_person`), ~0.2 s per morbidity, no
   `measurement` value-scan, no R. Pint + PHPStan L8 clean.
 
+## Follow-up 2 — real Analysis O + full Analysis M
+
+**Correction to the "R runtime absent" finding:** the HADES runtime is present — it
+is the **`darkstar`** service (`http://darkstar:8787`, Plumber2, 40 HADES packages
+incl. CohortMethod/Cyclops/EmpiricalCalibration), not a service literally named
+`r-runtime`. It was already up.
+
+**Analysis O (primary causal contrast) — now REAL, correctly withheld.** Added
+`study:htn-v4 --action=run-o`. It materialises a delayed comparator cohort
+(`results.cohort` id 5456 = G2∪G3∪G4 = 10,855, additive), reuses the proven v4
+delay-contrast design (analysis 64: 1:1 PS matching, Cox, same covariate
+exclusions + 8 negative controls), and calls darkstar `/analysis/estimation/run`
+via `EstimationService`/`RService`. Orientation matches v4 (delayed as target,
+timely as comparator) so the fits stay well-conditioned. Result: **estimable =
+false** — max |SMD| 0.2434 ≥ 0.1 (equipoise 0.9535, EASE 0.033, 7 informative
+NCs). This **replaces the fixture's fabricated estimable HR 0.88 with the truthful
+withheld result** — the same non-estimability v4 found for G4-vs-G1. Exact PSweight
+ATO is not in the HADES image; PS matching is the spec's named sensitivity (noted
+in `method`).
+
+**Analysis M — expanded from 4 → all 17 morbidities, real CDM.** Added 13 verified
+SNOMED roots (confirmed against `vocab.concept`, descendant-expanded via
+`concept_ancestor`). Two data-quality corrections found by running it: CAD was 0%
+everywhere under "Coronary arteriosclerosis" (317576) — the CDM codes it as
+"Ischemic heart disease" (4185932), which shows the expected gradient (G1 10.1% →
+G3 16.7%). Morbidities that are **zero across all six populations** are flagged
+"not captured in this CDM (mapping under review)" and excluded rather than shown as
+misleading zeros — 4 excluded (primary aldosteronism, obesity-as-dx, PVD,
+hypertensive retinopathy; the CDM has only diabetic retinopathy and models no
+PVD). **13 reported morbidities × 6 populations × 2 epochs = 78 real rows.** Both
+the M and O frontend views show a green "Real CDM" provenance note.
+
+**Provenance now:** M + O = real CDM; N, P, Q, R, triangulation = fixture (need
+custom darkstar R endpoints — darkstar has no target-trial or IV endpoint).
+
 ### Hard environmental blockers (why the rest stays fixture)
 - **The R / HADES runtime is absent from this compose stack** (`r-runtime` = "no
   such service"). That makes **O (ATO), P (target-trial + IPCW), R (site IV /

@@ -1,3 +1,4 @@
+import { Database } from "lucide-react";
 import { ForestPlot } from "@/features/estimation/components/ForestPlot";
 import { LovePlot } from "@/features/estimation/components/LovePlot";
 import { FixtureBanner } from "./FixtureBanner";
@@ -18,9 +19,23 @@ export function OverlapWeightedEffectView({ data }: { data: Record<string, unkno
   const calibration = asRecord(data.calibration);
   const riskDiff = asRecord(data.risk_difference_5y);
 
+  const isRealCdm = str(data.data_source) === "cdm";
+
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM result · </span>
+            {str(data.method) || "Computed via darkstar CohortMethod."}
+            {str(data.withheld_reason) && (
+              <span className="mt-1 block text-warning">{str(data.withheld_reason)}</span>
+            )}
+          </span>
+        </div>
+      )}
       <GateBanner estimable={estimable} gates={gates} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
