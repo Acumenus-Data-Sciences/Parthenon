@@ -243,17 +243,17 @@ class StudyHtnV4 extends Command
      */
     private function runOverlapWeighted(int $studyId): int
     {
-        $this->info("Analysis O — delayed (G2–G4) vs timely (G1) via darkstar CohortMethod · study {$studyId}");
+        $this->info("Analysis O — delayed (G2–G4) vs timely (G1) via darkstar ATO overlap weighting · study {$studyId}");
 
-        $r = $this->runContrast($studyId, self::O_DELAYED, self::O_TIMELY);
+        $r = $this->runContrast($studyId, self::O_DELAYED, self::O_TIMELY, 'ato');
         if ($r === null) {
             return self::FAILURE;
         }
 
         $summaryData = [
             'analysis_code' => 'O',
-            'label' => 'Delay Effect — delayed (G2–G4) vs timely (G1), PS-matched Cox',
-            'method' => 'darkstar CohortMethod: 1:1 PS matching + Cox + EmpiricalCalibration. Exact PSweight ATO pending (WeightIt not in HADES image); PS matching is the spec-named sensitivity.',
+            'label' => 'Delay Effect — delayed (G2–G4) vs timely (G1), ATO overlap-weighted Cox',
+            'method' => 'darkstar overlap weighting: exact ATO overlap weights (w=1-e treated, w=e control; Li–Morgan–Zaslavsky) + weighted Cox + EmpiricalCalibration. ATO balances the PS main-effect covariates by construction.',
         ] + $this->estimationSummaryData($r);
 
         $this->persistEstimationRow($studyId, 'overlap_weighted_effect', $summaryData, $r);
@@ -275,15 +275,15 @@ class StudyHtnV4 extends Command
 
         // Target = not-treated (large), comparator = treated (small) — keeps the
         // Cox/negative-control fits well-conditioned, as for O.
-        $r = $this->runContrast($studyId, self::P_UNTREATED, self::P_TREATED);
+        $r = $this->runContrast($studyId, self::P_UNTREATED, self::P_TREATED, 'ato');
         if ($r === null) {
             return self::FAILURE;
         }
 
         $summaryData = [
             'analysis_code' => 'P',
-            'label' => 'Target-Trial Emulation — treat within 90 d vs not (landmark)',
-            'method' => 'Landmark new-user target-trial emulation (index = t2 + 90 d); PS-matched Cox + EmpiricalCalibration. Full clone-censor-weight + IPCW is a refinement.',
+            'label' => 'Target-Trial Emulation — treat within 90 d vs not (landmark + ATO)',
+            'method' => 'Landmark new-user target-trial emulation (index = t2 + 90 d ⇒ no immortal time) with ATO overlap weighting + weighted Cox + EmpiricalCalibration. Full time-varying clone-censor-weight + IPCW is a further refinement.',
             'grace_days' => 90,
             'immortal_time_check' => 'PASS (landmark design — follow-up starts at the grace landmark)',
         ] + $this->estimationSummaryData($r);
@@ -664,7 +664,7 @@ class StudyHtnV4 extends Command
      *
      * @return array<string, mixed>|null
      */
-    private function runContrast(int $studyId, int $target, int $comparator): ?array
+    private function runContrast(int $studyId, int $target, int $comparator, string $method = 'matching'): ?array
     {
         $source = Source::query()->where('source_key', $this->option('source'))->first();
         if (! $source instanceof Source) {
@@ -694,13 +694,19 @@ class StudyHtnV4 extends Command
         ];
 
         if ($this->option('dry-run')) {
-            $this->line("  [dry-run] would POST estimation to darkstar (target {$target} vs comparator {$comparator}).");
+            $this->line("  [dry-run] would POST {$method} estimation to darkstar (target {$target} vs comparator {$comparator}).");
 
             return null;
         }
 
-        $this->line('  Calling darkstar /analysis/estimation/run (CohortMethod, PS matching + negative-control calibration)…');
-        $raw = app(RService::class)->runEstimation($spec);
+        $rService = app(RService::class);
+        if ($method === 'ato') {
+            $this->line('  Calling darkstar /analysis/overlap-weighting/run (ATO overlap weights + weighted Cox + calibration)…');
+            $raw = $rService->runOverlapWeighting($spec);
+        } else {
+            $this->line('  Calling darkstar /analysis/estimation/run (CohortMethod PS matching + calibration)…');
+            $raw = $rService->runEstimation($spec);
+        }
         if (($raw['status'] ?? null) === 'error') {
             $this->error('  darkstar estimation error: '.($raw['message'] ?? 'unknown'));
 
