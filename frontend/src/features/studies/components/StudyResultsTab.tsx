@@ -41,6 +41,14 @@ const RESULT_TYPE_LABELS: Record<string, string> = {
   pathway: "Pathway",
   sccs: "SCCS",
   custom: "Custom",
+  // v5 (Hypertension Outcomes Program) result types
+  overlap_weighted_effect: "Overlap-Weighted Effect (ATO)",
+  target_trial: "Target-Trial Emulation",
+  instrumental_variable: "Instrumental Variable",
+  comorbidity_matrix: "Comorbidity Matrix",
+  bp_distribution: "BP Distribution",
+  phenotype_robustness: "Phenotype Robustness",
+  triangulation: "Triangulation",
 };
 
 const SYNTHESIS_TYPE_LABELS: Record<string, string> = {
@@ -277,7 +285,9 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-info/10 text-info">
-                            {t(`studies.results.resultTypes.${r.result_type}`, { defaultValue: r.result_type })}
+                            {t(`studies.results.resultTypes.${r.result_type}`, {
+                              defaultValue: RESULT_TYPE_LABELS[r.result_type] ?? r.result_type,
+                            })}
                           </span>
                           {r.site?.source && (
                             <span className="text-xs text-text-ghost">
