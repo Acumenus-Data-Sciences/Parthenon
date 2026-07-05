@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Download, Table2 } from "lucide-react";
+import { Download, Table2, Database } from "lucide-react";
 import { HeatmapChart } from "@/features/data-explorer/components/charts/HeatmapChart";
 import { FixtureBanner } from "./FixtureBanner";
 import { SectionTitle } from "./ui";
 import { downloadCsv } from "./csv";
-import { fmt, fmtPct, num, records, str } from "./narrow";
+import { asArray, fmt, fmtPct, num, records, str } from "./narrow";
 
 /**
  * Analysis M — Comorbidity prevalence matrix. Renders the 17×6 prevalence
@@ -27,9 +27,27 @@ export function ComorbidityMatrixView({ data }: { data: Record<string, unknown> 
     );
   };
 
+  const isRealCdm = str(data.data_source) === "cdm";
+  const pending = asArray(data.pending_morbidities).map(String).filter(Boolean);
+
   return (
     <div className="space-y-4">
       <FixtureBanner data={data} />
+
+      {isRealCdm && (
+        <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[11px] text-success">
+          <Database size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-semibold uppercase tracking-wide">Real CDM data · </span>
+            {str(data.note) || "Prevalence + Wilson 95% CI computed from the Acumenus omop CDM."}
+            {pending.length > 0 && (
+              <span className="mt-1 block text-text-muted">
+                Pending concept-set materialisation ({pending.length}): {pending.join(", ")}.
+              </span>
+            )}
+          </span>
+        </div>
+      )}
 
       {heatmapData.length > 0 && (
         <div>

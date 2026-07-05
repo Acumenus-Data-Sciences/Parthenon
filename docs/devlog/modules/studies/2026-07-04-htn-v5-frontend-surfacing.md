@@ -65,6 +65,42 @@ for a real v5 finding.
 - Frontend: `tsc --noEmit` clean, `vite build` clean, `eslint` clean, `vitest`
   14/14 (adapter + narrowing logic).
 
+## Follow-up — real executor + real Analysis M (same day)
+
+Built `study:htn-v4` (`StudyHtnV4` command, CLAUDE_PROMPT_v5 §2) and ran the one
+analysis genuinely computable in this environment: **Analysis M (comorbidity
+matrix), descriptive core**, from the live CDM.
+
+- Morbidity concepts resolved from **verified** `app.concept_sets` seed roots via
+  `vocab.concept_ancestor` descendant expansion (standard OMOP resolution — no
+  guessed concept ids). Four morbidities have verified sets: Diabetes (55), Heart
+  failure (176), CKD (186), Primary aldosteronism (191).
+- Per morbidity × 6 real populations (G1–G4, never-diagnosed, comparator C from
+  `results.cohort`) × 2 epochs (pre-existing / newly-occurring vs the member's
+  index date): real count + prevalence + **Wilson 95% CI**. 24 real rows → real
+  `results.htn_v4_m_comorbidity_matrix`; the `comorbidity_matrix` study_results
+  row is now `data_source=cdm` (fixture flag dropped) and the UI shows a green
+  "Real CDM data" note listing the pending morbidities.
+- Sanity: CKD 9–13% in the diagnosed delay groups vs 0.5% never-diagnosed / 0.4%
+  comparator; diabetes shows the expected gradient — clinically coherent.
+- Query is index-driven (`idx_co_concept_person`), ~0.2 s per morbidity, no
+  `measurement` value-scan, no R. Pint + PHPStan L8 clean.
+
+### Hard environmental blockers (why the rest stays fixture)
+- **The R / HADES runtime is absent from this compose stack** (`r-runtime` = "no
+  such service"). That makes **O (ATO), P (target-trial + IPCW), R (site IV /
+  2SRI), F/G/H (survival), N (BP distribution), and Analysis M's adjusted ORs**
+  impossible to run here — they are the statistical heart of v5. The command logs
+  an explicit skip rather than fabricating estimates.
+- The remaining 13 spec morbidities need concept-set materialisation (verified
+  roots), not guesswork.
+
+**To finish v5 for real:** provision the R/HADES runtime (WeightIt/PSweight,
+survival, IPCW, 2SRI), materialise the 17 morbidity concept sets, then extend
+`study:htn-v4 --action=run` to author the R payloads via `StudyDesignToolRunner`.
+This is a statistically-sensitive execution that warrants review before it runs
+against the 1M-patient clinical CDM.
+
 ## Deferred / follow-up
 - Generic source-scoped long-form table-reader endpoint (Layer 2 server side) —
   not needed for the fixture (summary_data carries the full arrays); the
