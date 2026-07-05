@@ -149,6 +149,34 @@ max |SMD| 0.2434; P: PS AUC 0.913). `runContrast`/`estimationSummaryData`/
 **Provenance now:** M + O + P = real CDM (O and P correctly withheld); N, Q, R,
 triangulation = fixture. R (2SRI IV) still needs a net-new darkstar endpoint.
 
+## Follow-up 4 — real Analysis R (IV) + real triangulation
+
+**Analysis R — site diagnostic-propensity IV, first-stage strength gate.**
+`study:htn-v4 --action=run-r`. Built the member-grain instrument
+(`scripts/sql/htn-v5-analysis-r-instrument.sql`): each visit-linked T member
+assigned their most-recent-visit care_site, sites with ≥ 25 T patients get a
+leave-one-out timely-diagnosis propensity Z (26,289 members, 521 sites, 37.9%
+coverage — matches the spec). The decisive diagnostic is the first-stage F, and it
+fails hard: **timely-dx F ≈ 0.1, diagnosed-vs-never F ≈ 3.4 — both ≪ 10.** So the
+instrument is too weak to interpret; the LATE is withheld and no second-stage 2SRI
+is warranted (computing a LATE from a dead instrument would be misleading). This
+is the true result — the delay/diagnosis contrast lacks the variation a valid
+instrument needs, consistent with O and P failing on overlap.
+
+**Triangulation — real assembly.** `study:htn-v4 --action=run-triangulation` reads
+the persisted O/P/R rows and builds the headline: **0/3 designs estimable →
+"not estimable (concordant non-identifiability)".** O withheld on residual
+imbalance, P on poor overlap (PS AUC ≥ 0.80), R on a weak instrument (F < 10). That
+concordant failure across three independent designs IS the finding — the delay
+contrast is not identifiable in this CDM; the study's calibrated signal rests on
+the anchor (elevated vs normotensive) contrast. The `TriangulationView` now renders
+per-design gate status + reasons and only draws forests for estimable designs.
+
+**Provenance now:** M, O, P, R, triangulation = real CDM (all causal designs
+correctly withheld); only N (BP distribution) and Q (phenotype robustness) remain
+fixture — both are descriptive-but-R / measurement-heavy (N needs the 710M-row
+measurement table).
+
 ### Hard environmental blockers (why the rest stays fixture)
 - **The R / HADES runtime is absent from this compose stack** (`r-runtime` = "no
   such service"). That makes **O (ATO), P (target-trial + IPCW), R (site IV /
