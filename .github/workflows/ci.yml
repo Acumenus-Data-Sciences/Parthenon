@@ -178,7 +178,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -241,7 +241,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -265,7 +265,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -328,7 +328,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - uses: actions/checkout@v6
-  #     - uses: actions/setup-node@v6
+  #     - uses: actions/setup-node@v7
   #       with: { node-version: "22" }
   #     - run: npm ci
   #       working-directory: docs/screenshots
@@ -423,7 +423,7 @@ jobs:
           python3 -m json.tool api.json >/dev/null
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
