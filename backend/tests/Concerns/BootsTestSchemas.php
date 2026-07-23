@@ -74,15 +74,15 @@ trait BootsTestSchemas
     /**
      * Fail before test bootstrap performs any DDL when pgsql_testing resolves
      * to the live Parthenon database. Parallel Pest workers use names such as
-     * parthenon_testing_test_1, so the accepted contract is the canonical
-     * parthenon_testing prefix rather than one exact database name.
+     * parthenon_testing_test_1. CI provisions parthenon_test, so accept only
+     * those explicit Parthenon test-name families and reject the live name.
      */
     private function assertSafeTestingDatabase(Connection $connection): void
     {
         $row = $connection->selectOne('SELECT current_database() AS database_name');
         $database = (string) ($row?->database_name ?? '');
 
-        if (! str_starts_with($database, 'parthenon_testing')) {
+        if (preg_match('/^parthenon_(?:test|testing)(?:_[A-Za-z0-9]+)*$/', $database) !== 1) {
             throw new \RuntimeException(
                 "Refusing test bootstrap: pgsql_testing resolved to unsafe database '{$database}'."
             );

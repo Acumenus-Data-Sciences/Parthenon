@@ -18,7 +18,7 @@ import uuid
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, cast
 
 import httpx
 from sqlalchemy import Engine, create_engine, text
@@ -202,7 +202,11 @@ def _qdrant_request(
         timeout=120.0,
     )
     response.raise_for_status()
-    return response.json()
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise RuntimeError("Qdrant returned a non-object JSON response")
+
+    return cast(dict[str, Any], payload)
 
 
 def qdrant_source_is_compatible(
@@ -509,10 +513,14 @@ def audit_versioned_collection(
 
 def _get_batch_resilient(target: Any, concepts: list[ClinicalConcept]) -> dict[str, Any]:
     try:
-        return target.get(
+        payload = target.get(
             ids=[concept.document_id for concept in concepts],
             include=["documents", "metadatas", "embeddings"],
         )
+        if not isinstance(payload, dict):
+            raise RuntimeError("Chroma returned a non-object batch response")
+
+        return cast(dict[str, Any], payload)
     except Exception:
         if len(concepts) <= 1:
             raise

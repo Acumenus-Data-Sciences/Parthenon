@@ -9,7 +9,7 @@ it('binds logical clinical connections to the isolated test database', function 
         ->selectOne('SELECT current_database() AS database_name')
         ->database_name;
 
-    expect($masterDatabase)->toStartWith('parthenon_testing');
+    expect($masterDatabase)->toMatch('/^parthenon_(?:test|testing)(?:_[A-Za-z0-9]+)*$/');
 
     foreach (['pgsql', 'omop', 'vocab', 'results'] as $connectionName) {
         $database = (string) DB::connection($connectionName)
