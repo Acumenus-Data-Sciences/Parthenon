@@ -73,6 +73,10 @@ class Settings(BaseSettings):
     # ChromaDB configuration
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
+    # Logical Abby clinical-reference collection. Operators build and validate a
+    # versioned replacement, then change this setting for an atomic consumer
+    # cutover while retaining the prior collection for rollback.
+    chroma_clinical_collection: str = "clinical_reference"
     startup_ingest_docs: bool = False
     wiki_root_dir: str = "/data/wiki"
     wiki_default_workspace: str = "platform"
@@ -84,7 +88,10 @@ class Settings(BaseSettings):
     sapbert_model: str = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
 
     # Ollama embedding model (GPU-accelerated, preferred over SapBERT)
-    ollama_embedding_model: str = "nomic-embed-text:latest"
+    # embeddinggemma remains discriminative for short clinical labels. The
+    # previous nomic runtime collapsed distinct labels sharing the same final
+    # token (for example, multiple unrelated "... syndrome" concepts).
+    ollama_embedding_model: str = "embeddinggemma:300m"
 
     # Ariadne concept mapping configuration
     # Vector search uses vocab.concept_embedding_bge (BAAI/bge-base-en-v1.5,
@@ -97,10 +104,10 @@ class Settings(BaseSettings):
     # Set to "Represent this sentence for searching relevant passages: " for
     # asymmetric short-query → long-passage retrieval.
     ariadne_bge_query_instruction: str = ""
-    # MODEL_CACHE_DIR (/models) is a read-only tmpfs for the non-root appuser;
-    # BGE downloads must target a writable path. /tmp/parthenon-models is the
-    # de-facto writable HF cache already used by the Chroma embedder.
-    ariadne_bge_cache_dir: str = "/tmp/parthenon-models"
+    # Keep BGE weights in the same persistent, writable cache mounted at
+    # /models for the non-root python-ai runtime. Using /tmp would force a
+    # model download after every container recreation.
+    ariadne_bge_cache_dir: str = "/models/bge"
 
     # Memory settings
     memory_intent_stack_max_depth: int = 3

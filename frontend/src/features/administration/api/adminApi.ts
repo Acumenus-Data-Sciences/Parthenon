@@ -428,7 +428,12 @@ export const testLiveKitConnection = (url: string) =>
 
 // ── Vocabulary Imports ────────────────────────────────────────────────────────
 
-export type VocabImportStatus = "pending" | "running" | "completed" | "failed";
+export type VocabImportStatus =
+  | "pending"
+  | "running"
+  | "awaiting_downstreams"
+  | "completed"
+  | "failed";
 
 export interface VocabularyImport {
   id: number;
@@ -442,6 +447,10 @@ export interface VocabularyImport {
   error_message: string | null;
   rows_loaded: number | null;
   target_schema: string | null;
+  remove_omitted?: boolean;
+  manifest?: Record<string, unknown> | null;
+  downstream_status?: Record<string, string> | null;
+  backup_path?: string | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;

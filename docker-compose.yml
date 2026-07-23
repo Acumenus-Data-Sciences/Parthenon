@@ -54,6 +54,7 @@ services:
       - ./external/finngen:/opt/finngen:ro
       - ./dicom_samples:/var/www/html/dicom_samples:ro
       - ./.resendapikey:/var/www/.resendapikey:ro
+      - ${VOCABULARY_BACKUP_ROOT:-./backend/storage/app/vocabulary-backups}:/var/backups/vocabulary:ro
       - finngen-artifacts:/opt/finngen-artifacts
       - shiny-workspaces:/var/www/html/storage/app/managed-shiny
     env_file:
@@ -192,7 +193,7 @@ services:
       - "./OHDSI-scraper/OHDSI Papers:/app/ohdsi_papers:ro"
       - ./scripts:/app/scripts:ro
       - ./backend/storage/app:/var/www/html/storage/app:ro
-      - /tmp/parthenon-ai-models:/models
+      - ./ai/models:/models
       - wiki-data:/data/wiki
     environment:
       - DATABASE_URL=postgresql://abby_analyst:${ABBY_ANALYST_PASSWORD}@host.docker.internal:5432/parthenon
@@ -207,6 +208,7 @@ services:
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-puyangwang/medgemma-27b-it:q4_0}
       - OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-embeddinggemma:300m}
       - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-puyangwang/medgemma-27b-it:q4_0}
       - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
@@ -217,6 +219,7 @@ services:
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
+      - CHROMA_CLINICAL_COLLECTION=${CHROMA_CLINICAL_COLLECTION:-clinical_reference}
       - STUDY_AGENT_URL=http://study-agent:8765
       - AGENCY_API_BASE_URL=${AGENCY_API_BASE_URL:-http://nginx:80}
       - HECATE_URL=http://hecate:8080
@@ -323,7 +326,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 6G
+          # The active and prior clinical-reference HNSW collections coexist
+          # through an audited vocabulary cutover so rollback remains instant.
+          memory: 10G
     networks:
       - parthenon
     restart: unless-stopped
@@ -533,7 +538,11 @@ services:
       - PG__DBNAME=${HECATE_PG_DBNAME:-parthenon}
       - PG__POOL_MAX_SIZE=16
       - VOCAB_SCHEMA=vocab
-      - CACHE_MAX_CAPACITY=32
+      # Hecate's current confik builder requires every cache setting even
+      # though upstream implements Rust Default values for the same fields.
+      - EXPAND_CACHE_MAX_ENTRIES=${HECATE_EXPAND_CACHE_MAX_ENTRIES:-64}
+      - SEARCH_CACHE_MAX_ENTRIES=${HECATE_SEARCH_CACHE_MAX_ENTRIES:-1000}
+      - EMBEDDING_CACHE_MAX_ENTRIES=${HECATE_EMBEDDING_CACHE_MAX_ENTRIES:-128000}
       - CACHE_TTL_DAYS=10
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -658,6 +667,7 @@ services:
     volumes:
       - ./backend:/var/www/html
       - ./.resendapikey:/var/www/.resendapikey:ro
+      - ${VOCABULARY_BACKUP_ROOT:-./backend/storage/app/vocabulary-backups}:/var/backups/vocabulary:ro
     env_file:
       - ./backend/.env
     environment:

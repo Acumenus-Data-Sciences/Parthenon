@@ -2451,6 +2451,7 @@ const enApp: MessageTree = {
       status: {
         pending: "Queued",
         running: "Running",
+        awaitingDownstreams: "Database ready; downstream indexing pending",
         completed: "Completed",
         failed: "Failed",
       },
@@ -6891,6 +6892,7 @@ const esApp: MessageTree = {
       status: {
         pending: "En cola",
         running: "En ejecución",
+        awaitingDownstreams: "Base de datos lista; indexación posterior pendiente",
         completed: "Completado",
         failed: "Fallido",
       },
@@ -11317,6 +11319,7 @@ const koApp: MessageTree = {
       status: {
         pending: "대기열",
         running: "실행 중",
+        awaitingDownstreams: "데이터베이스 준비 완료; 다운스트림 인덱싱 대기 중",
         completed: "완료됨",
         failed: "실패",
       },
@@ -17230,6 +17233,7 @@ const frApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "En file d'attente",
         running: "En cours",
+        awaitingDownstreams: "Base de données prête ; indexation en aval en attente",
         completed: "Complété",
         failed: "Échec",
       },
@@ -21610,6 +21614,7 @@ const deApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "In der Warteschlange",
         running: "Läuft",
+        awaitingDownstreams: "Datenbank bereit; nachgelagerte Indizierung ausstehend",
         completed: "Vollendet",
         failed: "Fehlgeschlagen",
       },
@@ -25957,6 +25962,7 @@ const ptApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "Na fila",
         running: "Em execução",
+        awaitingDownstreams: "Banco de dados pronto; indexação downstream pendente",
         completed: "Concluído",
         failed: "Com falha",
       },
@@ -28674,6 +28680,7 @@ const fiApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "Jonossa",
         running: "Käynnissä",
+        awaitingDownstreams: "Tietokanta valmis; jatkoindeksointi odottaa",
         completed: "Valmis",
         failed: "Epäonnistui",
       },
@@ -32840,6 +32847,7 @@ const jaApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "キューに入れられました",
         running: "実行中",
+        awaitingDownstreams: "データベース準備完了。後続のインデックス作成待ち",
         completed: "完了",
         failed: "失敗しました",
       },
@@ -36942,6 +36950,7 @@ const zhApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "排队",
         running: "运行中",
+        awaitingDownstreams: "数据库已就绪；下游索引待处理",
         completed: "已完成",
         failed: "失败",
       },
@@ -41124,6 +41133,7 @@ const hiApp: MessageTree = mergeMessageTrees(enApp, {
       status: {
         pending: "कतारबद्ध",
         running: "दौड़ना",
+        awaitingDownstreams: "डेटाबेस तैयार; डाउनस्ट्रीम इंडेक्सिंग लंबित",
         completed: "पुरा होना।",
         failed: "असफल",
       },
@@ -46270,6 +46280,7 @@ const arAppPass3: MessageTree = mergeMessageTrees(arAppPass2, {
       "status": {
         "pending": "في قائمة الانتظار",
         "running": "جري",
+        "awaitingDownstreams": "قاعدة البيانات جاهزة؛ فهرسة المراحل اللاحقة معلقة",
         "completed": "مكتمل",
         "failed": "فشل"
       },

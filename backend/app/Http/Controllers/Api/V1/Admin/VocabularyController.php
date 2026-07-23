@@ -51,7 +51,16 @@ class VocabularyController extends Controller
         $request->validate([
             'file' => ['required', 'file', 'mimes:zip', 'max:5120000'], // 5 GB max
             'source_id' => ['nullable', 'integer', 'exists:sources,id'],
+            'remove_omitted' => ['sometimes', 'boolean'],
+            'confirm_remove_omitted' => ['nullable', 'string'],
         ]);
+
+        $removeOmitted = $request->boolean('remove_omitted');
+        if ($removeOmitted && $request->string('confirm_remove_omitted')->toString() !== 'REMOVE_OMITTED_VOCABULARIES') {
+            return response()->json([
+                'message' => 'Removing omitted/local vocabularies requires confirm_remove_omitted=REMOVE_OMITTED_VOCABULARIES.',
+            ], 422);
+        }
 
         $file = $request->file('file');
         $sourceId = $request->integer('source_id') ?: null;
@@ -83,6 +92,8 @@ class VocabularyController extends Controller
             'storage_path' => $path,
             'file_size' => $file->getSize(),
             'target_schema' => $targetSchema,
+            'remove_omitted' => $removeOmitted,
+            'backup_path' => config('vocabulary.import_backup_path'),
         ]);
 
         VocabularyImportJob::dispatch($import);

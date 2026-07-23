@@ -259,16 +259,16 @@ def fetch_dqd_results_from_db(run_id: str) -> list[dict[str, Any]]:
             cur.execute(
                 """
                 SELECT
-                    check_name,
-                    cdm_table_name AS table_name,
-                    cdm_field_name AS column_name,
+                    check_id AS check_name,
+                    cdm_table AS table_name,
+                    cdm_column AS column_name,
                     category,
                     description,
                     passed,
-                    num_violated_rows,
-                    num_denominator_rows,
-                    threshold_value,
-                    execution_time
+                    violated_rows AS num_violated_rows,
+                    total_rows AS num_denominator_rows,
+                    threshold AS threshold_value,
+                    execution_time_ms AS execution_time
                 FROM app.dqd_results
                 WHERE run_id = %s
                 """,

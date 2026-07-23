@@ -52,8 +52,9 @@ use Illuminate\Foundation\Testing\RefreshDatabaseState;
  *
  * This is test-only. Production connections are never touched.
  *
- * Scope: sibling *_testing connections named in `TEST_PDO_SIBLINGS` below.
- * Add new siblings as they're introduced in `backend/config/database.php`.
+ * Scope: test variants plus logical clinical connections that otherwise inherit
+ * DB_DATABASE from the runtime environment. Add new siblings as they're
+ * introduced in `backend/config/database.php`.
  */
 trait SharesPdoAcrossTestConnections
 {
@@ -64,6 +65,9 @@ trait SharesPdoAcrossTestConnections
      */
     private const TEST_PDO_SIBLINGS = [
         'pgsql',
+        'omop',
+        'vocab',
+        'results',
         'finngen',
         'inpatient_testing',
         'finngen_testing',

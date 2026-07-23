@@ -19,6 +19,7 @@ import {
 const STATUS_CONFIG: Record<VocabImportStatus, { labelKey: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
   pending:   { labelKey: "pending",   color: "text-amber-500",   icon: Clock },
   running:   { labelKey: "running",   color: "text-blue-500",    icon: Loader2 },
+  awaiting_downstreams: { labelKey: "awaitingDownstreams", color: "text-amber-500", icon: Clock },
   completed: { labelKey: "completed", color: "text-emerald-500", icon: CheckCircle2 },
   failed:    { labelKey: "failed",    color: "text-red-500",     icon: XCircle },
 };
@@ -54,7 +55,7 @@ function LogViewer({ importId }: { importId: number }) {
     queryFn: () => fetchVocabImport(importId),
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === "running" || status === "pending" ? 3000 : false;
+      return status === "running" || status === "pending" || status === "awaiting_downstreams" ? 3000 : false;
     },
   });
 
@@ -101,7 +102,7 @@ function ImportCard({ imp, onDelete }: { imp: VocabularyImport; onDelete: (id: n
     initialData: imp,
     refetchInterval: (query) => {
       const status = query.state.data?.status ?? imp.status;
-      if (status === "running" || status === "pending") {
+      if (status === "running" || status === "pending" || status === "awaiting_downstreams") {
         queryClient.invalidateQueries({ queryKey: ["vocab-imports"] });
         return 3000;
       }
@@ -109,7 +110,7 @@ function ImportCard({ imp, onDelete }: { imp: VocabularyImport; onDelete: (id: n
     },
   });
 
-  const isActive = live.status === "pending" || live.status === "running";
+  const isActive = live.status === "pending" || live.status === "running" || live.status === "awaiting_downstreams";
   const elapsed = live.started_at && live.completed_at
     ? Math.round((new Date(live.completed_at).getTime() - new Date(live.started_at).getTime()) / 1000)
     : null;
@@ -355,7 +356,9 @@ export default function VocabularyPage() {
     refetchInterval: 10000,
   });
 
-  const hasActive = imports.some((i) => i.status === "pending" || i.status === "running");
+  const hasActive = imports.some((i) =>
+    i.status === "pending" || i.status === "running" || i.status === "awaiting_downstreams"
+  );
 
   const uploadMutation = useMutation({
     mutationFn: ({ file, sourceId }: { file: File; sourceId?: number }) =>
