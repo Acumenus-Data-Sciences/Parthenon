@@ -397,7 +397,7 @@ semantic difference is reviewed and documented.
 ### Phase 8 - closeout and operationalization
 
 - [x] Run focused backend, AI, template, and IRSF ETL tests.
-- [ ] Run migration status and application health checks.
+- [x] Run migration status and application health checks.
 - [x] Run `graphify update .` after code changes.
 - [ ] Regenerate the lineage catalog and pass document checks.
 - [x] Record final database, Solr, Chroma, Qdrant, BGE, and IRSF counts here.
@@ -481,6 +481,7 @@ decision.
 | 2026-07-22 | Hecate versioned build and cutover | `meddra_20260227` passed exact 1,366,041-point membership, all 117 IRSF concepts, zero missing/stale payloads, `embeddinggemma:300m` model-alias cosine 1.0, and Rett/humerus/hemoglobin probes. The 1,968,694-point prior collection was exported as a 7,292,466,688-byte hash-verified snapshot before alias cutover; Hecate is healthy and loads 1,304,155 unique names. |
 | 2026-07-22 | Chroma final build acceptance | `clinical_reference_20260227_v3` contains exactly 892,831 records, reused 892,831 audited Qdrant vectors and generated zero, has no missing/stale records, contains all 117 IRSF concepts and CPT 99213/99214, and passes Rett/humerus/hemoglobin semantic probes. The 624,821-record prior collection remains intact. |
 | 2026-07-22 | Focused regression gates | 36 AI/synchronizer tests, 22 backend tests with 55 assertions, 571 IRSF ETL tests, four runnable commercial mapping tests, 99 changed-frontend Vitest tests, PHPStan, scoped Pint, TypeScript, ESLint, Python compilation, Compose validation, and Graphify update passed. Environment-dependent commercial acceptance cases remained explicitly skipped. |
+| 2026-07-23 | Deployment and durable import audit | Commit `cbef8e7f2` was pushed in draft PR #377; the exact vocabulary audit migration, PHP, and frontend deployments completed; public application health and versioned Solr, Chroma, Qdrant/Hecate, BGE, backup-mount, and IRSF post-restart checks passed; and completed import audit row 2 records every downstream as complete. The unrelated phenotype migration remains pending. |
 | 2026-07-22 | IRSF final count and fingerprint audit | All 34 live IRSF/IRSF-results table counts and eight representative fingerprints exactly match the preservation set. |
 | 2026-07-22 | IRSF research-reference audit | All referenced concept IDs resolve; 22 active cohorts, six studies, ten designs, 23 completed executions, and 56 generation records remain present. Six legacy RxNorm brands account for 12 nonstandard cohort references. |
 | 2026-07-22 | IRSF validation follow-up | Rejection gate passed, but DQD remained below target at 75.88% overall and 76.43% on populated-table checks; temporal anomalies were recorded without changing participant data. |
