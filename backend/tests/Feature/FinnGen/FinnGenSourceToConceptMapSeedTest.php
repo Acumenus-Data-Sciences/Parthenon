@@ -25,12 +25,8 @@ it('grants SELECT on vocab.source_to_concept_map to parthenon_app per HIGHSEC §
     'parthenon_app role not present in this test environment');
 
 it('does not delete IRSF-NHS rows', function () {
-    DB::connection('vocab')->table('vocab.source_to_concept_map')
-        ->where('source_code', 'CI_IRSF_NHS_SENTINEL')
-        ->where('source_vocabulary_id', 'IRSF-NHS')
-        ->delete();
-
-    DB::connection('vocab')->table('vocab.source_to_concept_map')->insert([
+    $connection = DB::connection('vocab');
+    $sentinel = [
         'source_code' => 'CI_IRSF_NHS_SENTINEL',
         'source_concept_id' => 9_900_001,
         'source_vocabulary_id' => 'IRSF-NHS',
@@ -40,16 +36,35 @@ it('does not delete IRSF-NHS rows', function () {
         'valid_start_date' => '1970-01-01',
         'valid_end_date' => '2099-12-31',
         'invalid_reason' => null,
-    ]);
+    ];
 
-    $before = DB::connection('vocab')->table('vocab.source_to_concept_map')
-        ->where('source_vocabulary_id', 'IRSF-NHS')
-        ->count();
+    $deleteSentinel = static function () use ($connection, $sentinel): void {
+        $connection->table('vocab.source_to_concept_map')
+            ->where('source_code', $sentinel['source_code'])
+            ->where('source_concept_id', $sentinel['source_concept_id'])
+            ->where('source_vocabulary_id', $sentinel['source_vocabulary_id'])
+            ->where('target_concept_id', $sentinel['target_concept_id'])
+            ->delete();
+    };
 
-    Artisan::call('migrate', ['--force' => true]);
+    $deleteSentinel();
 
-    $irsfCount = DB::connection('vocab')->table('vocab.source_to_concept_map')
-        ->where('source_vocabulary_id', 'IRSF-NHS')->count();
-    expect($irsfCount)->toBe($before);
+    try {
+        $connection->table('vocab.source_to_concept_map')->insert($sentinel);
+
+        $before = $connection->table('vocab.source_to_concept_map')
+            ->where('source_vocabulary_id', 'IRSF-NHS')
+            ->count();
+
+        Artisan::call('migrate', ['--force' => true]);
+
+        $irsfCount = $connection->table('vocab.source_to_concept_map')
+            ->where('source_vocabulary_id', 'IRSF-NHS')->count();
+        expect($irsfCount)->toBe($before);
+    } finally {
+        // This test does not use RefreshDatabase. Always remove the fixture
+        // from the isolated test database, including assertion/error paths.
+        $deleteSentinel();
+    }
 })->skip(fn () => ! DB::connection('vocab')->getSchemaBuilder()->hasTable('source_to_concept_map'),
     'vocab.source_to_concept_map not present in this test environment');

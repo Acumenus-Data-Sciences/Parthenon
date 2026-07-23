@@ -27,6 +27,7 @@ from app.chroma.faq import promote_frequent_questions, seed_demo_faqs
 from app.chroma.memory import aggregate_conversations, delete_commons_message, prune_old_conversations, store_commons_message
 from app.chroma.clinical import ingest_clinical_concepts
 from app.services.projection import ProjectionResult
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -42,7 +43,7 @@ def _get_queryable_collection(name: str) -> Collection:
         return get_faq_collection()
     if name == "conversation_memory":
         return get_conversation_memory_collection()
-    if name == "clinical_reference":
+    if name in {"clinical_reference", settings.chroma_clinical_collection}:
         return get_clinical_collection()
     if name == "ohdsi_papers":
         return get_ohdsi_papers_collection()

@@ -98,6 +98,22 @@ def test_get_clinical_collection():
         mock_client.return_value.get_or_create_collection.return_value = mock_coll
         mock_embedder.return_value = MagicMock()
 
-        result = collections.get_clinical_collection()
+        result = collections.get_clinical_collection("clinical_reference")
         call_kwargs = mock_client.return_value.get_or_create_collection.call_args
         assert call_kwargs.kwargs["name"] == "clinical_reference"
+
+
+def test_get_clinical_collection_uses_versioned_runtime_setting():
+    """The logical accessor can cut over to a validated versioned collection."""
+    from app.chroma import collections
+
+    with patch.dict(collections._collection_cache, {}, clear=True), \
+         patch.object(collections.settings, "chroma_clinical_collection", "clinical_reference_20260227"), \
+         patch("app.chroma.collections.get_chroma_client") as mock_client, \
+         patch("app.chroma.collections.get_clinical_embedder"):
+        mock_client.return_value.get_or_create_collection.return_value = MagicMock()
+
+        collections.get_clinical_collection()
+
+    call_kwargs = mock_client.return_value.get_or_create_collection.call_args
+    assert call_kwargs.kwargs["name"] == "clinical_reference_20260227"

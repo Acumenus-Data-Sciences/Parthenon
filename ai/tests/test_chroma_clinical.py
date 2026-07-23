@@ -76,6 +76,27 @@ def test_ingest_clinical_empty_result():
     mock_coll.upsert.assert_not_called()
 
 
+def test_ingest_clinical_policy_includes_irsf_outside_target_domains():
+    """IRSF Observation concepts remain eligible without widening all Observation data."""
+    with patch("app.chroma.clinical.get_clinical_collection") as mock_coll_fn, \
+         patch("app.chroma.clinical._get_vocab_engine") as mock_engine_fn:
+        mock_coll_fn.return_value = MagicMock()
+        mock_conn = MagicMock()
+        mock_engine = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_engine_fn.return_value = mock_engine
+        mock_conn.execute.return_value.fetchall.return_value = []
+
+        from app.chroma.clinical import ingest_clinical_concepts
+
+        ingest_clinical_concepts()
+
+    query, params = mock_conn.execute.call_args.args
+    assert "vocabulary_id IN :required_vocabularies" in query.text
+    assert params["required_vocabularies"] == ("IRSF-NHS", "CPT4")
+    assert params["excluded_vocabularies"] == ("RxNorm Extension",)
+
+
 def test_ingest_clinical_concepts_adds_cluster_metadata():
     """Clinical concepts should be ingested with label-friendly metadata."""
     mock_collection = MagicMock()

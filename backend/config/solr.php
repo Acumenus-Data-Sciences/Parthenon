@@ -9,6 +9,7 @@ return [
             'port' => (int) env('SOLR_PORT', 8983),
             'path' => '/',
             'timeout' => (int) env('SOLR_TIMEOUT', 5),
+            'commit_timeout' => (int) env('SOLR_COMMIT_TIMEOUT', 300),
         ],
     ],
 

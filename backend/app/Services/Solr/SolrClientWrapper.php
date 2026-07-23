@@ -114,12 +114,21 @@ class SolrClientWrapper
         }
 
         try {
-            $response = Http::timeout($this->timeout * 2)
+            $response = Http::timeout((int) config('solr.endpoint.default.commit_timeout', 300))
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post("{$this->baseUrl}/{$core}/update", ['commit' => new \stdClass]);
 
-            return $response->successful();
+            if ($response->successful()) {
+                $this->recordSuccess();
+
+                return true;
+            }
+
+            $this->recordFailure();
+
+            return false;
         } catch (\Throwable $e) {
+            $this->recordFailure();
             Log::error('Solr commit error', ['core' => $core, 'error' => $e->getMessage()]);
 
             return false;

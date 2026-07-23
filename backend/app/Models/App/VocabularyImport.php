@@ -22,6 +22,10 @@ class VocabularyImport extends Model
         'target_schema',
         'started_at',
         'completed_at',
+        'remove_omitted',
+        'manifest',
+        'downstream_status',
+        'backup_path',
     ];
 
     protected $casts = [
@@ -30,6 +34,9 @@ class VocabularyImport extends Model
         'file_size' => 'integer',
         'rows_loaded' => 'integer',
         'progress_percentage' => 'integer',
+        'remove_omitted' => 'boolean',
+        'manifest' => 'array',
+        'downstream_status' => 'array',
     ];
 
     public function user(): BelongsTo

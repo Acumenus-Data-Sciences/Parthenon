@@ -19,6 +19,8 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 TARGET_DOMAINS = ("Condition", "Drug", "Procedure", "Measurement")
+REQUIRED_VOCABULARIES = ("IRSF-NHS", "CPT4")
+EXCLUDED_VOCABULARIES = ("RxNorm Extension",)
 
 
 def _upsert_clinical_batch_resilient(
@@ -90,15 +92,16 @@ def ingest_clinical_concepts(
 
     # Exclude RxNorm Extension (1.87M NDC/pack variants) — too many for HNSW,
     # and Abby doesn't need NDC-level granularity for cohort expression translation.
-    # RxNorm core (153K ingredients/clinical drugs/branded drugs) is sufficient.
+    # Include every standard IRSF and CPT4 concept explicitly: both contain
+    # important Observation concepts outside Abby's normal high-value domains.
     base_query = f"""
         SELECT concept_id, concept_name, domain_id, vocabulary_id, concept_class_id
         FROM {schema}.concept
         WHERE standard_concept = 'S'
-        AND domain_id IN :domains
+        AND (domain_id IN :domains OR vocabulary_id IN :required_vocabularies)
         AND concept_name IS NOT NULL
         AND LENGTH(concept_name) > 2
-        AND vocabulary_id != 'RxNorm Extension'
+        AND vocabulary_id NOT IN :excluded_vocabularies
         ORDER BY concept_id
     """
     if limit:
@@ -106,7 +109,11 @@ def ingest_clinical_concepts(
 
     engine = _get_vocab_engine()
     with engine.connect() as conn:
-        params: dict[str, Any] = {"domains": TARGET_DOMAINS}
+        params: dict[str, Any] = {
+            "domains": TARGET_DOMAINS,
+            "required_vocabularies": REQUIRED_VOCABULARIES,
+            "excluded_vocabularies": EXCLUDED_VOCABULARIES,
+        }
         if limit:
             params["limit"] = limit
         rows = conn.execute(text(base_query), params).fetchall()

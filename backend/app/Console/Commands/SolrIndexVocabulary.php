@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class SolrIndexVocabulary extends Command
 {
     protected $signature = 'solr:index-vocabulary
+        {--core= : Target Solr core (defaults to solr.cores.vocabulary)}
         {--domain= : Only index concepts in this domain}
         {--vocabulary= : Only index concepts in this vocabulary}
         {--fresh : Delete all documents before indexing}
@@ -24,7 +25,12 @@ class SolrIndexVocabulary extends Command
             return self::FAILURE;
         }
 
-        $core = config('solr.cores.vocabulary', 'vocabulary');
+        $core = (string) ($this->option('core') ?: config('solr.cores.vocabulary', 'vocabulary'));
+        if (preg_match('/^[A-Za-z0-9_.-]+$/', $core) !== 1) {
+            $this->error('Invalid Solr core name. Use only letters, numbers, dot, underscore, and hyphen.');
+
+            return self::FAILURE;
+        }
 
         // Check connectivity
         if (! $solr->ping($core)) {
@@ -34,11 +40,20 @@ class SolrIndexVocabulary extends Command
         }
 
         $batchSize = (int) $this->option('batch-size');
+        if ($batchSize < 1 || $batchSize > 5000) {
+            $this->error('Batch size must be between 1 and 5000.');
+
+            return self::FAILURE;
+        }
         $fresh = (bool) $this->option('fresh');
 
         if ($fresh) {
             $this->info('Deleting all existing documents...');
-            $solr->deleteAll($core);
+            if (! $solr->deleteAll($core)) {
+                $this->error("Failed to clear Solr core '{$core}'.");
+
+                return self::FAILURE;
+            }
         }
 
         // Build query
@@ -76,7 +91,7 @@ class SolrIndexVocabulary extends Command
             'invalid_reason',
             'valid_start_date',
             'valid_end_date',
-        ])->chunk(5000, function ($concepts) use ($solr, $core, $batchSize, &$indexed, &$errors, $bar) {
+        ])->chunkById(5000, function ($concepts) use ($solr, $core, $batchSize, &$indexed, &$errors, $bar) {
             $batch = [];
 
             foreach ($concepts as $concept) {
@@ -124,14 +139,18 @@ class SolrIndexVocabulary extends Command
                 }
                 $bar->advance(count($batch));
             }
-        });
+        }, 'concept_id');
 
         $bar->finish();
         $this->newLine(2);
 
         // Commit
         $this->info('Committing...');
-        $solr->commit($core);
+        if (! $solr->commit($core)) {
+            $this->error("Failed to commit Solr core '{$core}'.");
+
+            return self::FAILURE;
+        }
 
         $elapsed = round(microtime(true) - $startTime, 1);
         $rate = $indexed > 0 ? round($indexed / $elapsed) : 0;
@@ -144,6 +163,12 @@ class SolrIndexVocabulary extends Command
 
         if ($errors > 0) {
             $this->warn("Completed with {$errors} errors.");
+
+            return self::FAILURE;
+        }
+
+        if ($fresh && ! $this->option('domain') && ! $this->option('vocabulary') && $docCount !== $total) {
+            $this->error("Document count mismatch after fresh build: expected {$total}, found ".($docCount ?? 'unknown').'.');
 
             return self::FAILURE;
         }

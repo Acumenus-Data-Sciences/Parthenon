@@ -75,6 +75,15 @@ class BgeEmbeddingService:
         vec = self._model.encode([text], normalize_embeddings=True)[0]
         return [float(x) for x in vec]
 
+    def encode_documents(self, terms: list[str]) -> list[list[float]]:
+        """Encode concept names in batches for the durable vocabulary synchronizer."""
+        if not terms:
+            return []
+        self._load_model()
+        assert self._model is not None
+        vectors = self._model.encode(terms, normalize_embeddings=True)
+        return [[float(value) for value in vector] for vector in vectors]
+
     @property
     def is_loaded(self) -> bool:
         return self._model is not None

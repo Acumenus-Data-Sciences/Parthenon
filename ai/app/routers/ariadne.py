@@ -325,28 +325,64 @@ def _vector_search_sql(
     # "::", so :emb::vector reaches Postgres verbatim and errors with
     # "syntax error at or near ':'". CAST(...) keeps the bind separated.
     embedding_table = settings.ariadne_embedding_table
-    sql = f"""
-        SELECT
-            ce.concept_id,
-            c.concept_name,
-            c.vocabulary_id,
-            c.domain_id,
-            c.standard_concept,
-            1 - (ce.embedding <=> CAST(:emb AS vector)) AS similarity
-        FROM {vocab_schema}.{embedding_table} ce
-        JOIN {vocab_schema}.concept c ON c.concept_id = ce.concept_id
-        WHERE c.invalid_reason IS NULL
-          AND c.standard_concept = 'S'
-          {filter_clause}
-        ORDER BY ce.embedding <=> CAST(:emb AS vector)
-        LIMIT :lim
-    """
+    params: dict[str, object] = {
+        "emb": embedding_str,
+        "lim": max_results,
+        **filter_params,
+    }
+
+    if filter_clause:
+        # Applying sparse metadata filters directly to an IVFFlat index scan
+        # can make PostgreSQL walk an entire list looking for enough matching
+        # rows. It can also yield no result for a rare vocabulary even when a
+        # good candidate exists. Materialize a bounded ANN candidate set first,
+        # then apply vocabulary/domain filters to that stable set.
+        candidate_limit = max(500, max_results * 50)
+        params["candidate_lim"] = candidate_limit
+        sql = f"""
+            WITH nearest AS MATERIALIZED (
+                SELECT
+                    ce.concept_id,
+                    ce.embedding <=> CAST(:emb AS vector) AS distance
+                FROM {vocab_schema}.{embedding_table} ce
+                ORDER BY ce.embedding <=> CAST(:emb AS vector)
+                LIMIT :candidate_lim
+            )
+            SELECT
+                nearest.concept_id,
+                c.concept_name,
+                c.vocabulary_id,
+                c.domain_id,
+                c.standard_concept,
+                1 - nearest.distance AS similarity
+            FROM nearest
+            JOIN {vocab_schema}.concept c
+              ON c.concept_id = nearest.concept_id
+            WHERE c.invalid_reason IS NULL
+              AND c.standard_concept = 'S'
+              {filter_clause}
+            ORDER BY nearest.distance
+            LIMIT :lim
+        """
+    else:
+        sql = f"""
+            SELECT
+                ce.concept_id,
+                c.concept_name,
+                c.vocabulary_id,
+                c.domain_id,
+                c.standard_concept,
+                1 - (ce.embedding <=> CAST(:emb AS vector)) AS similarity
+            FROM {vocab_schema}.{embedding_table} ce
+            JOIN {vocab_schema}.concept c ON c.concept_id = ce.concept_id
+            WHERE c.invalid_reason IS NULL
+              AND c.standard_concept = 'S'
+            ORDER BY ce.embedding <=> CAST(:emb AS vector)
+            LIMIT :lim
+        """
 
     with get_session() as session:
-        rows = session.execute(
-            text(sql),
-            {"emb": embedding_str, "lim": max_results, **filter_params},
-        ).fetchall()
+        rows = session.execute(text(sql), params).fetchall()
 
     return [
         VectorSearchResult(

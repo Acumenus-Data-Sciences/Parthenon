@@ -10,6 +10,7 @@ from chromadb.api.models.Collection import Collection
 
 from app.chroma.client import get_chroma_client
 from app.chroma.embeddings import get_clinical_embedder, get_general_embedder
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 _collection_cache: dict[str, Collection] = {}
@@ -83,11 +84,13 @@ def get_faq_collection() -> Collection:
     )
 
 
-def get_clinical_collection() -> Collection:
+def get_clinical_collection(collection_name: str | None = None) -> Collection:
     """Clinical reference collection using SapBERT (768-dim)."""
+    name = collection_name or settings.chroma_clinical_collection
+    cache_key = "clinical_reference" if name == "clinical_reference" else f"clinical_reference:{name}"
     return _get_cached_collection(
-        "clinical_reference",
-        name="clinical_reference",
+        cache_key,
+        name=name,
         embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
