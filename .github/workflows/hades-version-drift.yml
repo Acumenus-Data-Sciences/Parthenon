@@ -38,7 +38,7 @@ jobs:
             --no-fail
 
       - name: Upload HADES drift reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: hades-version-drift
           path: output/hades/
