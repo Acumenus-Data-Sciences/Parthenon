@@ -96,7 +96,7 @@ jobs:
           --health-retries=5
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install PostGIS into postgres service container
         run: |
@@ -222,7 +222,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -258,7 +258,7 @@ jobs:
       # darkstar; provide the templates service token expected by compose.
       PARTHENON_INTERNAL_TOKEN: test-internal-token
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Provision env files for docker compose
         run: |
