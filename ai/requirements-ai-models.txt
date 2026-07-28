@@ -3,6 +3,6 @@
 # installed unconditionally and present in the runtime image). They are repeated
 # here, aligned to the base specifiers, only so this file installs standalone in
 # a bare env. medcat is the sole package genuinely deferred from base.
-transformers>=5.8.0,<6
+transformers>=5.10.2,<6
 torch==2.*
 medcat==2.*
