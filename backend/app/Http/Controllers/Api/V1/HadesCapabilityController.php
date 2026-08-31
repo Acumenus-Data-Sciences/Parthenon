@@ -13,35 +13,35 @@ use Illuminate\Support\Facades\Log;
  */
 class HadesCapabilityController extends Controller
 {
-    private const TARGET_VERSION_CHECKED_AT = '2026-05-08';
+    private const TARGET_VERSION_CHECKED_AT = '2026-08-31';
 
-    private const TARGET_VERSION_SOURCE = 'OHDSI HADES package statuses, upstream DESCRIPTION files, and Parthenon-managed ETL-Synthea tag';
+    private const TARGET_VERSION_SOURCE = 'Automated OHDSI upstream metadata refresh';
 
     private const TARGET_VERSIONS = [
-        'SqlRender' => '1.19.5',
-        'DatabaseConnector' => '7.1.0',
-        'Andromeda' => '1.2.0',
-        'Cyclops' => '3.7.0',
-        'FeatureExtraction' => '3.13.0',
+        'SqlRender' => '1.19.6',
+        'DatabaseConnector' => '7.2.0',
+        'Andromeda' => '1.2.1',
+        'Cyclops' => '3.7.1',
+        'FeatureExtraction' => '3.14.0',
         'ResultModelManager' => '0.6.2',
         'EmpiricalCalibration' => '3.1.4',
         'ParallelLogger' => '3.5.1',
-        'CohortMethod' => '6.0.2',
+        'CohortMethod' => '6.0.3',
         'PatientLevelPrediction' => '6.6.0',
         'DeepPatientLevelPrediction' => '2.3.0',
         'EnsemblePatientLevelPrediction' => '1.0.3',
         'SelfControlledCaseSeries' => '6.1.5',
-        'SelfControlledCohort' => '1.6.0',
+        'SelfControlledCohort' => '2.0.0',
         'EvidenceSynthesis' => '1.1.0',
-        'CohortGenerator' => '1.1.0',
+        'CohortGenerator' => '1.1.1',
         'CohortDiagnostics' => '3.4.2',
-        'CohortIncidence' => '4.1.1',
-        'Characterization' => '3.0.0',
+        'CohortIncidence' => '4.2.0',
+        'Characterization' => '4.0.0',
         'Strategus' => '1.5.0',
-        'DataQualityDashboard' => '2.8.7',
+        'DataQualityDashboard' => '2.8.9',
         'Achilles' => '1.7.2',
         'TreatmentPatterns' => '3.1.2',
-        'PheValuator' => '2.2.16',
+        'PheValuator' => '2.2.17',
         'KEEPER' => '2.1.0',
         'CohortExplorer' => '0.1.0',
         'PhenotypeLibrary' => '3.37.0',
@@ -51,7 +51,7 @@ class HadesCapabilityController extends Controller
         'BigKnn' => '1.0.2',
         'BrokenAdaptiveRidge' => '1.0.1',
         'IterativeHardThresholding' => '1.0.3',
-        'OhdsiReportGenerator' => '2.1.0',
+        'OhdsiReportGenerator' => '2.3.1',
         'OhdsiSharing' => '0.2.2',
         'OhdsiShinyAppBuilder' => '1.0.0',
         'OhdsiShinyModules' => '3.5.0',
